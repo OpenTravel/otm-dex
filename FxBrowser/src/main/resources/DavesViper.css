@@ -33,10 +33,10 @@
     -fx-text-fill: #FFFFFF;
     -fx-background-radius: 4;
 }
-.tree-view, .tree-cell{
-    -fx-background-color: #7cafc2;
-    -fx-text-fill: #a03030;
-    -fx-text-color: #a03000;
+#.tree-view, .tree-cell{
+    # -fx-background-color: #7cafc2;
+    #-fx-text-fill: #a03030;
+    #-fx-text-color: #a03000;
 }
 .tree-cell:selected {
     -fx-font-weight: bold ;
@@ -46,6 +46,35 @@
     -fx-text-fill: #E0E0E0;
     -fx-background-color: #3c3fa2;
 }
+.tree-cell {
+    -fx-font-weight: bold ;
+}
+.tree-cell:leaf {
+    -fx-font-weight: normal ;
+}
+.tree {
+    -fx-font-weight: normal ;
+    -fx-text-fill: #603030;
+}
+.tree-table-cell:editable {
+    -fx-font-weight: bold ;
+    -fx-text-fill: #603030;
+}
 .split-pane {
 	-fx-padding: 1px
+}
+.tree-table-view {
+    -fx-font-weight: normal ;
+    -fx-text-fill: #603030;
+}
+.tree-table-row-cell {
+    -fx-font-weight: normal ;
+	-fx-background-color: #E0E0E0;
+}
+.tree-table-row-cell:editable {
+    -fx-background-color: #F0F0F0;
+    -fx-font-weight: bold ;
+}
+.tree-table-row-cell:empty {
+    -fx-background-color: transparent; /* hide cells which are not bound to a group */
 }

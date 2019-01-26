@@ -18,7 +18,6 @@ public class DemoNode {
 	 * 
 	 */
 	private String name;
-
 	StringProperty trueName = new SimpleStringProperty("");
 
 	/**
@@ -30,8 +29,8 @@ public class DemoNode {
 	 * 
 	 */
 	private UserSelectablePropertyTypes nodeType;
-
-	private String description;
+	private final SimpleStringProperty description = new SimpleStringProperty("");
+	// private String description;
 
 	/**
 	 * 
@@ -60,7 +59,7 @@ public class DemoNode {
 	}
 
 	public String getDescription() {
-		return description;
+		return description.getValue();
 	}
 
 	public String getName() {
@@ -91,7 +90,7 @@ public class DemoNode {
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		this.description.setValue(description);
 	}
 
 	public void setName(String name) {

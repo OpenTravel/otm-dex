@@ -19,7 +19,7 @@ public class TreeManager {
 	Stage stage;
 
 	public TreeManager(Stage stage) {
-		root = new TreeItem<String>();
+		root = new TreeItem<>();
 		root.setExpanded(true);
 		this.stage = stage;
 
@@ -28,7 +28,7 @@ public class TreeManager {
 		makeBranch("Leaf2", branch1);
 		branch2 = makeBranch("Item2", root);
 		makeBranch("Leaf1", branch2);
-		branch3 = makeBranch("Item3", root);
+		branch3 = makeBranch("Item3", branch2);
 		makeBranch("Leaf1", branch3);
 		makeBranch("Leaf2", branch3);
 		makeBranch("Leaf3", branch3);
@@ -46,7 +46,7 @@ public class TreeManager {
 		// iv.setBlendMode(BLENDMODE.);
 		// GraphicDecoration decoration = new GraphicDecoration(ie, Pos.TOP_LEFT);
 
-		TreeItem<String> item = new TreeItem<String>(label);
+		TreeItem<String> item = new TreeItem<>(label);
 		// Decorator.addDecoration( item, decoration);
 		// Platform.runLater(new Runnable() {
 		// @Override

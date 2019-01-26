@@ -10,9 +10,11 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
@@ -20,10 +22,10 @@ import javafx.scene.layout.Pane;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public class TableManager {
 
-	TableColumn<DemoNode, ?> c1, c2, c3;
+	TableColumn<DemoNode, String> c1, c2, c3, c4;
 	TextField nameInput, assignedInput;
 	ChoiceBox<String> typeInput;
 	private TableView<DemoNode> table;
@@ -55,10 +57,15 @@ public class TableManager {
 
 	public void build(TableView<DemoNode> table) {
 		if (table != null) {
+			table.setEditable(true);
+
 			c1 = makeColumn("Name", "name", 100);
 			c2 = makeColumn("Type", "nodeType", 100);
 			c3 = makeColumn("Assigned Type", "assignedType", 100);
-			table.getColumns().addAll(c1, c2, c3);
+			c4 = makeColumn("Description", "description", 100);
+
+			makeEditable();
+			table.getColumns().addAll(c1, c2, c3, c4);
 		}
 		// Add row listener
 		table.getSelectionModel().selectedItemProperty()
@@ -130,20 +137,34 @@ public class TableManager {
 	}
 
 	/**
+	 * Make a column editable
+	 */
+	private void makeEditable() {
+		// TODO - something about demoNode makes it unsuitable.
+		//
+		// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/table-view.htm#CJAGAAEE
+		//
+		c4.setCellFactory(TextFieldTableCell.<DemoNode> forTableColumn());
+		c4.setOnEditCommit((CellEditEvent<DemoNode, String> t) -> {
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).setDescription(t.getNewValue());
+		});
+	}
+
+	/**
 	 * @param e
 	 * @param cBox
 	 * @return
 	 */
 	private void choiceHandler(ActionEvent e, ChoiceBox<String> cBox) {
 		if (table.getSelectionModel().getSelectedItem() != null) {
-			System.out.println("Set property Role on " + table.getSelectionModel().getSelectedItem().getName()
-					+ " to: " + cBox.getValue());
+			System.out.println("Set property Role on " + table.getSelectionModel().getSelectedItem().getName() + " to: "
+					+ cBox.getValue());
 			table.getSelectionModel().getSelectedItem().setNodeType(cBox.getValue());
 			table.refresh();
 		}
 	}
 
-	private TableColumn<DemoNode, ?> makeColumn(String name, String propertyName, int width) {
+	private TableColumn<DemoNode, String> makeColumn(String name, String propertyName, int width) {
 		TableColumn<DemoNode, String> column = new TableColumn<>(name);
 		column.setMinWidth(width);
 		column.setCellValueFactory(new PropertyValueFactory<>(propertyName));

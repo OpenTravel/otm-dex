@@ -6,6 +6,10 @@ package OTM_FX.FxBrowser;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.opentravel.schemacompiler.repository.RepositoryAvailabilityChecker;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -18,15 +22,11 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import org.opentravel.schemacompiler.repository.RepositoryAvailabilityChecker;
-import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryManager;
-
 /**
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public class DemoController implements Initializable {
 
 	public class repoTree extends TreeView {

@@ -20,6 +20,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
@@ -41,7 +42,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="OTM_FX.FxBrowser.DemoController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.opentravel.objecteditor.ObjectEditorController">
    <children>
       <ToolBar prefHeight="40.0" prefWidth="200.0">
          <effect>
@@ -109,14 +110,15 @@
                         </Label>
                      </children>
                   </AnchorPane>
-                  <TreeView fx:id="treeView" prefHeight="592.0" prefWidth="195.2" showRoot="false" GridPane.rowIndex="1" />
+                  <TreeTableView fx:id="navTreeTableView" prefHeight="182.0" prefWidth="232.0" GridPane.rowIndex="1" />
+                  <TreeView fx:id="navigationTreeView" accessibleRole="TREE_TABLE_VIEW" layoutX="10.0" layoutY="193.0" showRoot="false" />
                </children>
             </GridPane>
             <TabPane tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <Tab fx:id="memberTab" onSelectionChanged="#memberTabSelection" text="Facets and Properties">
                      <content>
-                        <VBox prefHeight="502.0" prefWidth="367.0">
+                        <VBox>
                            <children>
                               <ToolBar>
                                 <items>
@@ -137,7 +139,7 @@
                                     <TextField fx:id="propertyName111" layoutX="460.0" layoutY="10.0" onAction="#setName" promptText="Name" text="Example" />
                                  </items>
                               </ToolBar>
-                              <HBox fx:id="memberEditHbox" fillHeight="false" minHeight="-Infinity" VBox.vgrow="NEVER">
+                              <HBox fx:id="memberEditHbox" fillHeight="false" prefHeight="52.0" prefWidth="1040.0" VBox.vgrow="NEVER">
                                  <padding>
                                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                                  </padding>
@@ -211,13 +213,27 @@
                               </MenuButton>
                               <Slider layoutX="403.0" layoutY="107.0" />
                               <ToggleButton layoutX="213.0" layoutY="43.0" mnemonicParsing="false" text="ToggleButton" />
-                              <ListView layoutX="38.0" layoutY="213.0" prefHeight="95.0" prefWidth="286.0" />
+                              <ListView layoutX="32.0" layoutY="123.0" prefHeight="95.0" prefWidth="286.0" />
                               <Button id="simpleButton" layoutX="426.0" layoutY="158.0" mnemonicParsing="false" onAction="#simpleButton" text="Button" />
                               <PasswordField layoutX="382.0" layoutY="278.0" promptText="password" />
                               <TextField layoutX="380.0" layoutY="245.0" promptText="User Name" />
-                              <Label layoutX="365.0" layoutY="203.0" text="Repository" />
+                              <Label layoutX="119.0" layoutY="249.0" text="Repository" />
                               <Button id="simpleButton" layoutX="350.0" layoutY="142.0" mnemonicParsing="false" onAction="#simpleButton" styleClass="button-blue" text="Button" />
                               <Button id="simpleButton" layoutX="501.0" layoutY="142.0" mnemonicParsing="false" onAction="#simpleButton" styleClass="button-red" text="Button" />
+                              <ChoiceBox fx:id="repositoryChoice" layoutX="213.0" layoutY="245.0" prefWidth="150.0" />
+                              <ChoiceBox fx:id="namespaceChoice" layoutX="29.0" layoutY="278.0" prefHeight="25.0" prefWidth="336.0" />
+                              <TableView fx:id="selectedLibrariesTable" layoutX="348.0" layoutY="318.0" prefHeight="200.0" prefWidth="306.0">
+                                <columns>
+                                  <TableColumn prefWidth="75.0" text="C1" />
+                                  <TableColumn prefWidth="75.0" text="C2" />
+                                </columns>
+                              </TableView>
+                              <TableView fx:id="namespaceTable" layoutX="32.0" layoutY="318.0" prefHeight="200.0" prefWidth="306.0">
+                                <columns>
+                                  <TableColumn prefWidth="75.0" text="C1" />
+                                  <TableColumn prefWidth="75.0" text="C2" />
+                                </columns>
+                              </TableView>
                            </children>
                         </Pane>
                      </content>

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package OTM_FX.FxBrowser;
+package org.opentravel.common;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
