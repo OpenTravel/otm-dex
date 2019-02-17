@@ -29,7 +29,7 @@ public class OtmModelManager {
 	public void createTestLibrary() {
 		OtmLibrary lib = new OtmLibrary();
 		libraries.add(lib);
-		lib.createTestMembers(this);
+		lib.createTestChildren(this);
 	}
 
 	/**

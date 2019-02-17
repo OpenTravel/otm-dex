@@ -3,6 +3,8 @@
  */
 package OTM_FX.FxBrowser;
 
+import org.opentravel.model.propertyNodes.UserSelectablePropertyTypes;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

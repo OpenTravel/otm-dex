@@ -35,7 +35,12 @@ public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 
 	public OtmChoiceObject(String name) {
 		super(new TLChoiceObject());
-		tlObject.setName(name);
+		setName(name);
+	}
+
+	@Override
+	public TLChoiceObject getTL() {
+		return (TLChoiceObject) tlObject;
 	}
 
 	@Override
@@ -44,8 +49,19 @@ public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 	}
 
 	@Override
-	public void setName(String name) {
-		tlObject.setName(name);
+	public String setName(String name) {
+		getTL().setName(name);
+		return getName();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates facets to represent facets in the TL choice object.
+	 */
+	@Override
+	public void modelChildren() {
+		// getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
 	}
 
 	// extends FacetOwners

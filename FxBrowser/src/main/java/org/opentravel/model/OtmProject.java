@@ -37,7 +37,16 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmProject extends OtmModelObject<TLLibrary> {
+// TODO - does NOT extend model element
+public class OtmProject extends OtmModelElement<TLLibrary> {
+	/**
+	 * @param tl
+	 */
+	public OtmProject(TLLibrary tl) {
+		super(tl);
+		throw new IllegalStateException("Tried to build project from Library");
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmProject.class);
 
 	List<OtmLibraryMember<?>> getTestChildren() {
@@ -51,6 +60,17 @@ public class OtmProject extends OtmModelObject<TLLibrary> {
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.LIBRARY;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmModelElement#getTL()
+	 */
+	@Override
+	public TLLibrary getTL() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// extends FacetOwners

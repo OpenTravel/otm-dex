@@ -18,6 +18,8 @@
  */
 package org.opentravel.model.objectNodes;
 
+import org.opentravel.model.facetNodes.OtmDetailFacet;
+import org.opentravel.model.facetNodes.OtmSummaryFacet;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -35,21 +37,34 @@ public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 
 	public OtmBusinessObject(String name) {
 		super(new TLBusinessObject());
-		tlObject.setName(name);
+		setName(name);
 	}
 
 	@Override
-	public void setName(String name) {
-		tlObject.setName(name);
+	public String setName(String name) {
+		getTL().setName(name);
+		return getName();
 	}
 
+	@Override
 	public TLBusinessObject getTL() {
-		return tlObject;
+		return (TLBusinessObject) tlObject;
 	}
 
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.BUSINESS;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates facets to represent facets in the TL business object.
+	 */
+	@Override
+	public void modelChildren() {
+		children.add(new OtmSummaryFacet(getTL().getSummaryFacet()));
+		children.add(new OtmDetailFacet(getTL().getDetailFacet()));
 	}
 
 	// extends FacetOwners

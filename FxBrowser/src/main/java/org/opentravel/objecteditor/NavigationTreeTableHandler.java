@@ -3,7 +3,9 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.facetNodes.OtmFacet;
 import org.opentravel.model.objectNodes.OtmCoreObject;
 import org.opentravel.model.objectNodes.OtmLibraryMember;
 import org.slf4j.Logger;
@@ -32,68 +34,79 @@ import javafx.stage.Stage;
  *
  */
 @SuppressWarnings("restriction")
-public class NavigationTreeTableManager {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NavigationTreeTableManager.class);
+public class NavigationTreeTableHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(NavigationTreeTableHandler.class);
 
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMECOLUMNLABEL = "Member";
 
 	/**
-	 * The type of the TreeItem instances used in this TreeTableView.
+	 * The type of the TreeItem instances used in this TreeTableView. Simple POJO that contains and provides gui access
+	 * to the OTM model object.
 	 * 
 	 * @author dmh
 	 *
 	 */
 	public class OtmTreeTableNode {
-		protected OtmLibraryMember<?> member;
-
-		public OtmLibraryMember<?> getMember() {
-			return member;
-		}
+		protected OtmModelElement<?> otmObject;
 
 		public OtmTreeTableNode(OtmLibraryMember<?> member) {
-			this.member = member;
+			this.otmObject = member;
+		}
+
+		public OtmTreeTableNode(OtmFacet<?> facet) {
+			this.otmObject = facet;
 		}
 
 		public String getPrefix() {
-			return member.getClass().getSimpleName();
+			if (otmObject instanceof OtmLibraryMember<?>)
+				return otmObject.getClass().getSimpleName();
+			return "";
 		}
 
 		public StringProperty nameProperty() {
-			return new SimpleStringProperty(member.getName());
+			return new SimpleStringProperty(otmObject.getName());
 		}
 
 		public ImageView getIcon() {
-			return images.getView(member.getIconType());
+			return images.getView(otmObject.getIconType());
 		}
 
 		public String getName() {
-			return member.getName();
+			return otmObject.getName();
 		}
 
 		public boolean isEditable() {
-			return member.isEditable();
+			return otmObject.isEditable();
 		}
 
 		public void setName(String name) {
-			member.setName(name);
+			if (otmObject instanceof OtmLibraryMember<?>)
+				((OtmLibraryMember<?>) otmObject).setName(name);
 		}
 
 		@Override
 		public String toString() {
-			return member.toString();
+			return otmObject.toString();
+		}
+
+		/**
+		 * @return
+		 */
+		public OtmModelElement<?> getValue() {
+			return otmObject;
 		}
 
 	}
 
 	TreeTableView<OtmTreeTableNode> navTreeTableView;
-	TreeTableColumn<OtmTreeTableNode, String> nameColumn;
+	// TreeTableColumn<OtmTreeTableNode, String> nameColumn;
 	TreeItem<OtmTreeTableNode> root; // Root of the navigation tree. Is displayed.
 	ImageManager images;
 	Stage stage;
 
 	@SuppressWarnings("unchecked")
-	public NavigationTreeTableManager(Stage stage, TreeTableView<OtmTreeTableNode> navTreeTableView,
+	public NavigationTreeTableHandler(Stage stage, TreeTableView<OtmTreeTableNode> navTreeTableView,
 			OtmModelManager model) {
 		System.out.println("Initializing navigation tree table.");
 
@@ -123,21 +136,25 @@ public class NavigationTreeTableManager {
 		navTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((v, old, newValue) -> selectionListener(newValue));
 
+		//
 		// Create columns
+		//
 		TreeTableColumn<OtmTreeTableNode, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
 		prefixColumn.setPrefWidth(100);
 		prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
 		prefixColumn.setVisible(false); // Works - is true by default
 
 		TreeTableColumn<OtmTreeTableNode, ImageView> iconColumn = new TreeTableColumn<>("");
-		iconColumn.setPrefWidth(30);
-		iconColumn.setSortable(true);
+		iconColumn.setPrefWidth(50);
+		iconColumn.setSortable(false);
 
-		nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
+		TreeTableColumn<OtmTreeTableNode, String> nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
+		// nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
 		nameColumn.setPrefWidth(150);
 		nameColumn.setEditable(true);
 		nameColumn.setSortable(true);
 		nameColumn.setSortType(TreeTableColumn.SortType.DESCENDING);
+
 		// Add columns to table
 		navTreeTableView.getColumns().addAll(iconColumn, nameColumn, prefixColumn);
 
@@ -161,11 +178,8 @@ public class NavigationTreeTableManager {
 		});
 
 		nameColumn.setCellValueFactory((CellDataFeatures<OtmTreeTableNode, String> p) -> {
-			if (p.getValue() != null) {
-				OtmTreeTableNode tn = p.getValue().getValue();
-				// p.getValue().setGraphic(tn.getIcon());
-				return tn.nameProperty();
-			}
+			if (p.getValue() != null)
+				return p.getValue().getValue().nameProperty();
 			return null;
 		});
 
@@ -182,6 +196,7 @@ public class NavigationTreeTableManager {
 			createTreeItem(member, root);
 		}
 
+		navTreeTableView.getSelectionModel().select(0);
 	}
 
 	// TODO - try extending TextFieldTreeTableCell to call cancel on start if not editable.
@@ -235,7 +250,7 @@ public class NavigationTreeTableManager {
 	 * @param item
 	 */
 	private void selectionListener(TreeItem<OtmTreeTableNode> item) {
-		System.out.println("Listener: " + item.getValue());
+		System.out.println("Selection Listener: " + item.getValue());
 	}
 
 	public TreeItem<OtmTreeTableNode> getRoot() {
@@ -254,8 +269,19 @@ public class NavigationTreeTableManager {
 	private TreeItem<OtmTreeTableNode> createTreeItem(OtmLibraryMember<?> member, TreeItem<OtmTreeTableNode> parent) {
 		OtmTreeTableNode tn = new OtmTreeTableNode(member);
 		TreeItem<OtmTreeTableNode> item = new TreeItem<>(tn);
-		item.setExpanded(true);
+		item.setExpanded(false);
 		parent.getChildren().add(item);
+
+		// Post the children as children of this item
+		for (OtmModelElement<?> ele : member.getChildren()) {
+			// TODO - this should test for TypeProvider not facet
+			if (ele instanceof OtmFacet<?>) {
+				OtmTreeTableNode tnF = new OtmTreeTableNode((OtmFacet<?>) ele);
+				TreeItem<OtmTreeTableNode> itemF = new TreeItem<>(tnF);
+				itemF.setExpanded(false);
+				item.getChildren().add(itemF);
+			}
+		}
 		return item;
 	}
 
@@ -310,10 +336,10 @@ public class NavigationTreeTableManager {
 			if (newTreeItem != null) {
 				tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
 				tc.setEditable(newTreeItem.getValue().isEditable());
-				if (newTreeItem.getValue().isEditable())
-					System.out.println(newTreeItem.getValue().getName() + " set editable." + tc.isEditable());
-				else
-					System.out.println(newTreeItem.getValue().getName() + " set NOT editable." + tc.isEditable());
+				// if (newTreeItem.getValue().isEditable())
+				// System.out.println(newTreeItem.getValue().getName() + " set editable." + tc.isEditable());
+				// else
+				// System.out.println(newTreeItem.getValue().getName() + " set NOT editable." + tc.isEditable());
 			}
 		}
 		// TODO - investigate using ControlsFX for decoration

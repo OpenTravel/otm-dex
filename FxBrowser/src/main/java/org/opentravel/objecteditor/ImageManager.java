@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.model.OtmModelElement;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -20,7 +22,10 @@ public class ImageManager {
 		Error("/icons/error.gif"),
 		LIBRARY("/icons/library.png"),
 		CORE("/icons/CoreObject.gif"),
-		CHOICE("/icons/Choice.gif");
+		CHOICE("/icons/Choice.gif"),
+		FACET("/icons/Facet.gif"),
+		ELEMENT("/icons/Element.gif"),
+		ATTRIBUTE("/icons/Attribute.jpg");
 
 		private String label; // User displayed value
 
@@ -50,10 +55,36 @@ public class ImageManager {
 		return new Image(getClass().getResourceAsStream(icon.label));
 	}
 
+	/**
+	 * @param icon
+	 * @return a javafx node for the icon
+	 */
+	@SuppressWarnings("restriction")
 	public ImageView getView(Icons icon) {
 		// Image i = get(icon);
 		// ImageView iv = new ImageView(i);
 		return new ImageView(get(icon));
+	}
+
+	/**
+	 * @param Image
+	 *            from OtmModelElement.getIcon()
+	 * 
+	 * @return a javafx node for the icon
+	 */
+	@SuppressWarnings("restriction")
+	public ImageView getView(Image icon) {
+		return new ImageView(icon);
+	}
+
+	/**
+	 * @param OtmModelElement
+	 * 
+	 * @return a javafx node for the icon
+	 */
+	@SuppressWarnings("restriction")
+	public ImageView getView(OtmModelElement<?> element) {
+		return new ImageView(element.getIcon());
 	}
 
 	// Image imageOk = new Image(getClass().getResourceAsStream("/icons/BusinessObject.png"));

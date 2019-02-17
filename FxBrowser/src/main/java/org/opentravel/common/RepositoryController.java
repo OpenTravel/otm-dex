@@ -7,12 +7,14 @@ import java.io.File;
 import java.util.List;
 
 import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryAvailabilityChecker;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 /**
- * Manage access to OTM Repositories.
+ * Manage GJI access to OTM Repositories. Uses RepositoryManager to access repository as a model. Provides GUI related
+ * functions and data structure.
  * 
  * @author dmh
  *
@@ -55,7 +57,18 @@ public class RepositoryController {
 	 * @return
 	 */
 	public String[] getProjects() {
+		String[] empty = {};
 		File projectDir = repositoryManager.getProjectsFolder();
+		if (projectDir.list() == null)
+			return empty;
 		return projectDir.list();
+	}
+
+	/**
+	 * @return
+	 * @throws RepositoryException
+	 */
+	public Repository getLocalRepository() throws RepositoryException {
+		return repositoryManager.getDefault();
 	}
 }

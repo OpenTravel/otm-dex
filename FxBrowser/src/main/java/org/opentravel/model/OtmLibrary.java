@@ -37,17 +37,31 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmLibrary extends OtmModelObject<TLLibrary> {
+public class OtmLibrary extends OtmModelElement<TLLibrary> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibrary.class);
 
-	List<OtmLibraryMember<?>> createTestMembers(OtmModelManager model) {
+	public OtmLibrary() {
+		super(new TLLibrary());
+	}
+
+	public OtmLibrary(TLLibrary lib) {
+		super(lib);
+	}
+
+	public List<OtmLibraryMember<?>> createTestChildren(OtmModelManager model) {
 		List<OtmLibraryMember<?>> members = new ArrayList<>();
-		members.add(new OtmBusinessObject("Fred"));
-		members.add(new OtmChoiceObject("Wilma"));
-		members.add(new OtmCoreObject("Barney"));
+		members.add(new OtmBusinessObject("Fred").createTestChildren());
+		members.add(new OtmChoiceObject("Wilma").createTestChildren());
+		members.add(new OtmCoreObject("Barney").createTestChildren());
 		for (OtmLibraryMember<?> member : members)
 			model.add(member);
+		LOGGER.debug("Created 3 members.");
 		return members;
+	}
+
+	@Override
+	public TLLibrary getTL() {
+		return tlObject;
 	}
 
 	@Override

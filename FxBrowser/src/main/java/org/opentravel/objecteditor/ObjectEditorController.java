@@ -11,8 +11,7 @@ import java.util.ResourceBundle;
 
 import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.NavigationTreeManager.TreeNode;
-import org.opentravel.objecteditor.NavigationTreeTableManager.OtmTreeTableNode;
+import org.opentravel.objecteditor.NavigationTreeTableHandler.OtmTreeTableNode;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -29,15 +28,20 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
+ * Main controller for OtmObjecEditorLayout.fxml (1 FXML = 1Controller).
+ * 
  * @author dmh
  *
  */
@@ -45,23 +49,48 @@ import javafx.stage.Stage;
 public class ObjectEditorController implements Initializable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ObjectEditorController.class);
 
-	// public class repoTree extends TreeView {
-	// }
-
 	// @FXML
-	// // public TreeView<OtmLibraryMember<?>> treeView;
-	// public TreeView<NavigationTreeManager.TreeNode> treeView;
-	@FXML
-	public TreeView<TreeNode> navigationTreeView;
-	NavigationTreeManager treeMgr;
+	// public TreeView<TreeNode> navigationTreeView;
+	// NavigationTreeManager treeMgr;
 
+	// Navigation Table Tree View
+	//
 	@FXML
 	public TreeTableView<OtmTreeTableNode> navTreeTableView;
-	NavigationTreeTableManager treeTableMgr;
+	NavigationTreeTableHandler treeTableMgr;
 
+	// Facet Tab
+	@FXML
+	public Tab facetTab;
+	@FXML
+	public TreeTableView facetTabTreeTable;
+	private FacetTabTreeTableHandler facetTableMgr;
+
+	// Repository Tab
+	@FXML
+	public TreeView repoTabRootNSs;
+	@FXML
+	private ChoiceBox<String> repoTabRepoChoice;
+	@FXML
+	private ChoiceBox<String> repoTabNSChoice;
 	// @FXML
-	// public TreeTableView<DemoNode> treeTableView;
-	// TreeTableManager ttMgr;
+	// private TreeTableView repoTabNSContent;
+	@FXML
+	private TreeTableView repoTabLibraryTreeTableView;
+	@FXML
+	private TextField nsLibraryTablePermissionField;
+	@FXML
+	public TableView repoTabLibraryHistoryView;
+
+	//
+	// OLD - to be removed
+	//
+	@FXML
+	public Accordion facetTwisties;
+	@FXML
+	public VBox facetTabVbox;
+	@FXML
+	public TreeView facetTabFacetTree;
 
 	@FXML
 	public TableView<DemoNode> memberTable;
@@ -83,6 +112,8 @@ public class ObjectEditorController implements Initializable {
 	Stage primaryStage = null;
 	OtmModelManager model;
 
+	// TODO - create wizard/pop-up handlers
+	// use TitledPane fx control
 	/**
 	 * Set up this controller
 	 * 
@@ -97,27 +128,101 @@ public class ObjectEditorController implements Initializable {
 		model = new OtmModelManager();
 		model.createTestLibrary();
 		tableMgr = new TableManager();
+
+		new RepoTabNSTreeHandler(primaryStage, repoTabRootNSs, repoTabLibraryTreeTableView,
+				nsLibraryTablePermissionField, repoTabRepoChoice, repoTabNSChoice);
+
 		configureRepositoryChoice();
 
-		if (navigationTreeView == null)
-			throw new IllegalStateException("Tree view is null.");
+		// if (navigationTreeView == null)
+		// throw new IllegalStateException("Tree view is null.");
 
 		// Load and display tree view in left pane
-		treeMgr = new NavigationTreeManager(stage, navigationTreeView, model);
+		// treeMgr = new NavigationTreeManager(stage, navigationTreeView, model);
 		// treeView.setRoot(treeMgr.getRoot());
 		// treeView.setShowRoot(false);
 		// treeView.getSelectionModel().selectedItemProperty().addListener((v, old, newValue) ->
 		// handleTreeItem(newValue));
 
-		treeTableMgr = new NavigationTreeTableManager(stage, navTreeTableView, model);
+		// facetTableMgr = new FacetTabTreeTableHandler(model.getMembers().get(0), facetTabTreeTable, stage);
+		facetTableMgr = new FacetTabTreeTableHandler(null, facetTabTreeTable, stage);
+		// TODO - what is right way to have facet listen to treeTable?
+		facetTableMgr.registerListeners(navTreeTableView);
+
+		treeTableMgr = new NavigationTreeTableHandler(stage, navTreeTableView, model);
 
 		// Load and add listener for table
 		// same thing as next line
 		// memberTab.setOnSelectionChanged(e -> memberTabSelection(e));
-		memberTab.setOnSelectionChanged(this::memberTabSelection);
-		tableMgr.build(memberTable);
+		// memberTab.setOnSelectionChanged(this::memberTabSelection);
+		// tableMgr.build(memberTable);
+
+		// doAccordian(model.getMembers().get(0));
+		// doFacetTable(model.getMembers().get(0));
 
 	}
+
+	// public void doFacetTable(OtmLibraryMember<?> member) {
+	// if (facetTabFacetTree == null)
+	// return;
+	//
+	// TreeItem<TreeView<PropertyNode>> root = new TreeItem<>();
+	// root.setExpanded(true);
+	// facetTabFacetTree.setRoot(root);
+	// // TreeView<String> treeView = new TreeView<>(root);
+	// facetTabFacetTree.setShowRoot(false);
+	//
+	// // TableView<PropertyNode> propertiesTable = new TableView<>();
+	// // new PropertiesTableManager(member, propertiesTable, primaryStage);
+	// // facetTabVbox.getChildren().add(propertiesTable);
+	//
+	// for (OtmModelElement<?> child : member.getChildren()) {
+	// if (child instanceof OtmFacet) {
+	// TableView<PropertyNode> propertiesTable = new TableView<>();
+	// new PropertiesTableManager((OtmFacet<?>) child, propertiesTable, primaryStage);
+	//
+	// // // Create the facet pane
+	// // pane = new TitledPane(child.getName(), propertiesTable);
+	//
+	// // Add pane to the facet tree
+	// TreeItem ti = new TreeItem<TreeView<PropertyNode>>();
+	// ti.setValue(propertiesTable);
+	// // ti.setGraphic(child.getIcon());
+	// root.getChildren().add(ti);
+	// }
+	// }
+	//
+	// }
+
+	// TODO - understand then implement tab controller
+	// TODO - move to its own controller
+	// public void doAccordian(OtmLibraryMember<?> member) {
+	// if (facetTab == null)
+	// return; // tab is OK
+	// if (facetTablVbox == null)
+	// return; // twistie is null
+	//
+	// TableView<PropertyNode> propertiesTable = new TableView<>();
+	// new PropertiesTableManager((OtmFacet<?>) child, propertiesTable, primaryStage);
+	// pane = new TitledPane(child.getName(), propertiesTable);
+	// // facetTwisties.getPanes().add(pane);
+	// facetTablVbox.getChildren().add(pane);
+	//
+	// TitledPane pane;
+	// for (OtmModelElement<?> child : member.getChildren()) {
+	// // TODO - fix or delete
+	// // Add a PropertyTable
+	// // PropertyTableController properties = new PropertyTableController();
+	//
+	// if (child instanceof OtmFacet) {
+	// TableView<PropertyNode> propertiesTable = new TableView<>();
+	// new PropertiesTableManager((OtmFacet<?>) child, propertiesTable, primaryStage);
+	// pane = new TitledPane(child.getName(), propertiesTable);
+	// // facetTwisties.getPanes().add(pane);
+	// facetTablVbox.getChildren().add(pane);
+	// }
+	// }
+	// }
 
 	@Deprecated
 	private RepositoryManager repositoryManager;
@@ -125,7 +230,7 @@ public class ObjectEditorController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		System.out.println("Controller - View is now loading!");
+		System.out.println("Object Editor Controller - Initialize w/params is now loading!");
 		// // Set up repository access
 		// try {
 		// repositoryManager = RepositoryManager.getDefault();
@@ -138,6 +243,7 @@ public class ObjectEditorController implements Initializable {
 		RepositoryController repoController = new RepositoryController();
 		repositoryManager = repoController.getRepositoryManager();
 		String[] projects = repoController.getProjects();
+
 	}
 
 	// private void handleTreeItem(TreeItem<String> item) {
@@ -146,6 +252,12 @@ public class ObjectEditorController implements Initializable {
 	// private void handleTreeItem(TreeItem<OtmLibraryMember<?>> item) {
 	// System.out.println("Tree Item: " + item.getValue() + " from " + item.getParent().getValue());
 	// }
+
+	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
+	@FXML
+	public void whereUsedTabSelection(Event e) {
+		System.out.println("Where used tab selection event");
+	}
 
 	@FXML
 	public void memberTabSelection(Event e) {
@@ -249,6 +361,8 @@ public class ObjectEditorController implements Initializable {
 		// public void execute() throws Throwable {
 		String rid = repositoryChoice.getSelectionModel().getSelectedItem();
 		Repository repository = repositoryManager.getRepository(rid);
+		if (repository == null)
+			return;
 		try {
 			List<String> baseNamespaces = repository.listBaseNamespaces();
 		} catch (RepositoryException e) {

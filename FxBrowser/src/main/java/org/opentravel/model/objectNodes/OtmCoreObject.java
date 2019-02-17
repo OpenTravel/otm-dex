@@ -18,6 +18,8 @@
  */
 package org.opentravel.model.objectNodes;
 
+import org.opentravel.model.facetNodes.OtmDetailFacet;
+import org.opentravel.model.facetNodes.OtmSummaryFacet;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLCoreObject;
@@ -35,7 +37,7 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 
 	public OtmCoreObject(String name) {
 		super(new TLCoreObject());
-		tlObject.setName(name);
+		setName(name);
 	}
 
 	@Override
@@ -44,13 +46,30 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	}
 
 	@Override
+	public TLCoreObject getTL() {
+		return (TLCoreObject) tlObject;
+	}
+
+	@Override
 	public boolean isEditable() {
 		return true;
 	}
 
 	@Override
-	public void setName(String name) {
-		tlObject.setName(name);
+	public String setName(String name) {
+		getTL().setName(name);
+		return getName();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates facets to represent facets in the TL core object.
+	 */
+	@Override
+	public void modelChildren() {
+		children.add(new OtmSummaryFacet(getTL().getSummaryFacet()));
+		children.add(new OtmDetailFacet(getTL().getDetailFacet()));
 	}
 
 	// extends FacetOwners
