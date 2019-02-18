@@ -5,23 +5,21 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
-import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
-import javafx.stage.Stage;
 
+//import javafx.beans.value.ChangeListener;
 //import javafx.scene.control.Label;
 //import javafx.collections.FXCollections;
+//import javafx.beans.value.ObservableValue;
 //import javafx.collections.ObservableList;
 //import javafx.scene.control.cell.PropertyValueFactory;
 //import javafx.scene.control.TreeView;
@@ -93,9 +91,8 @@ public class NamespaceTreeController implements DexController {
 	protected ImageManager imageMgr;
 	protected TreeView<NamespaceNode> tree;
 	protected TreeItem<NamespaceNode> root;
-	protected Stage stage;
+	// protected Stage stage;
 
-	private NamespaceLibrariesTableController nsLibsController;
 	private HashMap<String, TreeItem<NamespaceNode>> namespaceMap = new HashMap<>();
 
 	/**
@@ -105,33 +102,21 @@ public class NamespaceTreeController implements DexController {
 	 * @param stage
 	 * @param nsLibraryTablePermissionField
 	 */
-	public NamespaceTreeController(Stage stage, TreeView<NamespaceNode> tree,
-			TreeTableView<RepoItemNode> repoTabNSContent, TextField nsLibraryTablePermissionField,
-			ChoiceBox<String> repositoryChoice, ChoiceBox<String> namespaceChoice) {
+	public NamespaceTreeController(DexController parent, TreeView<NamespaceNode> tree) {
 		System.out.println("Initializing repository tab.");
 
-		// Marshal and validate parameters
-		//
-		this.stage = stage;
-		if (stage == null)
-			throw new IllegalStateException("Stage is null.");
-		imageMgr = new ImageManager(stage);
-		// TODO - get imageManager from parent.
-
-		// Create namespace library Table
-		// TODO - move to tab controller
-		if (repoTabNSContent == null)
-			throw new IllegalArgumentException("Namespace Library tree table view is null.");
-		nsLibsController = new NamespaceLibrariesTableController(this, repoTabNSContent, nsLibraryTablePermissionField);
+		imageMgr = parent.getImageManager();
 
 		if (tree == null)
 			throw new IllegalArgumentException("Repository tree view is null.");
 		this.tree = tree;
 
-		// Layout the table
-		tree.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
 		root = initializeTree(tree);
+	}
+
+	@Override
+	public ReadOnlyObjectProperty<TreeItem<NamespaceNode>> getSelectable() {
+		return tree.getSelectionModel().selectedItemProperty();
 	}
 
 	private TreeItem<NamespaceNode> initializeTree(TreeView<NamespaceNode> tree) {
@@ -225,26 +210,10 @@ public class NamespaceTreeController implements DexController {
 		tree.getRoot().getChildren().clear();
 	}
 
-	/**
-	 * Listener for namespace selection events. Informs children to post item.
-	 * 
-	 * @param item
-	 */
-	private void namespaceSelectionListener(TreeItem<NamespaceNode> item) {
-		if (item == null || item.getValue() == null)
-			return;
-		NamespaceNode nsNode = item.getValue();
-		if (nsNode.repository != null) {
-			try {
-				nsLibsController.createTreeItems(nsNode.repository, nsNode.getFullPath());
-			} catch (RepositoryException e) {
-				System.out.println("Error accessing namespace: " + e.getLocalizedMessage());
-			}
-		}
-	}
-
 	@Override
 	public ImageManager getImageManager() {
+		if (imageMgr == null)
+			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
 	}
 

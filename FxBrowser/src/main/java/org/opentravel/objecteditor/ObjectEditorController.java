@@ -25,6 +25,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -43,10 +44,6 @@ import javafx.stage.Stage;
 @SuppressWarnings("restriction")
 public class ObjectEditorController implements Initializable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ObjectEditorController.class);
-
-	// @FXML
-	// public TreeView<TreeNode> navigationTreeView;
-	// NavigationTreeManager treeMgr;
 
 	// Navigation Table Tree View
 	//
@@ -68,12 +65,12 @@ public class ObjectEditorController implements Initializable {
 	private ChoiceBox<String> repoTabRepoChoice;
 	@FXML
 	private ChoiceBox<String> repoTabNSChoice;
-	// @FXML
-	// private TreeTableView repoTabNSContent;
 	@FXML
 	private TreeTableView repoTabLibraryTreeTableView;
 	@FXML
-	private TextField nsLibraryTablePermissionField;
+	private Label nsLibraryTablePermissionLabel;
+	@FXML
+	private TextField repoTabRepoUserField;
 	@FXML
 	public TableView repoTabLibraryHistoryView;
 
@@ -130,8 +127,9 @@ public class ObjectEditorController implements Initializable {
 		repoNodes.put(RepoTabNodes.RepositoryChoice, repoTabRepoChoice);
 		repoNodes.put(RepoTabNodes.NamespaceTree, repoTabRootNSs);
 		repoNodes.put(RepoTabNodes.NamespaceLibraryTable, repoTabLibraryTreeTableView);
-		repoNodes.put(RepoTabNodes.NamespacePermission, nsLibraryTablePermissionField);
+		repoNodes.put(RepoTabNodes.NamespacePermission, nsLibraryTablePermissionLabel);
 		repoNodes.put(RepoTabNodes.HistoryTable, repoTabLibraryHistoryView);
+		repoNodes.put(RepoTabNodes.User, repoTabRepoUserField);
 		new RepositoryTabController(primaryStage, this, repoNodes);
 
 		facetTableMgr = new FacetTabTreeTableHandler(null, facetTabTreeTable, stage);

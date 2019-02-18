@@ -15,11 +15,15 @@ import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
@@ -29,6 +33,7 @@ import javafx.stage.Stage;
 //import javafx.collections.ObservableList;
 //import javafx.scene.control.cell.PropertyValueFactory;
 //import javafx.scene.control.TreeView;
+//import javafx.scene.control.TreeItem;
 //import javafx.util.converter.IntegerStringConverter;
 //javafx.beans.property.SimpleBooleanProperty
 // import javafx.beans.property.ReadOnlyStringWrapper;
@@ -62,6 +67,7 @@ public class RepositoryTabController implements DexController {
 
 	private NamespaceTreeController nsTreeController;
 	private NamespaceLibrariesTableController nsLibsController;
+	private LibraryHistoryController libHistoryController;
 
 	/**
 	 * FXML Java FX Nodes this controller is dependent upon
@@ -70,30 +76,38 @@ public class RepositoryTabController implements DexController {
 	 *
 	 */
 	public enum RepoTabNodes {
-		TAB, RepositoryChoice, NamespaceTree, NamespaceLibraryTable, HistoryTable, NamespacePermission;
+		TAB, RepositoryChoice, User, NamespaceTree, NamespaceLibraryTable, HistoryTable, NamespacePermission;
 	}
 
-	private TextField nsPermissionField;
+	private Label nsPermission;
 	private TreeView<NamespaceNode> tree;
 	private ChoiceBox<String> repositoryChoice;
 	private TreeTableView<RepoItemNode> libTable;
+	private TextField userField;
+	public TableView historyTable;
 
 	@SuppressWarnings("unchecked")
 	private void getRepoNodes(EnumMap<RepoTabNodes, Node> fxNodes) {
 
 		repositoryChoice = (ChoiceBox<String>) fxNodes.get(RepoTabNodes.RepositoryChoice);
 		libTable = (TreeTableView<RepoItemNode>) fxNodes.get(RepoTabNodes.NamespaceLibraryTable);
-		nsPermissionField = (TextField) fxNodes.get(RepoTabNodes.NamespacePermission);
+		nsPermission = (Label) fxNodes.get(RepoTabNodes.NamespacePermission);
 		tree = (TreeView<NamespaceNode>) fxNodes.get(RepoTabNodes.NamespaceTree);
+		historyTable = (TableView) fxNodes.get(RepoTabNodes.HistoryTable);
+		userField = (TextField) fxNodes.get(RepoTabNodes.User);
 
 		if (repositoryChoice == null)
 			throw new IllegalStateException("Null control nodes passed to repsitory tab handler.");
 		if (libTable == null)
 			throw new IllegalArgumentException("Namespace Library tree table view is null.");
-		if (nsPermissionField == null)
+		if (nsPermission == null)
 			throw new IllegalArgumentException("Namespace permission field is null.");
 		if (tree == null)
 			throw new IllegalArgumentException("Repository tree view is null.");
+		if (userField == null)
+			throw new IllegalArgumentException(" null.");
+		if (historyTable == null)
+			throw new IllegalArgumentException(" null.");
 	}
 
 	public RepositoryTabController(Stage stage, ObjectEditorController parent, EnumMap<RepoTabNodes, Node> fxNodes) {
@@ -103,17 +117,41 @@ public class RepositoryTabController implements DexController {
 		imageMgr = new ImageManager(stage);
 
 		getRepoNodes(fxNodes);
-		nsLibsController = new NamespaceLibrariesTableController(this, libTable, nsPermissionField);
-		nsTreeController = new NamespaceTreeController(stage, tree, libTable, nsPermissionField, repositoryChoice,
-				null);
+		nsTreeController = new NamespaceTreeController(this, tree);
+		nsTreeController.getSelectable().addListener((v, old, newValue) -> treeSelectionListener(newValue));
 
-		// TODO - move management of library table view to here.
+		nsLibsController = new NamespaceLibrariesTableController(this, libTable, nsPermission);
+		nsLibsController.getSelectable().addListener((v, old, newValue) -> librarySelectionListener(newValue));
+
+		libHistoryController = new LibraryHistoryController(this, historyTable);
 
 		// Set up repository Choice
 		repoController = new RepositoryController();
 		repositoryManager = repoController.getRepositoryManager(); // FIXME
 		configureRepositoryChoice();
 
+	}
+
+	private void librarySelectionListener(TreeItem<RepoItemNode> item) {
+		if (item == null)
+			return;
+		System.out.println("Library selected: " + item.getValue());
+		libHistoryController.post(item.getValue());
+	}
+
+	private void treeSelectionListener(TreeItem<NamespaceNode> item) {
+		if (item == null)
+			return;
+		System.out.println("New tree item selected: " + item.getValue());
+		NamespaceNode nsNode = item.getValue();
+		if (nsNode.repository != null) {
+			try {
+				nsLibsController.post(nsNode.repository, nsNode.getFullPath());
+				libHistoryController.clear();
+			} catch (RepositoryException e) {
+				System.out.println("Error accessing namespace: " + e.getLocalizedMessage());
+			}
+		}
 	}
 
 	private void configureRepositoryChoice() {
@@ -170,10 +208,10 @@ public class RepositoryTabController implements DexController {
 	}
 
 	private void postUser(Repository repository) {
-		// FIXME - post the user
-		String user = "";
+		String user = "--local--";
 		if (repository instanceof RemoteRepositoryClient)
 			user = ((RemoteRepositoryClient) repository).getUserId();
+		userField.setText(user);
 	}
 
 	/**
@@ -187,7 +225,14 @@ public class RepositoryTabController implements DexController {
 
 	@Override
 	public ImageManager getImageManager() {
+		if (imageMgr == null)
+			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
+	}
+
+	@Override
+	public ReadOnlyObjectProperty<TreeItem<NamespaceNode>> getSelectable() {
+		return null;
 	}
 
 }

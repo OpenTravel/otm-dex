@@ -5,8 +5,6 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
-import org.opentravel.common.RepositoryController;
-import org.opentravel.objecteditor.NavigationTreeTableHandler.OtmTreeTableNode;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -14,10 +12,10 @@ import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.ObservableList;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -108,69 +106,63 @@ public class NamespaceLibrariesTableController implements DexController {
 		 * 
 		 * @param repoItem
 		 * @param value
+		 * @return the history item if already retrieved or starts a background task to retrieve it.
 		 */
-		public void getHistory() {
+		public RepositoryItemHistory getHistory() {
+			if (history != null)
+				return history;
 			System.out.println("Finding history item for " + repoItem.getFilename());
 			try {
 				history = repoItem.getRepository().getHistory(repoItem);
 				setHistory();
 			} catch (RepositoryException e) {
 			}
+			return null;
 		}
 	}
 
-	protected ImageManager imageMrg;
-	protected TreeTableView<RepoItemNode> nsTable;
-	protected ObservableList<?> nsList;
-	protected RepositoryController repoController;
+	protected ImageManager imageMgr;
 
+	protected TreeTableView<RepoItemNode> libTable;
 	private TreeItem<RepoItemNode> root;
-	private TextField permissionField;
+	private Label permissionField;
 
 	/**
 	 * Create a view for the libraries described by repository items in the passed namespace.
 	 * 
 	 * @param nsLibraryTablePermissionField
 	 */
-	public NamespaceLibrariesTableController(DexController parent, TreeTableView<RepoItemNode> view,
-			TextField nsLibraryTablePermissionField) {
+	public NamespaceLibrariesTableController(DexController parent, TreeTableView<RepoItemNode> libTable,
+			Label permissionField) {
 
 		System.out.println("Initializing repository library table view.");
 
 		// Marshal and validate the parameters
-		imageMrg = parent.getImageManager();
-		if (imageMrg == null)
+		imageMgr = parent.getImageManager();
+		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 
-		this.nsTable = view;
-		if (nsTable == null)
+		this.libTable = libTable;
+		if (libTable == null)
 			throw new IllegalStateException("Namespace libraries view is null.");
 
-		this.permissionField = nsLibraryTablePermissionField;
-		permissionField.setEditable(false);
+		this.permissionField = permissionField;
+		if (permissionField == null)
+			throw new IllegalStateException("Namespace permission field  is null.");
 
-		// Create and layout tree table
-		root = initializeTree(nsTable);
-		buildColumns(nsTable);
-
-		// Add data items
-		// try {
-		// createTreeItems(root, repository, namespace);
-		// } catch (RepositoryException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
+		// Initialize and build columns for library tree table
+		root = initializeTree();
+		buildColumns(libTable);
 	}
 
-	private TreeItem<RepoItemNode> initializeTree(TreeTableView<RepoItemNode> tree) {
+	private TreeItem<RepoItemNode> initializeTree() {
 		// Set the hidden root item
-		TreeItem<RepoItemNode> root = new TreeItem<>();
+		root = new TreeItem<>();
 		root.setExpanded(true); // Startout fully expanded
 		// Set up the TreeTable
-		tree.setRoot(root);
-		tree.setShowRoot(false);
-		tree.setEditable(false);
+		libTable.setRoot(root);
+		libTable.setShowRoot(false);
+		libTable.setEditable(false);
 
 		// tree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
 		// tree.setTableMenuButtonVisible(true); // allow users to select columns
@@ -181,7 +173,7 @@ public class NamespaceLibrariesTableController implements DexController {
 
 	@Override
 	public void clear() {
-		nsTable.getRoot().getChildren().clear();
+		libTable.getRoot().getChildren().clear();
 	}
 
 	/**
@@ -191,7 +183,7 @@ public class NamespaceLibrariesTableController implements DexController {
 	 * @param repository
 	 * @throws RepositoryException
 	 */
-	public void createTreeItems(Repository repository, String namespace) throws RepositoryException {
+	public void post(Repository repository, String namespace) throws RepositoryException {
 		if (repository == null || namespace == null || namespace.isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
 
@@ -228,11 +220,7 @@ public class NamespaceLibrariesTableController implements DexController {
 					latestVersions.get(rItem.getLibraryName()).getChildren().add(treeItem);
 				}
 			}
-			// RepoItemNode repoItemNode = new RepoItemNode(rItem);
-			// root.getChildren().add(new TreeItem<>(repoItemNode));
 		}
-		// FIXME - use library name to organize parent/child relationships
-
 	}
 
 	/**
@@ -255,10 +243,6 @@ public class NamespaceLibrariesTableController implements DexController {
 		lockedCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemNode, String>("locked"));
 		setColumnProps(lockedCol, true, false, true, 0);
 
-		// TreeTableColumn<RepoItemNode, String> permissionCol = new TreeTableColumn<>("Permissions");
-		// permissionCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemNode, String>("permission"));
-		// setColumnProps(permissionCol, true, false, true, 0);
-		//
 		TreeTableColumn<RepoItemNode, String> remarkCol = new TreeTableColumn<>("Last Remark");
 		remarkCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemNode, String>("history"));
 		setColumnProps(remarkCol, true, false, true, 0);
@@ -287,25 +271,20 @@ public class NamespaceLibrariesTableController implements DexController {
 	}
 
 	/**
-	 * Add event listeners to passed tree table view.
-	 * 
-	 * @param navTreeTableView
+	 * {@inheritDoc}
+	 * <p>
+	 * This exposes the library tree table's selected item.
 	 */
-	public void registerListeners(TreeTableView<OtmTreeTableNode> navTreeTableView) {
-		navTreeTableView.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> newMemberSelectionListener(newValue));
-	}
-
-	private void newMemberSelectionListener(TreeItem<OtmTreeTableNode> item) {
-		// clear();
-		// if (item.getValue().getValue() instanceof OtmLibraryMember)
-		// createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());
-		// System.out.println("Facet Table Selection Listener: " + item.getValue());
+	@Override
+	public ReadOnlyObjectProperty<TreeItem<RepoItemNode>> getSelectable() {
+		return libTable.getSelectionModel().selectedItemProperty();
 	}
 
 	@Override
 	public ImageManager getImageManager() {
-		return imageMrg;
+		if (imageMgr == null)
+			throw new IllegalStateException("Image manger is null.");
+		return imageMgr;
 	}
 
 }
