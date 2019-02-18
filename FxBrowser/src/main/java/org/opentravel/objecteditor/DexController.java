@@ -16,4 +16,9 @@ public interface DexController {
 	 */
 	ImageManager getImageManager();
 
+	/**
+	 * Remove all items from the controlled view.
+	 */
+	void clear();
+
 }

@@ -4,17 +4,13 @@
 package org.opentravel.objecteditor;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.EnumMap;
 import java.util.ResourceBundle;
 
 import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NavigationTreeTableHandler.OtmTreeTableNode;
-import org.opentravel.schemacompiler.repository.Repository;
-import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.objecteditor.RepoTabNSTreeHandler.RepoTabNodes;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.upversion.RepositoryItemWrapper;
 import org.slf4j.Logger;
@@ -22,12 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import OTM_FX.FxBrowser.DemoNode;
 import OTM_FX.FxBrowser.TableManager;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
@@ -129,100 +124,23 @@ public class ObjectEditorController implements Initializable {
 		model.createTestLibrary();
 		tableMgr = new TableManager();
 
-		new RepoTabNSTreeHandler(primaryStage, repoTabRootNSs, repoTabLibraryTreeTableView,
-				nsLibraryTablePermissionField, repoTabRepoChoice, repoTabNSChoice);
+		// Set up Repository Tab
+		EnumMap<RepoTabNodes, Node> repoNodes = new EnumMap<>(RepoTabNodes.class);
+		repoNodes.put(RepoTabNodes.TAB, repoTabRootNSs);
+		repoNodes.put(RepoTabNodes.RepositoryChoice, repoTabRepoChoice);
+		repoNodes.put(RepoTabNodes.NamespaceTree, repoTabRootNSs);
+		repoNodes.put(RepoTabNodes.NamespaceLibraryTable, repoTabLibraryTreeTableView);
+		repoNodes.put(RepoTabNodes.NamespacePermission, nsLibraryTablePermissionField);
+		repoNodes.put(RepoTabNodes.HistoryTable, repoTabLibraryHistoryView);
+		new RepoTabNSTreeHandler(primaryStage, this, repoNodes);
 
-		configureRepositoryChoice();
-
-		// if (navigationTreeView == null)
-		// throw new IllegalStateException("Tree view is null.");
-
-		// Load and display tree view in left pane
-		// treeMgr = new NavigationTreeManager(stage, navigationTreeView, model);
-		// treeView.setRoot(treeMgr.getRoot());
-		// treeView.setShowRoot(false);
-		// treeView.getSelectionModel().selectedItemProperty().addListener((v, old, newValue) ->
-		// handleTreeItem(newValue));
-
-		// facetTableMgr = new FacetTabTreeTableHandler(model.getMembers().get(0), facetTabTreeTable, stage);
 		facetTableMgr = new FacetTabTreeTableHandler(null, facetTabTreeTable, stage);
 		// TODO - what is right way to have facet listen to treeTable?
 		facetTableMgr.registerListeners(navTreeTableView);
 
 		treeTableMgr = new NavigationTreeTableHandler(stage, navTreeTableView, model);
 
-		// Load and add listener for table
-		// same thing as next line
-		// memberTab.setOnSelectionChanged(e -> memberTabSelection(e));
-		// memberTab.setOnSelectionChanged(this::memberTabSelection);
-		// tableMgr.build(memberTable);
-
-		// doAccordian(model.getMembers().get(0));
-		// doFacetTable(model.getMembers().get(0));
-
 	}
-
-	// public void doFacetTable(OtmLibraryMember<?> member) {
-	// if (facetTabFacetTree == null)
-	// return;
-	//
-	// TreeItem<TreeView<PropertyNode>> root = new TreeItem<>();
-	// root.setExpanded(true);
-	// facetTabFacetTree.setRoot(root);
-	// // TreeView<String> treeView = new TreeView<>(root);
-	// facetTabFacetTree.setShowRoot(false);
-	//
-	// // TableView<PropertyNode> propertiesTable = new TableView<>();
-	// // new PropertiesTableManager(member, propertiesTable, primaryStage);
-	// // facetTabVbox.getChildren().add(propertiesTable);
-	//
-	// for (OtmModelElement<?> child : member.getChildren()) {
-	// if (child instanceof OtmFacet) {
-	// TableView<PropertyNode> propertiesTable = new TableView<>();
-	// new PropertiesTableManager((OtmFacet<?>) child, propertiesTable, primaryStage);
-	//
-	// // // Create the facet pane
-	// // pane = new TitledPane(child.getName(), propertiesTable);
-	//
-	// // Add pane to the facet tree
-	// TreeItem ti = new TreeItem<TreeView<PropertyNode>>();
-	// ti.setValue(propertiesTable);
-	// // ti.setGraphic(child.getIcon());
-	// root.getChildren().add(ti);
-	// }
-	// }
-	//
-	// }
-
-	// TODO - understand then implement tab controller
-	// TODO - move to its own controller
-	// public void doAccordian(OtmLibraryMember<?> member) {
-	// if (facetTab == null)
-	// return; // tab is OK
-	// if (facetTablVbox == null)
-	// return; // twistie is null
-	//
-	// TableView<PropertyNode> propertiesTable = new TableView<>();
-	// new PropertiesTableManager((OtmFacet<?>) child, propertiesTable, primaryStage);
-	// pane = new TitledPane(child.getName(), propertiesTable);
-	// // facetTwisties.getPanes().add(pane);
-	// facetTablVbox.getChildren().add(pane);
-	//
-	// TitledPane pane;
-	// for (OtmModelElement<?> child : member.getChildren()) {
-	// // TODO - fix or delete
-	// // Add a PropertyTable
-	// // PropertyTableController properties = new PropertyTableController();
-	//
-	// if (child instanceof OtmFacet) {
-	// TableView<PropertyNode> propertiesTable = new TableView<>();
-	// new PropertiesTableManager((OtmFacet<?>) child, propertiesTable, primaryStage);
-	// pane = new TitledPane(child.getName(), propertiesTable);
-	// // facetTwisties.getPanes().add(pane);
-	// facetTablVbox.getChildren().add(pane);
-	// }
-	// }
-	// }
 
 	@Deprecated
 	private RepositoryManager repositoryManager;
@@ -231,27 +149,11 @@ public class ObjectEditorController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		System.out.println("Object Editor Controller - Initialize w/params is now loading!");
-		// // Set up repository access
-		// try {
-		// repositoryManager = RepositoryManager.getDefault();
-		// availabilityChecker = RepositoryAvailabilityChecker.getInstance(repositoryManager);
-		// boolean repoStatus = availabilityChecker.pingAllRepositories(true);
-		// } catch (RepositoryException e) {
-		// e.printStackTrace(System.out);
-		// }
-		//
 		RepositoryController repoController = new RepositoryController();
 		repositoryManager = repoController.getRepositoryManager();
 		String[] projects = repoController.getProjects();
 
 	}
-
-	// private void handleTreeItem(TreeItem<String> item) {
-	// System.out.println("Tree Item: " + item.getValue() + " from " + item.getParent().getValue());
-	// }
-	// private void handleTreeItem(TreeItem<OtmLibraryMember<?>> item) {
-	// System.out.println("Tree Item: " + item.getValue() + " from " + item.getParent().getValue());
-	// }
 
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
 	@FXML
@@ -263,26 +165,13 @@ public class ObjectEditorController implements Initializable {
 	public void memberTabSelection(Event e) {
 		System.out.println("memberTab selection event");
 		// boolean enabled = memberTab.isDisabled();
-		if (tableMgr != null) {
-			if (memberTable != null)
-				memberTable.setItems(tableMgr.getNodes());
-			if (memberEditHbox != null && memberEditHbox.getChildren().isEmpty())
-				tableMgr.getEditPane(memberEditHbox);
-			// memberEditHbox.getChildren().add(tableMgr.getEditPane());
-		}
-
-		// if (cPane != null) {
-		// ObservableList<Node> list = FXCollections.observableArrayList();
-		// cPane.getChildren().addAll(list);
+		// if (tableMgr != null) {
+		// if (memberTable != null)
+		// memberTable.setItems(tableMgr.getNodes());
+		// if (memberEditHbox != null && memberEditHbox.getChildren().isEmpty())
+		// tableMgr.getEditPane(memberEditHbox);
+		// // memberEditHbox.getChildren().add(tableMgr.getEditPane());
 		// }
-
-		DemoNode nodes = new DemoNode();
-		// if (treeTableView != null) {
-		// ttMgr = new TreeTableManager(treeTableView);
-		// System.out.println("Populate Tree Table View.");
-		// ttMgr.build(nodes.getNodes());
-		// } else
-		// System.out.println("Can't populate Tree Table View.");
 	}
 
 	@FXML
@@ -330,138 +219,6 @@ public class ObjectEditorController implements Initializable {
 	@FXML
 	public void aboutApplication(ActionEvent event) {
 		// AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
-	}
-
-	private void configureRepositoryChoice() {
-		System.out.println("Configuring repository choice box.");
-		primaryStage.showingProperty().addListener((observable, oldValue, newValue) -> {
-			ObservableList<String> repositoryIds = FXCollections.observableArrayList();
-
-			repositoryManager.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
-			repositoryChoice.setItems(repositoryIds);
-			repositoryChoice.getSelectionModel().select(0);
-		});
-
-		// Configure listeners for choice boxes
-		repositoryChoice.valueProperty().addListener((observable, oldValue, newValue) -> {
-			repositorySelectionChanged();
-		});
-		namespaceChoice.valueProperty().addListener((observable, oldValue, newValue) -> {
-			namespaceSelectionChanged();
-		});
-	}
-
-	/**
-	 * Called when the user modifies the selection of the 'repositoryChoice' control.
-	 * 
-	 * @throws RepositoryException
-	 */
-	private void repositorySelectionChanged() {
-		// Runnable r = new BackgroundTask("Updating namespaces from remote repository...", StatusType.INFO) {
-		// public void execute() throws Throwable {
-		String rid = repositoryChoice.getSelectionModel().getSelectedItem();
-		Repository repository = repositoryManager.getRepository(rid);
-		if (repository == null)
-			return;
-		try {
-			List<String> baseNamespaces = repository.listBaseNamespaces();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Selected new repository");
-
-		List<String> baseNamespaces;
-		try {
-			baseNamespaces = repository.listBaseNamespaces();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			baseNamespaces = new ArrayList<>();
-		}
-		baseNamespaces.add(0, null);
-		// Platform.runLater(() -> {
-		namespaceChoice.setItems(FXCollections.observableList(baseNamespaces));
-		namespaceChoice.getSelectionModel().select(0);
-		// });
-		System.out.println("Added namespaces to choice.");
-	}
-
-	// };
-	//
-	// new Thread(r).start();
-	// }
-	/**
-	 * Returns the list of candidate namespaces that are either equal to or sub-namespaces of the currently selected
-	 * namespace.
-	 * 
-	 * @return List<String>
-	 */
-	private List<String> getCandidateNamespaces() {
-		List<String> candidateNamespaces = new ArrayList<>();
-		String selectedNS = namespaceChoice.getSelectionModel().getSelectedItem();
-		String nsPrefix = selectedNS + "/";
-
-		candidateNamespaces.add(selectedNS);
-
-		for (String ns : namespaceChoice.getItems()) {
-			if ((ns != null) && ns.startsWith(nsPrefix)) {
-				candidateNamespaces.add(ns);
-			}
-		}
-		return candidateNamespaces;
-	}
-
-	/**
-	 * Called when the user modifies the selection of the 'namespaceChoice' control.
-	 */
-	private void namespaceSelectionChanged() {
-		String selectedNS = namespaceChoice.getSelectionModel().getSelectedItem();
-
-		if (selectedNS != null) {
-			// Runnable r = new BackgroundTask( "Updating candidate libraries from remote repository...",
-			// StatusType.INFO ) {
-			// public void execute() throws Throwable {
-			String rid = repositoryChoice.getSelectionModel().getSelectedItem();
-			Repository repository = repositoryManager.getRepository(rid);
-			List<RepositoryItemWrapper> selectedItems = null;
-			if (selectedLibrariesTable != null)
-				selectedItems = selectedLibrariesTable.getItems();
-			List<String> candidateNamespaces = getCandidateNamespaces();
-			List<RepositoryItemWrapper> candidateItems = new ArrayList<>();
-
-			for (String candidateNS : candidateNamespaces) {
-				List<RepositoryItem> items = null;
-				try {
-					items = repository.listItems(candidateNS, null, true);
-				} catch (RepositoryException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				for (RepositoryItem item : items) {
-					if (selectedItems != null && !selectedItems.contains(item)) {
-						candidateItems.add(new RepositoryItemWrapper(item));
-					}
-				}
-			}
-			Collections.sort(candidateItems);
-
-			// Platform.runLater( () -> {
-			selectedLibrariesTable.setItems(FXCollections.observableList(candidateItems));
-			// candidateLibrariesTable.setItems( FXCollections.observableList( candidateItems ) );
-			// });
-		}
-
-		// };
-		//
-		// new Thread( r ).start();
-		//
-		// } else {
-		// Platform.runLater( () -> {
-		// candidateLibrariesTable.setItems( FXCollections.emptyObservableList() );
-		// updateControlStates();
-		// });
-		// }
 	}
 
 }

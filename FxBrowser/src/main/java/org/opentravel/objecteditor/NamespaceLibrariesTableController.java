@@ -179,6 +179,11 @@ public class NamespaceLibrariesTableController implements DexController {
 		return root;
 	}
 
+	@Override
+	public void clear() {
+		nsTable.getRoot().getChildren().clear();
+	}
+
 	/**
 	 * Add tree items to ROOT for each Library with the same name.
 	 * 
@@ -191,7 +196,7 @@ public class NamespaceLibrariesTableController implements DexController {
 			throw new IllegalArgumentException("Missing repository and namespace.");
 
 		// Clear the table
-		nsTable.getRoot().getChildren().clear();
+		clear();
 
 		// Display Permission enumeration value for this user in this namespace
 		String permission = "unknown";
@@ -236,7 +241,7 @@ public class NamespaceLibrariesTableController implements DexController {
 	private void buildColumns(TreeTableView<RepoItemNode> table) {
 		TreeTableColumn<RepoItemNode, String> fileCol = new TreeTableColumn<>("Library");
 		fileCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemNode, String>("libraryName"));
-		setColumnProps(fileCol, true, false, true, 300);
+		setColumnProps(fileCol, true, false, true, 250);
 
 		TreeTableColumn<RepoItemNode, String> versionCol = new TreeTableColumn<>("Version");
 		versionCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemNode, String>("version"));
