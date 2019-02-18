@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NavigationTreeTableHandler.OtmTreeTableNode;
-import org.opentravel.objecteditor.RepoTabNSTreeHandler.RepoTabNodes;
+import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.upversion.RepositoryItemWrapper;
 import org.slf4j.Logger;
@@ -132,7 +132,7 @@ public class ObjectEditorController implements Initializable {
 		repoNodes.put(RepoTabNodes.NamespaceLibraryTable, repoTabLibraryTreeTableView);
 		repoNodes.put(RepoTabNodes.NamespacePermission, nsLibraryTablePermissionField);
 		repoNodes.put(RepoTabNodes.HistoryTable, repoTabLibraryHistoryView);
-		new RepoTabNSTreeHandler(primaryStage, this, repoNodes);
+		new RepositoryTabController(primaryStage, this, repoNodes);
 
 		facetTableMgr = new FacetTabTreeTableHandler(null, facetTabTreeTable, stage);
 		// TODO - what is right way to have facet listen to treeTable?

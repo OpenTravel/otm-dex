@@ -48,8 +48,8 @@ import javafx.stage.Stage;
  *
  */
 @SuppressWarnings("restriction")
-public class RepoTabNSTreeHandler implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepoTabNSTreeHandler.class);
+public class RepositoryTabController implements DexController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryTabController.class);
 
 	private static final String LOCAL_REPO = "Local";
 
@@ -96,7 +96,7 @@ public class RepoTabNSTreeHandler implements DexController {
 			throw new IllegalArgumentException("Repository tree view is null.");
 	}
 
-	public RepoTabNSTreeHandler(Stage stage, ObjectEditorController parent, EnumMap<RepoTabNodes, Node> fxNodes) {
+	public RepositoryTabController(Stage stage, ObjectEditorController parent, EnumMap<RepoTabNodes, Node> fxNodes) {
 		this.stage = stage;
 		if (stage == null)
 			throw new IllegalStateException("Stage is null.");
