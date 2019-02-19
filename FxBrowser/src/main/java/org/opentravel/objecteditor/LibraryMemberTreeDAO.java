@@ -75,6 +75,22 @@ public class LibraryMemberTreeDAO {
 		return otmObject.toString();
 	}
 
+	public StringProperty libraryProperty() {
+		String libName = "";
+		if (otmObject instanceof OtmLibraryMember)
+			if (((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary() != null)
+				libName = ((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary().getName();
+		return new SimpleStringProperty(libName);
+	}
+
+	public StringProperty versionProperty() {
+		String v = "";
+		if (otmObject instanceof OtmLibraryMember)
+			if (((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary() != null)
+				v = ((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary().getVersion();
+		return new SimpleStringProperty(v);
+	}
+
 	/**
 	 * @return
 	 */

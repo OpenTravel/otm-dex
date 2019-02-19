@@ -308,7 +308,7 @@ public class FacetTabTreeTableHandler {
 	/**
 	 * Remove all items from the table
 	 */
-	private void clear() {
+	public void clear() {
 		table.getRoot().getChildren().clear();
 	}
 
@@ -406,6 +406,8 @@ public class FacetTabTreeTableHandler {
 
 	private void newMemberSelectionListener(TreeItem<LibraryMemberTreeDAO> item) {
 		clear();
+		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
+			return;
 		if (item.getValue().getValue() instanceof OtmLibraryMember)
 			createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());
 		System.out.println("Facet Table Selection Listener: " + item.getValue());

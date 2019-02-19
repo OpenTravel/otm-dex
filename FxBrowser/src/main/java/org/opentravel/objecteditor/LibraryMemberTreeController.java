@@ -24,7 +24,6 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
 
 /**
  * Manage the node navigation tree.
@@ -38,42 +37,105 @@ public class LibraryMemberTreeController implements DexController {
 
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMECOLUMNLABEL = "Member";
+	private static final String VERSIONCOLUMNLABEL = "Version";
+
+	private static final String LIBRARYLABEL = "Library";
 
 	TreeTableView<LibraryMemberTreeDAO> memberTree;
 	TreeItem<LibraryMemberTreeDAO> root; // Root of the navigation tree. Is displayed.
 	TreeTableColumn<LibraryMemberTreeDAO, String> nameColumn; // an editable column
+	LibraryFilterController filter = null;
+
+	OtmModelManager currentModelMgr;
 	ImageManager imageMgr;
-	Stage stage;
 
 	@SuppressWarnings("unchecked")
-	public LibraryMemberTreeController(Stage stage, TreeTableView<LibraryMemberTreeDAO> navTreeTableView,
+	public LibraryMemberTreeController(DexController parent, TreeTableView<LibraryMemberTreeDAO> navTreeTableView,
 			OtmModelManager model) {
 		System.out.println("Initializing navigation tree table.");
 
 		if (navTreeTableView == null)
 			throw new IllegalStateException("Tree table view is null.");
 
-		// remember the stage and view, and get an image manager for the stage.
-		this.stage = stage;
+		// remember the view, and get an image manager for the stage.
 		this.memberTree = navTreeTableView;
-		imageMgr = new ImageManager(stage);
+		imageMgr = parent.getImageManager();
 
 		// Set the hidden root item
 		root = new TreeItem<>();
 		root.setExpanded(true); // Startout fully expanded
 
 		// Set up the TreeTable
-		navTreeTableView.setRoot(getRoot());
-		navTreeTableView.setShowRoot(false);
-		navTreeTableView.setEditable(true);
-		navTreeTableView.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
-		navTreeTableView.setTableMenuButtonVisible(true); // allow users to select columns
+		buildColumns();
+
+		// create cells for members
+		currentModelMgr = model;
+		for (OtmLibraryMember<?> member : model.getMembers()) {
+			createTreeItem(member, root);
+		}
+
+		navTreeTableView.getSelectionModel().select(0);
+	}
+
+	public LibraryFilterController getFilter() {
+		return filter;
+	}
+
+	public void setFilter(LibraryFilterController filter) {
+		this.filter = filter;
+	}
+
+	/**
+	 * Get the library members from the model manager and put them into a cleared tree.
+	 * 
+	 * @param modelMgr
+	 */
+	public void post(OtmModelManager modelMgr) {
+		if (modelMgr != null)
+			currentModelMgr = modelMgr;
+		refresh();
+	}
+
+	public void refresh() {
+		// create cells for members
+		memberTree.getRoot().getChildren().clear();
+		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
+			createTreeItem(member, root);
+		}
+	}
+
+	/**
+	 * Listener for selected library members.
+	 * 
+	 * @param item
+	 */
+	private void memberSelectionListener(TreeItem<LibraryMemberTreeDAO> item) {
+		if (item == null)
+			return;
+		System.out.println("Selection Listener: " + item.getValue());
+		assert item != null;
+		boolean editable = false;
+		if (item.getValue() != null)
+			editable = item.getValue().isEditable();
+		nameColumn.setEditable(editable);
+	}
+
+	public TreeItem<LibraryMemberTreeDAO> getRoot() {
+		return root;
+	}
+
+	private void buildColumns() {
+		memberTree.setRoot(getRoot());
+		memberTree.setShowRoot(false);
+		memberTree.setEditable(true);
+		memberTree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
+		memberTree.setTableMenuButtonVisible(true); // allow users to select columns
 
 		// Enable context menus at the row level and add change listener for for applying style
-		navTreeTableView.setRowFactory((TreeTableView<LibraryMemberTreeDAO> p) -> new NavRowFactory());
+		memberTree.setRowFactory((TreeTableView<LibraryMemberTreeDAO> p) -> new NavRowFactory());
 
 		// add a listener class with three parameters that invokes selection listener
-		navTreeTableView.getSelectionModel().selectedItemProperty()
+		memberTree.getSelectionModel().selectedItemProperty()
 				.addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
 		//
@@ -94,8 +156,14 @@ public class LibraryMemberTreeController implements DexController {
 		nameColumn.setSortable(true);
 		nameColumn.setSortType(TreeTableColumn.SortType.DESCENDING);
 
+		TreeTableColumn<LibraryMemberTreeDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
+		versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryMemberTreeDAO, String>("version"));
+
+		TreeTableColumn<LibraryMemberTreeDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
+		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryMemberTreeDAO, String>("library"));
+
 		// Add columns to table
-		navTreeTableView.getColumns().addAll(iconColumn, nameColumn, prefixColumn);
+		memberTree.getColumns().addAll(iconColumn, nameColumn, libColumn, versionColumn, prefixColumn);
 
 		// Define cell content
 		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryMemberTreeDAO, String>("prefix"));
@@ -109,44 +177,6 @@ public class LibraryMemberTreeController implements DexController {
 		nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryMemberTreeDAO, String>("name"));
 		nameColumn.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn());
 
-		// create cells for members
-		for (OtmLibraryMember<?> member : model.getMembers()) {
-			createTreeItem(member, root);
-		}
-
-		navTreeTableView.getSelectionModel().select(0);
-	}
-
-	/**
-	 * Set the name value of this object.
-	 * 
-	 * @param event
-	 */
-	public void handleNameCellEdit(TreeTableColumn.CellEditEvent<LibraryMemberTreeDAO, String> event) {
-		// NPE happens if position can't be read
-		// if (event.getTreeTablePosition() != null) {
-		// TreeItem<LibraryMemberTreeDAO> currentItem = event.getRowValue();
-		// currentItem.getValue().setName(event.getNewValue());
-		// } else
-		// System.out.println("ERROR - cell edit handler has null tree table position.");
-	}
-
-	/**
-	 * Listener for selected library members.
-	 * 
-	 * @param item
-	 */
-	private void memberSelectionListener(TreeItem<LibraryMemberTreeDAO> item) {
-		System.out.println("Selection Listener: " + item.getValue());
-		assert item != null;
-		boolean editable = false;
-		if (item.getValue() != null)
-			editable = item.getValue().isEditable();
-		nameColumn.setEditable(editable);
-	}
-
-	public TreeItem<LibraryMemberTreeDAO> getRoot() {
-		return root;
 	}
 
 	/**
@@ -160,6 +190,10 @@ public class LibraryMemberTreeController implements DexController {
 	 */
 	private TreeItem<LibraryMemberTreeDAO> createTreeItem(OtmLibraryMember<?> member,
 			TreeItem<LibraryMemberTreeDAO> parent) {
+		// Apply Filter
+		if (filter != null && !filter.isSelected(member))
+			return null;
+
 		LibraryMemberTreeDAO tn = new LibraryMemberTreeDAO(member);
 		TreeItem<LibraryMemberTreeDAO> item = new TreeItem<>(tn);
 		item.setExpanded(false);
@@ -245,8 +279,8 @@ public class LibraryMemberTreeController implements DexController {
 
 	/**
 	 * {@inheritDoc}
-	 * <p>
-	 * Returns the member tree selected item property.
+	 * 
+	 * @return the member tree selected item property.
 	 */
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<LibraryMemberTreeDAO>> getSelectable() {

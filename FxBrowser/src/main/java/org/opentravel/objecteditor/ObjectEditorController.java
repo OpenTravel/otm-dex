@@ -6,19 +6,23 @@ package org.opentravel.objecteditor;
 import java.io.File;
 import java.net.URL;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import org.opentravel.common.DexFileHandler;
-import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.objecteditor.LibraryFilterController.LibraryFilterNodes;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
-import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.upversion.RepositoryItemWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import OTM_FX.FxBrowser.DemoNode;
 import OTM_FX.FxBrowser.TableManager;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -26,7 +30,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -36,6 +44,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+//import javafx.collections.FXCollections;
+//import javafx.collections.ObservableList;
+//import javafx.application.Platform;
+//import javafx.scene.control.ProgressIndicator;
+//import javafx.scene.control.MenuButton;
+
 /**
  * Main controller for OtmObjecEditorLayout.fxml (1 FXML = 1Controller).
  * 
@@ -43,14 +57,14 @@ import javafx.stage.Stage;
  *
  */
 @SuppressWarnings("restriction")
-public class ObjectEditorController implements Initializable {
+public class ObjectEditorController implements Initializable, DexController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ObjectEditorController.class);
 
 	// Navigation Table Tree View
 	//
 	@FXML
 	public TreeTableView<LibraryMemberTreeDAO> navTreeTableView;
-	LibraryMemberTreeController treeTableMgr;
+	LibraryMemberTreeController memberController;
 
 	// Facet Tab
 	@FXML
@@ -74,6 +88,16 @@ public class ObjectEditorController implements Initializable {
 	private TextField repoTabRepoUserField;
 	@FXML
 	public TableView repoTabLibraryHistoryView;
+
+	// Library Member Table Selection Filters
+	@FXML
+	private ChoiceBox<String> librarySelector;
+	@FXML
+	private TextField libraryNameFilter;
+	@FXML
+	private MenuButton libraryTypeMenu;
+	@FXML
+	private MenuButton libraryStateMenu;
 
 	//
 	// OLD - to be removed
@@ -103,7 +127,10 @@ public class ObjectEditorController implements Initializable {
 	private TableView<RepositoryItemWrapper> namespaceTable;
 
 	Stage primaryStage = null;
-	OtmModelManager modelMgr;
+	private OtmModelManager modelMgr;
+	private ImageManager imageMgr;
+	private DexFileHandler fileHandler = new DexFileHandler();
+	private LibraryFilterController libraryFilters;
 
 	// TODO - create wizard/pop-up handlers
 	// use TitledPane fx control
@@ -118,6 +145,7 @@ public class ObjectEditorController implements Initializable {
 		primaryStage = stage;
 
 		// Initialize managers
+		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
 		modelMgr.createTestLibrary();
 		tableMgr = new TableManager();
@@ -137,26 +165,85 @@ public class ObjectEditorController implements Initializable {
 		// TODO - what is right way to have facet listen to treeTable?
 		facetTableMgr.registerListeners(navTreeTableView);
 
-		// Open initial file
-		DexFileHandler fileHandler = new DexFileHandler();
-		File selectedFile = fileHandler.fileChooser(stage);
-		fileHandler.openFile(selectedFile);
-		modelMgr.add(fileHandler.getNewModel());
+		configureProjectMenuButton();
 
-		treeTableMgr = new LibraryMemberTreeController(stage, navTreeTableView, modelMgr);
+		memberController = new LibraryMemberTreeController(this, navTreeTableView, modelMgr);
+		// Set up library selector/filter controller
+		EnumMap<LibraryFilterNodes, Node> filterNodes = new EnumMap<>(LibraryFilterNodes.class);
+		filterNodes.put(LibraryFilterNodes.Library, librarySelector);
+		filterNodes.put(LibraryFilterNodes.Name, libraryNameFilter);
+		filterNodes.put(LibraryFilterNodes.Type, libraryTypeMenu);
+		filterNodes.put(LibraryFilterNodes.State, libraryStateMenu);
+		libraryFilters = new LibraryFilterController(memberController, filterNodes);
+		memberController.setFilter(libraryFilters);
 	}
-
-	@Deprecated
-	private RepositoryManager repositoryManager;
-	// private RepositoryAvailabilityChecker availabilityChecker;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		System.out.println("Object Editor Controller - Initialize w/params is now loading!");
-		RepositoryController repoController = new RepositoryController();
-		repositoryManager = repoController.getRepositoryManager();
-		String[] projects = repoController.getProjects();
+	}
 
+	@FXML
+	public void fileOpen(Event e) {
+		System.out.println("File Open selected.");
+		File selectedFile = fileHandler.fileChooser(primaryStage);
+		openFile(selectedFile);
+	}
+
+	public void openFile(File selectedFile) {
+		if (selectedFile == null)
+			return;
+		memberController.clear(); // prevent concurrent modification
+		modelMgr.clear();
+		postStatus("Opening " + selectedFile.getName());
+		postProgress(0.2F);
+
+		Runnable task = new Runnable() {
+			@Override
+			public void run() {
+				openFile(fileHandler, selectedFile);
+			}
+		};
+		// Run the task in a background thread and Terminate the running thread if the application exits
+		Thread backgroundThread = new Thread(task);
+		backgroundThread.setDaemon(true);
+		backgroundThread.start();
+	}
+
+	/**
+	 * Open the file using the handler. Expected to be run in the background.
+	 * 
+	 * @param fileHandler
+	 * @param selectedFile
+	 */
+	public void openFile(DexFileHandler fileHandler, File selectedFile) {
+		fileHandler.openFile(selectedFile);
+		Platform.runLater(() -> postProgress(0.75F));
+		modelMgr.add(fileHandler.getNewModel());
+		facetTableMgr.clear();
+
+		// When done, update display in the UI thread
+		Platform.runLater(() -> {
+			memberController.post(modelMgr);
+			postStatus("Done");
+			postProgress(1F);
+		});
+	}
+
+	@FXML
+	ProgressIndicator statusProgress;
+
+	public void postProgress(double percent) {
+		if (statusProgress != null)
+			statusProgress.setProgress(percent);
+	}
+
+	@FXML
+	Label statusLabel;
+
+	public void postStatus(String status) {
+		if (statusLabel != null)
+			statusLabel.setText(status);
 	}
 
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
@@ -168,14 +255,50 @@ public class ObjectEditorController implements Initializable {
 	@FXML
 	public void memberTabSelection(Event e) {
 		System.out.println("memberTab selection event");
-		// boolean enabled = memberTab.isDisabled();
-		// if (tableMgr != null) {
-		// if (memberTable != null)
-		// memberTable.setItems(tableMgr.getNodes());
-		// if (memberEditHbox != null && memberEditHbox.getChildren().isEmpty())
-		// tableMgr.getEditPane(memberEditHbox);
-		// // memberEditHbox.getChildren().add(tableMgr.getEditPane());
+		// // boolean enabled = memberTab.isDisabled();
+		// // if (tableMgr != null) {
+		// // if (memberTable != null)
+		// // memberTable.setItems(tableMgr.getNodes());
+		// // if (memberEditHbox != null && memberEditHbox.getChildren().isEmpty())
+		// // tableMgr.getEditPane(memberEditHbox);
+		// // // memberEditHbox.getChildren().add(tableMgr.getEditPane());
+		// // }
+	}
+
+	@FXML
+	public ComboBox<String> projectCombo;
+	private HashMap<String, File> projectMap = new HashMap<>();
+
+	public void configureProjectMenuButton() {
+		if (projectCombo != null) {
+			File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
+			MenuItem item;
+			for (File file : fileHandler.getProjectList(initialDirectory)) {
+				projectMap.put(file.getName(), file);
+			}
+			ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
+			projectList.sort(null);
+			projectCombo.setItems(projectList);
+			projectCombo.setOnAction(e -> projectComboSelectionListener(e));
+		}
+		// FIXME - use modelMrg's project list
+	}
+
+	@FXML
+	public void projectComboSelectionListener(Event e) {
+		System.out.println("project selection event");
+		if (e.getTarget() instanceof ComboBox) {
+			String p = (String) ((ComboBox) e.getTarget()).getValue();
+			openFile(projectMap.get(p));
+			System.out.println("P = " + p);
+		}
+		// if (e.getTarget() instanceof MenuItem) {
+		// File projectFile = (File) ((MenuItem) e.getTarget()).getUserData();
+		// openFile(projectFile);
 		// }
+	}
+
+	public void postCurrentProject() {
 	}
 
 	@FXML
@@ -223,6 +346,34 @@ public class ObjectEditorController implements Initializable {
 	@FXML
 	public void aboutApplication(ActionEvent event) {
 		// AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * 
+	 * @return null
+	 */
+	@Override
+	public ReadOnlyObjectProperty<?> getSelectable() {
+		return null;
+	}
+
+	@Override
+	public ImageManager getImageManager() {
+		if (imageMgr == null)
+			throw new IllegalStateException("Image manger is null.");
+		return imageMgr;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Does nothing.
+	 */
+	@Override
+	public void clear() {
+		// TODO - should this do anything?
 	}
 
 }

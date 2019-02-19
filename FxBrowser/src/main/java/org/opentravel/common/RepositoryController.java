@@ -19,6 +19,8 @@ import org.opentravel.schemacompiler.repository.RepositoryManager;
  * @author dmh
  *
  */
+// Just use the repository and repository manager
+@Deprecated
 public class RepositoryController {
 
 	private RepositoryManager repositoryManager;

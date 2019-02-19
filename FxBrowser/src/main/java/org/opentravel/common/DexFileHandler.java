@@ -83,6 +83,21 @@ public class DexFileHandler extends AbstractMainWindowController {
 		return selectedFile;
 	}
 
+	/**
+	 * @return a list of OTM Project files
+	 */
+	public File[] getProjectList(File directory) {
+		// List<File> projectFiles = new ArrayList<>();
+		if (directory == null) {
+			directory = new File(System.getProperty("user.home"));
+		}
+		File[] projectFiles = {};
+		if (directory.isDirectory()) {
+			projectFiles = directory.listFiles(f -> f.getName().endsWith(".otp"));
+		}
+		return projectFiles;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
