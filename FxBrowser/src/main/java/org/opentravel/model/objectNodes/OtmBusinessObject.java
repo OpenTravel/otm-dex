@@ -35,6 +35,10 @@ import org.slf4j.LoggerFactory;
 public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmBusinessObject.class);
 
+	public OtmBusinessObject(TLBusinessObject tlo) {
+		super(tlo);
+	}
+
 	public OtmBusinessObject(String name) {
 		super(new TLBusinessObject());
 		setName(name);

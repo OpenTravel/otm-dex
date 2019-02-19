@@ -3,13 +3,14 @@
  */
 package org.opentravel.objecteditor;
 
+import java.io.File;
 import java.net.URL;
 import java.util.EnumMap;
 import java.util.ResourceBundle;
 
+import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.NavigationTreeTableHandler.OtmTreeTableNode;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.upversion.RepositoryItemWrapper;
@@ -48,8 +49,8 @@ public class ObjectEditorController implements Initializable {
 	// Navigation Table Tree View
 	//
 	@FXML
-	public TreeTableView<OtmTreeTableNode> navTreeTableView;
-	NavigationTreeTableHandler treeTableMgr;
+	public TreeTableView<LibraryMemberTreeDAO> navTreeTableView;
+	LibraryMemberTreeController treeTableMgr;
 
 	// Facet Tab
 	@FXML
@@ -102,7 +103,7 @@ public class ObjectEditorController implements Initializable {
 	private TableView<RepositoryItemWrapper> namespaceTable;
 
 	Stage primaryStage = null;
-	OtmModelManager model;
+	OtmModelManager modelMgr;
 
 	// TODO - create wizard/pop-up handlers
 	// use TitledPane fx control
@@ -117,8 +118,8 @@ public class ObjectEditorController implements Initializable {
 		primaryStage = stage;
 
 		// Initialize managers
-		model = new OtmModelManager();
-		model.createTestLibrary();
+		modelMgr = new OtmModelManager();
+		modelMgr.createTestLibrary();
 		tableMgr = new TableManager();
 
 		// Set up Repository Tab
@@ -136,8 +137,13 @@ public class ObjectEditorController implements Initializable {
 		// TODO - what is right way to have facet listen to treeTable?
 		facetTableMgr.registerListeners(navTreeTableView);
 
-		treeTableMgr = new NavigationTreeTableHandler(stage, navTreeTableView, model);
+		// Open initial file
+		DexFileHandler fileHandler = new DexFileHandler();
+		File selectedFile = fileHandler.fileChooser(stage);
+		fileHandler.openFile(selectedFile);
+		modelMgr.add(fileHandler.getNewModel());
 
+		treeTableMgr = new LibraryMemberTreeController(stage, navTreeTableView, modelMgr);
 	}
 
 	@Deprecated

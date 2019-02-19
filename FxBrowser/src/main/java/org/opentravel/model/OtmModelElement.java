@@ -122,4 +122,11 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 	public String getRole() {
 		return getClass().getSimpleName();
 	}
+
+	/**
+	 * 
+	 */
+	public String getPrefix() {
+		return ("");
+	}
 }

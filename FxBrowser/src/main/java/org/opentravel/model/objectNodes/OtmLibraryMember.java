@@ -63,6 +63,11 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 		return getName();
 	}
 
+	@Override
+	public String getPrefix() {
+		return getTL().getOwningLibrary() != null ? getTL().getOwningLibrary().getPrefix() : "";
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

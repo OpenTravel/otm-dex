@@ -35,6 +35,10 @@ import org.slf4j.LoggerFactory;
 public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmCoreObject.class);
 
+	public OtmCoreObject(TLCoreObject tlo) {
+		super(tlo);
+	}
+
 	public OtmCoreObject(String name) {
 		super(new TLCoreObject());
 		setName(name);

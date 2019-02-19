@@ -77,7 +77,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 
 	@Override
 	public boolean isEditable() {
-		return tlObject.getOwningLibrary() != null;
+		return false;
 	}
 
 	@Override

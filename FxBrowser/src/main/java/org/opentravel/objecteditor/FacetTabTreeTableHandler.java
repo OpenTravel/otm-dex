@@ -9,7 +9,6 @@ import org.opentravel.model.facetNodes.OtmFacet;
 import org.opentravel.model.objectNodes.OtmLibraryMember;
 import org.opentravel.model.propertyNodes.OtmProperty;
 import org.opentravel.model.propertyNodes.UserSelectablePropertyTypes;
-import org.opentravel.objecteditor.NavigationTreeTableHandler.OtmTreeTableNode;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -400,12 +399,12 @@ public class FacetTabTreeTableHandler {
 	 * 
 	 * @param navTreeTableView
 	 */
-	public void registerListeners(TreeTableView<OtmTreeTableNode> navTreeTableView) {
+	public void registerListeners(TreeTableView<LibraryMemberTreeDAO> navTreeTableView) {
 		navTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((v, old, newValue) -> newMemberSelectionListener(newValue));
 	}
 
-	private void newMemberSelectionListener(TreeItem<OtmTreeTableNode> item) {
+	private void newMemberSelectionListener(TreeItem<LibraryMemberTreeDAO> item) {
 		clear();
 		if (item.getValue().getValue() instanceof OtmLibraryMember)
 			createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());

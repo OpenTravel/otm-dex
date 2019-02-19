@@ -33,6 +33,10 @@ import org.slf4j.LoggerFactory;
 public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmChoiceObject.class);
 
+	public OtmChoiceObject(TLChoiceObject tlo) {
+		super(tlo);
+	}
+
 	public OtmChoiceObject(String name) {
 		super(new TLChoiceObject());
 		setName(name);
