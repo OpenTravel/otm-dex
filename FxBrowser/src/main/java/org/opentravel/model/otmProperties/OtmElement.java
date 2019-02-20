@@ -16,9 +16,9 @@
 /**
  * 
  */
-package org.opentravel.model.propertyNodes;
+package org.opentravel.model.otmProperties;
 
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLProperty;
@@ -37,8 +37,8 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> {
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmElement(TL tl) {
-		super(tl);
+	public OtmElement(TL tl, PropertyOwner parent) {
+		super(tl, parent);
 
 		if (!(tl instanceof TLProperty))
 			throw new IllegalArgumentException("OtmElement constructor not passed a tl property.");
@@ -71,12 +71,6 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> {
 	}
 
 	@Override
-	public OtmLibraryMember<?> getOwningComponent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public boolean isManditory() {
 		return getTL().isMandatory();
 	}
@@ -84,6 +78,17 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> {
 	@Override
 	public void setManditory(boolean value) {
 		getTL().setMandatory(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmModelElement#getOwningMember()
+	 */
+	@Override
+	public OtmLibraryMember<?> getOwningMember() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -5,6 +5,7 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
+import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -153,6 +154,16 @@ public class NamespaceLibrariesTableController implements DexController {
 		// Initialize and build columns for library tree table
 		root = initializeTree();
 		buildColumns(libTable);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return null
+	 */
+	@Override
+	public OtmModelManager getModelManager() {
+		return null;
 	}
 
 	private TreeItem<RepoItemNode> initializeTree() {

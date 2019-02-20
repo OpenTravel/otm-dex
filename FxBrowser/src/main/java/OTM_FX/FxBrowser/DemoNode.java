@@ -6,7 +6,7 @@ package OTM_FX.FxBrowser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.model.propertyNodes.UserSelectablePropertyTypes;
+import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

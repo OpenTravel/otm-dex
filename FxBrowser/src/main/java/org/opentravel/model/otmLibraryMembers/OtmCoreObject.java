@@ -16,57 +16,73 @@
 /**
  * 
  */
-package org.opentravel.model;
+package org.opentravel.model.otmLibraryMembers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.opentravel.model.objectNodes.OtmBusinessObject;
-import org.opentravel.model.objectNodes.OtmChoiceObject;
-import org.opentravel.model.objectNodes.OtmCoreObject;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmFacets.OtmDetailFacet;
+import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
-import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * OTM Object Node for business objects.
+ * OTM Object Node for Core objects.
  * 
  * @author Dave Hollander
  * 
  */
-public class OtmLibrary extends OtmModelElement<TLLibrary> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibrary.class);
+public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmCoreObject.class);
 
-	public OtmLibrary() {
-		super(new TLLibrary());
+	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
+		super(tlo, mgr);
 	}
 
-	public OtmLibrary(TLLibrary lib) {
-		super(lib);
-	}
-
-	public List<OtmLibraryMember<?>> createTestChildren(OtmModelManager model) {
-		List<OtmLibraryMember<?>> members = new ArrayList<>();
-		members.add(new OtmBusinessObject("Fred").createTestChildren());
-		members.add(new OtmChoiceObject("Wilma").createTestChildren());
-		members.add(new OtmCoreObject("Barney").createTestChildren());
-		for (OtmLibraryMember<?> member : members)
-			model.add(member);
-		LOGGER.debug("Created 3 members.");
-		return members;
-	}
-
-	@Override
-	public TLLibrary getTL() {
-		return tlObject;
+	public OtmCoreObject(String name, OtmModelManager mgr) {
+		super(new TLCoreObject(), mgr);
+		setName(name);
 	}
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.LIBRARY;
+		return ImageManager.Icons.CORE;
+	}
+
+	@Override
+	public TLCoreObject getTL() {
+		return (TLCoreObject) tlObject;
+	}
+
+	@Override
+	public boolean isEditable() {
+		return true;
+	}
+
+	@Override
+	public String setName(String name) {
+		getTL().setName(name);
+		return getName();
+	}
+
+	/**
+	 * @return this
+	 */
+	@Override
+	public OtmLibraryMember<?> getOwningMember() {
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates facets to represent facets in the TL core object.
+	 */
+	@Override
+	public void modelChildren() {
+		children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
+		children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
 	}
 
 	// extends FacetOwners

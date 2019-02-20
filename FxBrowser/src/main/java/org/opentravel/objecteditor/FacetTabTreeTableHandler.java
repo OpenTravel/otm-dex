@@ -5,10 +5,10 @@ package org.opentravel.objecteditor;
 
 import org.opentravel.common.DexIntegerStringConverter;
 import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.facetNodes.OtmFacet;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
-import org.opentravel.model.propertyNodes.OtmProperty;
-import org.opentravel.model.propertyNodes.UserSelectablePropertyTypes;
+import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.otmProperties.OtmProperty;
+import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

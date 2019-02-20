@@ -16,9 +16,8 @@
 /**
  * 
  */
-package org.opentravel.model.propertyNodes;
+package org.opentravel.model.otmProperties;
 
-import org.opentravel.model.objectNodes.OtmLibraryMember;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLAttribute;
@@ -37,8 +36,8 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmAttribute(TL tl) {
-		super(tl);
+	public OtmAttribute(TL tl, PropertyOwner parent) {
+		super(tl, parent);
 
 		if (!(tl instanceof TLAttribute))
 			throw new IllegalArgumentException("OtmAttribute constructor not passed a tl attribute.");
@@ -88,17 +87,5 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.ATTRIBUTE;
-	}
-
-	@Override
-	public OtmLibraryMember<?> getOwningComponent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	// TODO - remove after gui design is done
-	@Override
-	public boolean isEditable() {
-		return true;
 	}
 }

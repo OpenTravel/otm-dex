@@ -4,8 +4,8 @@
 package org.opentravel.objecteditor;
 
 import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.facetNodes.OtmFacet;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

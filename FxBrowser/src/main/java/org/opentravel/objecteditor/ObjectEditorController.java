@@ -33,7 +33,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
@@ -183,6 +182,16 @@ public class ObjectEditorController implements Initializable, DexController {
 		System.out.println("Object Editor Controller - Initialize w/params is now loading!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return
+	 */
+	@Override
+	public OtmModelManager getModelManager() {
+		return modelMgr;
+	}
+
 	@FXML
 	public void fileOpen(Event e) {
 		System.out.println("File Open selected.");
@@ -272,7 +281,6 @@ public class ObjectEditorController implements Initializable, DexController {
 	public void configureProjectMenuButton() {
 		if (projectCombo != null) {
 			File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
-			MenuItem item;
 			for (File file : fileHandler.getProjectList(initialDirectory)) {
 				projectMap.put(file.getName(), file);
 			}

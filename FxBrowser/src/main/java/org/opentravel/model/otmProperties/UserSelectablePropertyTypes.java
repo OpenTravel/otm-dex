@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.model.propertyNodes;
+package org.opentravel.model.otmProperties;
 
 import java.util.ArrayList;
 import java.util.List;

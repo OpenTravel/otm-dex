@@ -3,6 +3,7 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
@@ -100,6 +101,16 @@ public class LibraryHistoryController implements DexController {
 
 		// Have table listen to list.
 		historyTable.setItems(commitList);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return null
+	 */
+	@Override
+	public OtmModelManager getModelManager() {
+		return null;
 	}
 
 	// private TreeItem<RepoItemNode> initializeTree() {

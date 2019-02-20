@@ -4,10 +4,15 @@
 package org.opentravel.objecteditor;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmContainers.OtmLibrary;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
@@ -56,6 +61,8 @@ public class LibraryFilterController implements DexController {
 		Library, Name, Type, State;
 	}
 
+	private static final String ALLLIBS = "All";
+
 	private ChoiceBox<String> libraryChoice;
 	private TextField nameFilter;
 	private MenuButton typeMenu;
@@ -63,6 +70,7 @@ public class LibraryFilterController implements DexController {
 
 	private String textFilterValue = null;
 	private DexController parent;
+	private OtmModelManager modelMgr;
 
 	/**
 	 * Manage interaction with library selection panel.
@@ -73,8 +81,11 @@ public class LibraryFilterController implements DexController {
 		System.out.println("Initializing library filter controller.");
 		getFxNodes(fxNodes);
 		this.parent = parent;
+		modelMgr = parent.getModelManager();
 
-		nameFilter.setOnKeyPressed(this::applyTextFilter);
+		configureLibraryChoice();
+
+		nameFilter.setOnKeyTyped(this::applyTextFilter);
 		nameFilter.setOnAction(this::applyTextFilter);
 		typeMenu.setOnAction(this::applyTextFilter);
 	}
@@ -90,27 +101,88 @@ public class LibraryFilterController implements DexController {
 			throw new IllegalArgumentException("Null parameter.");
 	}
 
+	private HashMap<String, OtmLibrary> libraryMap = new HashMap<>();
+	private String libraryFilter = null;
+
+	private boolean ignoreClear = false;
+
+	private void configureLibraryChoice() {
+		libraryMap.clear();
+		libraryMap.put(ALLLIBS, null);
+		for (OtmLibrary lib : modelMgr.getLibraries())
+			if (lib.getName() != null && !lib.getName().isEmpty())
+				libraryMap.put(lib.getName(), lib);
+
+		ObservableList<String> libList = FXCollections.observableArrayList(libraryMap.keySet());
+		libList.sort(null);
+		libraryChoice.setItems(libList);
+		libraryChoice.setOnAction(this::setLibraryFilter);
+	}
+
+	/**
+	 * 
+	 * @param object
+	 *            to test
+	 * @return true if the object passes the selection filters (should be displayed)
+	 */
 	public boolean isSelected(OtmModelElement<?> object) {
 		// System.out.println(" Filter test of " + object.getName());
+		if (libraryFilter != null && !object.getLibrary().getName().startsWith(libraryFilter))
+			return false;
 		if (textFilterValue != null)
 			return object.getName().toLowerCase().startsWith(textFilterValue);
 		// NO filters applied
 		return true;
 	}
 
+	// Future - use fxControls or other package to get a multiple check box or even check tree to select versions.
+	//
+	private void setLibraryFilter(Event e) {
+		String selection = ALLLIBS;
+		if (libraryChoice.getSelectionModel().getSelectedItem() != null) {
+			selection = libraryChoice.getSelectionModel().getSelectedItem();
+			if (libraryChoice.getSelectionModel().getSelectedItem().equals(ALLLIBS)) {
+				clear();
+				((LibraryMemberTreeController) parent).refresh();
+			} else {
+				setLibraryFilter(libraryMap.get(selection));
+			}
+		}
+		libraryChoice.setValue(selection);
+	}
+
+	public void setLibraryFilter(OtmLibrary lib) {
+		ignoreClear = true;
+		libraryFilter = lib.getName();
+		((LibraryMemberTreeController) parent).refresh();
+		System.out.println("Set Library Filter to: " + libraryFilter);
+		ignoreClear = false;
+	}
+
 	// Filter on any case of the value
 	public void applyTextFilter(Event e) {
+		ignoreClear = true;
 		textFilterValue = nameFilter.getText().toLowerCase();
 		((LibraryMemberTreeController) parent).refresh();
 		System.out.println("Apply text Filter: " + textFilterValue);
+		ignoreClear = false;
 	}
 
 	public void applyTypeFilter(Event e) {
-		System.out.println("Apply Filter");
+		System.out.println("Apply type Filter");
 	}
 
 	@Override
 	public void clear() {
+		// When posting updated filter results, do not clear the filters.
+		if (!ignoreClear) {
+			modelMgr = parent.getModelManager();
+			configureLibraryChoice();
+			libraryFilter = null;
+
+			textFilterValue = null;
+			nameFilter.setText("");
+		}
 	}
 
 	@Override
@@ -123,4 +195,8 @@ public class LibraryFilterController implements DexController {
 		return null;
 	}
 
+	@Override
+	public OtmModelManager getModelManager() {
+		return modelMgr;
+	}
 }

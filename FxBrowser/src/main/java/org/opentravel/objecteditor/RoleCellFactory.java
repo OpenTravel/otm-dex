@@ -3,7 +3,7 @@
  */
 package org.opentravel.objecteditor;
 
-import org.opentravel.model.propertyNodes.UserSelectablePropertyTypes;
+import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
 import org.opentravel.objecteditor.FacetTabTreeTableHandler.PropertyNode;
 
 import javafx.event.ActionEvent;

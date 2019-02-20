@@ -16,31 +16,32 @@
 /**
  * 
  */
-package org.opentravel.model.facetNodes;
+package org.opentravel.model.otmFacets;
 
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract OTM Node for Detail Facets.
+ * Abstract OTM Node for Facets.
  * 
  * @author Dave Hollander
  * 
  */
-public class OtmDetailFacet extends OtmFacet<TLFacet> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmDetailFacet.class);
+public class OtmSummaryFacet extends OtmFacet<TLFacet> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmSummaryFacet.class);
 
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmDetailFacet(TLFacet tl) {
-		super(tl);
+	public OtmSummaryFacet(TLFacet tl, OtmLibraryMember parent) {
+		super(tl, parent);
 
-		if (tl.getFacetType() != TLFacetType.DETAIL)
+		if (tl.getFacetType() != TLFacetType.SUMMARY)
 			throw new IllegalArgumentException(
-					"Tried to create detail facet from wrong facet type: " + tl.getFacetType());
+					"Tried to create summary facet from wrong facet type: " + tl.getFacetType());
 	}
 
 	@Override

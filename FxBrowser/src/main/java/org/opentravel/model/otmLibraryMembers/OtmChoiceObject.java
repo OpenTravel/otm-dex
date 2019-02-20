@@ -16,13 +16,12 @@
 /**
  * 
  */
-package org.opentravel.model.objectNodes;
+package org.opentravel.model.otmLibraryMembers;
 
-import org.opentravel.model.facetNodes.OtmDetailFacet;
-import org.opentravel.model.facetNodes.OtmSummaryFacet;
+import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,16 +31,26 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmBusinessObject.class);
+public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmChoiceObject.class);
 
-	public OtmBusinessObject(TLBusinessObject tlo) {
-		super(tlo);
+	public OtmChoiceObject(TLChoiceObject tlo, OtmModelManager mgr) {
+		super(tlo, mgr);
 	}
 
-	public OtmBusinessObject(String name) {
-		super(new TLBusinessObject());
+	public OtmChoiceObject(String name, OtmModelManager mgr) {
+		super(new TLChoiceObject(), mgr);
 		setName(name);
+	}
+
+	@Override
+	public TLChoiceObject getTL() {
+		return (TLChoiceObject) tlObject;
+	}
+
+	@Override
+	public Icons getIconType() {
+		return ImageManager.Icons.CHOICE;
 	}
 
 	@Override
@@ -50,25 +59,22 @@ public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 		return getName();
 	}
 
-	@Override
-	public TLBusinessObject getTL() {
-		return (TLBusinessObject) tlObject;
-	}
-
-	@Override
-	public Icons getIconType() {
-		return ImageManager.Icons.BUSINESS;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * Creates facets to represent facets in the TL business object.
+	 * Creates facets to represent facets in the TL choice object.
 	 */
 	@Override
 	public void modelChildren() {
-		children.add(new OtmSummaryFacet(getTL().getSummaryFacet()));
-		children.add(new OtmDetailFacet(getTL().getDetailFacet()));
+		// getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
+	}
+
+	/**
+	 * @return this
+	 */
+	@Override
+	public OtmLibraryMember<?> getOwningMember() {
+		return this;
 	}
 
 	// extends FacetOwners

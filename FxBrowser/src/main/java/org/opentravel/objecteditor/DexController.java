@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.model.OtmModelManager;
+
 import javafx.beans.property.ReadOnlyObjectProperty;
 
 /**
@@ -14,7 +16,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 public interface DexController {
 
 	/**
-	 * @return
+	 * @return the model manager used by this controller
 	 */
 	ImageManager getImageManager();
 
@@ -32,5 +34,10 @@ public interface DexController {
 	 * @return a property or NULL if no fxNodes are of interest outside of this controller
 	 */
 	ReadOnlyObjectProperty<?> getSelectable();
+
+	/**
+	 * @return
+	 */
+	OtmModelManager getModelManager();
 
 }

@@ -16,10 +16,10 @@
 /**
  * 
  */
-package org.opentravel.model.propertyNodes;
+package org.opentravel.model.otmProperties;
 
 import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,30 +32,41 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelElement<TLModelElement> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmProperty.class);
+	PropertyOwner parent;
 
 	/**
-	 * Facet Factory
+	 * @param tlBusinessObject
+	 */
+	public OtmProperty(TL tl, PropertyOwner parent) {
+		super(tl);
+		this.parent = parent;
+
+		if (parent == null)
+			throw new IllegalArgumentException("Missing property owner parent.");
+	}
+
+	// Needs to be abstract because getTL() is of type TLModelElement
+	@Override
+	public abstract TLModelElement getTL();
+
+	/**
+	 * Property Factory
 	 * 
 	 * @param tl
-	 * @return OtmFacet<?> based on facet type or null.
+	 * @return OtmFacet<?> based on type or null.
 	 */
 	public static OtmProperty<?> propertyFactory(TLModelElement tl) {
 		return null;
 	}
 
-	/**
-	 * @param tlBusinessObject
-	 */
-	public OtmProperty(TL tl) {
-		super(tl);
+	@Override
+	public OtmLibraryMember<?> getOwningMember() {
+		return parent.getOwningMember();
 	}
-
-	// Needs to be abstract because getTL() is of type TLModelElement
-	public abstract OtmLibraryMember<?> getOwningComponent();
 
 	@Override
 	public String getNamespace() {
-		return getOwningComponent().getNamespace();
+		return getOwningMember().getNamespace();
 	}
 
 	@Override
@@ -69,7 +80,7 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 
 	@Override
 	public boolean isEditable() {
-		return getOwningComponent() != null ? getOwningComponent().isEditable() : false;
+		return getOwningMember() != null ? getOwningMember().isEditable() : false;
 	}
 
 	@Override

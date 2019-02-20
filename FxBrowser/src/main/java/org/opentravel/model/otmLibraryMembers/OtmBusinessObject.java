@@ -16,18 +16,14 @@
 /**
  * 
  */
-package org.opentravel.model;
+package org.opentravel.model.otmLibraryMembers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.opentravel.model.objectNodes.OtmBusinessObject;
-import org.opentravel.model.objectNodes.OtmChoiceObject;
-import org.opentravel.model.objectNodes.OtmCoreObject;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmFacets.OtmDetailFacet;
+import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
-import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,40 +33,51 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-// TODO - does NOT extend model element
-public class OtmProject extends OtmModelElement<TLLibrary> {
-	/**
-	 * @param tl
-	 */
-	public OtmProject(TLLibrary tl) {
-		super(tl);
-		throw new IllegalStateException("Tried to build project from Library");
+public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmBusinessObject.class);
+
+	public OtmBusinessObject(TLBusinessObject tlo, OtmModelManager mgr) {
+		super(tlo, mgr);
 	}
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmProject.class);
+	public OtmBusinessObject(String name, OtmModelManager mgr) {
+		super(new TLBusinessObject(), mgr);
+		setName(name);
+	}
 
-	List<OtmLibraryMember<?>> getTestChildren() {
-		List<OtmLibraryMember<?>> members = new ArrayList<>();
-		members.add(new OtmBusinessObject("Album"));
-		members.add(new OtmChoiceObject("Media"));
-		members.add(new OtmCoreObject("Name"));
-		return members;
+	@Override
+	public String setName(String name) {
+		getTL().setName(name);
+		return getName();
+	}
+
+	@Override
+	public TLBusinessObject getTL() {
+		return (TLBusinessObject) tlObject;
 	}
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.LIBRARY;
+		return ImageManager.Icons.BUSINESS;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmModelElement#getTL()
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates facets to represent facets in the TL business object.
 	 */
 	@Override
-	public TLLibrary getTL() {
-		// TODO Auto-generated method stub
-		return null;
+	public void modelChildren() {
+		children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
+		children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
+	}
+
+	/**
+	 * @return this
+	 */
+	@Override
+	public OtmLibraryMember<?> getOwningMember() {
+		return this;
 	}
 
 	// extends FacetOwners

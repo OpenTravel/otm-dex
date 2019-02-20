@@ -16,11 +16,13 @@
 /**
  * 
  */
-package org.opentravel.model.objectNodes;
+package org.opentravel.model.otmContainers;
 
+import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
-import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,42 +32,41 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmChoiceObject.class);
-
-	public OtmChoiceObject(TLChoiceObject tlo) {
-		super(tlo);
+// TODO - does NOT extend model element
+public class OtmProject extends OtmModelElement<TLLibrary> {
+	/**
+	 * @param tl
+	 */
+	public OtmProject(TLLibrary tl) {
+		super(tl);
+		throw new IllegalStateException("Tried to build project from Library");
 	}
 
-	public OtmChoiceObject(String name) {
-		super(new TLChoiceObject());
-		setName(name);
-	}
-
-	@Override
-	public TLChoiceObject getTL() {
-		return (TLChoiceObject) tlObject;
-	}
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmProject.class);
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.CHOICE;
-	}
-
-	@Override
-	public String setName(String name) {
-		getTL().setName(name);
-		return getName();
+		return ImageManager.Icons.LIBRARY;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * <p>
-	 * Creates facets to represent facets in the TL choice object.
+	 * 
+	 * @return null because projects have no TL Model Element
 	 */
 	@Override
-	public void modelChildren() {
-		// getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
+	public TLLibrary getTL() {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return null because projects have no owning member
+	 */
+	@Override
+	public OtmLibraryMember<?> getOwningMember() {
+		return null;
 	}
 
 	// extends FacetOwners

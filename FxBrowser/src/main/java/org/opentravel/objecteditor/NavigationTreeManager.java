@@ -4,8 +4,8 @@
 package org.opentravel.objecteditor;
 
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.objectNodes.OtmChoiceObject;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +41,7 @@ public class NavigationTreeManager {
 	// TreeItem<OtmLibraryMember<?>> branch1, branch2, branch3;
 	ImageManager images;
 	Stage stage;
+	private OtmModelManager modelMgr;
 
 	// Obscure generic from tree view and tree item and cell
 	public class TreeNode {
@@ -72,6 +73,7 @@ public class NavigationTreeManager {
 		this.stage = stage;
 		images = new ImageManager(stage);
 		this.navigationTreeView = navigationTreeView;
+		modelMgr = model;
 
 		// Wire in the overridden Tree View Cell factory
 		navigationTreeView.setCellFactory((TreeView<TreeNode> p) -> new NavCellFactory());
@@ -154,7 +156,7 @@ public class NavigationTreeManager {
 			MenuItem addObject = new MenuItem("Add Object");
 			addMenu.getItems().add(addObject);
 			addObject.setOnAction((ActionEvent t) -> {
-				TreeItem<TreeNode> newObject = new TreeItem<>(new TreeNode(new OtmChoiceObject("new Guy")));
+				TreeItem<TreeNode> newObject = new TreeItem<>(new TreeNode(new OtmChoiceObject("new Guy", modelMgr)));
 				newObject.setGraphic(images.getView(newObject.getValue().member.getIconType()));
 				if (getTreeItem().getParent() != null)
 					getTreeItem().getParent().getChildren().add(newObject);

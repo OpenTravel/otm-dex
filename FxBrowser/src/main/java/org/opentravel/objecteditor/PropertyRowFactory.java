@@ -3,7 +3,7 @@
  */
 package org.opentravel.objecteditor;
 
-import org.opentravel.model.facetNodes.OtmFacet;
+import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.objecteditor.FacetTabTreeTableHandler.PropertyNode;
 
 import javafx.css.PseudoClass;

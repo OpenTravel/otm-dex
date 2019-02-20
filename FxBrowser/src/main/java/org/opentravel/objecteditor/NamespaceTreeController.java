@@ -5,6 +5,7 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
+import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -112,6 +113,16 @@ public class NamespaceTreeController implements DexController {
 		this.tree = tree;
 
 		root = initializeTree(tree);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return null
+	 */
+	@Override
+	public OtmModelManager getModelManager() {
+		return null;
 	}
 
 	@Override

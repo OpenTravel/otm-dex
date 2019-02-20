@@ -16,10 +16,12 @@
 /**
  * 
  */
-package org.opentravel.model.objectNodes;
+package org.opentravel.model.otmLibraryMembers;
 
 import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.facetNodes.OtmFacet;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +34,22 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmModelElement<TLLibraryMember> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibraryMember.class);
-
+	private OtmModelManager mgr = null;
 	// protected List<OtmFacet<TLFacet>> children = new ArrayList<>(); // leave empty if no children
 
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmLibraryMember(TL tl) {
+	public OtmLibraryMember(TL tl, OtmModelManager mgr) {
 		super(tl);
+		this.mgr = mgr;
+
+		assert mgr != null;
+	}
+
+	@Override
+	public OtmLibrary getLibrary() {
+		return mgr.get(getTL().getOwningLibrary());
 	}
 
 	@Override
@@ -51,6 +61,13 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 	public String getName() {
 		return tlObject.getLocalName();
 		// return this.getClass().getSimpleName();
+	}
+
+	public String getLibraryName() {
+		String libName = "";
+		if (getTL().getOwningLibrary() != null)
+			libName = getTL().getOwningLibrary().getName();
+		return libName;
 	}
 
 	@Override

@@ -21,8 +21,9 @@ package org.opentravel.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.ImageManager;
-import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;
@@ -86,9 +87,7 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 	public abstract TL getTL();
 
 	public boolean isEditable() {
-		if (tlObject instanceof LibraryElement)
-			return ((LibraryElement) tlObject).getOwningLibrary() != null;
-		return false;
+		return getOwningMember() != null ? getOwningMember().isEditable() : false;
 	}
 
 	/**
@@ -123,10 +122,23 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return getClass().getSimpleName();
 	}
 
+	public abstract OtmLibraryMember<?> getOwningMember();
+
 	/**
 	 * 
 	 */
 	public String getPrefix() {
-		return ("");
+		return getOwningMember() != null && getOwningMember().getLibrary() != null
+				? getOwningMember().getLibrary().getPrefix() : "---";
+	}
+
+	/**
+	 * @return this library, owning library or null
+	 */
+	public OtmLibrary getLibrary() {
+		// if (this instanceof OtmLibraryMember<?>) return getLibrary();
+		if (getOwningMember() != null)
+			return getOwningMember().getLibrary();
+		return null;
 	}
 }

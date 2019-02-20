@@ -5,9 +5,9 @@ package org.opentravel.objecteditor;
 
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.facetNodes.OtmFacet;
-import org.opentravel.model.objectNodes.OtmCoreObject;
-import org.opentravel.model.objectNodes.OtmLibraryMember;
+import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +85,11 @@ public class LibraryMemberTreeController implements DexController {
 		this.filter = filter;
 	}
 
+	@Override
+	public OtmModelManager getModelManager() {
+		return currentModelMgr;
+	}
+
 	/**
 	 * Get the library members from the model manager and put them into a cleared tree.
 	 * 
@@ -102,6 +107,8 @@ public class LibraryMemberTreeController implements DexController {
 		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
 			createTreeItem(member, root);
 		}
+		if (getFilter() != null)
+			getFilter().clear();
 	}
 
 	/**
@@ -248,7 +255,8 @@ public class LibraryMemberTreeController implements DexController {
 		 * @param t
 		 */
 		private void addMemberEvent(ActionEvent t) {
-			TreeItem<LibraryMemberTreeDAO> item = createTreeItem(new OtmCoreObject("new"), getTreeItem().getParent());
+			TreeItem<LibraryMemberTreeDAO> item = createTreeItem(new OtmCoreObject("new", currentModelMgr),
+					getTreeItem().getParent());
 			super.updateTreeItem(item); // needed to apply stylesheet to new item
 		}
 

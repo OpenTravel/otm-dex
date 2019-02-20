@@ -6,6 +6,7 @@ package org.opentravel.objecteditor;
 import java.util.EnumMap;
 
 import org.opentravel.common.RepositoryController;
+import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
 import org.opentravel.objecteditor.NamespaceTreeController.NamespaceNode;
 import org.opentravel.schemacompiler.repository.Repository;
@@ -232,6 +233,16 @@ public class RepositoryTabController implements DexController {
 
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<NamespaceNode>> getSelectable() {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return null
+	 */
+	@Override
+	public OtmModelManager getModelManager() {
 		return null;
 	}
 
