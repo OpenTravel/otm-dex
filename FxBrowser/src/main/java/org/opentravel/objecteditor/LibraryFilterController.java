@@ -15,8 +15,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 
@@ -72,6 +74,14 @@ public class LibraryFilterController implements DexController {
 	private DexController parent;
 	private OtmModelManager modelMgr;
 
+	private HashMap<String, OtmLibrary> libraryMap = new HashMap<>();
+	private String libraryFilter = null;
+
+	private boolean ignoreClear = false;
+
+	private boolean latestVersionOnly = false;
+	private boolean editableOnly = false;
+
 	/**
 	 * Manage interaction with library selection panel.
 	 * 
@@ -87,7 +97,11 @@ public class LibraryFilterController implements DexController {
 
 		nameFilter.setOnKeyTyped(this::applyTextFilter);
 		nameFilter.setOnAction(this::applyTextFilter);
-		typeMenu.setOnAction(this::applyTextFilter);
+		typeMenu.setOnAction(this::setTypeFilter);
+		stateMenu.setOnAction(this::setStateFilter);
+		// May have to set the actions on each item
+		for (MenuItem item : stateMenu.getItems())
+			item.setOnAction(this::setStateFilter);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -100,11 +114,6 @@ public class LibraryFilterController implements DexController {
 		if (libraryChoice == null || nameFilter == null || typeMenu == null || stateMenu == null)
 			throw new IllegalArgumentException("Null parameter.");
 	}
-
-	private HashMap<String, OtmLibrary> libraryMap = new HashMap<>();
-	private String libraryFilter = null;
-
-	private boolean ignoreClear = false;
 
 	private void configureLibraryChoice() {
 		libraryMap.clear();
@@ -126,12 +135,19 @@ public class LibraryFilterController implements DexController {
 	 * @return true if the object passes the selection filters (should be displayed)
 	 */
 	public boolean isSelected(OtmModelElement<?> object) {
+		if (object.getOwningMember() == null || object.getOwningMember().getLibrary() == null)
+			return true;
 		// System.out.println(" Filter test of " + object.getName());
 		if (libraryFilter != null && !object.getLibrary().getName().startsWith(libraryFilter))
 			return false;
-		if (textFilterValue != null)
-			return object.getName().toLowerCase().startsWith(textFilterValue);
-		// NO filters applied
+		if (textFilterValue != null && !object.getName().toLowerCase().startsWith(textFilterValue))
+			return false;
+		if (latestVersionOnly && !object.getOwningMember().getLibrary().isLatestVersion())
+			return false;
+		if (editableOnly && !object.isEditable())
+			return false;
+
+		// NO filters applied OR passed all filters
 		return true;
 	}
 
@@ -159,6 +175,26 @@ public class LibraryFilterController implements DexController {
 		ignoreClear = false;
 	}
 
+	public void setTypeFilter(Event e) {
+		System.out.println("Set Type Filter: " + e.toString());
+	}
+
+	public void setStateFilter(Event e) {
+		System.out.println("Set Type Filter: " + e.toString());
+		CheckMenuItem mi = null;
+		if (e.getTarget() instanceof CheckMenuItem)
+			mi = (CheckMenuItem) e.getTarget();
+		if (mi != null) {
+			if (((MenuItem) e.getTarget()).getText().startsWith("Latest")) {
+				latestVersionOnly = mi.isSelected();
+			}
+			if (((MenuItem) e.getTarget()).getText().startsWith("Edit")) {
+				editableOnly = mi.isSelected();
+			}
+			((LibraryMemberTreeController) parent).refresh();
+		}
+	}
+
 	// Filter on any case of the value
 	public void applyTextFilter(Event e) {
 		ignoreClear = true;
@@ -168,9 +204,9 @@ public class LibraryFilterController implements DexController {
 		ignoreClear = false;
 	}
 
-	public void applyTypeFilter(Event e) {
-		System.out.println("Apply type Filter");
-	}
+	// public void setTypeFilter(Event e) {
+	// System.out.println("Apply type Filter");
+	// }
 
 	@Override
 	public void clear() {

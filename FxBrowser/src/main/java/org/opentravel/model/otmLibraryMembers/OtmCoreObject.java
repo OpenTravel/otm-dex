@@ -19,8 +19,6 @@
 package org.opentravel.model.otmLibraryMembers;
 
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.otmFacets.OtmDetailFacet;
-import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLCoreObject;
@@ -56,11 +54,6 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	}
 
 	@Override
-	public boolean isEditable() {
-		return true;
-	}
-
-	@Override
 	public String setName(String name) {
 		getTL().setName(name);
 		return getName();
@@ -74,16 +67,16 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 		return this;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Creates facets to represent facets in the TL core object.
-	 */
-	@Override
-	public void modelChildren() {
-		children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
-		children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
-	}
+	// /**
+	// * {@inheritDoc}
+	// * <p>
+	// * Creates facets to represent facets in the TL core object.
+	// */
+	// @Override
+	// public void modelChildren() {
+	// children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
+	// children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
+	// }
 
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {

@@ -5,6 +5,7 @@ package org.opentravel.objecteditor;
 
 import org.opentravel.common.DexIntegerStringConverter;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmProperties.OtmProperty;
@@ -116,6 +117,16 @@ public class FacetTabTreeTableHandler {
 					System.out.println("Set optional/manditory of " + element.getName() + " to " + newVal);
 				});
 
+			return ssp;
+		}
+
+		public StringProperty assignedTypeProperty() {
+			SimpleStringProperty ssp;
+			if (element instanceof OtmTypeUser)
+				ssp = new SimpleStringProperty(((OtmTypeUser) element).getAssignedTypeName());
+			else
+				return new ReadOnlyStringWrapper("--");
+			// TODO - add listener and change wizard
 			return ssp;
 		}
 
@@ -349,6 +360,11 @@ public class FacetTabTreeTableHandler {
 
 		// Name Column
 		setColumnProps(nameCol, true, true, false, 200, "name");
+
+		setColumnProps(typeCol, true, true, false, 0);
+		typeCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertyNode, String>("assignedType"));
+		// typeCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(getRoleList()));
+
 		// Role Column
 		setColumnProps(roleCol, true, true, false, 0);
 		minCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertyNode, String>("role"));
@@ -368,7 +384,7 @@ public class FacetTabTreeTableHandler {
 		setColumnProps(descCol, true, true, false, 0, "description");
 		// Deprecation Column
 		setColumnProps(deprecatedCol, true, true, false, 0, "deprecation");
-		// Deprecation Column
+		// Example Column
 		setColumnProps(exampleCol, true, true, false, 0, "example");
 	}
 

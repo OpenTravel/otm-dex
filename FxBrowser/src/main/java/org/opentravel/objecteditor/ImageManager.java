@@ -25,7 +25,9 @@ public class ImageManager {
 		CHOICE("/icons/Choice.gif"),
 		FACET("/icons/Facet.gif"),
 		ELEMENT("/icons/Element.gif"),
-		ATTRIBUTE("/icons/Attribute.jpg");
+		ATTRIBUTE("/icons/Attribute.jpg"),
+		INDICATOR("/icons/Indicator.gif"),
+		INDICATORELEMENT("/icons/IndicatorElement.gif");
 
 		private String label; // User displayed value
 

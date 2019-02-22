@@ -19,8 +19,6 @@
 package org.opentravel.model.otmLibraryMembers;
 
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.otmFacets.OtmDetailFacet;
-import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -61,16 +59,18 @@ public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 		return ImageManager.Icons.BUSINESS;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Creates facets to represent facets in the TL business object.
-	 */
-	@Override
-	public void modelChildren() {
-		children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
-		children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
-	}
+	// /**
+	// * {@inheritDoc}
+	// * <p>
+	// * Creates facets to represent facets in the TL business object.
+	// */
+	// @Override
+	// public void modelChildren() {
+	// if (getTL() instanceof TLFacetOwner)
+	// ((TLFacetOwner) getTL()).getAllFacets();
+	// children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
+	// children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
+	// }
 
 	/**
 	 * @return this

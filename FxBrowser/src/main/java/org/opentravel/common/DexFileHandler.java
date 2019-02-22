@@ -38,22 +38,51 @@ public class DexFileHandler extends AbstractMainWindowController {
 		return newModel;
 	}
 
+	public ProjectManager openProject(File selectedProjectFile, OpenProjectProgressMonitor monitor) {
+		ProjectManager manager = new ProjectManager(false);
+		findings = new ValidationFindings();
+		try {
+			manager.loadProject(selectedProjectFile, findings, monitor);
+			// manager.loadProject(selectedProjectFile, findings);
+		} catch (LibraryLoaderException e) {
+			e.printStackTrace();
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return manager;
+	}
+
+	// public class ProjectProgressMonitor implements LoaderProgressMonitor {
+	//
+	// @Override
+	// public void beginLoad(int libraryCount) {
+	// System.out.println("Progress: begin with " + libraryCount);
+	// }
+	//
+	// @Override
+	// public void loadingLibrary(String libraryFilename) {
+	// System.out.println("Progress: loading " + libraryFilename);
+	// }
+	//
+	// @Override
+	// public void libraryLoaded() {
+	// System.out.println("Progress: loaded done. ");
+	// }
+	//
+	// @Override
+	// public void done() {
+	// System.out.println("Progress: done");
+	// }
+	//
+	// }
+
 	public void openFile(File selectedFile) {
 		if (selectedFile == null)
 			return;
 
 		if (selectedFile.getName().endsWith(".otp")) {
-			ProjectManager manager = new ProjectManager(false);
-			findings = new ValidationFindings();
-			try {
-				manager.loadProject(selectedFile, findings);
-			} catch (LibraryLoaderException e) {
-				e.printStackTrace();
-			} catch (RepositoryException e) {
-				e.printStackTrace();
-			}
+			ProjectManager manager = openProject(selectedFile, null);
 			newModel = manager.getModel();
-
 		} else { // assume OTM library file
 			LibraryInputSource<InputStream> libraryInput = new LibraryStreamInputSource(selectedFile);
 			try {

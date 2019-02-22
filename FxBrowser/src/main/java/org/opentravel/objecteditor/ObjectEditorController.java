@@ -10,10 +10,11 @@ import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import org.opentravel.common.DexFileHandler;
+import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.objecteditor.LibraryFilterController.LibraryFilterNodes;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
-import org.opentravel.upversion.RepositoryItemWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,13 +81,13 @@ public class ObjectEditorController implements Initializable, DexController {
 	@FXML
 	private ChoiceBox<String> repoTabNSChoice;
 	@FXML
-	private TreeTableView repoTabLibraryTreeTableView;
+	private TreeTableView<?> repoTabLibraryTreeTableView;
 	@FXML
 	private Label nsLibraryTablePermissionLabel;
 	@FXML
 	private TextField repoTabRepoUserField;
 	@FXML
-	public TableView repoTabLibraryHistoryView;
+	public TableView<?> repoTabLibraryHistoryView;
 
 	// Library Member Table Selection Filters
 	@FXML
@@ -97,6 +98,9 @@ public class ObjectEditorController implements Initializable, DexController {
 	private MenuButton libraryTypeMenu;
 	@FXML
 	private MenuButton libraryStateMenu;
+
+	@FXML
+	public TreeTableView<ProjectLibraryTreeDAO> libraryTabTreeTableView;
 
 	//
 	// OLD - to be removed
@@ -117,19 +121,20 @@ public class ObjectEditorController implements Initializable, DexController {
 	@FXML
 	public Tab memberTab;
 
-	@FXML
-	private ChoiceBox<String> repositoryChoice;
-	@FXML
-	private ChoiceBox<String> namespaceChoice;
-	@FXML
-	private TableView<RepositoryItemWrapper> selectedLibrariesTable;
-	private TableView<RepositoryItemWrapper> namespaceTable;
+	// @FXML
+	// private ChoiceBox<String> repositoryChoice;
+	// @FXML
+	// private ChoiceBox<String> namespaceChoice;
+	// @FXML
+	// private TableView<RepositoryItemWrapper> selectedLibrariesTable;
+	// private TableView<RepositoryItemWrapper> namespaceTable;
 
 	Stage primaryStage = null;
 	private OtmModelManager modelMgr;
 	private ImageManager imageMgr;
 	private DexFileHandler fileHandler = new DexFileHandler();
 	private LibraryFilterController libraryFilters;
+	private ProjectLibrariesTreeController libController;
 
 	// TODO - create wizard/pop-up handlers
 	// use TitledPane fx control
@@ -175,6 +180,13 @@ public class ObjectEditorController implements Initializable, DexController {
 		filterNodes.put(LibraryFilterNodes.State, libraryStateMenu);
 		libraryFilters = new LibraryFilterController(memberController, filterNodes);
 		memberController.setFilter(libraryFilters);
+
+		libController = new ProjectLibrariesTreeController(this, libraryTabTreeTableView);
+	}
+
+	public void handleLibrarySelectionEvent(OtmLibrary library) {
+		libraryFilters.setLibraryFilter(library);
+		memberController.refresh();
 	}
 
 	@Override
@@ -203,17 +215,13 @@ public class ObjectEditorController implements Initializable, DexController {
 		if (selectedFile == null)
 			return;
 		memberController.clear(); // prevent concurrent modification
+		facetTableMgr.clear();
 		modelMgr.clear();
 		postStatus("Opening " + selectedFile.getName());
-		postProgress(0.2F);
+		postProgress(0.1F);
 
-		Runnable task = new Runnable() {
-			@Override
-			public void run() {
-				openFile(fileHandler, selectedFile);
-			}
-		};
 		// Run the task in a background thread and Terminate the running thread if the application exits
+		Runnable task = () -> openFileTask(selectedFile);
 		Thread backgroundThread = new Thread(task);
 		backgroundThread.setDaemon(true);
 		backgroundThread.start();
@@ -225,16 +233,13 @@ public class ObjectEditorController implements Initializable, DexController {
 	 * @param fileHandler
 	 * @param selectedFile
 	 */
-	public void openFile(DexFileHandler fileHandler, File selectedFile) {
-		fileHandler.openFile(selectedFile);
-		Platform.runLater(() -> postProgress(0.75F));
-		modelMgr.add(fileHandler.getNewModel());
-		facetTableMgr.clear();
-
+	public void openFileTask(File selectedFile) {
+		modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
 		// When done, update display in the UI thread
 		Platform.runLater(() -> {
 			memberController.post(modelMgr);
-			postStatus("Done");
+			libController.post(modelMgr);
+			postStatus("");
 			postProgress(1F);
 		});
 	}
@@ -244,7 +249,10 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	public void postProgress(double percent) {
 		if (statusProgress != null)
-			statusProgress.setProgress(percent);
+			if (Platform.isFxApplicationThread())
+				statusProgress.setProgress(percent);
+			else
+				Platform.runLater(() -> postProgress(percent));
 	}
 
 	@FXML
@@ -252,7 +260,10 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	public void postStatus(String status) {
 		if (statusLabel != null)
-			statusLabel.setText(status);
+			if (Platform.isFxApplicationThread())
+				statusLabel.setText(status);
+			else
+				Platform.runLater(() -> postStatus(status));
 	}
 
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
@@ -264,14 +275,6 @@ public class ObjectEditorController implements Initializable, DexController {
 	@FXML
 	public void memberTabSelection(Event e) {
 		System.out.println("memberTab selection event");
-		// // boolean enabled = memberTab.isDisabled();
-		// // if (tableMgr != null) {
-		// // if (memberTable != null)
-		// // memberTable.setItems(tableMgr.getNodes());
-		// // if (memberEditHbox != null && memberEditHbox.getChildren().isEmpty())
-		// // tableMgr.getEditPane(memberEditHbox);
-		// // // memberEditHbox.getChildren().add(tableMgr.getEditPane());
-		// // }
 	}
 
 	@FXML
@@ -289,24 +292,13 @@ public class ObjectEditorController implements Initializable, DexController {
 			projectCombo.setItems(projectList);
 			projectCombo.setOnAction(e -> projectComboSelectionListener(e));
 		}
-		// FIXME - use modelMrg's project list
 	}
 
 	@FXML
 	public void projectComboSelectionListener(Event e) {
 		System.out.println("project selection event");
-		if (e.getTarget() instanceof ComboBox) {
-			String p = (String) ((ComboBox) e.getTarget()).getValue();
-			openFile(projectMap.get(p));
-			System.out.println("P = " + p);
-		}
-		// if (e.getTarget() instanceof MenuItem) {
-		// File projectFile = (File) ((MenuItem) e.getTarget()).getUserData();
-		// openFile(projectFile);
-		// }
-	}
-
-	public void postCurrentProject() {
+		if (e.getTarget() instanceof ComboBox)
+			openFile(projectMap.get(((ComboBox<?>) e.getTarget()).getValue()));
 	}
 
 	@FXML
@@ -319,20 +311,20 @@ public class ObjectEditorController implements Initializable, DexController {
 		System.out.println("set Name");
 	}
 
-	@FXML
-	public void radioButton1(ActionEvent e) {
-		System.out.println("Button1");
-	}
-
-	@FXML
-	public void radioButton2(ActionEvent e) {
-		System.out.println("Button2");
-	}
-
-	@FXML
-	public void simpleButton(ActionEvent e) {
-		System.out.println("simpleButton");
-	}
+	// @FXML
+	// public void radioButton1(ActionEvent e) {
+	// System.out.println("Button1");
+	// }
+	//
+	// @FXML
+	// public void radioButton2(ActionEvent e) {
+	// System.out.println("Button2");
+	// }
+	//
+	// @FXML
+	// public void simpleButton(ActionEvent e) {
+	// System.out.println("simpleButton");
+	// }
 
 	@FXML
 	public void open(ActionEvent e) {

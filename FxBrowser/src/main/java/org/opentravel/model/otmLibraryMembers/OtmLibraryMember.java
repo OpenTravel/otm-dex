@@ -18,10 +18,14 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import org.opentravel.model.OtmFacetFactory;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +36,13 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmModelElement<TLLibraryMember> {
+public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmModelElement<TLLibraryMember>
+		implements OtmTypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibraryMember.class);
 	private OtmModelManager mgr = null;
 	// protected List<OtmFacet<TLFacet>> children = new ArrayList<>(); // leave empty if no children
 
 	/**
-	 * @param tlBusinessObject
 	 */
 	public OtmLibraryMember(TL tl, OtmModelManager mgr) {
 		super(tl);
@@ -72,7 +76,11 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 
 	@Override
 	public boolean isEditable() {
-		return tlObject.getOwningLibrary() != null;
+		OtmLibrary ol = null;
+		if (mgr != null || getTL() != null)
+			ol = mgr.get(getTL().getOwningLibrary());
+		return ol != null && ol.isEditable();
+		// return tlObject.getOwningLibrary() != null;
 	}
 
 	@Override
@@ -83,6 +91,22 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 	@Override
 	public String getPrefix() {
 		return getTL().getOwningLibrary() != null ? getTL().getOwningLibrary().getPrefix() : "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates facets to represent facets in the TL object.
+	 */
+	@Override
+	public void modelChildren() {
+		if (getTL() instanceof TLFacetOwner)
+			for (TLFacet tlFacet : ((TLFacetOwner) getTL()).getAllFacets()) {
+				OtmFacet<?> facet = OtmFacetFactory.create(tlFacet, this);
+				if (facet != null) {
+					children.add(facet);
+				}
+			}
 	}
 
 	/**

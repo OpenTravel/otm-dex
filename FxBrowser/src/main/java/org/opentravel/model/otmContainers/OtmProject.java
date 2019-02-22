@@ -18,55 +18,33 @@
  */
 package org.opentravel.model.otmContainers;
 
-import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
-import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.repository.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * OTM Object Node for business objects.
+ * OTM Object Node for business objects. Project does NOT extend model element
  * 
  * @author Dave Hollander
  * 
  */
-// TODO - does NOT extend model element
-public class OtmProject extends OtmModelElement<TLLibrary> {
-	/**
-	 * @param tl
-	 */
-	public OtmProject(TLLibrary tl) {
-		super(tl);
-		throw new IllegalStateException("Tried to build project from Library");
-	}
-
+public class OtmProject {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmProject.class);
 
-	@Override
+	Project tlProject;
+
+	public OtmProject(Project project) {
+		this.tlProject = project;
+	}
+
 	public Icons getIconType() {
 		return ImageManager.Icons.LIBRARY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null because projects have no TL Model Element
-	 */
-	@Override
-	public TLLibrary getTL() {
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null because projects have no owning member
-	 */
-	@Override
-	public OtmLibraryMember<?> getOwningMember() {
-		return null;
+	public Project getTL() {
+		return tlProject;
 	}
 
 	// extends FacetOwners

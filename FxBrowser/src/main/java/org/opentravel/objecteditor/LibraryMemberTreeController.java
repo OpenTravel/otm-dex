@@ -98,17 +98,18 @@ public class LibraryMemberTreeController implements DexController {
 	public void post(OtmModelManager modelMgr) {
 		if (modelMgr != null)
 			currentModelMgr = modelMgr;
+		if (getFilter() != null)
+			getFilter().clear();
 		refresh();
 	}
 
 	public void refresh() {
+		// FIXME - preserve sort state
 		// create cells for members
 		memberTree.getRoot().getChildren().clear();
 		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
 			createTreeItem(member, root);
 		}
-		if (getFilter() != null)
-			getFilter().clear();
 	}
 
 	/**

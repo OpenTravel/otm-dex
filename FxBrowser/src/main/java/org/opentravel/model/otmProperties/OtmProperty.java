@@ -80,7 +80,7 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 
 	@Override
 	public boolean isEditable() {
-		return getOwningMember() != null ? getOwningMember().isEditable() : false;
+		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
 	@Override

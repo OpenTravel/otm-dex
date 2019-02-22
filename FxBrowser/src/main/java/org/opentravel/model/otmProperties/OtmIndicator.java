@@ -18,48 +18,34 @@
  */
 package org.opentravel.model.otmProperties;
 
-import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.OtmTypeUser;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
-import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLIndicator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract OTM Node for attribute properties.
+ * Abstract OTM Node for indicator attribute properties.
  * 
  * @author Dave Hollander
  * 
  */
-public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribute> implements OtmTypeUser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmAttribute.class);
+public class OtmIndicator<TL extends TLIndicator> extends OtmProperty<TLIndicator> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmIndicator.class);
 
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmAttribute(TL tl, PropertyOwner parent) {
+	public OtmIndicator(TL tl, PropertyOwner parent) {
 		super(tl, parent);
 
-		if (!(tl instanceof TLAttribute))
+		if (!(tl instanceof TLIndicator))
 			throw new IllegalArgumentException("OtmAttribute constructor not passed a tl attribute.");
-		// if (tl.isReference())
-		// throw new IllegalArgumentException("OtmAttribute constructor passed a attribute reference.");
 	}
 
 	@Override
-	public TLAttribute getTL() {
-		return (TLAttribute) tlObject;
-	}
-
-	@Override
-	public String getAssignedTypeName() {
-		return getTL().getTypeName();
-	}
-
-	@Override
-	public OtmTypeProvider getAssignedType() {
-		return null; // FIXME
+	public TLIndicator getTL() {
+		return (TLIndicator) tlObject;
 	}
 
 	@Override
@@ -74,12 +60,12 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 
 	@Override
 	public boolean isManditory() {
-		return getTL().isMandatory();
+		return false;
 	}
 
 	@Override
 	public void setManditory(boolean value) {
-		getTL().setMandatory(value);
+		// NO-OP
 	}
 
 	/**
@@ -98,6 +84,6 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.ATTRIBUTE;
+		return ImageManager.Icons.INDICATOR;
 	}
 }

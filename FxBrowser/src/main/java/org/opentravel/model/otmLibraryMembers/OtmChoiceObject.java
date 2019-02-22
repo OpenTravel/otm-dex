@@ -59,15 +59,15 @@ public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 		return getName();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Creates facets to represent facets in the TL choice object.
-	 */
-	@Override
-	public void modelChildren() {
-		// getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
-	}
+	// /**
+	// * {@inheritDoc}
+	// * <p>
+	// * Creates facets to represent facets in the TL choice object.
+	// */
+	// @Override
+	// public void modelChildren() {
+	// // getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
+	// }
 
 	/**
 	 * @return this

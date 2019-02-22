@@ -18,7 +18,8 @@
  */
 package org.opentravel.model.otmProperties;
 
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLProperty;
@@ -31,24 +32,33 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> {
+public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> implements OtmTypeUser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmElement.class);
 
 	/**
-	 * @param tlBusinessObject
 	 */
 	public OtmElement(TL tl, PropertyOwner parent) {
 		super(tl, parent);
 
 		if (!(tl instanceof TLProperty))
 			throw new IllegalArgumentException("OtmElement constructor not passed a tl property.");
-		if (tl.isReference())
-			throw new IllegalArgumentException("OtmElement constructor passed a property reference.");
+		// if (tl.isReference())
+		// throw new IllegalArgumentException("OtmElement constructor passed a property reference.");
 	}
 
 	@Override
 	public TLProperty getTL() {
 		return (TLProperty) tlObject;
+	}
+
+	@Override
+	public String getAssignedTypeName() {
+		return getTL().getTypeName();
+	}
+
+	@Override
+	public OtmTypeProvider getAssignedType() {
+		return null; // FIXME
 	}
 
 	@Override
@@ -78,17 +88,6 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> {
 	@Override
 	public void setManditory(boolean value) {
 		getTL().setMandatory(value);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmModelElement#getOwningMember()
-	 */
-	@Override
-	public OtmLibraryMember<?> getOwningMember() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

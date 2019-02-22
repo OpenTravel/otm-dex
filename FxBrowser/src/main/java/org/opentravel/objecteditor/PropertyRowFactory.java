@@ -32,9 +32,9 @@ public final class PropertyRowFactory extends TreeTableRow<PropertyNode> {
 
 	public PropertyRowFactory() {
 		// Create Context menu
-		MenuItem addObject = new MenuItem("Add Property");
-		MenuItem upObject = new MenuItem("Move Up");
-		MenuItem downObject = new MenuItem("Move Down");
+		MenuItem addObject = new MenuItem("Add Property (Future)");
+		MenuItem upObject = new MenuItem("Move Up (Future)");
+		MenuItem downObject = new MenuItem("Move Down (Future)");
 		addMenu.getItems().addAll(addObject, upObject, downObject);
 		setContextMenu(addMenu);
 
@@ -79,11 +79,6 @@ public final class PropertyRowFactory extends TreeTableRow<PropertyNode> {
 				tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
 				tc.setEditable(newTreeItem.getValue().isEditable());
 			}
-
-			// if (newTreeItem.getValue().isEditable())
-			// System.out.println(newTreeItem.getValue() + " set editable.");
-			// else
-			// System.out.println(newTreeItem.getValue() + " set NOT editable.");
 		}
 	}
 	// TODO - investigate using ControlsFX for decoration

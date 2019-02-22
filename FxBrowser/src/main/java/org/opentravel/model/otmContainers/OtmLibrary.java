@@ -19,9 +19,9 @@
 package org.opentravel.model.otmContainers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
@@ -29,7 +29,13 @@ import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.objecteditor.ImageManager.Icons;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLInclude;
 import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,18 +45,28 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmLibrary extends OtmModelElement<TLLibrary> {
+public class OtmLibrary {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibrary.class);
 
 	private OtmModelManager mgr;
+	private List<ProjectItem> projectItems = new ArrayList<>();
+	private AbstractLibrary tlLib;
 
-	public OtmLibrary(OtmModelManager mgr) {
-		super(new TLLibrary());
+	public OtmLibrary(ProjectItem pi, OtmModelManager mgr) {
+		this.mgr = mgr;
+		projectItems.add(pi);
+		tlLib = pi.getContent();
+	}
+
+	@Deprecated
+	public OtmLibrary(TLLibrary lib, OtmModelManager mgr) {
+		tlLib = lib;
 		this.mgr = mgr;
 	}
 
-	public OtmLibrary(TLLibrary lib) {
-		super(lib);
+	@Deprecated
+	public OtmLibrary(OtmModelManager mgr) {
+		this(new TLLibrary(), mgr);
 	}
 
 	@Deprecated
@@ -65,34 +81,91 @@ public class OtmLibrary extends OtmModelElement<TLLibrary> {
 		return members;
 	}
 
-	@Override
-	public TLLibrary getTL() {
-		return tlObject;
+	public void add(ProjectItem pi) {
+		if (pi.getContent() != tlLib)
+			throw new IllegalArgumentException("Can not add project item with wrong library.");
+		projectItems.add(pi);
 	}
 
-	@Override
-	public OtmLibrary getLibrary() {
-		return this;
+	public AbstractLibrary getTL() {
+		return tlLib;
 	}
 
-	@Override
 	public String getName() {
 		return getTL() != null ? getTL().getName() : "";
 	}
 
-	@Override
+	public String getPrefix() {
+		return getTL().getPrefix();
+	}
+
 	public Icons getIconType() {
 		return ImageManager.Icons.LIBRARY;
 	}
 
+	public boolean isEditable() {
+		// FIXME
+		boolean readOnly = !getTL().isReadOnly();
+
+		for (ProjectItem pi : projectItems) {
+			// System.out.println("State = " + pi.getState() + " is ReadOnly? " + readOnly);
+			if (pi.getState() == RepositoryItemState.MANAGED_LOCKED)
+				return true;
+			if (pi.getState() == RepositoryItemState.UNMANAGED)
+				return true;
+		}
+		return false;
+	}
+
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null because it has no owning member
+	 * @return actual status of TL Libraries otherwise DRAFT
 	 */
-	@Override
-	public OtmLibraryMember<?> getOwningMember() {
-		return null;
+	public TLLibraryStatus getStatus() {
+		if (tlLib instanceof TLLibrary)
+			return ((TLLibrary) tlLib).getStatus();
+		else
+			return TLLibraryStatus.FINAL;
+	}
+
+	public List<OtmLibrary> getIncludes() {
+		List<OtmLibrary> libs = new ArrayList<>();
+		for (TLInclude include : tlLib.getIncludes()) {
+			if (include.getOwningLibrary() != null)
+				libs.add(mgr.get(include.getOwningLibrary()));
+		}
+		return libs;
+	}
+
+	public String getState() {
+		if (projectItems.size() > 1)
+			System.out.println("TODO - handle library in multiple projects.");
+		return projectItems.isEmpty() ? "" : projectItems.get(0).getState().name();
+	}
+
+	public String getNameWithBasenamespace() {
+		return getBaseNamespace() + "/" + getName();
+	}
+
+	public String getLockedBy() {
+		for (ProjectItem pi : projectItems)
+			if (pi.getLockedByUser() != null)
+				return pi.getLockedByUser();
+		return "";
+	}
+
+	public String getBaseNamespace() {
+		return projectItems.isEmpty() ? "" : projectItems.get(0).getBaseNamespace();
+	}
+
+	public boolean isLatestVersion() {
+		return mgr.isLatest(this);
+	}
+
+	public List<Project> getProjects() {
+		for (ProjectItem pi : projectItems)
+			if (pi.getLockedByUser() != null)
+				return pi.memberOfProjects();
+		return Collections.emptyList();
 	}
 
 	// extends FacetOwners
