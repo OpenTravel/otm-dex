@@ -5,6 +5,7 @@ package org.opentravel.objecteditor;
 
 import java.util.Set;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.slf4j.Logger;
@@ -41,8 +42,8 @@ public class ProjectLibrariesTreeController implements DexController {
 	private static final String LOCKEDLABEL = "Locked-by";
 	private static final String READONLYLABEL = "Read-only";
 
-	TreeTableView<ProjectLibraryTreeDAO> libraryTree;
-	TreeItem<ProjectLibraryTreeDAO> root; // Root of the navigation tree. Is displayed.
+	TreeTableView<ProjectLibrariesTreeDAO> libraryTree;
+	TreeItem<ProjectLibrariesTreeDAO> root; // Root of the navigation tree. Is displayed.
 
 	// Editable Columns
 	// TreeTableColumn<ProjectLibraryTreeDAO, String> nameColumn; // an editable column
@@ -57,7 +58,7 @@ public class ProjectLibrariesTreeController implements DexController {
 	// 3. Add context menu for version uplift.
 	//
 	@SuppressWarnings("unchecked")
-	public ProjectLibrariesTreeController(DexController parent, TreeTableView<ProjectLibraryTreeDAO> view) {
+	public ProjectLibrariesTreeController(DexController parent, TreeTableView<ProjectLibrariesTreeDAO> view) {
 		System.out.println("Initializing project-library tree table.");
 
 		// remember and check the parameters
@@ -80,7 +81,7 @@ public class ProjectLibrariesTreeController implements DexController {
 		// Set up the TreeTable
 		buildColumns();
 		// Enable context menus at the row level and add change listener for for applying style
-		libraryTree.setRowFactory((TreeTableView<ProjectLibraryTreeDAO> p) -> new RowFactory());
+		libraryTree.setRowFactory((TreeTableView<ProjectLibrariesTreeDAO> p) -> new RowFactory());
 
 		// create cells for members
 		for (OtmLibrary lib : modelMgr.getLibraries()) {
@@ -108,7 +109,7 @@ public class ProjectLibrariesTreeController implements DexController {
 		// create cells for members
 		libraryTree.getRoot().getChildren().clear();
 		for (String baseNS : modelMgr.getBaseNamespaces()) {
-			TreeItem<ProjectLibraryTreeDAO> latestItem = null;
+			TreeItem<ProjectLibrariesTreeDAO> latestItem = null;
 			OtmLibrary latest = null;
 			Set<OtmLibrary> libs = modelMgr.getLibraryChain(baseNS);
 			for (OtmLibrary lib : libs)
@@ -130,7 +131,7 @@ public class ProjectLibrariesTreeController implements DexController {
 	 * 
 	 * @param item
 	 */
-	private void librarySelectionListener(TreeItem<ProjectLibraryTreeDAO> item) {
+	private void librarySelectionListener(TreeItem<ProjectLibrariesTreeDAO> item) {
 		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
 			return;
 
@@ -141,7 +142,7 @@ public class ProjectLibrariesTreeController implements DexController {
 				((ObjectEditorController) parent).handleLibrarySelectionEvent(item.getValue().getValue());
 	}
 
-	public TreeItem<ProjectLibraryTreeDAO> getRoot() {
+	public TreeItem<ProjectLibrariesTreeDAO> getRoot() {
 		return root;
 	}
 
@@ -162,33 +163,33 @@ public class ProjectLibrariesTreeController implements DexController {
 		//
 		// Create columns
 		//
-		TreeTableColumn<ProjectLibraryTreeDAO, String> prefixColumn = createStringColumn(PREFIXCOLUMNLABEL, "prefix",
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> prefixColumn = createStringColumn(PREFIXCOLUMNLABEL, "prefix",
 				true, false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> nameColumn = createStringColumn(NAMELABEL, "name", true, false,
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> nameColumn = createStringColumn(NAMELABEL, "name", true, false,
 				true, 200);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> namespaceColumn = createStringColumn(NAMESPACELABEL, "namespace",
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> namespaceColumn = createStringColumn(NAMESPACELABEL, "namespace",
 				true, false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> versionColumn = createStringColumn(VERSIONLABEL, "version", true,
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> versionColumn = createStringColumn(VERSIONLABEL, "version", true,
 				false, true, 0);
 		// TreeTableColumn<ProjectLibraryTreeDAO, String> editableColumn = createStringColumn(EDITABLELABEL, "edit",
 		// true,
 		// false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> statusColumn = createStringColumn(STATUSLABEL, "status", true,
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> statusColumn = createStringColumn(STATUSLABEL, "status", true,
 				false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> stateColumn = createStringColumn(STATELABEL, "state", true,
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> stateColumn = createStringColumn(STATELABEL, "state", true,
 				false, true, 0);
 		// TreeTableColumn<ProjectLibraryTreeDAO, String> refColumn = createStringColumn(REFERENCELABEL, "reference",
 		// true,
 		// false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> editColumn = createStringColumn(EDITABLELABEL, "edit", true,
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> editColumn = createStringColumn(EDITABLELABEL, "edit", true,
 				false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, String> lockedColumn = createStringColumn(LOCKEDLABEL, "locked", true,
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> lockedColumn = createStringColumn(LOCKEDLABEL, "locked", true,
 				false, true, 0);
-		TreeTableColumn<ProjectLibraryTreeDAO, Boolean> readonlyColumn = new TreeTableColumn<>(READONLYLABEL);
+		TreeTableColumn<ProjectLibrariesTreeDAO, Boolean> readonlyColumn = new TreeTableColumn<>(READONLYLABEL);
 		readonlyColumn
-				.setCellValueFactory(new TreeItemPropertyValueFactory<ProjectLibraryTreeDAO, Boolean>("readonly"));
-		TreeTableColumn<ProjectLibraryTreeDAO, Integer> refColumn = new TreeTableColumn<>(REFERENCELABEL);
-		refColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ProjectLibraryTreeDAO, Integer>("reference"));
+				.setCellValueFactory(new TreeItemPropertyValueFactory<ProjectLibrariesTreeDAO, Boolean>("readonly"));
+		TreeTableColumn<ProjectLibrariesTreeDAO, Integer> refColumn = new TreeTableColumn<>(REFERENCELABEL);
+		refColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ProjectLibrariesTreeDAO, Integer>("reference"));
 
 		libraryTree.getColumns().addAll(nameColumn, prefixColumn, namespaceColumn, versionColumn, statusColumn,
 				stateColumn, lockedColumn, refColumn, readonlyColumn, editColumn);
@@ -199,10 +200,10 @@ public class ProjectLibrariesTreeController implements DexController {
 	 * 
 	 * @return
 	 */
-	private TreeTableColumn<ProjectLibraryTreeDAO, String> createStringColumn(String label, String propertyName,
+	private TreeTableColumn<ProjectLibrariesTreeDAO, String> createStringColumn(String label, String propertyName,
 			boolean visable, boolean editable, boolean sortable, int width) {
-		TreeTableColumn<ProjectLibraryTreeDAO, String> c = new TreeTableColumn<>(label);
-		c.setCellValueFactory(new TreeItemPropertyValueFactory<ProjectLibraryTreeDAO, String>(propertyName));
+		TreeTableColumn<ProjectLibrariesTreeDAO, String> c = new TreeTableColumn<>(label);
+		c.setCellValueFactory(new TreeItemPropertyValueFactory<ProjectLibrariesTreeDAO, String>(propertyName));
 		c.setVisible(visable);
 		c.setEditable(editable);
 		c.setSortable(sortable);
@@ -220,9 +221,9 @@ public class ProjectLibrariesTreeController implements DexController {
 	 * @param item
 	 * @return
 	 */
-	private TreeItem<ProjectLibraryTreeDAO> createTreeItem(OtmLibrary library, TreeItem<ProjectLibraryTreeDAO> parent) {
+	private TreeItem<ProjectLibrariesTreeDAO> createTreeItem(OtmLibrary library, TreeItem<ProjectLibrariesTreeDAO> parent) {
 		if (library != null) {
-			TreeItem<ProjectLibraryTreeDAO> item = new TreeItem<>(new ProjectLibraryTreeDAO(library));
+			TreeItem<ProjectLibrariesTreeDAO> item = new TreeItem<>(new ProjectLibrariesTreeDAO(library));
 			item.setExpanded(false);
 			parent.getChildren().add(item);
 			return item;
@@ -239,7 +240,7 @@ public class ProjectLibrariesTreeController implements DexController {
 	// */
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 
-	private final class RowFactory extends TreeTableRow<ProjectLibraryTreeDAO> {
+	private final class RowFactory extends TreeTableRow<ProjectLibrariesTreeDAO> {
 		private final ContextMenu addMenu = new ContextMenu();
 
 		public RowFactory() {
@@ -278,7 +279,7 @@ public class ProjectLibrariesTreeController implements DexController {
 		 * @return
 		 */
 		// TODO - use style class for warning and error
-		private void setCSSClass(TreeTableRow<ProjectLibraryTreeDAO> tc, TreeItem<ProjectLibraryTreeDAO> newTreeItem) {
+		private void setCSSClass(TreeTableRow<ProjectLibrariesTreeDAO> tc, TreeItem<ProjectLibrariesTreeDAO> newTreeItem) {
 			// if (newTreeItem != null) {
 			// tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().editablePropety().getValue());
 			// }
@@ -302,7 +303,7 @@ public class ProjectLibrariesTreeController implements DexController {
 	 * @return the member tree selected item property.
 	 */
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<ProjectLibraryTreeDAO>> getSelectable() {
+	public ReadOnlyObjectProperty<TreeItem<ProjectLibrariesTreeDAO>> getSelectable() {
 		return libraryTree.getSelectionModel().selectedItemProperty();
 	}
 

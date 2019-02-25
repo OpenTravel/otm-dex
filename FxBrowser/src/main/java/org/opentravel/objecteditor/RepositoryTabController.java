@@ -5,10 +5,11 @@ package org.opentravel.objecteditor;
 
 import java.util.EnumMap;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
-import org.opentravel.objecteditor.NamespaceTreeController.NamespaceNode;
+import org.opentravel.objecteditor.RepositoryNamespacesTreeController.NamespaceNode;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -66,9 +67,9 @@ public class RepositoryTabController implements DexController {
 	protected ImageManager imageMgr;
 	protected Stage stage;
 
-	private NamespaceTreeController nsTreeController;
+	private RepositoryNamespacesTreeController nsTreeController;
 	private NamespaceLibrariesTableController nsLibsController;
-	private LibraryHistoryController libHistoryController;
+	private LibraryHistoryItemsController libHistoryController;
 
 	/**
 	 * FXML Java FX Nodes this controller is dependent upon
@@ -118,13 +119,13 @@ public class RepositoryTabController implements DexController {
 		imageMgr = new ImageManager(stage);
 
 		getRepoNodes(fxNodes);
-		nsTreeController = new NamespaceTreeController(this, tree);
+		nsTreeController = new RepositoryNamespacesTreeController(this, tree);
 		nsTreeController.getSelectable().addListener((v, old, newValue) -> treeSelectionListener(newValue));
 
 		nsLibsController = new NamespaceLibrariesTableController(this, libTable, nsPermission);
 		nsLibsController.getSelectable().addListener((v, old, newValue) -> librarySelectionListener(newValue));
 
-		libHistoryController = new LibraryHistoryController(this, historyTable);
+		libHistoryController = new LibraryHistoryItemsController(this, historyTable);
 
 		// Set up repository Choice
 		repoController = new RepositoryController();

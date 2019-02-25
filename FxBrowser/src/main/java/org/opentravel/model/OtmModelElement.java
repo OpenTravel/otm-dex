@@ -21,9 +21,9 @@ package org.opentravel.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.objecteditor.ImageManager;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;

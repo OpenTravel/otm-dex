@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package OTM_FX.FxBrowser;
 
 import javafx.scene.control.TreeCell;
 

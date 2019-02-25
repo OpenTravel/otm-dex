@@ -1,8 +1,9 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package OTM_FX.FxBrowser;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;

@@ -18,6 +18,10 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.opentravel.model.OtmFacetFactory;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
@@ -49,6 +53,17 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 		this.mgr = mgr;
 
 		assert mgr != null;
+	}
+
+	/**
+	 * @return immediate children who implement OtmTypeProvider or empty list.
+	 */
+	public Collection<OtmTypeProvider> getChildren_TypeProviders() {
+		List<OtmTypeProvider> providers = new ArrayList<>();
+		for (OtmModelElement<?> child : getChildren())
+			if (child instanceof OtmTypeProvider)
+				providers.add((OtmTypeProvider) child);
+		return providers;
 	}
 
 	@Override
@@ -114,6 +129,7 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 	 */
 	@Override
 	public abstract String setName(String text);
+	// TODO - update children
 
 	/**
 	 * {@inheritDoc}

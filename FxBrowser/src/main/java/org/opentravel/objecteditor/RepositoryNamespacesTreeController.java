@@ -5,6 +5,7 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -43,8 +44,8 @@ import javafx.scene.control.TreeView;
  *
  */
 @SuppressWarnings("restriction")
-public class NamespaceTreeController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceTreeController.class);
+public class RepositoryNamespacesTreeController implements DexController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryNamespacesTreeController.class);
 
 	// Create a javafx node for namespace tree
 	public class NamespaceNode {
@@ -103,7 +104,7 @@ public class NamespaceTreeController implements DexController {
 	 * @param stage
 	 * @param nsLibraryTablePermissionField
 	 */
-	public NamespaceTreeController(DexController parent, TreeView<NamespaceNode> tree) {
+	public RepositoryNamespacesTreeController(DexController parent, TreeView<NamespaceNode> tree) {
 		System.out.println("Initializing repository tab.");
 
 		imageMgr = parent.getImageManager();

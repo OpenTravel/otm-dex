@@ -3,6 +3,7 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 
 import javafx.beans.property.ReadOnlyObjectProperty;

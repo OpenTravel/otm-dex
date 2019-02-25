@@ -5,6 +5,7 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;

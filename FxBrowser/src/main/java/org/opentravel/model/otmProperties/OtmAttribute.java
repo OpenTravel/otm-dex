@@ -18,10 +18,10 @@
  */
 package org.opentravel.model.otmProperties;
 
+import org.opentravel.common.ImageManager;
+import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.objecteditor.ImageManager;
-import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

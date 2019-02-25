@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.common;
 
 import org.opentravel.model.OtmModelElement;
 

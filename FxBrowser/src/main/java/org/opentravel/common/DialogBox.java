@@ -15,11 +15,35 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-// @SuppressWarnings("restriction")
+@SuppressWarnings("restriction")
 public class DialogBox {
 	static boolean answer;
 	private static String cancelText = "Cancel";
 	private static String closeText = "Close";
+
+	static Stage notifyWindow;
+
+	public static void notify(String title, String message) {
+		notifyWindow = new Stage();
+		notifyWindow.initModality(Modality.NONE);
+		notifyWindow.setTitle(title);
+		notifyWindow.setMinWidth(350);
+
+		Label label = new Label(message);
+
+		VBox layout = new VBox(10);
+		layout.getChildren().addAll(label);
+		layout.setAlignment(Pos.CENTER);
+		// Display window and wait for it to be closed before returning
+		Scene scene = new Scene(layout);
+		notifyWindow.setScene(scene);
+		notifyWindow.show();
+		// notifyWindow.showAndWait();
+	}
+
+	public static void close() {
+		notifyWindow.close();
+	}
 
 	// TODO - constructor with text passed in
 

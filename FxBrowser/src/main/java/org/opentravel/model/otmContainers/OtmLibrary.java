@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.opentravel.common.ImageManager;
+import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.objecteditor.ImageManager;
-import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLInclude;
 import org.opentravel.schemacompiler.model.TLLibrary;

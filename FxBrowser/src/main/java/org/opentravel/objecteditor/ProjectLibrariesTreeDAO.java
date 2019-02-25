@@ -3,6 +3,7 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +30,13 @@ import javafx.scene.image.ImageView;
  *
  */
 @SuppressWarnings("restriction")
-public class ProjectLibraryTreeDAO {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectLibraryTreeDAO.class);
+public class ProjectLibrariesTreeDAO {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectLibrariesTreeDAO.class);
 
 	protected OtmLibrary library;
 	String editable = "False";
 
-	public ProjectLibraryTreeDAO(OtmLibrary library) {
+	public ProjectLibrariesTreeDAO(OtmLibrary library) {
 		this.library = library;
 		if (library == null)
 			throw new IllegalArgumentException("No library provided to Project-Library DAO");

@@ -6,6 +6,7 @@ package org.opentravel.objecteditor;
 import org.opentravel.application.common.AbstractOTMApplication;
 import org.opentravel.application.common.AbstractUserSettings;
 import org.opentravel.common.DialogBox;
+import org.opentravel.common.ImageManager;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

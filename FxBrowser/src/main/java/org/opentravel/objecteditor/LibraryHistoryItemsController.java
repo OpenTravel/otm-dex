@@ -3,6 +3,7 @@
  */
 package org.opentravel.objecteditor;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -47,8 +48,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
  *
  */
 @SuppressWarnings("restriction")
-public class LibraryHistoryController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryHistoryController.class);
+public class LibraryHistoryItemsController implements DexController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryHistoryItemsController.class);
 
 	public class CommitNode {
 		private RepositoryItemCommit item;
@@ -87,7 +88,7 @@ public class LibraryHistoryController implements DexController {
 	 * 
 	 * @param nsLibraryTablePermissionField
 	 */
-	public LibraryHistoryController(DexController parent, TableView<CommitNode> table) {
+	public LibraryHistoryItemsController(DexController parent, TableView<CommitNode> table) {
 
 		System.out.println("Initializing repository library table view.");
 

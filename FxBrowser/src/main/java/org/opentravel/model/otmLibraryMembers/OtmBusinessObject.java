@@ -18,9 +18,9 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import org.opentravel.common.ImageManager;
+import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.ImageManager;
-import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

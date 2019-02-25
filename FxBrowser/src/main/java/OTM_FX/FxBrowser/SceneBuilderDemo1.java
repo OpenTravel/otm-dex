@@ -53,7 +53,7 @@ public class SceneBuilderDemo1 extends Application {
 
 	public void closeProgram(WindowEvent e) {
 		e.consume(); // take the event away from windows
-		if (DialogBox.display("Close?", "Do you really want to close?"))
+		if (DialogBoxOLD.display("Close?", "Do you really want to close?"))
 			window.close();
 	}
 

@@ -18,6 +18,8 @@
  */
 package org.opentravel.model.otmFacets;
 
+import org.opentravel.common.ImageManager;
+import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -27,8 +29,6 @@ import org.opentravel.model.otmProperties.OtmIndicator;
 import org.opentravel.model.otmProperties.OtmIndicatorElement;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.PropertyOwner;
-import org.opentravel.objecteditor.ImageManager;
-import org.opentravel.objecteditor.ImageManager.Icons;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;

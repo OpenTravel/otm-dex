@@ -6,6 +6,7 @@ package org.opentravel.objecteditor;
 import java.util.EnumMap;
 import java.util.HashMap;
 
+import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
@@ -159,7 +160,7 @@ public class LibraryFilterController implements DexController {
 			selection = libraryChoice.getSelectionModel().getSelectedItem();
 			if (libraryChoice.getSelectionModel().getSelectedItem().equals(ALLLIBS)) {
 				clear();
-				((LibraryMemberTreeController) parent).refresh();
+				((ModelMembersTreeController) parent).refresh();
 			} else {
 				setLibraryFilter(libraryMap.get(selection));
 			}
@@ -170,7 +171,7 @@ public class LibraryFilterController implements DexController {
 	public void setLibraryFilter(OtmLibrary lib) {
 		ignoreClear = true;
 		libraryFilter = lib.getName();
-		((LibraryMemberTreeController) parent).refresh();
+		((ModelMembersTreeController) parent).refresh();
 		System.out.println("Set Library Filter to: " + libraryFilter);
 		ignoreClear = false;
 	}
@@ -191,7 +192,7 @@ public class LibraryFilterController implements DexController {
 			if (((MenuItem) e.getTarget()).getText().startsWith("Edit")) {
 				editableOnly = mi.isSelected();
 			}
-			((LibraryMemberTreeController) parent).refresh();
+			((ModelMembersTreeController) parent).refresh();
 		}
 	}
 
@@ -199,7 +200,7 @@ public class LibraryFilterController implements DexController {
 	public void applyTextFilter(Event e) {
 		ignoreClear = true;
 		textFilterValue = nameFilter.getText().toLowerCase();
-		((LibraryMemberTreeController) parent).refresh();
+		((ModelMembersTreeController) parent).refresh();
 		System.out.println("Apply text Filter: " + textFilterValue);
 		ignoreClear = false;
 	}

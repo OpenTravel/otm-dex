@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import org.opentravel.common.DexFileHandler;
+import org.opentravel.common.DialogBox;
+import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
@@ -63,15 +65,15 @@ public class ObjectEditorController implements Initializable, DexController {
 	// Navigation Table Tree View
 	//
 	@FXML
-	public TreeTableView<LibraryMemberTreeDAO> navTreeTableView;
-	LibraryMemberTreeController memberController;
+	public TreeTableView<ModelMembersTreeDAO> navTreeTableView;
+	ModelMembersTreeController memberController;
 
 	// Facet Tab
 	@FXML
 	public Tab facetTab;
 	@FXML
 	public TreeTableView facetTabTreeTable;
-	private FacetTabTreeTableHandler facetTableMgr;
+	private MemberPropertiesTableController facetTableMgr;
 
 	// Repository Tab
 	@FXML
@@ -100,7 +102,7 @@ public class ObjectEditorController implements Initializable, DexController {
 	private MenuButton libraryStateMenu;
 
 	@FXML
-	public TreeTableView<ProjectLibraryTreeDAO> libraryTabTreeTableView;
+	public TreeTableView<ProjectLibrariesTreeDAO> libraryTabTreeTableView;
 
 	//
 	// OLD - to be removed
@@ -165,13 +167,13 @@ public class ObjectEditorController implements Initializable, DexController {
 		repoNodes.put(RepoTabNodes.User, repoTabRepoUserField);
 		new RepositoryTabController(primaryStage, this, repoNodes);
 
-		facetTableMgr = new FacetTabTreeTableHandler(null, facetTabTreeTable, stage);
+		facetTableMgr = new MemberPropertiesTableController(null, facetTabTreeTable, stage);
 		// TODO - what is right way to have facet listen to treeTable?
 		facetTableMgr.registerListeners(navTreeTableView);
 
 		configureProjectMenuButton();
 
-		memberController = new LibraryMemberTreeController(this, navTreeTableView, modelMgr);
+		memberController = new ModelMembersTreeController(this, navTreeTableView, modelMgr);
 		// Set up library selector/filter controller
 		EnumMap<LibraryFilterNodes, Node> filterNodes = new EnumMap<>(LibraryFilterNodes.class);
 		filterNodes.put(LibraryFilterNodes.Library, librarySelector);
@@ -211,9 +213,14 @@ public class ObjectEditorController implements Initializable, DexController {
 		openFile(selectedFile);
 	}
 
+	DialogBox dialog = new DialogBox();
+
 	public void openFile(File selectedFile) {
 		if (selectedFile == null)
 			return;
+		postNotify("Loading Project", "Wait please.");
+		// dialog.display("LOADING", "Well now, just wait and watch...");
+
 		memberController.clear(); // prevent concurrent modification
 		facetTableMgr.clear();
 		modelMgr.clear();
@@ -237,11 +244,23 @@ public class ObjectEditorController implements Initializable, DexController {
 		modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
 		// When done, update display in the UI thread
 		Platform.runLater(() -> {
+			clearNotify();
 			memberController.post(modelMgr);
 			libController.post(modelMgr);
 			postStatus("");
 			postProgress(1F);
 		});
+		// TODO
+		// update ProjectLibrariesTable
+		// update RepositoryTab with selected repository from project
+	}
+
+	public void postNotify(String label, String msg) {
+		dialog.notify(label, msg);
+	}
+
+	public void clearNotify() {
+		dialog.close();
 	}
 
 	@FXML
