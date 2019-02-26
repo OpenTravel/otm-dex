@@ -15,30 +15,33 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
 
 /**
- * The TreeItem properties used in LibraryMemberTreeController TreeTableView. Simple Data Access Object that contains
- * and provides gui access to OTM model library members and type provider children.
+ * The TreeItem properties used in ModelMembersTreeController TreeTableView. Simple Data Access Object that contains and
+ * provides gui access to OTM model library members and type provider children.
  *
  * @author dmh
+ * @param <T>
  *
  */
 @SuppressWarnings("restriction")
-public class ModelMembersTreeDAO {
+public class ModelMembersTreeDAO implements DexDAO<OtmModelElement<?>> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModelMembersTreeDAO.class);
 
 	protected OtmModelElement<?> otmObject;
-
-	public ModelMembersTreeDAO(OtmTypeProvider provider) {
-		this.otmObject = (OtmModelElement<?>) provider;
-	}
 
 	public ModelMembersTreeDAO(OtmLibraryMember<?> member) {
 		this.otmObject = member;
 	}
 
+	public ModelMembersTreeDAO(OtmTypeProvider provider) {
+		this.otmObject = (OtmModelElement<?>) provider;
+	}
+
+	@Override
 	public ImageView getIcon(ImageManager imageMgr) {
 		return imageMgr.getView(otmObject.getIconType());
 	}
 
+	@Override
 	public OtmModelElement<?> getValue() {
 		return otmObject;
 	}

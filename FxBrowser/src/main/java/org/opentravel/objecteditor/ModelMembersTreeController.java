@@ -102,7 +102,7 @@ public class ModelMembersTreeController implements DexController {
 	TreeItem<ModelMembersTreeDAO> root; // Root of the navigation tree. Is displayed.
 
 	TreeTableColumn<ModelMembersTreeDAO, String> nameColumn; // an editable column
-	LibraryFilterController filter = null;
+	ModelMembersFilterController filter = null;
 
 	OtmModelManager currentModelMgr;
 
@@ -236,7 +236,7 @@ public class ModelMembersTreeController implements DexController {
 		return item;
 	}
 
-	public LibraryFilterController getFilter() {
+	public ModelMembersFilterController getFilter() {
 		return filter;
 	}
 
@@ -304,7 +304,7 @@ public class ModelMembersTreeController implements DexController {
 		memberTree.sort();
 	}
 
-	public void setFilter(LibraryFilterController filter) {
+	public void setFilter(ModelMembersFilterController filter) {
 		this.filter = filter;
 	}
 }

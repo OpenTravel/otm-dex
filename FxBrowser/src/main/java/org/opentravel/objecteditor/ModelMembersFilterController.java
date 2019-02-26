@@ -51,7 +51,7 @@ import javafx.scene.control.TreeItem;
  *
  */
 @SuppressWarnings("restriction")
-public class LibraryFilterController implements DexController {
+public class ModelMembersFilterController implements DexController {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryFilterController.class);
 
 	/**
@@ -88,7 +88,7 @@ public class LibraryFilterController implements DexController {
 	 * 
 	 * @param nsLibraryTablePermissionField
 	 */
-	public LibraryFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
+	public ModelMembersFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
 		System.out.println("Initializing library filter controller.");
 		getFxNodes(fxNodes);
 		this.parent = parent;

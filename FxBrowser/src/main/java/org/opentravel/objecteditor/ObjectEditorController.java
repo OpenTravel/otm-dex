@@ -15,7 +15,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.LibraryFilterController.LibraryFilterNodes;
+import org.opentravel.objecteditor.ModelMembersFilterController.LibraryFilterNodes;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +135,7 @@ public class ObjectEditorController implements Initializable, DexController {
 	private OtmModelManager modelMgr;
 	private ImageManager imageMgr;
 	private DexFileHandler fileHandler = new DexFileHandler();
-	private LibraryFilterController libraryFilters;
+	private ModelMembersFilterController libraryFilters;
 	private ProjectLibrariesTreeController libController;
 
 	// TODO - create wizard/pop-up handlers
@@ -180,7 +180,7 @@ public class ObjectEditorController implements Initializable, DexController {
 		filterNodes.put(LibraryFilterNodes.Name, libraryNameFilter);
 		filterNodes.put(LibraryFilterNodes.Type, libraryTypeMenu);
 		filterNodes.put(LibraryFilterNodes.State, libraryStateMenu);
-		libraryFilters = new LibraryFilterController(memberController, filterNodes);
+		libraryFilters = new ModelMembersFilterController(memberController, filterNodes);
 		memberController.setFilter(libraryFilters);
 
 		libController = new ProjectLibrariesTreeController(this, libraryTabTreeTableView);

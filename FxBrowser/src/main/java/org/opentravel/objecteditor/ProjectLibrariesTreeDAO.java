@@ -30,7 +30,7 @@ import javafx.scene.image.ImageView;
  *
  */
 @SuppressWarnings("restriction")
-public class ProjectLibrariesTreeDAO {
+public class ProjectLibrariesTreeDAO implements DexDAO<OtmLibrary> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectLibrariesTreeDAO.class);
 
 	protected OtmLibrary library;
@@ -49,10 +49,12 @@ public class ProjectLibrariesTreeDAO {
 		return new SimpleStringProperty(editable);
 	}
 
+	@Override
 	public ImageView getIcon(ImageManager imageMgr) {
 		return imageMgr.getView(library.getIconType());
 	}
 
+	@Override
 	public OtmLibrary getValue() {
 		return library;
 	}
