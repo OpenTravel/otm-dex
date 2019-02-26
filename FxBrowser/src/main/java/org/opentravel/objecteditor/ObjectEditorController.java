@@ -20,8 +20,6 @@ import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import OTM_FX.FxBrowser.DemoNode;
-import OTM_FX.FxBrowser.TableManager;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -31,7 +29,6 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -42,8 +39,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 //import javafx.collections.FXCollections;
@@ -66,18 +61,16 @@ public class ObjectEditorController implements Initializable, DexController {
 	//
 	@FXML
 	public TreeTableView<ModelMembersTreeDAO> navTreeTableView;
-	ModelMembersTreeController memberController;
 
 	// Facet Tab
 	@FXML
 	public Tab facetTab;
 	@FXML
-	public TreeTableView facetTabTreeTable;
-	private MemberPropertiesTableController facetTableMgr;
+	public TreeTableView<MemberPropertiesTableDAO> facetTabTreeTable;
 
 	// Repository Tab
 	@FXML
-	public TreeView repoTabRootNSs;
+	public TreeView<?> repoTabRootNSs;
 	@FXML
 	private ChoiceBox<String> repoTabRepoChoice;
 	@FXML
@@ -104,44 +97,22 @@ public class ObjectEditorController implements Initializable, DexController {
 	@FXML
 	public TreeTableView<ProjectLibrariesTreeDAO> libraryTabTreeTableView;
 
-	//
-	// OLD - to be removed
-	//
-	@FXML
-	public Accordion facetTwisties;
-	@FXML
-	public VBox facetTabVbox;
-	@FXML
-	public TreeView facetTabFacetTree;
-
-	@FXML
-	public TableView<DemoNode> memberTable;
-	TableManager tableMgr;
-
-	@FXML
-	public HBox memberEditHbox;
-	@FXML
-	public Tab memberTab;
-
-	// @FXML
-	// private ChoiceBox<String> repositoryChoice;
-	// @FXML
-	// private ChoiceBox<String> namespaceChoice;
-	// @FXML
-	// private TableView<RepositoryItemWrapper> selectedLibrariesTable;
-	// private TableView<RepositoryItemWrapper> namespaceTable;
-
 	Stage primaryStage = null;
 	private OtmModelManager modelMgr;
 	private ImageManager imageMgr;
 	private DexFileHandler fileHandler = new DexFileHandler();
+
+	// View Controllers
 	private ModelMembersFilterController libraryFilters;
 	private ProjectLibrariesTreeController libController;
+	private ModelMembersTreeController memberController;
+	private MemberPropertiesTableController propertiesTableController;
+	// TODO - formalize handler for view controllers with iterator
 
 	// TODO - create wizard/pop-up handlers
 	// use TitledPane fx control
 	/**
-	 * Set up this controller
+	 * Set up this FX controller
 	 * 
 	 * @param stage
 	 */
@@ -154,7 +125,6 @@ public class ObjectEditorController implements Initializable, DexController {
 		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
 		modelMgr.createTestLibrary();
-		tableMgr = new TableManager();
 
 		// Set up Repository Tab
 		EnumMap<RepoTabNodes, Node> repoNodes = new EnumMap<>(RepoTabNodes.class);
@@ -167,9 +137,9 @@ public class ObjectEditorController implements Initializable, DexController {
 		repoNodes.put(RepoTabNodes.User, repoTabRepoUserField);
 		new RepositoryTabController(primaryStage, this, repoNodes);
 
-		facetTableMgr = new MemberPropertiesTableController(null, facetTabTreeTable, stage);
+		propertiesTableController = new MemberPropertiesTableController(null, facetTabTreeTable, stage);
 		// TODO - what is right way to have facet listen to treeTable?
-		facetTableMgr.registerListeners(navTreeTableView);
+		propertiesTableController.registerListeners(navTreeTableView);
 
 		configureProjectMenuButton();
 
@@ -222,7 +192,7 @@ public class ObjectEditorController implements Initializable, DexController {
 		// dialog.display("LOADING", "Well now, just wait and watch...");
 
 		memberController.clear(); // prevent concurrent modification
-		facetTableMgr.clear();
+		propertiesTableController.clear();
 		modelMgr.clear();
 		postStatus("Opening " + selectedFile.getName());
 		postProgress(0.1F);
