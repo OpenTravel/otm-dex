@@ -1,12 +1,13 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.modelMembers;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.objecteditor.DexDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +24,16 @@ import javafx.scene.image.ImageView;
  *
  */
 @SuppressWarnings("restriction")
-public class ModelMembersTreeDAO implements DexDAO<OtmModelElement<?>> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ModelMembersTreeDAO.class);
+public class MemberDAO implements DexDAO<OtmModelElement<?>> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(MemberDAO.class);
 
 	protected OtmModelElement<?> otmObject;
 
-	public ModelMembersTreeDAO(OtmLibraryMember<?> member) {
+	public MemberDAO(OtmLibraryMember<?> member) {
 		this.otmObject = member;
 	}
 
-	public ModelMembersTreeDAO(OtmTypeProvider provider) {
+	public MemberDAO(OtmTypeProvider provider) {
 		this.otmObject = (OtmModelElement<?>) provider;
 	}
 

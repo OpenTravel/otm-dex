@@ -15,8 +15,15 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.ModelMembersFilterController.LibraryFilterNodes;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
+import org.opentravel.objecteditor.memberProperties.PropertiesDAO;
+import org.opentravel.objecteditor.memberProperties.PropertiesTableController;
+import org.opentravel.objecteditor.modelMembers.MemberFilterController;
+import org.opentravel.objecteditor.modelMembers.MemberTreeController;
+import org.opentravel.objecteditor.modelMembers.MemberDAO;
+import org.opentravel.objecteditor.modelMembers.MemberFilterController.LibraryFilterNodes;
+import org.opentravel.objecteditor.projectLibraries.LibrariesTreeController;
+import org.opentravel.objecteditor.projectLibraries.LibraryDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +67,13 @@ public class ObjectEditorController implements Initializable, DexController {
 	// Navigation Table Tree View
 	//
 	@FXML
-	public TreeTableView<ModelMembersTreeDAO> navTreeTableView;
+	public TreeTableView<MemberDAO> navTreeTableView;
 
 	// Facet Tab
 	@FXML
 	public Tab facetTab;
 	@FXML
-	public TreeTableView<MemberPropertiesTableDAO> facetTabTreeTable;
+	public TreeTableView<PropertiesDAO> facetTabTreeTable;
 
 	// Repository Tab
 	@FXML
@@ -95,7 +102,7 @@ public class ObjectEditorController implements Initializable, DexController {
 	private MenuButton libraryStateMenu;
 
 	@FXML
-	public TreeTableView<ProjectLibrariesTreeDAO> libraryTabTreeTableView;
+	public TreeTableView<LibraryDAO> libraryTabTreeTableView;
 
 	Stage primaryStage = null;
 	private OtmModelManager modelMgr;
@@ -103,10 +110,11 @@ public class ObjectEditorController implements Initializable, DexController {
 	private DexFileHandler fileHandler = new DexFileHandler();
 
 	// View Controllers
-	private ModelMembersFilterController libraryFilters;
-	private ProjectLibrariesTreeController libController;
-	private ModelMembersTreeController memberController;
-	private MemberPropertiesTableController propertiesTableController;
+	private MemberFilterController memberFilters;
+	private MemberTreeController memberController;
+	private LibrariesTreeController libController;
+	private PropertiesTableController propertiesTableController;
+
 	// TODO - formalize handler for view controllers with iterator
 
 	// TODO - create wizard/pop-up handlers
@@ -137,27 +145,27 @@ public class ObjectEditorController implements Initializable, DexController {
 		repoNodes.put(RepoTabNodes.User, repoTabRepoUserField);
 		new RepositoryTabController(primaryStage, this, repoNodes);
 
-		propertiesTableController = new MemberPropertiesTableController(null, facetTabTreeTable, stage);
+		propertiesTableController = new PropertiesTableController(null, facetTabTreeTable, stage);
 		// TODO - what is right way to have facet listen to treeTable?
 		propertiesTableController.registerListeners(navTreeTableView);
 
 		configureProjectMenuButton();
 
-		memberController = new ModelMembersTreeController(this, navTreeTableView, modelMgr);
+		memberController = new MemberTreeController(this, navTreeTableView, modelMgr);
 		// Set up library selector/filter controller
 		EnumMap<LibraryFilterNodes, Node> filterNodes = new EnumMap<>(LibraryFilterNodes.class);
 		filterNodes.put(LibraryFilterNodes.Library, librarySelector);
 		filterNodes.put(LibraryFilterNodes.Name, libraryNameFilter);
 		filterNodes.put(LibraryFilterNodes.Type, libraryTypeMenu);
 		filterNodes.put(LibraryFilterNodes.State, libraryStateMenu);
-		libraryFilters = new ModelMembersFilterController(memberController, filterNodes);
-		memberController.setFilter(libraryFilters);
+		memberFilters = new MemberFilterController(memberController, filterNodes);
+		memberController.setFilter(memberFilters);
 
-		libController = new ProjectLibrariesTreeController(this, libraryTabTreeTableView);
+		libController = new LibrariesTreeController(this, libraryTabTreeTableView);
 	}
 
 	public void handleLibrarySelectionEvent(OtmLibrary library) {
-		libraryFilters.setLibraryFilter(library);
+		memberFilters.setLibraryFilter(library);
 		memberController.refresh();
 	}
 
@@ -182,8 +190,6 @@ public class ObjectEditorController implements Initializable, DexController {
 		File selectedFile = fileHandler.fileChooser(primaryStage);
 		openFile(selectedFile);
 	}
-
-	DialogBox dialog = new DialogBox();
 
 	public void openFile(File selectedFile) {
 		if (selectedFile == null)
@@ -225,12 +231,14 @@ public class ObjectEditorController implements Initializable, DexController {
 		// update RepositoryTab with selected repository from project
 	}
 
+	// DialogBox dialog = new DialogBox();
+
 	public void postNotify(String label, String msg) {
-		dialog.notify(label, msg);
+		DialogBox.notify(label, msg);
 	}
 
 	public void clearNotify() {
-		dialog.close();
+		DialogBox.close();
 	}
 
 	@FXML
@@ -299,21 +307,6 @@ public class ObjectEditorController implements Initializable, DexController {
 	public void setName(ActionEvent e) {
 		System.out.println("set Name");
 	}
-
-	// @FXML
-	// public void radioButton1(ActionEvent e) {
-	// System.out.println("Button1");
-	// }
-	//
-	// @FXML
-	// public void radioButton2(ActionEvent e) {
-	// System.out.println("Button2");
-	// }
-	//
-	// @FXML
-	// public void simpleButton(ActionEvent e) {
-	// System.out.println("simpleButton");
-	// }
 
 	@FXML
 	public void open(ActionEvent e) {

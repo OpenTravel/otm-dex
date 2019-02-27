@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.modelMembers;
 
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -15,12 +15,12 @@ import javafx.scene.control.TreeTableRow;
  *
  */
 @SuppressWarnings("restriction")
-public final class ModelMembersTreeRowFactory extends TreeTableRow<ModelMembersTreeDAO> {
+public final class MemberRowFactory extends TreeTableRow<MemberDAO> {
 	private final ContextMenu addMenu = new ContextMenu();
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
-	private ModelMembersTreeController controller;
+	private MemberTreeController controller;
 
-	public ModelMembersTreeRowFactory(ModelMembersTreeController controller) {
+	public MemberRowFactory(MemberTreeController controller) {
 		this.controller = controller;
 
 		// Create Context menu
@@ -59,7 +59,7 @@ public final class ModelMembersTreeRowFactory extends TreeTableRow<ModelMembersT
 	 * @return
 	 */
 	// TODO - use style class for warning and error
-	private void setCSSClass(TreeTableRow<ModelMembersTreeDAO> tc, TreeItem<ModelMembersTreeDAO> newTreeItem) {
+	private void setCSSClass(TreeTableRow<MemberDAO> tc, TreeItem<MemberDAO> newTreeItem) {
 		if (newTreeItem != null) {
 			tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
 		}

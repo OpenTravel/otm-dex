@@ -1,89 +1,85 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.modelMembers;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.objecteditor.DexController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.css.PseudoClass;
-import javafx.event.ActionEvent;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellDataFeatures;
 import javafx.scene.control.TreeTableColumn.SortType;
-import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
- * Manage the node navigation tree.
+ * Manage the library member navigation tree.
  * 
  * @author dmh
  *
  */
 @SuppressWarnings("restriction")
-public class ModelMembersTreeController implements DexController {
-	private final class NavRowFactory extends TreeTableRow<ModelMembersTreeDAO> {
-		private final ContextMenu addMenu = new ContextMenu();
+public class MemberTreeController implements DexController {
+	// private final class NavRowFactory extends TreeTableRow<ModelMembersTreeDAO> {
+	// private final ContextMenu addMenu = new ContextMenu();
+	//
+	// public NavRowFactory() {
+	// // Create Context menu
+	// MenuItem addObject = new MenuItem("Add Object");
+	// addMenu.getItems().add(addObject);
+	// setContextMenu(addMenu);
+	//
+	// // Create action for addObject event
+	// addObject.setOnAction(this::addMemberEvent);
+	//
+	// // Set style listener (css class)
+	// treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> setCSSClass(this, newTreeItem));
+	//
+	// // Not sure this helps!
+	// if (getTreeItem() != null && getTreeItem().getValue() != null) {
+	// setEditable(getTreeItem().getValue().isEditable());
+	// }
+	// }
+	//
+	// /**
+	// * Add a new member to the tree
+	// *
+	// * @param t
+	// */
+	// private void addMemberEvent(ActionEvent t) {
+	// TreeItem<ModelMembersTreeDAO> item = createTreeItem(new OtmCoreObject("new", currentModelMgr),
+	// getTreeItem().getParent());
+	// super.updateTreeItem(item); // needed to apply stylesheet to new item
+	// }
+	//
+	// /**
+	// * @param tc
+	// * @param newTreeItem
+	// * @return
+	// * @return
+	// */
+	// // TODO - use style class for warning and error
+	// private void setCSSClass(TreeTableRow<ModelMembersTreeDAO> tc, TreeItem<ModelMembersTreeDAO> newTreeItem) {
+	// if (newTreeItem != null) {
+	// tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
+	// }
+	// }
+	// // TODO - investigate using ControlsFX for decoration
+	// // TODO - Dragboard db = r.startDragAndDrop(TransferMode.MOVE);
+	// // https://www.programcreek.com/java-api-examples/index.php?api=javafx.scene.control.TreeTableRow
+	// }
 
-		public NavRowFactory() {
-			// Create Context menu
-			MenuItem addObject = new MenuItem("Add Object");
-			addMenu.getItems().add(addObject);
-			setContextMenu(addMenu);
-
-			// Create action for addObject event
-			addObject.setOnAction(this::addMemberEvent);
-
-			// Set style listener (css class)
-			treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> setCSSClass(this, newTreeItem));
-
-			// Not sure this helps!
-			if (getTreeItem() != null && getTreeItem().getValue() != null) {
-				setEditable(getTreeItem().getValue().isEditable());
-			}
-		}
-
-		/**
-		 * Add a new member to the tree
-		 * 
-		 * @param t
-		 */
-		private void addMemberEvent(ActionEvent t) {
-			TreeItem<ModelMembersTreeDAO> item = createTreeItem(new OtmCoreObject("new", currentModelMgr),
-					getTreeItem().getParent());
-			super.updateTreeItem(item); // needed to apply stylesheet to new item
-		}
-
-		/**
-		 * @param tc
-		 * @param newTreeItem
-		 * @return
-		 * @return
-		 */
-		// TODO - use style class for warning and error
-		private void setCSSClass(TreeTableRow<ModelMembersTreeDAO> tc, TreeItem<ModelMembersTreeDAO> newTreeItem) {
-			if (newTreeItem != null) {
-				tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
-			}
-		}
-		// TODO - investigate using ControlsFX for decoration
-		// TODO - Dragboard db = r.startDragAndDrop(TransferMode.MOVE);
-		// https://www.programcreek.com/java-api-examples/index.php?api=javafx.scene.control.TreeTableRow
-	}
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ModelMembersTreeController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MemberTreeController.class);
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMECOLUMNLABEL = "Member";
 
@@ -98,18 +94,18 @@ public class ModelMembersTreeController implements DexController {
 	 * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
 	 */
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
-	TreeTableView<ModelMembersTreeDAO> memberTree;
-	TreeItem<ModelMembersTreeDAO> root; // Root of the navigation tree. Is displayed.
+	TreeTableView<MemberDAO> memberTree;
+	TreeItem<MemberDAO> root; // Root of the navigation tree. Is displayed.
 
-	TreeTableColumn<ModelMembersTreeDAO, String> nameColumn; // an editable column
-	ModelMembersFilterController filter = null;
+	TreeTableColumn<MemberDAO, String> nameColumn; // an editable column
+	MemberFilterController filter = null;
 
 	OtmModelManager currentModelMgr;
 
 	ImageManager imageMgr;
 
 	@SuppressWarnings("unchecked")
-	public ModelMembersTreeController(DexController parent, TreeTableView<ModelMembersTreeDAO> navTreeTableView,
+	public MemberTreeController(DexController parent, TreeTableView<MemberDAO> navTreeTableView,
 			OtmModelManager model) {
 		System.out.println("Initializing navigation tree table.");
 
@@ -144,7 +140,7 @@ public class ModelMembersTreeController implements DexController {
 		memberTree.setTableMenuButtonVisible(true); // allow users to select columns
 
 		// Enable context menus at the row level and add change listener for for applying style
-		memberTree.setRowFactory((TreeTableView<ModelMembersTreeDAO> p) -> new ModelMembersTreeRowFactory(this));
+		memberTree.setRowFactory((TreeTableView<MemberDAO> p) -> new MemberRowFactory(this));
 
 		// add a listener class with three parameters that invokes selection listener
 		memberTree.getSelectionModel().selectedItemProperty()
@@ -153,12 +149,12 @@ public class ModelMembersTreeController implements DexController {
 		//
 		// Create columns
 		//
-		TreeTableColumn<ModelMembersTreeDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
+		TreeTableColumn<MemberDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
 		prefixColumn.setPrefWidth(100);
 		prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
 		prefixColumn.setVisible(false); // Works - is true by default
 
-		TreeTableColumn<ModelMembersTreeDAO, ImageView> iconColumn = new TreeTableColumn<>("");
+		TreeTableColumn<MemberDAO, ImageView> iconColumn = new TreeTableColumn<>("");
 		iconColumn.setPrefWidth(50);
 		iconColumn.setSortable(false);
 
@@ -168,25 +164,25 @@ public class ModelMembersTreeController implements DexController {
 		nameColumn.setSortable(true);
 		nameColumn.setSortType(TreeTableColumn.SortType.DESCENDING);
 
-		TreeTableColumn<ModelMembersTreeDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
-		versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ModelMembersTreeDAO, String>("version"));
+		TreeTableColumn<MemberDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
+		versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("version"));
 
-		TreeTableColumn<ModelMembersTreeDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
-		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ModelMembersTreeDAO, String>("library"));
+		TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
+		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
 
 		// Add columns to table
 		memberTree.getColumns().addAll(iconColumn, nameColumn, libColumn, versionColumn, prefixColumn);
 
 		// Define cell content
-		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ModelMembersTreeDAO, String>("prefix"));
+		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
 
-		iconColumn.setCellValueFactory((CellDataFeatures<ModelMembersTreeDAO, ImageView> p) -> {
+		iconColumn.setCellValueFactory((CellDataFeatures<MemberDAO, ImageView> p) -> {
 			if (p.getValue() != null)
 				p.getValue().setGraphic(p.getValue().getValue().getIcon(imageMgr));
 			return null;
 		});
 
-		nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ModelMembersTreeDAO, String>("name"));
+		nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("name"));
 		nameColumn.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn());
 
 		// Start out sorted on names
@@ -212,13 +208,13 @@ public class ModelMembersTreeController implements DexController {
 	 * @param item
 	 * @return
 	 */
-	TreeItem<ModelMembersTreeDAO> createTreeItem(OtmLibraryMember<?> member, TreeItem<ModelMembersTreeDAO> parent) {
+	TreeItem<MemberDAO> createTreeItem(OtmLibraryMember<?> member, TreeItem<MemberDAO> parent) {
 		// Apply Filter
 		if (filter != null && !filter.isSelected(member))
 			return null;
 
 		// Create item for the library member
-		TreeItem<ModelMembersTreeDAO> item = new TreeItem<>(new ModelMembersTreeDAO(member));
+		TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(member));
 		item.setExpanded(false);
 		parent.getChildren().add(item);
 
@@ -229,14 +225,14 @@ public class ModelMembersTreeController implements DexController {
 		return item;
 	}
 
-	private TreeItem<ModelMembersTreeDAO> createTreeItem(OtmTypeProvider ele, TreeItem<ModelMembersTreeDAO> parent) {
-		TreeItem<ModelMembersTreeDAO> item = new TreeItem<>(new ModelMembersTreeDAO(ele));
+	private TreeItem<MemberDAO> createTreeItem(OtmTypeProvider ele, TreeItem<MemberDAO> parent) {
+		TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(ele));
 		item.setExpanded(false);
 		parent.getChildren().add(item);
 		return item;
 	}
 
-	public ModelMembersFilterController getFilter() {
+	public MemberFilterController getFilter() {
 		return filter;
 	}
 
@@ -252,7 +248,7 @@ public class ModelMembersTreeController implements DexController {
 		return currentModelMgr;
 	}
 
-	public TreeItem<ModelMembersTreeDAO> getRoot() {
+	public TreeItem<MemberDAO> getRoot() {
 		return root;
 	}
 
@@ -262,7 +258,7 @@ public class ModelMembersTreeController implements DexController {
 	 * @return the member tree selected item property.
 	 */
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<ModelMembersTreeDAO>> getSelectable() {
+	public ReadOnlyObjectProperty<TreeItem<MemberDAO>> getSelectable() {
 		return memberTree.getSelectionModel().selectedItemProperty();
 	}
 
@@ -271,7 +267,7 @@ public class ModelMembersTreeController implements DexController {
 	 * 
 	 * @param item
 	 */
-	private void memberSelectionListener(TreeItem<ModelMembersTreeDAO> item) {
+	private void memberSelectionListener(TreeItem<MemberDAO> item) {
 		if (item == null)
 			return;
 		System.out.println("Selection Listener: " + item.getValue());
@@ -301,10 +297,15 @@ public class ModelMembersTreeController implements DexController {
 		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
 			createTreeItem(member, root);
 		}
-		memberTree.sort();
+		try {
+			memberTree.sort();
+		} catch (Exception e) {
+			// FIXME - why does first sort always throw exception?
+			System.out.println("Exception sorting: " + e.getLocalizedMessage());
+		}
 	}
 
-	public void setFilter(ModelMembersFilterController filter) {
+	public void setFilter(MemberFilterController filter) {
 		this.filter = filter;
 	}
 }

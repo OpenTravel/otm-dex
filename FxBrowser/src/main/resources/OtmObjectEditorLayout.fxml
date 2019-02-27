@@ -166,7 +166,7 @@
                         </Accordion>
                      </content>
                   </Tab>
-                <Tab fx:id="libraryTab" text="Library">
+                <Tab fx:id="libraryTab" text="Libraries">
                      <content>
                         <Pane>
                            <children>
@@ -195,9 +195,9 @@
                                                 <Insets left="12.0" right="12.0" />
                                              </padding>
                                           </HBox>
-                                          <TreeTableView fx:id="repoTabLibraryTreeTableView" prefHeight="314.0" prefWidth="753.0" />
+                                          <TreeTableView fx:id="repoTabLibraryTreeTableView" prefHeight="314.0" prefWidth="753.0" tableMenuButtonVisible="true" />
                                           <Label stylesheets="@DavesViper.css" text="HIstory" />
-                                          <TableView fx:id="repoTabLibraryHistoryView" prefHeight="161.0" prefWidth="753.0" />
+                                          <TableView fx:id="repoTabLibraryHistoryView" prefHeight="161.0" prefWidth="753.0" tableMenuButtonVisible="true" />
                                           <HBox spacing="12.0">
                                              <children>
                                                 <Label alignment="BOTTOM_LEFT" stylesheets="@DavesViper.css" text="Current Project" />

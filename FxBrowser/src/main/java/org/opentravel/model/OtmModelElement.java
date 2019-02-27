@@ -90,25 +90,25 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return getOwningMember() != null ? getOwningMember().isEditable() : false;
 	}
 
-	/**
-	 * Get Children. To allow lazy evaluation, children will be modeled if list is empty.
-	 * 
-	 * @return the live list of children for this library member.
-	 */
-	public List<OtmModelElement<?>> getChildren() {
-		// Create OtmNodes for all the children of this member
-		if (children != null && children.isEmpty())
-			modelChildren();
+	// /**
+	// * Get Children. To allow lazy evaluation, children will be modeled if list is empty.
+	// *
+	// * @return the live list of children for this library member.
+	// */
+	// public List<OtmModelElement<?>> getChildren() {
+	// // Create OtmNodes for all the children of this member
+	// if (children != null && children.isEmpty())
+	// modelChildren();
+	//
+	// return children;
+	// }
 
-		return children;
-	}
-
-	/**
-	 * Model the children of this object from its' tlObject.
-	 */
-	public void modelChildren() {
-		// Override if the element has children
-	}
+	// /**
+	// * Model the children of this object from its' tlObject.
+	// */
+	// public void modelChildren() {
+	// // Override if the element has children
+	// }
 
 	@Override
 	public String toString() {

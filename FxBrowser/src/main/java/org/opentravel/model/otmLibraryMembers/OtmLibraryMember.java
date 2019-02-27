@@ -22,12 +22,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.opentravel.model.OtmFacetFactory;
+import org.opentravel.model.ChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.model.otmFacets.OtmFacetFactory;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
@@ -41,10 +42,10 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmModelElement<TLLibraryMember>
-		implements OtmTypeProvider {
+		implements OtmTypeProvider, ChildrenOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibraryMember.class);
+
 	private OtmModelManager mgr = null;
-	// protected List<OtmFacet<TLFacet>> children = new ArrayList<>(); // leave empty if no children
 
 	/**
 	 */
@@ -64,6 +65,16 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 			if (child instanceof OtmTypeProvider)
 				providers.add((OtmTypeProvider) child);
 		return providers;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<OtmModelElement<?>> getChildren() {
+		if (children != null && children.isEmpty())
+			modelChildren();
+		return children;
 	}
 
 	@Override

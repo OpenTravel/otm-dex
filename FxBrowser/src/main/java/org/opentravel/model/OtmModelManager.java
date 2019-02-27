@@ -41,10 +41,6 @@ import org.opentravel.schemacompiler.version.VersionChainFactory;
  */
 public class OtmModelManager {
 
-	// FIXME - should these be HashSets ? No. HashMaps can't have duplicate keys.
-	// https://docs.oracle.com/javase/tutorial/collections/interfaces/set.html
-	// LinkedHashSet - insertion order
-
 	// Open projects
 	private Map<String, OtmProject> projects = new HashMap<>();
 	// Map of base namespaces with all libraries in that namespace
@@ -55,7 +51,6 @@ public class OtmModelManager {
 	private Map<LibraryMember, OtmLibraryMember<?>> members = new HashMap<>();
 
 	private DexFileHandler fileHandler = new DexFileHandler();
-	private VersionChainFactory versionChainFactory;
 
 	public OtmModelManager() {
 		// NO-OP
@@ -132,7 +127,7 @@ public class OtmModelManager {
 		System.out.println("Oh la la -- a new project to consume!");
 		System.out.println("            new project has " + pm.getModel().getAllLibraries().size() + " libraries");
 
-		versionChainFactory = new VersionChainFactory(pm.getModel());
+		VersionChainFactory versionChainFactory = new VersionChainFactory(pm.getModel());
 
 		// Get Libraries
 		//

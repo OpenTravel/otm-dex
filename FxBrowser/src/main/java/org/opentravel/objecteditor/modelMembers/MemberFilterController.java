@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.modelMembers;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.objecteditor.DexController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -51,7 +52,7 @@ import javafx.scene.control.TreeItem;
  *
  */
 @SuppressWarnings("restriction")
-public class ModelMembersFilterController implements DexController {
+public class MemberFilterController implements DexController {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryFilterController.class);
 
 	/**
@@ -88,7 +89,7 @@ public class ModelMembersFilterController implements DexController {
 	 * 
 	 * @param nsLibraryTablePermissionField
 	 */
-	public ModelMembersFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
+	public MemberFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
 		System.out.println("Initializing library filter controller.");
 		getFxNodes(fxNodes);
 		this.parent = parent;
@@ -160,7 +161,7 @@ public class ModelMembersFilterController implements DexController {
 			selection = libraryChoice.getSelectionModel().getSelectedItem();
 			if (libraryChoice.getSelectionModel().getSelectedItem().equals(ALLLIBS)) {
 				clear();
-				((ModelMembersTreeController) parent).refresh();
+				((MemberTreeController) parent).refresh();
 			} else {
 				setLibraryFilter(libraryMap.get(selection));
 			}
@@ -171,7 +172,7 @@ public class ModelMembersFilterController implements DexController {
 	public void setLibraryFilter(OtmLibrary lib) {
 		ignoreClear = true;
 		libraryFilter = lib.getName();
-		((ModelMembersTreeController) parent).refresh();
+		((MemberTreeController) parent).refresh();
 		System.out.println("Set Library Filter to: " + libraryFilter);
 		ignoreClear = false;
 	}
@@ -192,7 +193,7 @@ public class ModelMembersFilterController implements DexController {
 			if (((MenuItem) e.getTarget()).getText().startsWith("Edit")) {
 				editableOnly = mi.isSelected();
 			}
-			((ModelMembersTreeController) parent).refresh();
+			((MemberTreeController) parent).refresh();
 		}
 	}
 
@@ -200,7 +201,7 @@ public class ModelMembersFilterController implements DexController {
 	public void applyTextFilter(Event e) {
 		ignoreClear = true;
 		textFilterValue = nameFilter.getText().toLowerCase();
-		((ModelMembersTreeController) parent).refresh();
+		((MemberTreeController) parent).refresh();
 		System.out.println("Apply text Filter: " + textFilterValue);
 		ignoreClear = false;
 	}

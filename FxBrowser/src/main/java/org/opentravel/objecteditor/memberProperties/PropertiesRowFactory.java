@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.memberProperties;
 
 import org.opentravel.model.otmFacets.OtmFacet;
 
@@ -24,12 +24,12 @@ import javafx.scene.control.TreeTableRow;
  * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
  */
 @SuppressWarnings("restriction")
-public final class MemberPropertiesTableRowFactory extends TreeTableRow<MemberPropertiesTableDAO> {
+public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private static final PseudoClass DIVIDER = PseudoClass.getPseudoClass("divider");
 	private final ContextMenu addMenu = new ContextMenu();
 
-	public MemberPropertiesTableRowFactory() {
+	public PropertiesRowFactory() {
 		// Create Context menu
 		MenuItem addObject = new MenuItem("Add Property (Future)");
 		MenuItem upObject = new MenuItem("Move Up (Future)");
@@ -66,8 +66,8 @@ public final class MemberPropertiesTableRowFactory extends TreeTableRow<MemberPr
 	 * @return
 	 */
 	// TODO - use style class for warning and error
-	private void setCSSClass(TreeTableRow<MemberPropertiesTableDAO> tc,
-			TreeItem<MemberPropertiesTableDAO> newTreeItem) {
+	private void setCSSClass(TreeTableRow<PropertiesDAO> tc,
+			TreeItem<PropertiesDAO> newTreeItem) {
 		if (newTreeItem != null) {
 			if (newTreeItem.getValue().getValue() instanceof OtmFacet) {
 				// Make facets dividers

@@ -1,10 +1,11 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.projectLibraries;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.objecteditor.DexDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +31,13 @@ import javafx.scene.image.ImageView;
  *
  */
 @SuppressWarnings("restriction")
-public class ProjectLibrariesTreeDAO implements DexDAO<OtmLibrary> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectLibrariesTreeDAO.class);
+public class LibraryDAO implements DexDAO<OtmLibrary> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDAO.class);
 
 	protected OtmLibrary library;
 	String editable = "False";
 
-	public ProjectLibrariesTreeDAO(OtmLibrary library) {
+	public LibraryDAO(OtmLibrary library) {
 		this.library = library;
 		if (library == null)
 			throw new IllegalArgumentException("No library provided to Project-Library DAO");

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.memberProperties;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
@@ -9,6 +9,7 @@ import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
+import org.opentravel.objecteditor.DexDAO;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +42,18 @@ import javafx.scene.image.ImageView;
  *
  */
 @SuppressWarnings("restriction")
-public class MemberPropertiesTableDAO implements DexDAO<OtmModelElement<?>> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(MemberPropertiesTableDAO.class);
+public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesDAO.class);
 	static final String REQUIRED = "Required";
 	static final String OPTIONAL = "Optional";
 
 	protected OtmModelElement<?> element;
 
-	public MemberPropertiesTableDAO(OtmFacet<?> property) {
+	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
 	}
 
-	public MemberPropertiesTableDAO(OtmModelElement<?> element) {
+	public PropertiesDAO(OtmModelElement<?> element) {
 		this.element = element;
 	}
 

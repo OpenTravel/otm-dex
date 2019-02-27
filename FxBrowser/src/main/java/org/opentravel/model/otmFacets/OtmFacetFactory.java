@@ -1,13 +1,8 @@
 /**
  * 
  */
-package org.opentravel.model;
+package org.opentravel.model.otmFacets;
 
-import org.opentravel.model.otmFacets.OtmDetailFacet;
-import org.opentravel.model.otmFacets.OtmFacet;
-import org.opentravel.model.otmFacets.OtmIdFacet;
-import org.opentravel.model.otmFacets.OtmSharedFacet;
-import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLFacet;
 
@@ -16,6 +11,10 @@ import org.opentravel.schemacompiler.model.TLFacet;
  *
  */
 public class OtmFacetFactory {
+
+	private OtmFacetFactory() {
+		// NO-OP - only static methods
+	}
 
 	public static OtmFacet<?> create(TLFacet tlFacet, OtmLibraryMember<?> parent) {
 		OtmFacet<?> facet = null;
