@@ -21,6 +21,7 @@ package org.opentravel.model.otmProperties;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class OtmElementReference<TL extends TLProperty> extends OtmElement<TLPro
 
 	/**
 	 */
-	protected OtmElementReference(TL tl, PropertyOwner parent) {
+	protected OtmElementReference(TL tl, OtmPropertyOwner parent) {
 		super(tl, parent);
 
 		if (!(tl instanceof TLProperty))

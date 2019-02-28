@@ -23,14 +23,15 @@ import java.util.List;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.OtmPropertyFactory;
-import org.opentravel.model.otmProperties.PropertyOwner;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFacet>
-		implements PropertyOwner, OtmTypeProvider {
+		implements OtmPropertyOwner, OtmTypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmFacet.class);
 
 	private OtmLibraryMember<?> parent;
@@ -126,6 +127,18 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	@Override
 	public OtmLibraryMember<?> getOwningMember() {
 		return parent;
+	}
+
+	@Override
+	public OtmProperty<?> add(TLModelElement tl) {
+		if (tl instanceof TLIndicator)
+			getTL().addIndicator((TLIndicator) tl);
+		else if (tl instanceof TLProperty)
+			getTL().addElement((TLProperty) tl);
+		else if (tl instanceof TLAttribute)
+			getTL().addAttribute((TLAttribute) tl);
+
+		return OtmPropertyFactory.create(tl, this);
 	}
 
 	/**

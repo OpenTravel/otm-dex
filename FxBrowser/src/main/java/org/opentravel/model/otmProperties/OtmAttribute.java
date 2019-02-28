@@ -22,6 +22,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmAttribute(TL tl, PropertyOwner parent) {
+	public OtmAttribute(TL tl, OtmPropertyOwner parent) {
 		super(tl, parent);
 
 		if (!(tl instanceof TLAttribute))

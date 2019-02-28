@@ -3,7 +3,11 @@
  */
 package org.opentravel.objecteditor.memberProperties;
 
+import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.model.otmProperties.OtmProperty;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -28,14 +32,23 @@ public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private static final PseudoClass DIVIDER = PseudoClass.getPseudoClass("divider");
 	private final ContextMenu addMenu = new ContextMenu();
+	private PropertiesTableController controller;
 
-	public PropertiesRowFactory() {
+	public PropertiesRowFactory(PropertiesTableController controller) {
+		this.controller = controller;
+
 		// Create Context menu
-		MenuItem addObject = new MenuItem("Add Property (Future)");
+		MenuItem addObject = new MenuItem("Add Property (Demo)");
 		MenuItem upObject = new MenuItem("Move Up (Future)");
 		MenuItem downObject = new MenuItem("Move Down (Future)");
 		addMenu.getItems().addAll(addObject, upObject, downObject);
 		setContextMenu(addMenu);
+
+		// The item behind this row - NOT Available!
+		// TreeItem<PropertiesDAO> x = this.getTreeItem();
+		// PropertiesDAO y = getItem();
+		// OtmModelElement<?> otm = getItem().getValue();
+		// this.setUserData(otm);
 
 		// Create action for addObject event
 		addObject.setOnAction(this::addMemberEvent);
@@ -55,9 +68,35 @@ public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
 	 * @param t
 	 */
 	private void addMemberEvent(ActionEvent t) {
-		System.out.println("TODO - implement add member event in Property Row Factory.");
+		System.out.println("TODO - implement add member event in Properties Row Factory.");
 		// TreeItem<OtmTreeTableNode> item = createTreeItem(new OtmCoreObject("new"), getTreeItem().getParent());
 		// super.updateTreeItem(item); // needed to apply stylesheet to new item
+
+		TreeItem<PropertiesDAO> treeItem = getTreeItem();
+		if (treeItem != null) {
+			OtmModelElement<?> otm = treeItem.getValue().getValue();
+
+			// TODO - move to action handler
+			//
+			// Find child owning parent
+			OtmPropertyOwner owner = null;
+			if (otm instanceof OtmPropertyOwner)
+				owner = (OtmPropertyOwner) otm;
+			else if (otm instanceof OtmProperty<?>)
+				owner = ((OtmProperty<?>) otm).getParent();
+
+			if (owner instanceof OtmPropertyOwner) {
+				TLProperty newTL = new TLProperty();
+				newTL.setName("New");
+				OtmProperty newP = owner.add(newTL);
+				if (newP != null) {
+					controller.createTreeItem(newP, getTreeItem().getParent());
+					controller.refresh();
+					// Post this row
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -66,8 +105,7 @@ public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
 	 * @return
 	 */
 	// TODO - use style class for warning and error
-	private void setCSSClass(TreeTableRow<PropertiesDAO> tc,
-			TreeItem<PropertiesDAO> newTreeItem) {
+	private void setCSSClass(TreeTableRow<PropertiesDAO> tc, TreeItem<PropertiesDAO> newTreeItem) {
 		if (newTreeItem != null) {
 			if (newTreeItem.getValue().getValue() instanceof OtmFacet) {
 				// Make facets dividers

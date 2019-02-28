@@ -19,6 +19,7 @@
 package org.opentravel.model.otmProperties;
 
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;
@@ -32,12 +33,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelElement<TLModelElement> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmProperty.class);
-	PropertyOwner parent;
+
+	private OtmPropertyOwner parent;
 
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmProperty(TL tl, PropertyOwner parent) {
+	public OtmProperty(TL tl, OtmPropertyOwner parent) {
 		super(tl);
 		this.parent = parent;
 
@@ -86,6 +88,10 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	public OtmPropertyOwner getParent() {
+		return parent;
 	}
 
 	/**

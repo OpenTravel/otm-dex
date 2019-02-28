@@ -20,6 +20,7 @@ package org.opentravel.model.otmProperties;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class OtmIndicatorElement<TL extends TLIndicator> extends OtmIndicator<TL
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmIndicatorElement(TL tl, PropertyOwner parent) {
+	public OtmIndicatorElement(TL tl, OtmPropertyOwner parent) {
 		super(tl, parent);
 	}
 

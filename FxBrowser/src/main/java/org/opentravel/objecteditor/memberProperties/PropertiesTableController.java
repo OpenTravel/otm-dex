@@ -106,7 +106,11 @@ public class PropertiesTableController implements DexController {
 		}
 	}
 
-	private TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
+	public void refresh() {
+		table.refresh();
+	}
+
+	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
 		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element));
 		item.setExpanded(false);
 		parent.getChildren().add(item);
@@ -126,7 +130,7 @@ public class PropertiesTableController implements DexController {
 		table.setTableMenuButtonVisible(true); // allow users to select columns
 
 		// Enable context menus at the row level and add change listener for for applying style
-		table.setRowFactory((TreeTableView<PropertiesDAO> p) -> new PropertiesRowFactory());
+		table.setRowFactory((TreeTableView<PropertiesDAO> p) -> new PropertiesRowFactory(this));
 
 		// Define Columns and cell content providers
 		buildColumns(table);
@@ -167,7 +171,7 @@ public class PropertiesTableController implements DexController {
 
 		exampleCol = new TreeTableColumn<>("Example");
 		setColumnProps(exampleCol, false, false, false, 0);
-		table.getColumns().addAll(nameCol, roleCol, typeCol, constraintCol, documentationCol, exampleCol);
+		table.getColumns().addAll(nameCol, roleCol, typeCol, constraintCol, exampleCol, documentationCol);
 
 		// nameCol.setStyle("-fx-alignment: CENTER-RIGHT;");
 
@@ -180,17 +184,17 @@ public class PropertiesTableController implements DexController {
 		// Name Column
 		setColumnProps(nameCol, true, true, false, 200, "name");
 
-		setColumnProps(typeCol, true, true, false, 0);
+		setColumnProps(typeCol, true, true, false, 100);
 		typeCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("assignedType"));
-		// typeCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(getRoleList()));
+		// typeCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getRoleList()));
 
 		// Role Column
-		setColumnProps(roleCol, true, true, false, 0);
-		minCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("role"));
-		minCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getRoleList()));
+		setColumnProps(roleCol, true, true, false, 100);
+		roleCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("role"));
+		roleCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getRoleList()));
 
 		// Min Column
-		setColumnProps(minCol, true, true, false, 50);
+		setColumnProps(minCol, true, true, false, 100);
 		minCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("min"));
 		minCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.minList()));
 
@@ -200,9 +204,9 @@ public class PropertiesTableController implements DexController {
 		maxCol.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn(new DexIntegerStringConverter()));
 
 		// Description Column
-		setColumnProps(descCol, true, true, false, 0, "description");
+		setColumnProps(descCol, true, true, false, 100, "description");
 		// Deprecation Column
-		setColumnProps(deprecatedCol, true, true, false, 0, "deprecation");
+		setColumnProps(deprecatedCol, true, true, false, 20, "deprecation");
 		// Example Column
 		setColumnProps(exampleCol, true, true, false, 0, "example");
 	}

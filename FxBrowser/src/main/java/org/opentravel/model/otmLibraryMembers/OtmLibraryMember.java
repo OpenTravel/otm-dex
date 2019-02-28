@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.opentravel.model.ChildrenOwner;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmModelElement<TLLibraryMember>
-		implements OtmTypeProvider, ChildrenOwner {
+		implements OtmTypeProvider, OtmChildrenOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibraryMember.class);
 
 	private OtmModelManager mgr = null;

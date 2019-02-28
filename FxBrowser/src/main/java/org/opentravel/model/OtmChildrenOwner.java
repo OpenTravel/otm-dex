@@ -11,7 +11,7 @@ import java.util.List;
  * @author dmh
  *
  */
-public interface ChildrenOwner {
+public interface OtmChildrenOwner {
 
 	/**
 	 * Get a list of all the children of this object. To allow lazy evaluation, implementations are expected to attempt
