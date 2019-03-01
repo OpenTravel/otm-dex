@@ -10,6 +10,7 @@ import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.DexController;
+import org.opentravel.objecteditor.ObjectEditorController;
 import org.opentravel.objecteditor.modelMembers.MemberDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,9 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.ChoiceBoxTreeTableCell;
+import javafx.scene.control.cell.ComboBoxTreeTableCell;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.stage.Stage;
 
 //import javafx.util.converter.IntegerStringConverter;
 //javafx.beans.property.SimpleBooleanProperty
@@ -47,6 +48,7 @@ public class PropertiesTableController implements DexController {
 	protected ImageManager imageMgr;
 	protected TreeTableView<PropertiesDAO> table;
 	protected TreeItem<PropertiesDAO> root;
+	protected ObjectEditorController parent;
 
 	protected TreeTableColumn<PropertiesDAO, String> nameCol;
 	// protected TreeTableColumn<PropertyNode, ImageView> iconCol;
@@ -66,12 +68,14 @@ public class PropertiesTableController implements DexController {
 	 * @param table
 	 * @param stage
 	 */
-	public PropertiesTableController(OtmLibraryMember<?> member, TreeTableView<PropertiesDAO> table, Stage stage) {
+	public PropertiesTableController(OtmLibraryMember<?> member, TreeTableView<PropertiesDAO> table,
+			ObjectEditorController parent) {
 		System.out.println("Initializing property table for " + member + "member.");
 
-		if (stage == null)
-			throw new IllegalStateException("Stage is null.");
-		imageMgr = new ImageManager(stage);
+		if (parent == null)
+			throw new IllegalArgumentException("Missing parent contoller.");
+		this.parent = parent;
+		imageMgr = parent.getImageManager();
 
 		if (table == null)
 			throw new IllegalStateException("Tree view is null.");
@@ -111,7 +115,7 @@ public class PropertiesTableController implements DexController {
 	}
 
 	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
-		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element));
+		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element, this));
 		item.setExpanded(false);
 		parent.getChildren().add(item);
 		item.setGraphic(imageMgr.getView(element));
@@ -136,6 +140,20 @@ public class PropertiesTableController implements DexController {
 		buildColumns(table);
 
 		return root;
+	}
+
+	public void select(OtmModelElement<?> otm) {
+		System.out.println("TODO - select " + otm);
+		if (otm != null) {
+			if (!(otm instanceof OtmLibraryMember))
+				otm = otm.getOwningMember();
+			select(otm.getName());
+		}
+	}
+
+	public void select(String name) {
+		System.out.println("TODO - select " + name);
+		parent.select(name);
 	}
 
 	/**
@@ -184,9 +202,10 @@ public class PropertiesTableController implements DexController {
 		// Name Column
 		setColumnProps(nameCol, true, true, false, 200, "name");
 
-		setColumnProps(typeCol, true, true, false, 100);
+		// Assigned type column
+		setColumnProps(typeCol, true, true, false, 150);
 		typeCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("assignedType"));
-		// typeCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getRoleList()));
+		typeCol.setCellFactory(ComboBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getAssignedTypeList()));
 
 		// Role Column
 		setColumnProps(roleCol, true, true, false, 100);
@@ -194,7 +213,7 @@ public class PropertiesTableController implements DexController {
 		roleCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getRoleList()));
 
 		// Min Column
-		setColumnProps(minCol, true, true, false, 100);
+		setColumnProps(minCol, true, true, false, 75);
 		minCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("min"));
 		minCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.minList()));
 
@@ -204,9 +223,9 @@ public class PropertiesTableController implements DexController {
 		maxCol.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn(new DexIntegerStringConverter()));
 
 		// Description Column
-		setColumnProps(descCol, true, true, false, 100, "description");
+		setColumnProps(descCol, true, true, false, 150, "description");
 		// Deprecation Column
-		setColumnProps(deprecatedCol, true, true, false, 20, "deprecation");
+		setColumnProps(deprecatedCol, true, true, false, 50, "deprecation");
 		// Example Column
 		setColumnProps(exampleCol, true, true, false, 0, "example");
 	}
@@ -265,11 +284,16 @@ public class PropertiesTableController implements DexController {
 	private void propertySelectionListener(TreeItem<PropertiesDAO> item) {
 		if (item == null || item.getValue() == null)
 			return;
+		// TODO - set name editable IFF ...
 		nameCol.setEditable(item.getValue().isEditable());
 		roleCol.setEditable(item.getValue().isEditable());
+		typeCol.setEditable(item.getValue().isEditable());
 		minCol.setEditable(item.getValue().isEditable());
 		maxCol.setEditable(item.getValue().isEditable());
+		// TODO - set example editable IFF ...
+		exampleCol.setEditable(item.getValue().isEditable());
 		descCol.setEditable(item.getValue().isEditable());
+		deprecatedCol.setEditable(item.getValue().isEditable());
 	}
 
 	public void handleMaxEdit(TreeTableColumn.CellEditEvent<PropertiesDAO, String> event) {

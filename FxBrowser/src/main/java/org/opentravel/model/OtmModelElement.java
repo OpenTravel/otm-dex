@@ -25,6 +25,10 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLExample;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +62,33 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 	 */
 	public OtmModelElement(TL tl) {
 		tlObject = tl;
+	}
+
+	public String getDescription() {
+		if (getTL() instanceof TLDocumentationOwner) {
+			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
+			if (doc != null)
+				return doc.getDescription();
+		}
+		return "";
+	}
+
+	public String getDeprecation() {
+		if (getTL() instanceof TLDocumentationOwner) {
+			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
+			if (doc != null && doc.getDeprecations() != null && !doc.getDeprecations().isEmpty())
+				return doc.getDeprecations().get(0).getText();
+		}
+		return "";
+	}
+
+	public String getExample() {
+		if (getTL() instanceof TLExampleOwner) {
+			List<TLExample> exs = ((TLExampleOwner) getTL()).getExamples();
+			if (exs != null && !exs.isEmpty())
+				return exs.get(0).getValue();
+		}
+		return "";
 	}
 
 	public abstract ImageManager.Icons getIconType();

@@ -15,13 +15,14 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
 import org.opentravel.objecteditor.memberProperties.PropertiesDAO;
 import org.opentravel.objecteditor.memberProperties.PropertiesTableController;
-import org.opentravel.objecteditor.modelMembers.MemberFilterController;
-import org.opentravel.objecteditor.modelMembers.MemberTreeController;
 import org.opentravel.objecteditor.modelMembers.MemberDAO;
+import org.opentravel.objecteditor.modelMembers.MemberFilterController;
 import org.opentravel.objecteditor.modelMembers.MemberFilterController.LibraryFilterNodes;
+import org.opentravel.objecteditor.modelMembers.MemberTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibrariesTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibraryDAO;
 import org.slf4j.Logger;
@@ -145,7 +146,7 @@ public class ObjectEditorController implements Initializable, DexController {
 		repoNodes.put(RepoTabNodes.User, repoTabRepoUserField);
 		new RepositoryTabController(primaryStage, this, repoNodes);
 
-		propertiesTableController = new PropertiesTableController(null, facetTabTreeTable, stage);
+		propertiesTableController = new PropertiesTableController(null, facetTabTreeTable, this);
 		// TODO - what is right way to have facet listen to treeTable?
 		propertiesTableController.registerListeners(navTreeTableView);
 
@@ -239,6 +240,14 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	public void clearNotify() {
 		DialogBox.close();
+	}
+
+	public void select(OtmLibraryMember<?> member) {
+		memberController.select(member);
+	}
+
+	public void select(String name) {
+		memberController.select(name);
 	}
 
 	@FXML

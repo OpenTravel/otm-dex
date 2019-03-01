@@ -20,9 +20,9 @@ package org.opentravel.model.otmProperties;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +59,15 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	}
 
 	@Override
+	public String getAssignedTypeLocalName() {
+		return getTL().getType().getLocalName();
+	}
+
+	@Override
 	public OtmTypeProvider getAssignedType() {
-		return null; // FIXME
+		// FIXME
+		System.out.println("FIXME - how to get assigned type?");
+		return null;
 	}
 
 	@Override

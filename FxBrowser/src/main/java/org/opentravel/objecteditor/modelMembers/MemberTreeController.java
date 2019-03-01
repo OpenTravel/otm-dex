@@ -291,6 +291,26 @@ public class MemberTreeController implements DexController {
 		refresh();
 	}
 
+	public void select(OtmLibraryMember<?> otm) {
+		if (otm != null)
+			select(otm.getName());
+	}
+
+	public void select(String name) {
+		System.out.println("Selecting member: " + name);
+		// Find the row to select
+		// TODO - how to strip prefix that can be in the name
+		for (TreeItem<MemberDAO> item : memberTree.getRoot().getChildren()) {
+			String testName = item.getValue().getValue().getName();
+			if (item.getValue().getValue().getName().equals(name)) {
+				memberTree.getSelectionModel().select(item);
+				memberTree.scrollTo(memberTree.getRow(item));
+				return;
+			}
+		}
+		System.out.println(name + " not found.");
+	}
+
 	public void refresh() {
 		// create cells for members
 		memberTree.getRoot().getChildren().clear();

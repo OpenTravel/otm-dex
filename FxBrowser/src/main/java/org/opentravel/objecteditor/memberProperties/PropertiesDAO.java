@@ -3,6 +3,7 @@
  */
 package org.opentravel.objecteditor.memberProperties;
 
+import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeUser;
@@ -47,14 +48,21 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	static final String REQUIRED = "Required";
 	static final String OPTIONAL = "Optional";
 
+	static final String CHANGE = "Change (future)";
+	static final String GOTO = "Go To (Experimental)";
+	static final String REMOVE = "Remove (future)";
+	static final String STRING = "xsd:String (future)";
+
 	protected OtmModelElement<?> element;
+	protected PropertiesTableController controller;
 
 	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
 	}
 
-	public PropertiesDAO(OtmModelElement<?> element) {
+	public PropertiesDAO(OtmModelElement<?> element, PropertiesTableController controller) {
 		this.element = element;
+		this.controller = controller;
 	}
 
 	/**
@@ -76,10 +84,38 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		return list;
 	}
 
+	/**
+	 * 
+	 * @return an observable list of values for minimum repeat field
+	 */
+	public static ObservableList<String> getAssignedTypeList() {
+		ObservableList<String> list = FXCollections.observableArrayList();
+		list.add(GOTO);
+		list.add(CHANGE);
+		list.add(REMOVE);
+		list.add(STRING);
+		return list;
+	}
+
 	public StringProperty assignedTypeProperty() {
 		SimpleStringProperty ssp;
-		if (element instanceof OtmTypeUser)
+		if (element instanceof OtmTypeUser) {
 			ssp = new SimpleStringProperty(((OtmTypeUser) element).getAssignedTypeName());
+			ssp.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+				System.out.println("TODO - Set " + element + " type to " + newValue);
+
+				if (newValue.equals(CHANGE))
+					DialogBox.display("Set Assigned Type", "TODO - view to select type.");
+				else if (newValue.equals(GOTO)) {
+					if (element instanceof OtmTypeUser)
+						controller.select(((OtmTypeUser) element).getAssignedTypeLocalName());
+					// controller.select((OtmModelElement<?>) ((OtmTypeUser) element).getAssignedType());
+				} else
+					DialogBox.notify("Set Assigned Type", newValue + " is not implemented yet.");
+				// How to set value without firing the listener?
+			});
+		}
+
 		else
 			return new ReadOnlyStringWrapper("--");
 		// TODO - add listener and change wizard
@@ -87,8 +123,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty deprecationProperty() {
-		// String value = element.getDescription();
-		String value = "Don't use this!";
+		String value = element.getDeprecation();
 
 		if (element instanceof OtmFacet)
 			return new ReadOnlyStringWrapper("");
@@ -104,8 +139,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty descriptionProperty() {
-		// String value = element.getDescription();
-		String value = "Now is the time for a description.";
+		String value = element.getDescription();
 
 		if (element instanceof OtmFacet)
 			return new ReadOnlyStringWrapper("");
@@ -121,8 +155,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty exampleProperty() {
-		// String value = element.getExample();
-		String value = "This is a flintstone.";
+		String value = element.getExample();
 
 		// Add empty for properties with complex types
 		// if (element.isAssignedComplexType())
