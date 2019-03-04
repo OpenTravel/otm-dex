@@ -5,14 +5,14 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -50,7 +50,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  */
 @SuppressWarnings("restriction")
 public class NamespaceLibrariesTableController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceLibrariesTableController.class);
+	private static Log log = LogFactory.getLog(NamespaceLibrariesTableController.class);
 
 	public class RepoItemNode {
 		protected RepositoryItem repoItem;
@@ -113,7 +113,7 @@ public class NamespaceLibrariesTableController implements DexController {
 		public RepositoryItemHistory getHistory() {
 			if (history != null)
 				return history;
-			System.out.println("Finding history item for " + repoItem.getFilename());
+			log.debug("Finding history item for " + repoItem.getFilename());
 			try {
 				history = repoItem.getRepository().getHistory(repoItem);
 				setHistory();
@@ -137,7 +137,7 @@ public class NamespaceLibrariesTableController implements DexController {
 	public NamespaceLibrariesTableController(DexController parent, TreeTableView<RepoItemNode> libTable,
 			Label permissionField) {
 
-		System.out.println("Initializing repository library table view.");
+		log.debug("Initializing repository library table view.");
 
 		// Marshal and validate the parameters
 		imageMgr = parent.getImageManager();
@@ -223,7 +223,7 @@ public class NamespaceLibrariesTableController implements DexController {
 
 		TreeItem<RepoItemNode> item = null;
 		for (RepositoryItem rItem : repository.listItems(namespace, null, false)) {
-			System.out.println("Repo Item: " + rItem.getFilename());
+			log.debug("Repo Item: " + rItem.getFilename());
 			if (latestVersions.containsKey(rItem.getLibraryName())) {
 				RepoItemNode parent = latestVersions.get(rItem.getLibraryName()).getValue();
 				if (!parent.versionProperty().get().equals(rItem.getVersion())) {

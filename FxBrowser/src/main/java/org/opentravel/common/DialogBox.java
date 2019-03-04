@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public class DialogBox {
 	static boolean answer;
 	private static String cancelText = "Cancel";

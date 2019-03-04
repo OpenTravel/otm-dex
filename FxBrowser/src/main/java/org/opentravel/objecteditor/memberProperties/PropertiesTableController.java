@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor.memberProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexIntegerStringConverter;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
@@ -12,8 +14,6 @@ import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.ObjectEditorController;
 import org.opentravel.objecteditor.modelMembers.MemberDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.control.TreeItem;
@@ -24,17 +24,6 @@ import javafx.scene.control.cell.ComboBoxTreeTableCell;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.SimpleStringProperty
-//javafx.beans.property.ReadOnlyStringWrapper
-
 /**
  * Manage a facets and properties in a tree table.
  * 
@@ -43,7 +32,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  */
 @SuppressWarnings("restriction")
 public class PropertiesTableController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesTableController.class);
+	private static Log log = LogFactory.getLog(PropertiesTableController.class);
 
 	protected ImageManager imageMgr;
 	protected TreeTableView<PropertiesDAO> table;
@@ -70,7 +59,7 @@ public class PropertiesTableController implements DexController {
 	 */
 	public PropertiesTableController(OtmLibraryMember<?> member, TreeTableView<PropertiesDAO> table,
 			ObjectEditorController parent) {
-		System.out.println("Initializing property table for " + member + "member.");
+		log.debug("Initializing property table for " + member + "member.");
 
 		if (parent == null)
 			throw new IllegalArgumentException("Missing parent contoller.");
@@ -143,7 +132,7 @@ public class PropertiesTableController implements DexController {
 	}
 
 	public void select(OtmModelElement<?> otm) {
-		System.out.println("TODO - select " + otm);
+		log.debug("TODO - select " + otm);
 		if (otm != null) {
 			if (!(otm instanceof OtmLibraryMember))
 				otm = otm.getOwningMember();
@@ -152,7 +141,7 @@ public class PropertiesTableController implements DexController {
 	}
 
 	public void select(String name) {
-		System.out.println("TODO - select " + name);
+		log.debug("TODO - select " + name);
 		parent.select(name);
 	}
 
@@ -268,7 +257,7 @@ public class PropertiesTableController implements DexController {
 			return;
 		if (item.getValue().getValue() instanceof OtmLibraryMember)
 			createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());
-		System.out.println("Facet Table Selection Listener: " + item.getValue());
+		log.debug("Facet Table Selection Listener: " + item.getValue());
 	}
 
 	/**
@@ -302,7 +291,7 @@ public class PropertiesTableController implements DexController {
 			if (currentItem != null)
 				currentItem.getValue().setMax(event.getNewValue());
 		} else
-			System.out.println("ERROR - cell max edit handler has null.");
+			log.debug("ERROR - cell max edit handler has null.");
 	}
 
 	@Override

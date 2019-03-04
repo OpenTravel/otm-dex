@@ -5,37 +5,18 @@ package org.opentravel.objecteditor;
 
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-
-//import javafx.beans.value.ChangeListener;
-//import javafx.scene.control.Label;
-//import javafx.collections.FXCollections;
-//import javafx.beans.value.ObservableValue;
-//import javafx.collections.ObservableList;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.control.TreeView;
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.ReadOnlyStringWrapper
-//import javafx.beans.property.StringProperty;
-//import javafx.beans.property.SimpleStringProperty;
 
 /**
  * Controller for displaying repository namespaces in a tree view.
@@ -45,7 +26,7 @@ import javafx.scene.control.TreeView;
  */
 @SuppressWarnings("restriction")
 public class RepositoryNamespacesTreeController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryNamespacesTreeController.class);
+	private static Log log = LogFactory.getLog(RepositoryNamespacesTreeController.class);
 
 	// Create a javafx node for namespace tree
 	public class NamespaceNode {
@@ -105,7 +86,7 @@ public class RepositoryNamespacesTreeController implements DexController {
 	 * @param nsLibraryTablePermissionField
 	 */
 	public RepositoryNamespacesTreeController(DexController parent, TreeView<NamespaceNode> tree) {
-		System.out.println("Initializing repository tab.");
+		log.debug("Initializing repository tab.");
 
 		imageMgr = parent.getImageManager();
 
@@ -160,7 +141,7 @@ public class RepositoryNamespacesTreeController implements DexController {
 				startGetSubNamespaces(repository, rootNS);
 			}
 		} catch (RepositoryException e) {
-			System.out.println("Error: " + e.getLocalizedMessage());
+			log.debug("Error: " + e.getLocalizedMessage());
 		}
 	}
 
@@ -171,7 +152,7 @@ public class RepositoryNamespacesTreeController implements DexController {
 				try {
 					getSubNamespaces(repository, rootNS);
 				} catch (RepositoryException e) {
-					System.out.println("Repository error: " + e.getLocalizedMessage());
+					log.debug("Repository error: " + e.getLocalizedMessage());
 				}
 			}
 		};
@@ -200,7 +181,7 @@ public class RepositoryNamespacesTreeController implements DexController {
 				// Recurse to get all descendants
 				startGetSubNamespaces(repository, item.getValue().getFullPath());
 			} else {
-				System.out.println("ERROR - namespace not found in map.");
+				log.debug("ERROR - namespace not found in map.");
 			}
 		}
 	}

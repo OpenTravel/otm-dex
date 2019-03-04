@@ -9,6 +9,8 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
@@ -25,8 +27,6 @@ import org.opentravel.objecteditor.modelMembers.MemberFilterController.LibraryFi
 import org.opentravel.objecteditor.modelMembers.MemberTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibrariesTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibraryDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -63,7 +63,7 @@ import javafx.stage.Stage;
  */
 @SuppressWarnings("restriction")
 public class ObjectEditorController implements Initializable, DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ObjectEditorController.class);
+	private static Log log = LogFactory.getLog(ObjectEditorController.class);
 
 	// Navigation Table Tree View
 	//
@@ -118,6 +118,19 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	// TODO - formalize handler for view controllers with iterator
 
+	// TODO - hook up to the launcher
+	// 1. Create *ApplicationProvider class
+	// 2. Create resources/META-INF file
+	// 3. Add dependacy to launcher pom.xml
+
+	// TODO - preferences (improve as i use it)
+	// Abstract User Settings class (application common)
+	// Uses java beans to read/write to file
+	// AbstractOtmApplication -
+	// AbstractMainWindowController
+	// - background task
+	//
+
 	// TODO - create wizard/pop-up handlers
 	// use TitledPane fx control
 	/**
@@ -126,7 +139,7 @@ public class ObjectEditorController implements Initializable, DexController {
 	 * @param stage
 	 */
 	public void setStage(Stage stage) {
-		LOGGER.debug("Controller - Initializing Object Editor Controller");
+		log.debug("Controller - Initializing Object Editor Controller");
 
 		primaryStage = stage;
 
@@ -172,7 +185,7 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		System.out.println("Object Editor Controller - Initialize w/params is now loading!");
+		log.debug("Object Editor Controller - Initialize w/params is now loading!");
 	}
 
 	/**
@@ -187,7 +200,7 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	@FXML
 	public void fileOpen(Event e) {
-		System.out.println("File Open selected.");
+		log.debug("File Open selected.");
 		File selectedFile = fileHandler.fileChooser(primaryStage);
 		openFile(selectedFile);
 	}
@@ -275,12 +288,12 @@ public class ObjectEditorController implements Initializable, DexController {
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
 	@FXML
 	public void whereUsedTabSelection(Event e) {
-		System.out.println("Where used tab selection event");
+		log.debug("Where used tab selection event");
 	}
 
 	@FXML
 	public void memberTabSelection(Event e) {
-		System.out.println("memberTab selection event");
+		log.debug("memberTab selection event");
 	}
 
 	@FXML
@@ -302,29 +315,29 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	@FXML
 	public void projectComboSelectionListener(Event e) {
-		System.out.println("project selection event");
+		log.debug("project selection event");
 		if (e.getTarget() instanceof ComboBox)
 			openFile(projectMap.get(((ComboBox<?>) e.getTarget()).getValue()));
 	}
 
 	@FXML
 	public void deleteProperty(ActionEvent e) {
-		System.out.println("Delete Button");
+		log.debug("Delete Button");
 	}
 
 	@FXML
 	public void setName(ActionEvent e) {
-		System.out.println("set Name");
+		log.debug("set Name");
 	}
 
 	@FXML
 	public void open(ActionEvent e) {
-		System.out.println("open");
+		log.debug("open");
 	}
 
 	@FXML
 	public void appExit(ActionEvent e) {
-		System.out.println("exit");
+		log.debug("exit");
 		primaryStage.close();
 	}
 

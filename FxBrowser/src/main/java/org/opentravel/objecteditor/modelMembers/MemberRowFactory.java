@@ -3,6 +3,9 @@
  */
 package org.opentravel.objecteditor.modelMembers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
@@ -16,6 +19,8 @@ import javafx.scene.control.TreeTableRow;
  */
 @SuppressWarnings("restriction")
 public final class MemberRowFactory extends TreeTableRow<MemberDAO> {
+	private static Log log = LogFactory.getLog(MemberRowFactory.class);
+
 	private final ContextMenu addMenu = new ContextMenu();
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private MemberTreeController controller;

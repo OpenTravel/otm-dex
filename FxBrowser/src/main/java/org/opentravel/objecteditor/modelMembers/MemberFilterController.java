@@ -6,6 +6,8 @@ package org.opentravel.objecteditor.modelMembers;
 import java.util.EnumMap;
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
@@ -24,27 +26,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 
-//import javafx.event.ActionEvent;
-//import javafx.event.Event;
-//import javafx.concurrent.Task;
-//import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-//import javafx.scene.control.cell.TextFieldTreeTableCell;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.control.TreeView;
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.ReadOnlyStringWrapper
-//import javafx.beans.property.StringProperty;
-//import javafx.beans.property.SimpleStringProperty;
-
 /**
  * Controller for a library history table. Creates table containing library history properties.
  * 
@@ -53,7 +34,7 @@ import javafx.scene.control.TreeItem;
  */
 @SuppressWarnings("restriction")
 public class MemberFilterController implements DexController {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryFilterController.class);
+	private static Log log = LogFactory.getLog(MemberFilterController.class);
 
 	/**
 	 * FXML Java FX Nodes this controller is dependent upon
@@ -90,7 +71,7 @@ public class MemberFilterController implements DexController {
 	 * @param nsLibraryTablePermissionField
 	 */
 	public MemberFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
-		System.out.println("Initializing library filter controller.");
+		log.debug("Initializing library filter controller.");
 		getFxNodes(fxNodes);
 		this.parent = parent;
 		modelMgr = parent.getModelManager();
@@ -139,7 +120,7 @@ public class MemberFilterController implements DexController {
 	public boolean isSelected(OtmModelElement<?> object) {
 		if (object.getOwningMember() == null || object.getOwningMember().getLibrary() == null)
 			return true;
-		// System.out.println(" Filter test of " + object.getName());
+		// log.debug(" Filter test of " + object.getName());
 		if (libraryFilter != null && !object.getLibrary().getName().startsWith(libraryFilter))
 			return false;
 		if (textFilterValue != null && !object.getName().toLowerCase().startsWith(textFilterValue))
@@ -173,16 +154,16 @@ public class MemberFilterController implements DexController {
 		ignoreClear = true;
 		libraryFilter = lib.getName();
 		((MemberTreeController) parent).refresh();
-		System.out.println("Set Library Filter to: " + libraryFilter);
+		log.debug("Set Library Filter to: " + libraryFilter);
 		ignoreClear = false;
 	}
 
 	public void setTypeFilter(Event e) {
-		System.out.println("Set Type Filter: " + e.toString());
+		log.debug("Set Type Filter: " + e.toString());
 	}
 
 	public void setStateFilter(Event e) {
-		System.out.println("Set Type Filter: " + e.toString());
+		log.debug("Set Type Filter: " + e.toString());
 		CheckMenuItem mi = null;
 		if (e.getTarget() instanceof CheckMenuItem)
 			mi = (CheckMenuItem) e.getTarget();
@@ -202,12 +183,12 @@ public class MemberFilterController implements DexController {
 		ignoreClear = true;
 		textFilterValue = nameFilter.getText().toLowerCase();
 		((MemberTreeController) parent).refresh();
-		System.out.println("Apply text Filter: " + textFilterValue);
+		log.debug("Apply text Filter: " + textFilterValue);
 		ignoreClear = false;
 	}
 
 	// public void setTypeFilter(Event e) {
-	// System.out.println("Apply type Filter");
+	// log.debug("Apply type Filter");
 	// }
 
 	@Override

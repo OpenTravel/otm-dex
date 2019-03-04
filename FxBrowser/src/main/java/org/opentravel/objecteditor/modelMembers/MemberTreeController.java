@@ -3,13 +3,13 @@
  */
 package org.opentravel.objecteditor.modelMembers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.DexController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.css.PseudoClass;
@@ -30,56 +30,8 @@ import javafx.scene.image.ImageView;
  */
 @SuppressWarnings("restriction")
 public class MemberTreeController implements DexController {
-	// private final class NavRowFactory extends TreeTableRow<ModelMembersTreeDAO> {
-	// private final ContextMenu addMenu = new ContextMenu();
-	//
-	// public NavRowFactory() {
-	// // Create Context menu
-	// MenuItem addObject = new MenuItem("Add Object");
-	// addMenu.getItems().add(addObject);
-	// setContextMenu(addMenu);
-	//
-	// // Create action for addObject event
-	// addObject.setOnAction(this::addMemberEvent);
-	//
-	// // Set style listener (css class)
-	// treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> setCSSClass(this, newTreeItem));
-	//
-	// // Not sure this helps!
-	// if (getTreeItem() != null && getTreeItem().getValue() != null) {
-	// setEditable(getTreeItem().getValue().isEditable());
-	// }
-	// }
-	//
-	// /**
-	// * Add a new member to the tree
-	// *
-	// * @param t
-	// */
-	// private void addMemberEvent(ActionEvent t) {
-	// TreeItem<ModelMembersTreeDAO> item = createTreeItem(new OtmCoreObject("new", currentModelMgr),
-	// getTreeItem().getParent());
-	// super.updateTreeItem(item); // needed to apply stylesheet to new item
-	// }
-	//
-	// /**
-	// * @param tc
-	// * @param newTreeItem
-	// * @return
-	// * @return
-	// */
-	// // TODO - use style class for warning and error
-	// private void setCSSClass(TreeTableRow<ModelMembersTreeDAO> tc, TreeItem<ModelMembersTreeDAO> newTreeItem) {
-	// if (newTreeItem != null) {
-	// tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
-	// }
-	// }
-	// // TODO - investigate using ControlsFX for decoration
-	// // TODO - Dragboard db = r.startDragAndDrop(TransferMode.MOVE);
-	// // https://www.programcreek.com/java-api-examples/index.php?api=javafx.scene.control.TreeTableRow
-	// }
+	private static Log log = LogFactory.getLog(MemberTreeController.class);
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MemberTreeController.class);
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMECOLUMNLABEL = "Member";
 
@@ -107,7 +59,7 @@ public class MemberTreeController implements DexController {
 	@SuppressWarnings("unchecked")
 	public MemberTreeController(DexController parent, TreeTableView<MemberDAO> navTreeTableView,
 			OtmModelManager model) {
-		System.out.println("Initializing navigation tree table.");
+		log.debug("Initializing navigation tree table.");
 
 		if (navTreeTableView == null)
 			throw new IllegalStateException("Tree table view is null.");
@@ -270,7 +222,7 @@ public class MemberTreeController implements DexController {
 	private void memberSelectionListener(TreeItem<MemberDAO> item) {
 		if (item == null)
 			return;
-		System.out.println("Selection Listener: " + item.getValue());
+		log.debug("Selection Listener: " + item.getValue());
 		assert item != null;
 		boolean editable = false;
 		if (item.getValue() != null)
@@ -297,7 +249,7 @@ public class MemberTreeController implements DexController {
 	}
 
 	public void select(String name) {
-		System.out.println("Selecting member: " + name);
+		log.debug("Selecting member: " + name);
 		// Find the row to select
 		// TODO - how to strip prefix that can be in the name
 		for (TreeItem<MemberDAO> item : memberTree.getRoot().getChildren()) {
@@ -308,7 +260,7 @@ public class MemberTreeController implements DexController {
 				return;
 			}
 		}
-		System.out.println(name + " not found.");
+		log.debug(name + " not found.");
 	}
 
 	public void refresh() {
@@ -321,7 +273,7 @@ public class MemberTreeController implements DexController {
 			memberTree.sort();
 		} catch (Exception e) {
 			// FIXME - why does first sort always throw exception?
-			System.out.println("Exception sorting: " + e.getLocalizedMessage());
+			log.debug("Exception sorting: " + e.getLocalizedMessage());
 		}
 	}
 

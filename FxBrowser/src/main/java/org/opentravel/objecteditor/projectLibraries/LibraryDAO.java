@@ -3,11 +3,11 @@
  */
 package org.opentravel.objecteditor.projectLibraries;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.objecteditor.DexDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -32,7 +32,7 @@ import javafx.scene.image.ImageView;
  */
 @SuppressWarnings("restriction")
 public class LibraryDAO implements DexDAO<OtmLibrary> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDAO.class);
+	private static Log log = LogFactory.getLog(LibraryDAO.class);
 
 	protected OtmLibrary library;
 	String editable = "False";

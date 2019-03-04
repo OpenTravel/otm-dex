@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor.memberProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
@@ -11,9 +13,8 @@ import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
 import org.opentravel.objecteditor.DexDAO;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -25,26 +26,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.image.ImageView;
 
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.SimpleStringProperty
-//javafx.beans.property.ReadOnlyStringWrapper
-
 /**
  * Manage a facets and properties in a tree table.
  * 
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesDAO.class);
+	private static Log log = LogFactory.getLog(PropertiesDAO.class);
+
 	static final String REQUIRED = "Required";
 	static final String OPTIONAL = "Optional";
 
@@ -102,7 +93,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		if (element instanceof OtmTypeUser) {
 			ssp = new SimpleStringProperty(((OtmTypeUser) element).getAssignedTypeName());
 			ssp.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
-				System.out.println("TODO - Set " + element + " type to " + newValue);
+				log.debug("TODO: Set " + element + " type to " + newValue);
 
 				if (newValue.equals(CHANGE))
 					DialogBox.display("Set Assigned Type", "TODO - view to select type.");
@@ -133,25 +124,28 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		StringProperty desc = new SimpleStringProperty(value);
 		desc.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
 			// element.setDesc(newValue);
-			System.out.println("TODO - Set " + element + " deprecation to " + newValue);
+			log.debug("TODO: Set " + element + " deprecation to " + newValue);
 		});
 		return desc;
 	}
 
 	public StringProperty descriptionProperty() {
-		String value = element.getDescription();
-
-		if (element instanceof OtmFacet)
+		if (!(element.getTL() instanceof TLDocumentationOwner))
 			return new ReadOnlyStringWrapper("");
+
+		String value = element.getDescription();
 		if (!element.isEditable())
 			return new ReadOnlyStringWrapper(value);
 
 		StringProperty desc = new SimpleStringProperty(value);
-		desc.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
-			// element.setDesc(newValue);
-			System.out.println("TODO - Set " + element + " description to " + newValue);
-		});
+		desc.addListener(
+				(ObservableValue<? extends String> ov, String oldValue, String newValue) -> setDescription(newValue));
 		return desc;
+	}
+
+	public void setDescription(String description) {
+		// element.setDescription(description);
+		log.debug("TODO: setDescription " + description + " on " + element);
 	}
 
 	public StringProperty exampleProperty() {
@@ -167,7 +161,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		StringProperty desc = new SimpleStringProperty(value);
 		desc.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
 			// element.setDesc(newValue);
-			System.out.println("TODO - Set " + element + " example to " + newValue);
+			log.debug("TODO: Set " + element + " example to " + newValue);
 		});
 		return desc;
 	}
@@ -208,7 +202,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		if (element.isEditable())
 			ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
 				((OtmProperty<?>) element).setManditory(newVal.equals(REQUIRED));
-				System.out.println("Set optional/manditory of " + element.getName() + " to " + newVal);
+				log.debug("Set optional/manditory of " + element.getName() + " to " + newVal);
 			});
 
 		return ssp;
@@ -232,13 +226,13 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		StringProperty ssp = new SimpleStringProperty(element.getRole());
 		ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
 			// element.setName(newVal);
-			System.out.println("TODO - set role of " + element.getName() + " to " + newVal);
+			log.debug("TODO - set role of " + element.getName() + " to " + newVal);
 		});
 		return ssp;
 	}
 
 	public void setMax(String newValue) {
-		System.out.println("Setting max to: " + newValue);
+		log.debug("TODO: Set max to: " + newValue);
 	}
 
 	@Override

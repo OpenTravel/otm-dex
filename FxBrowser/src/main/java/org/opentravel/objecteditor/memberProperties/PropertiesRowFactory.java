@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor.memberProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.otmFacets.OtmFacet;
@@ -29,6 +31,8 @@ import javafx.scene.control.TreeTableRow;
  */
 @SuppressWarnings("restriction")
 public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
+	private static Log log = LogFactory.getLog(PropertiesRowFactory.class);
+
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private static final PseudoClass DIVIDER = PseudoClass.getPseudoClass("divider");
 	private final ContextMenu addMenu = new ContextMenu();
@@ -59,7 +63,7 @@ public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
 		// treeItemProperty().getValue() is always null!
 		// getItem() is always null!
 
-		// System.out.println("");
+		// log.debug("");
 	}
 
 	/**
@@ -68,7 +72,7 @@ public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
 	 * @param t
 	 */
 	private void addMemberEvent(ActionEvent t) {
-		System.out.println("TODO - implement add member event in Properties Row Factory.");
+		log.debug("TODO - implement add member event in Properties Row Factory.");
 		// TreeItem<OtmTreeTableNode> item = createTreeItem(new OtmCoreObject("new"), getTreeItem().getParent());
 		// super.updateTreeItem(item); // needed to apply stylesheet to new item
 

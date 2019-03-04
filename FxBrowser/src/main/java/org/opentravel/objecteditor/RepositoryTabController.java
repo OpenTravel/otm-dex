@@ -5,6 +5,8 @@ package org.opentravel.objecteditor;
 
 import java.util.EnumMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
@@ -14,8 +16,6 @@ import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -30,24 +30,6 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 
-//import javafx.scene.Node;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.control.TreeView;
-//import javafx.scene.control.TreeItem;
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.ReadOnlyStringWrapper
-//import javafx.beans.property.StringProperty;
-//import javafx.beans.property.SimpleStringProperty;
-
 /**
  * Manage the repository tab.
  * 
@@ -56,7 +38,7 @@ import javafx.stage.Stage;
  */
 @SuppressWarnings("restriction")
 public class RepositoryTabController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryTabController.class);
+	private static Log log = LogFactory.getLog(RepositoryTabController.class);
 
 	private static final String LOCAL_REPO = "Local";
 
@@ -137,27 +119,27 @@ public class RepositoryTabController implements DexController {
 	private void librarySelectionListener(TreeItem<RepoItemNode> item) {
 		if (item == null)
 			return;
-		System.out.println("Library selected: " + item.getValue());
+		log.debug("Library selected: " + item.getValue());
 		libHistoryController.post(item.getValue());
 	}
 
 	private void treeSelectionListener(TreeItem<NamespaceNode> item) {
 		if (item == null)
 			return;
-		System.out.println("New tree item selected: " + item.getValue());
+		log.debug("New tree item selected: " + item.getValue());
 		NamespaceNode nsNode = item.getValue();
 		if (nsNode.repository != null) {
 			try {
 				nsLibsController.post(nsNode.repository, nsNode.getFullPath());
 				libHistoryController.clear();
 			} catch (RepositoryException e) {
-				System.out.println("Error accessing namespace: " + e.getLocalizedMessage());
+				log.debug("Error accessing namespace: " + e.getLocalizedMessage());
 			}
 		}
 	}
 
 	private void configureRepositoryChoice() {
-		System.out.println("Configuring repository choice box.");
+		log.debug("Configuring repository choice box.");
 		stage.showingProperty().addListener((observable, oldValue, newValue) -> {
 			ObservableList<String> repositoryIds = FXCollections.observableArrayList();
 			repositoryIds.add(LOCAL_REPO);
@@ -178,7 +160,7 @@ public class RepositoryTabController implements DexController {
 	 * @throws RepositoryException
 	 */
 	private void repositorySelectionChanged() {
-		System.out.println("Selected new repository");
+		log.debug("Selected new repository");
 
 		// Pass the repository to the nsTree
 		Repository repository;
@@ -187,7 +169,7 @@ public class RepositoryTabController implements DexController {
 			postUser(repository);
 			nsTreeController.post(repository);
 		} catch (RepositoryException e) {
-			System.out.println("Error: " + e.getLocalizedMessage());
+			log.debug("Error: " + e.getLocalizedMessage());
 		}
 	}
 

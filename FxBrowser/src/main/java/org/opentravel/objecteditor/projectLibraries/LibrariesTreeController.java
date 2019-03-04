@@ -5,13 +5,13 @@ package org.opentravel.objecteditor.projectLibraries;
 
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.ObjectEditorController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.control.TreeItem;
@@ -28,7 +28,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  */
 @SuppressWarnings("restriction")
 public class LibrariesTreeController implements DexController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibrariesTreeController.class);
+	private static Log log = LogFactory.getLog(LibrariesTreeController.class);
 
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMELABEL = "Name";
@@ -53,7 +53,7 @@ public class LibrariesTreeController implements DexController {
 
 	@SuppressWarnings("unchecked")
 	public LibrariesTreeController(DexController parent, TreeTableView<LibraryDAO> view) {
-		System.out.println("Initializing project-library tree table.");
+		log.debug("Initializing project-library tree table.");
 
 		// remember and check the parameters
 		this.parent = parent;
@@ -85,8 +85,7 @@ public class LibrariesTreeController implements DexController {
 		buildColumns();
 
 		// Enable context menus at the row level and add change listener for for applying style
-		libraryTree
-				.setRowFactory((TreeTableView<LibraryDAO> p) -> new LibraryRowFactory(this));
+		libraryTree.setRowFactory((TreeTableView<LibraryDAO> p) -> new LibraryRowFactory(this));
 
 		// create cells for members
 		for (OtmLibrary lib : modelMgr.getLibraries()) {
@@ -140,7 +139,7 @@ public class LibrariesTreeController implements DexController {
 		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
 			return;
 
-		System.out.println("Selection Listener: " + item.getValue().getValue());
+		log.debug("Selection Listener: " + item.getValue().getValue());
 
 		if (parent instanceof ObjectEditorController)
 			if (item.getValue().getValue() instanceof OtmLibrary)
@@ -155,25 +154,22 @@ public class LibrariesTreeController implements DexController {
 	// Create columns
 	//
 	private void buildColumns() {
-		TreeTableColumn<LibraryDAO, String> prefixColumn = createStringColumn(PREFIXCOLUMNLABEL, "prefix",
-				true, false, true, 0);
-		TreeTableColumn<LibraryDAO, String> nameColumn = createStringColumn(NAMELABEL, "name", true, false,
-				true, 200);
-		TreeTableColumn<LibraryDAO, String> namespaceColumn = createStringColumn(NAMESPACELABEL,
-				"namespace", true, false, true, 0);
-		TreeTableColumn<LibraryDAO, String> versionColumn = createStringColumn(VERSIONLABEL, "version",
-				true, false, true, 0);
-		TreeTableColumn<LibraryDAO, String> statusColumn = createStringColumn(STATUSLABEL, "status", true,
+		TreeTableColumn<LibraryDAO, String> prefixColumn = createStringColumn(PREFIXCOLUMNLABEL, "prefix", true, false,
+				true, 0);
+		TreeTableColumn<LibraryDAO, String> nameColumn = createStringColumn(NAMELABEL, "name", true, false, true, 200);
+		TreeTableColumn<LibraryDAO, String> namespaceColumn = createStringColumn(NAMESPACELABEL, "namespace", true,
 				false, true, 0);
-		TreeTableColumn<LibraryDAO, String> stateColumn = createStringColumn(STATELABEL, "state", true,
-				false, true, 0);
-		TreeTableColumn<LibraryDAO, String> editColumn = createStringColumn(EDITABLELABEL, "edit", true,
-				false, true, 0);
-		TreeTableColumn<LibraryDAO, String> lockedColumn = createStringColumn(LOCKEDLABEL, "locked", true,
-				false, true, 0);
+		TreeTableColumn<LibraryDAO, String> versionColumn = createStringColumn(VERSIONLABEL, "version", true, false,
+				true, 0);
+		TreeTableColumn<LibraryDAO, String> statusColumn = createStringColumn(STATUSLABEL, "status", true, false, true,
+				0);
+		TreeTableColumn<LibraryDAO, String> stateColumn = createStringColumn(STATELABEL, "state", true, false, true, 0);
+		TreeTableColumn<LibraryDAO, String> editColumn = createStringColumn(EDITABLELABEL, "edit", true, false, true,
+				0);
+		TreeTableColumn<LibraryDAO, String> lockedColumn = createStringColumn(LOCKEDLABEL, "locked", true, false, true,
+				0);
 		TreeTableColumn<LibraryDAO, Boolean> readonlyColumn = new TreeTableColumn<>(READONLYLABEL);
-		readonlyColumn
-				.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, Boolean>("readonly"));
+		readonlyColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, Boolean>("readonly"));
 		TreeTableColumn<LibraryDAO, Integer> refColumn = new TreeTableColumn<>(REFERENCELABEL);
 		refColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, Integer>("reference"));
 
@@ -190,8 +186,8 @@ public class LibrariesTreeController implements DexController {
 	 * 
 	 * @return
 	 */
-	private TreeTableColumn<LibraryDAO, String> createStringColumn(String label, String propertyName,
-			boolean visable, boolean editable, boolean sortable, int width) {
+	private TreeTableColumn<LibraryDAO, String> createStringColumn(String label, String propertyName, boolean visable,
+			boolean editable, boolean sortable, int width) {
 		TreeTableColumn<LibraryDAO, String> c = new TreeTableColumn<>(label);
 		c.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, String>(propertyName));
 		c.setVisible(visable);
@@ -211,8 +207,7 @@ public class LibrariesTreeController implements DexController {
 	 * @param item
 	 * @return
 	 */
-	private TreeItem<LibraryDAO> createTreeItem(OtmLibrary library,
-			TreeItem<LibraryDAO> parent) {
+	private TreeItem<LibraryDAO> createTreeItem(OtmLibrary library, TreeItem<LibraryDAO> parent) {
 		if (library != null) {
 			TreeItem<LibraryDAO> item = new TreeItem<>(new LibraryDAO(library));
 			item.setExpanded(false);

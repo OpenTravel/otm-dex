@@ -3,8 +3,8 @@
  */
 package org.opentravel.objecteditor.projectLibraries;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -17,9 +17,9 @@ import javafx.scene.control.TreeTableRow;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public final class LibraryRowFactory extends TreeTableRow<LibraryDAO> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibrariesTreeController.class);
+	private static Log log = LogFactory.getLog(LibraryRowFactory.class);
 
 	private final ContextMenu addMenu = new ContextMenu();
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
