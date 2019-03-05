@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractOTMApplication;
 import org.opentravel.application.common.AbstractUserSettings;
 import org.opentravel.common.DialogBox;
@@ -20,6 +22,7 @@ import javafx.stage.WindowEvent;
  */
 // @SuppressWarnings("restriction")
 public class ObjectEditorApp extends AbstractOTMApplication {
+	private static Log log = LogFactory.getLog(ObjectEditorApp.class);
 
 	Stage window;
 	private static int sceneWidth = 1200;
@@ -33,7 +36,7 @@ public class ObjectEditorApp extends AbstractOTMApplication {
 
 	@Override
 	public void start(Stage primaryStage) {
-		// System.out.println("Creating Primary Stage.");
+		log.debug("Creating Primary Stage.");
 		try {
 			// Icons
 			ImageManager imageManager = new ImageManager(primaryStage);

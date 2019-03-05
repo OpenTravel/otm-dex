@@ -4,10 +4,8 @@
 package org.opentravel.objecteditor;
 
 import java.io.File;
-import java.net.URL;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +33,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
@@ -49,12 +47,6 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.application.Platform;
-//import javafx.scene.control.ProgressIndicator;
-//import javafx.scene.control.MenuButton;
-
 /**
  * Main controller for OtmObjecEditorLayout.fxml (1 FXML = 1Controller).
  * 
@@ -62,9 +54,14 @@ import javafx.stage.Stage;
  *
  */
 @SuppressWarnings("restriction")
-public class ObjectEditorController implements Initializable, DexController {
+public class ObjectEditorController implements DexController {
+	// public class ObjectEditorController implements Initializable, DexController {
 	private static Log log = LogFactory.getLog(ObjectEditorController.class);
 
+	//
+	// FIXME - use import/include to break up fxml files and controllers.
+	// See: https://www.youtube.com/watch?v=osIRfgHTfyg
+	//
 	// Navigation Table Tree View
 	//
 	@FXML
@@ -104,6 +101,10 @@ public class ObjectEditorController implements Initializable, DexController {
 
 	@FXML
 	public TreeTableView<LibraryDAO> libraryTabTreeTableView;
+
+	// Let FXML inject into the dialog box controller.
+	@FXML
+	private DialogBoxContoller dialogBoxController;
 
 	Stage primaryStage = null;
 	private OtmModelManager modelMgr;
@@ -183,9 +184,45 @@ public class ObjectEditorController implements Initializable, DexController {
 		memberController.refresh();
 	}
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
+	// @Override
+	// public void initialize(URL location, ResourceBundle resources) {
+	public void initialize() {
 		log.debug("Object Editor Controller - Initialize w/params is now loading!");
+		initializeDialogBox();
+	}
+
+	/**
+	 * Create a working stage from an FXML file and its own controller complete with its own FXML injected controls and
+	 * nodes.
+	 * <p>
+	 * Use this pattern for FXML files that are not included in another FXML file.
+	 */
+	private void initializeDialogBox() {
+		final String LAYOUT_FILE = "/DialogBox.fxml";
+		// Create a new dynamic loader
+		FXMLLoader loader = new FXMLLoader(getClass().getResource(LAYOUT_FILE));
+		dialogBoxController = DialogBoxContoller.init(loader, this);
+		// dialogBoxController.injectMainController(this);
+
+		// try {
+		// // Load the fxml file initialize controller it declares.
+		// Pane pane = loader.load();
+		// // Create scene and stage
+		// Stage dialogStage = new Stage();
+		// dialogStage.setScene(new Scene(pane));
+		// dialogStage.initModality(Modality.APPLICATION_MODAL);
+		//
+		// // get the controller from it.
+		// dialogBoxController = loader.getController();
+		// if (dialogBoxController == null)
+		// log.error("Missing dialog box controller.");
+		// else {
+		// dialogBoxController.injectMainController(this);
+		// dialogBoxController.injectStage(dialogStage);
+		// }
+		// } catch (IOException e1) {
+		// log.error("Error loading dialog box.");
+		// }
 	}
 
 	/**
@@ -333,6 +370,12 @@ public class ObjectEditorController implements Initializable, DexController {
 	@FXML
 	public void open(ActionEvent e) {
 		log.debug("open");
+	}
+
+	@FXML
+	public void doClose(ActionEvent e) {
+		log.debug("Close menu item selected.");
+		dialogBoxController.show("title", "msg");
 	}
 
 	@FXML

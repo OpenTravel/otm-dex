@@ -8,7 +8,6 @@ import java.util.EnumMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
-import org.opentravel.common.RepositoryController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
 import org.opentravel.objecteditor.RepositoryNamespacesTreeController.NamespaceNode;
@@ -36,14 +35,14 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public class RepositoryTabController implements DexController {
 	private static Log log = LogFactory.getLog(RepositoryTabController.class);
 
 	private static final String LOCAL_REPO = "Local";
 
 	private RepositoryManager repositoryManager;
-	protected RepositoryController repoController;
+	// protected RepositoryController repoController;
 	// private RepositoryAvailabilityChecker availabilityChecker;
 
 	protected ImageManager imageMgr;
@@ -110,10 +109,25 @@ public class RepositoryTabController implements DexController {
 		libHistoryController = new LibraryHistoryItemsController(this, historyTable);
 
 		// Set up repository Choice
-		repoController = new RepositoryController();
-		repositoryManager = repoController.getRepositoryManager(); // FIXME
+		// repoController = new RepositoryController();
+		// repositoryManager = repoController.getRepositoryManager(); // FIXME
+		repositoryManager = getRepoMgr();
 		configureRepositoryChoice();
 
+		log.debug("Repository Controller initialized.");
+	}
+
+	private RepositoryManager getRepoMgr() {
+		// // Set up repository access
+		RepositoryManager rm = null;
+		try {
+			rm = RepositoryManager.getDefault();
+			// availabilityChecker = RepositoryAvailabilityChecker.getInstance(repositoryManager);
+			// repoStatus = availabilityChecker.pingAllRepositories(true);
+		} catch (RepositoryException e) {
+			log.error("Repository manager unavailable: " + e);
+		}
+		return rm;
 	}
 
 	private void librarySelectionListener(TreeItem<RepoItemNode> item) {
@@ -180,11 +194,13 @@ public class RepositoryTabController implements DexController {
 	 * @throws RepositoryException
 	 */
 	private Repository getSelectedRepository() throws RepositoryException {
-		Repository repository = repoController.getLocalRepository();
+		Repository repository = RepositoryManager.getDefault();
+		// repoController.getLocalRepository();
 		String rid = repositoryChoice.getSelectionModel().getSelectedItem();
 		if (rid != null)
 			if (rid.equals(LOCAL_REPO))
-				repository = repoController.getLocalRepository();
+				repository = RepositoryManager.getDefault();
+			// repository = repoController.getLocalRepository();
 			else
 				// Use selected repository
 				repository = repositoryManager.getRepository(rid);

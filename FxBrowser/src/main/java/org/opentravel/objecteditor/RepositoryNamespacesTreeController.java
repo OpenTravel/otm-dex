@@ -67,7 +67,7 @@ public class RepositoryNamespacesTreeController implements DexController {
 		 * @return
 		 */
 		public String getFullPath() {
-			return basePath + "/" + ns;
+			return basePath != null ? basePath + "/" + ns : ns;
 		}
 	}
 
