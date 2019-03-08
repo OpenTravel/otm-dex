@@ -15,6 +15,7 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -58,6 +59,18 @@ public class RepositoryNamespacesTreeController implements DexController {
 		this.parentController = parent;
 		imageMgr = parent.getImageManager();
 		log.debug("Parent controller for tree controller set.");
+
+		Parent parentNode = tree.getParent();
+		log.debug("parent is: " + parentNode);
+		// if (parentNode instanceof AnchorPane) {
+		// AnchorPane v = (AnchorPane) parentNode;
+		// double ph = v.getPrefHeight();
+		// v.setMaxHeight(1.0);
+		// ReadOnlyDoubleProperty wp = v.widthProperty();
+		// tree widthProperty is read only!
+		// tree.widthProperty().bind(wp.getValue());
+		// n.prefWidthProperty().bind(mainContent.widthProperty());
+		// n.prefHeightProperty().bind(mainContent.heightProperty());
 	}
 
 	/**

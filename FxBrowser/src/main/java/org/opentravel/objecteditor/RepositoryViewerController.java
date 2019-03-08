@@ -17,6 +17,7 @@ import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNod
 import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.objecteditor.repository.NamespaceLibrariesTreeTableController;
 import org.opentravel.objecteditor.repository.NamespacesDAO;
+import org.opentravel.objecteditor.repository.RepoItemDAO;
 import org.opentravel.objecteditor.repository.RepositoryNamespacesTreeController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -154,9 +155,9 @@ public class RepositoryViewerController implements DexController {
 				.addListener((v, old, newValue) -> nsTreeSelectionListener(newValue));
 
 		// Set up the libraries in a namespace table
-		// librariesTreeTableController.setParent(this);
-		// librariesTreeTableController.getSelectable()
-		// .addListener((v, old, newValue) -> librarySelectionListener(newValue));
+		namespaceLibrariesTreeTableController.setParent(this);
+		namespaceLibrariesTreeTableController.getSelectable()
+				.addListener((v, old, newValue) -> librarySelectionListener(newValue));
 
 		// initialize Dialog Box
 		final String LAYOUT_FILE = "/DialogBox.fxml";
@@ -216,11 +217,11 @@ public class RepositoryViewerController implements DexController {
 		return rm;
 	}
 
-	private void librarySelectionListener(TreeItem<RepoItemNode> item) {
+	private void librarySelectionListener(TreeItem<RepoItemDAO> item) {
 		if (item == null)
 			return;
 		log.debug("Library selected: " + item.getValue());
-		libHistoryController.post(item.getValue());
+		// libHistoryController.post(item.getValue());
 	}
 
 	/**

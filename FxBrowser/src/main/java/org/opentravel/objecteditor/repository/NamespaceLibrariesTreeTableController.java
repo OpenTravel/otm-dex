@@ -16,11 +16,13 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.layout.VBox;
 
 /**
  * Controller for a libraries in a namespace tree table view. Creates table containing repository item properties.
@@ -41,6 +43,8 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 	private TreeTableView<RepoItemDAO> table;
 	@FXML
 	private Label permissionLabel;
+	@FXML
+	private Label namespaceLabel;
 
 	private TreeItem<RepoItemDAO> root;
 	private DexController parentController;
@@ -54,6 +58,7 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 
 		if (librariesTreeTableView == null)
 			throw new IllegalArgumentException("Namespace libraries tree table view is null.");
+		table = librariesTreeTableView;
 
 		// Initialize and build columns for library tree table
 		root = initializeTree();
@@ -66,8 +71,13 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 		imageMgr = parent.getImageManager();
 		log.debug("Parent controller for tree controller set.");
 
-		// n.prefWidthProperty().bind(mainContent.widthProperty());
-		// n.prefHeightProperty().bind(mainContent.heightProperty());
+		Parent parentNode = table.getParent();
+		log.debug("parent is: " + parentNode);
+		if (parentNode instanceof VBox) {
+			VBox v = (VBox) parentNode;
+			// n.prefWidthProperty().bind(mainContent.widthProperty());
+			// n.prefHeightProperty().bind(mainContent.heightProperty());
+		}
 	}
 
 	/**
@@ -141,6 +151,8 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 	public void post(Repository repository, String namespace) throws RepositoryException {
 		if (repository == null || namespace == null || namespace.isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
+
+		namespaceLabel.setText(namespace);
 
 		// Clear the table
 		clear();
