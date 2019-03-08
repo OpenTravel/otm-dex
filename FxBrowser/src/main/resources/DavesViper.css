@@ -5,10 +5,15 @@
     -fx-text-fill: #181818;
     -fx-font-size: 12pt
 }
+.text{
+    -fx-text-fill: #984818;
+    -fx-font-size: 12pt
+}
 .bold-label{
     -fx-font-weight: bold;
 }
-.menu-bar .container .menu:openvertically .label .text {
+#.menu-bar .container .menu:openvertically .label .text {
+.menu-bar .container .menu:openvertically {
     -fx-font-style: normal;
     -fx-background-color: #D0D0D0;
 }

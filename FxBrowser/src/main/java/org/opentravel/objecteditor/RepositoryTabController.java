@@ -10,7 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
-import org.opentravel.objecteditor.RepositoryNamespacesTreeController.NamespaceNode;
+import org.opentravel.objecteditor.repository.NamespacesDAO;
+import org.opentravel.objecteditor.repository.RepositoryNamespacesTreeController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -63,11 +64,13 @@ public class RepositoryTabController implements DexController {
 	}
 
 	private Label nsPermission;
-	private TreeView<NamespaceNode> tree;
+	private TreeView<NamespacesDAO> tree;
 	private ChoiceBox<String> repositoryChoice;
 	private TreeTableView<RepoItemNode> libTable;
 	private TextField userField;
 	public TableView historyTable;
+
+	private ObjectEditorController parentController;
 
 	@SuppressWarnings("unchecked")
 	private void getRepoNodes(EnumMap<RepoTabNodes, Node> fxNodes) {
@@ -75,7 +78,7 @@ public class RepositoryTabController implements DexController {
 		repositoryChoice = (ChoiceBox<String>) fxNodes.get(RepoTabNodes.RepositoryChoice);
 		libTable = (TreeTableView<RepoItemNode>) fxNodes.get(RepoTabNodes.NamespaceLibraryTable);
 		nsPermission = (Label) fxNodes.get(RepoTabNodes.NamespacePermission);
-		tree = (TreeView<NamespaceNode>) fxNodes.get(RepoTabNodes.NamespaceTree);
+		tree = (TreeView<NamespacesDAO>) fxNodes.get(RepoTabNodes.NamespaceTree);
 		historyTable = (TableView) fxNodes.get(RepoTabNodes.HistoryTable);
 		userField = (TextField) fxNodes.get(RepoTabNodes.User);
 
@@ -98,6 +101,8 @@ public class RepositoryTabController implements DexController {
 		if (stage == null)
 			throw new IllegalStateException("Stage is null.");
 		imageMgr = new ImageManager(stage);
+
+		parentController = parent;
 
 		getRepoNodes(fxNodes);
 		nsTreeController = new RepositoryNamespacesTreeController(this, tree);
@@ -137,14 +142,14 @@ public class RepositoryTabController implements DexController {
 		libHistoryController.post(item.getValue());
 	}
 
-	private void treeSelectionListener(TreeItem<NamespaceNode> item) {
+	private void treeSelectionListener(TreeItem<NamespacesDAO> item) {
 		if (item == null)
 			return;
 		log.debug("New tree item selected: " + item.getValue());
-		NamespaceNode nsNode = item.getValue();
-		if (nsNode.repository != null) {
+		NamespacesDAO nsNode = item.getValue();
+		if (nsNode.getRepository() != null) {
 			try {
-				nsLibsController.post(nsNode.repository, nsNode.getFullPath());
+				nsLibsController.post(nsNode.getRepository(), nsNode.getFullPath());
 				libHistoryController.clear();
 			} catch (RepositoryException e) {
 				log.debug("Error accessing namespace: " + e.getLocalizedMessage());
@@ -231,7 +236,7 @@ public class RepositoryTabController implements DexController {
 	}
 
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<NamespaceNode>> getSelectable() {
+	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
 		return null;
 	}
 
@@ -243,6 +248,16 @@ public class RepositoryTabController implements DexController {
 	@Override
 	public OtmModelManager getModelManager() {
 		return null;
+	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
 	}
 
 }

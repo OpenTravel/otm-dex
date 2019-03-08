@@ -41,4 +41,18 @@ public interface DexController {
 	 */
 	OtmModelManager getModelManager();
 
+	/**
+	 * Put the status string into the status label.
+	 * 
+	 * @param string
+	 */
+	void postStatus(String string);
+
+	/**
+	 * Update the progress indicator displayed value.
+	 * 
+	 * @param percentDone
+	 */
+	void postProgress(double percentDone);
+
 }

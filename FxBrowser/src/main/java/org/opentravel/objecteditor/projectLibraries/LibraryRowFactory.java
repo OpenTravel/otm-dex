@@ -17,7 +17,6 @@ import javafx.scene.control.TreeTableRow;
  * @author dmh
  *
  */
-// @SuppressWarnings("restriction")
 public final class LibraryRowFactory extends TreeTableRow<LibraryDAO> {
 	private static Log log = LogFactory.getLog(LibraryRowFactory.class);
 
@@ -25,8 +24,13 @@ public final class LibraryRowFactory extends TreeTableRow<LibraryDAO> {
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private LibrariesTreeController controller;
 
+	// controller injected from FXML
 	public LibraryRowFactory(LibrariesTreeController controller) {
+		this();
 		this.controller = controller;
+	}
+
+	public LibraryRowFactory() {
 
 		// Create Context menu
 		MenuItem addObject = new MenuItem("Show Where Used (future)");

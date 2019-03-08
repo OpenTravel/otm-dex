@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.repository;
 
 import java.util.HashMap;
 
@@ -9,12 +9,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.objecteditor.DexController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -24,59 +24,41 @@ import javafx.scene.control.TreeView;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
 public class RepositoryNamespacesTreeController implements DexController {
 	private static Log log = LogFactory.getLog(RepositoryNamespacesTreeController.class);
 
-	// Create a javafx node for namespace tree
-	public class NamespaceNode {
-		protected String ns;
-		protected String basePath;
-		protected Repository repository;
+	protected ImageManager imageMgr;
+	protected TreeView<NamespacesDAO> tree;
+	protected TreeItem<NamespacesDAO> root;
+	private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
+	private DexController parentController;
 
-		public NamespaceNode(String ns) {
-			this(ns, null, null);
-		}
+	@FXML
+	private NamespaceLibrariesTreeTableController namespaceLibrariesTreeTableController;
 
-		public NamespaceNode(String ns, String basePath, Repository repo) {
-			this.ns = ns;
-			this.basePath = basePath;
-			this.repository = repo;
-		}
+	@FXML
+	protected TreeView<NamespacesDAO> repositoryNamespacesTree;
 
-		public StringProperty nsProperty() {
-			return new SimpleStringProperty(ns);
-		}
-
-		//
-		@Override
-		public String toString() {
-			return ns;
-		}
-
-		public String getValue() {
-			return ns;
-		}
-		//
-		// public ImageView getIcon() {
-		// return images.getView(element.getIconType());
-		// }
-		//
-
-		/**
-		 * @return
-		 */
-		public String getFullPath() {
-			return basePath != null ? basePath + "/" + ns : ns;
-		}
+	public RepositoryNamespacesTreeController() {
+		log.debug("Constructing repository tree controller.");
 	}
 
-	protected ImageManager imageMgr;
-	protected TreeView<NamespaceNode> tree;
-	protected TreeItem<NamespaceNode> root;
-	// protected Stage stage;
+	public void initialize() {
+		log.debug("Initializing repository tree controller.");
 
-	private HashMap<String, TreeItem<NamespaceNode>> namespaceMap = new HashMap<>();
+		if (repositoryNamespacesTree == null)
+			throw new IllegalArgumentException("Repository tree view is null.");
+		this.tree = repositoryNamespacesTree;
+
+		root = initializeTree(tree);
+
+	}
+
+	public void setParent(DexController parent) {
+		this.parentController = parent;
+		imageMgr = parent.getImageManager();
+		log.debug("Parent controller for tree controller set.");
+	}
 
 	/**
 	 * Create a tree of repository Namespaces with manager.
@@ -85,10 +67,13 @@ public class RepositoryNamespacesTreeController implements DexController {
 	 * @param stage
 	 * @param nsLibraryTablePermissionField
 	 */
-	public RepositoryNamespacesTreeController(DexController parent, TreeView<NamespaceNode> tree) {
-		log.debug("Initializing repository tab.");
+	// Use FXML include and injection instead of constructor
+	@Deprecated
+	public RepositoryNamespacesTreeController(DexController parent, TreeView<NamespacesDAO> tree) {
+		log.debug("Initializing repository tab with parameters.");
 
 		imageMgr = parent.getImageManager();
+		parentController = parent;
 
 		if (tree == null)
 			throw new IllegalArgumentException("Repository tree view is null.");
@@ -96,6 +81,11 @@ public class RepositoryNamespacesTreeController implements DexController {
 
 		root = initializeTree(tree);
 	}
+
+	// @Deprecated
+	// public TreeView<NamespacesDAO> getTree() {
+	// return repositoryNamespacesTree;
+	// }
 
 	/**
 	 * {@inheritDoc}
@@ -108,20 +98,40 @@ public class RepositoryNamespacesTreeController implements DexController {
 	}
 
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<NamespaceNode>> getSelectable() {
+	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
 		return tree.getSelectionModel().selectedItemProperty();
 	}
 
-	private TreeItem<NamespaceNode> initializeTree(TreeView<NamespaceNode> tree) {
+	private TreeItem<NamespacesDAO> initializeTree(TreeView<NamespacesDAO> tree) {
 		// Set the hidden root item
-		TreeItem<NamespaceNode> root = new TreeItem<>();
+		TreeItem<NamespacesDAO> root = new TreeItem<>();
 		root.setExpanded(true); // Startout fully expanded
 		// Set up the TreeTable
 		tree.setRoot(root);
 		tree.setShowRoot(false);
 		tree.setEditable(true);
+
+		// nsTreeController.getSelectable().addListener((v, old, newValue) -> treeSelectionListener(newValue));
+		// tree.getSelectionModel().selectedItemProperty()
+		// .addListener((v, old, newValue) -> treeSelectionListener(newValue));
 		return root;
 	}
+
+	// Have parent listen for selections
+	// private void treeSelectionListener(TreeItem<NamespacesDAO> item) {
+	// if (item == null)
+	// return;
+	// log.debug("New tree item selected: " + item.getValue());
+	// NamespacesDAO nsNode = item.getValue();
+	// // if (nsNode.getRepository() != null) {
+	// // try {
+	// // nsLibsController.post(nsNode.getRepository(), nsNode.getFullPath());
+	// // libHistoryController.clear();
+	// // } catch (RepositoryException e) {
+	// // log.debug("Error accessing namespace: " + e.getLocalizedMessage());
+	// // }
+	// // }
+	// }
 
 	/**
 	 * Post the contents from the repository into the tree.
@@ -135,7 +145,7 @@ public class RepositoryNamespacesTreeController implements DexController {
 		// Get the root namespaces in real time
 		try {
 			for (String rootNS : repository.listRootNamespaces()) {
-				TreeItem<NamespaceNode> treeItem = createTreeItem(repository, null, rootNS, root);
+				TreeItem<NamespacesDAO> treeItem = createTreeItem(repository, null, rootNS, root);
 				namespaceMap.put(rootNS, treeItem);
 				// Get sub-namespaces in background thread
 				startGetSubNamespaces(repository, rootNS);
@@ -172,9 +182,9 @@ public class RepositoryNamespacesTreeController implements DexController {
 	 * @throws RepositoryException
 	 */
 	private void getSubNamespaces(Repository repository, String parentNS) throws RepositoryException {
-		TreeItem<NamespaceNode> item;
+		TreeItem<NamespacesDAO> item;
 		for (String childNS : repository.listNamespaceChildren(parentNS)) {
-			TreeItem<NamespaceNode> parent = namespaceMap.get(parentNS);
+			TreeItem<NamespacesDAO> parent = namespaceMap.get(parentNS);
 			if (parent != null) {
 				item = createTreeItem(repository, parentNS, childNS, parent);
 				namespaceMap.put(item.getValue().getFullPath(), item);
@@ -186,9 +196,9 @@ public class RepositoryNamespacesTreeController implements DexController {
 		}
 	}
 
-	private TreeItem<NamespaceNode> createTreeItem(Repository repo, String basePath, String ns,
-			TreeItem<NamespaceNode> parent) {
-		TreeItem<NamespaceNode> item = new TreeItem<>(new NamespaceNode(ns, basePath, repo));
+	private TreeItem<NamespacesDAO> createTreeItem(Repository repo, String basePath, String ns,
+			TreeItem<NamespacesDAO> parent) {
+		TreeItem<NamespacesDAO> item = new TreeItem<>(new NamespacesDAO(ns, basePath, repo));
 		item.setExpanded(false);
 		parent.getChildren().add(item);
 		// item.setGraphic(images.getView(element));
@@ -200,7 +210,8 @@ public class RepositoryNamespacesTreeController implements DexController {
 	 */
 	@Override
 	public void clear() {
-		tree.getRoot().getChildren().clear();
+		if (tree != null && tree.getRoot() != null)
+			tree.getRoot().getChildren().clear();
 	}
 
 	@Override
@@ -208,6 +219,16 @@ public class RepositoryNamespacesTreeController implements DexController {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
+	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
 	}
 
 }

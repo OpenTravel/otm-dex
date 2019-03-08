@@ -17,6 +17,7 @@ import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
+import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.objecteditor.memberProperties.PropertiesDAO;
 import org.opentravel.objecteditor.memberProperties.PropertiesTableController;
 import org.opentravel.objecteditor.modelMembers.MemberDAO;
@@ -245,7 +246,8 @@ public class ObjectEditorController implements DexController {
 	public void openFile(File selectedFile) {
 		if (selectedFile == null)
 			return;
-		postNotify("Loading Project", "Wait please.");
+		dialogBoxController.show("Loading Project", "Please wait");
+		// postNotify("Loading Project", "Wait please.");
 		// dialog.display("LOADING", "Well now, just wait and watch...");
 
 		memberController.clear(); // prevent concurrent modification
@@ -259,6 +261,8 @@ public class ObjectEditorController implements DexController {
 		Thread backgroundThread = new Thread(task);
 		backgroundThread.setDaemon(true);
 		backgroundThread.start();
+
+		// See openFileTask for post completion actions
 	}
 
 	/**
@@ -271,7 +275,8 @@ public class ObjectEditorController implements DexController {
 		modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
 		// When done, update display in the UI thread
 		Platform.runLater(() -> {
-			clearNotify();
+			dialogBoxController.close();
+			// clearNotify();
 			memberController.post(modelMgr);
 			libController.post(modelMgr);
 			postStatus("");
@@ -375,7 +380,11 @@ public class ObjectEditorController implements DexController {
 	@FXML
 	public void doClose(ActionEvent e) {
 		log.debug("Close menu item selected.");
-		dialogBoxController.show("title", "msg");
+		StringBuilder libs = new StringBuilder();
+		for (OtmLibrary lib : getModelManager().getLibraries())
+			libs.append(lib.getBaseNamespace() + "\n");
+		dialogBoxController.show("Do you want to close the project?", libs.toString());
+		// dialogBoxController.add(libs.toString());
 	}
 
 	@FXML

@@ -82,6 +82,7 @@ public class LibraryHistoryItemsController implements DexController {
 
 	private TableView<CommitNode> historyTable;
 	private ObservableList<CommitNode> commitList = FXCollections.observableArrayList();
+	private DexController parentController;
 
 	/**
 	 * Create a view for the libraries described by repository items in the passed namespace.
@@ -92,6 +93,7 @@ public class LibraryHistoryItemsController implements DexController {
 
 		System.out.println("Initializing repository library table view.");
 
+		parentController = parent;
 		this.historyTable = table;
 		if (historyTable == null)
 			throw new IllegalStateException("Library History Table view is null.");
@@ -214,6 +216,16 @@ public class LibraryHistoryItemsController implements DexController {
 		// if (imageMgr == null)
 		// throw new IllegalStateException("Image manger is null.");
 		return null;
+	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
 	}
 
 }

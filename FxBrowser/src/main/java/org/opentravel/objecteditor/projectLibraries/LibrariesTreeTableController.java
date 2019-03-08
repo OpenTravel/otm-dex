@@ -26,9 +26,8 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
-public class LibrariesTreeController implements DexController {
-	private static Log log = LogFactory.getLog(LibrariesTreeController.class);
+public class LibrariesTreeTableController implements DexController {
+	private static Log log = LogFactory.getLog(LibrariesTreeTableController.class);
 
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMELABEL = "Name";
@@ -51,8 +50,15 @@ public class LibrariesTreeController implements DexController {
 	private ImageManager imageMgr;
 	private DexController parentController;
 
-	@SuppressWarnings("unchecked")
-	public LibrariesTreeController(DexController parent, TreeTableView<LibraryDAO> view) {
+	public LibrariesTreeTableController() {
+		log.debug("Constructing library tree table controller.");
+	}
+
+	public void initialize() {
+		log.debug("Initializing library tree table controller.");
+	}
+
+	public LibrariesTreeTableController(DexController parent, TreeTableView<LibraryDAO> view) {
 		log.debug("Initializing project-library tree table.");
 
 		// remember and check the parameters
@@ -85,7 +91,7 @@ public class LibrariesTreeController implements DexController {
 		buildColumns();
 
 		// Enable context menus at the row level and add change listener for for applying style
-		libraryTree.setRowFactory((TreeTableView<LibraryDAO> p) -> new LibraryRowFactory(this));
+		libraryTree.setRowFactory((TreeTableView<LibraryDAO> p) -> new LibraryRowFactory());
 
 		// create cells for members
 		for (OtmLibrary lib : modelMgr.getLibraries()) {

@@ -56,6 +56,8 @@ public class MemberTreeController implements DexController {
 
 	ImageManager imageMgr;
 
+	private DexController parentController;
+
 	@SuppressWarnings("unchecked")
 	public MemberTreeController(DexController parent, TreeTableView<MemberDAO> navTreeTableView,
 			OtmModelManager model) {
@@ -67,6 +69,7 @@ public class MemberTreeController implements DexController {
 		// remember the view, and get an image manager for the stage.
 		this.memberTree = navTreeTableView;
 		imageMgr = parent.getImageManager();
+		parentController = parent;
 
 		// Set the hidden root item
 		root = new TreeItem<>();
@@ -280,4 +283,15 @@ public class MemberTreeController implements DexController {
 	public void setFilter(MemberFilterController filter) {
 		this.filter = filter;
 	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
+	}
+
 }

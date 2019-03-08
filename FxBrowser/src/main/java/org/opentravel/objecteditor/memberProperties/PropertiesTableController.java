@@ -37,7 +37,7 @@ public class PropertiesTableController implements DexController {
 	protected ImageManager imageMgr;
 	protected TreeTableView<PropertiesDAO> table;
 	protected TreeItem<PropertiesDAO> root;
-	protected ObjectEditorController parent;
+	protected ObjectEditorController parentController;
 
 	protected TreeTableColumn<PropertiesDAO, String> nameCol;
 	// protected TreeTableColumn<PropertyNode, ImageView> iconCol;
@@ -63,7 +63,7 @@ public class PropertiesTableController implements DexController {
 
 		if (parent == null)
 			throw new IllegalArgumentException("Missing parent contoller.");
-		this.parent = parent;
+		this.parentController = parent;
 		imageMgr = parent.getImageManager();
 
 		if (table == null)
@@ -142,7 +142,7 @@ public class PropertiesTableController implements DexController {
 
 	public void select(String name) {
 		log.debug("TODO - select " + name);
-		parent.select(name);
+		parentController.select(name);
 	}
 
 	/**
@@ -307,6 +307,16 @@ public class PropertiesTableController implements DexController {
 	@Override
 	public OtmModelManager getModelManager() {
 		return null;
+	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
 	}
 
 }

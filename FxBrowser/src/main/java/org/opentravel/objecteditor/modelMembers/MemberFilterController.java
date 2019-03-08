@@ -54,7 +54,7 @@ public class MemberFilterController implements DexController {
 	private MenuButton stateMenu;
 
 	private String textFilterValue = null;
-	private DexController parent;
+	private DexController parentController;
 	private OtmModelManager modelMgr;
 
 	private HashMap<String, OtmLibrary> libraryMap = new HashMap<>();
@@ -73,7 +73,7 @@ public class MemberFilterController implements DexController {
 	public MemberFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
 		log.debug("Initializing library filter controller.");
 		getFxNodes(fxNodes);
-		this.parent = parent;
+		this.parentController = parent;
 		modelMgr = parent.getModelManager();
 
 		configureLibraryChoice();
@@ -142,7 +142,7 @@ public class MemberFilterController implements DexController {
 			selection = libraryChoice.getSelectionModel().getSelectedItem();
 			if (libraryChoice.getSelectionModel().getSelectedItem().equals(ALLLIBS)) {
 				clear();
-				((MemberTreeController) parent).refresh();
+				((MemberTreeController) parentController).refresh();
 			} else {
 				setLibraryFilter(libraryMap.get(selection));
 			}
@@ -153,7 +153,7 @@ public class MemberFilterController implements DexController {
 	public void setLibraryFilter(OtmLibrary lib) {
 		ignoreClear = true;
 		libraryFilter = lib.getName();
-		((MemberTreeController) parent).refresh();
+		((MemberTreeController) parentController).refresh();
 		log.debug("Set Library Filter to: " + libraryFilter);
 		ignoreClear = false;
 	}
@@ -174,7 +174,7 @@ public class MemberFilterController implements DexController {
 			if (((MenuItem) e.getTarget()).getText().startsWith("Edit")) {
 				editableOnly = mi.isSelected();
 			}
-			((MemberTreeController) parent).refresh();
+			((MemberTreeController) parentController).refresh();
 		}
 	}
 
@@ -182,7 +182,7 @@ public class MemberFilterController implements DexController {
 	public void applyTextFilter(Event e) {
 		ignoreClear = true;
 		textFilterValue = nameFilter.getText().toLowerCase();
-		((MemberTreeController) parent).refresh();
+		((MemberTreeController) parentController).refresh();
 		log.debug("Apply text Filter: " + textFilterValue);
 		ignoreClear = false;
 	}
@@ -195,7 +195,7 @@ public class MemberFilterController implements DexController {
 	public void clear() {
 		// When posting updated filter results, do not clear the filters.
 		if (!ignoreClear) {
-			modelMgr = parent.getModelManager();
+			modelMgr = parentController.getModelManager();
 			configureLibraryChoice();
 			libraryFilter = null;
 
@@ -218,4 +218,15 @@ public class MemberFilterController implements DexController {
 	public OtmModelManager getModelManager() {
 		return modelMgr;
 	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
+	}
+
 }

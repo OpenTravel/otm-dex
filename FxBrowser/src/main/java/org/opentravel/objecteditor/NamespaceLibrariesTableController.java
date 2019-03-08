@@ -128,6 +128,7 @@ public class NamespaceLibrariesTableController implements DexController {
 	protected TreeTableView<RepoItemNode> libTable;
 	private TreeItem<RepoItemNode> root;
 	private Label permissionField;
+	private DexController parentController;
 
 	/**
 	 * Create a view for the libraries described by repository items in the passed namespace.
@@ -138,6 +139,8 @@ public class NamespaceLibrariesTableController implements DexController {
 			Label permissionField) {
 
 		log.debug("Initializing repository library table view.");
+
+		parentController = parent;
 
 		// Marshal and validate the parameters
 		imageMgr = parent.getImageManager();
@@ -297,6 +300,16 @@ public class NamespaceLibrariesTableController implements DexController {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
+	}
+
+	@Override
+	public void postStatus(String string) {
+		parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		parentController.postProgress(percentDone);
 	}
 
 }

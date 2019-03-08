@@ -106,6 +106,12 @@ public class OtmModelManager {
 		return true;
 	}
 
+	/**
+	 * Get all the libraries in a given base namespace (namespace root)
+	 * 
+	 * @param baseNamespace
+	 * @return
+	 */
 	public Set<OtmLibrary> getLibraryChain(String baseNamespace) {
 		Set<OtmLibrary> libs = new LinkedHashSet<>();
 		VersionChain<TLLibrary> chain = baseNSMap.get(baseNamespace);

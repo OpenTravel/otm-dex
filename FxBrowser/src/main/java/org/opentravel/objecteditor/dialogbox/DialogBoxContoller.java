@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.objecteditor.dialogbox;
 
 import java.io.IOException;
 
@@ -9,6 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.objecteditor.DexController;
+import org.opentravel.objecteditor.DexPopupController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
@@ -16,6 +18,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
@@ -28,8 +32,7 @@ import javafx.stage.Stage;
  * <p>
  * Note: must be in same directory as primary controller or it will not get injected with FXML objects.
  * <p>
- * This MUST be constructed by FXMLLoader which needs access to default constructor. Otherwise, we would prevent
- * constructor from being used.
+ * This MUST be constructed by passing an FXMLLoader instance which needs access to default constructor.
  * 
  * @author dmh
  *
@@ -40,11 +43,16 @@ public class DialogBoxContoller implements DexPopupController {
 	@FXML
 	BorderPane dialogBox;
 	@FXML
-	TextFlow dialogText;
+	TextArea dialogText;
+	// TextFlow dialogText;
 	@FXML
 	TextFlow dialogTitle;
 	@FXML
-	Button dialogButton;
+	Button dialogButtonClose;
+	@FXML
+	Button dialogButtonOK;
+	@FXML
+	Label dialogTitleLabel;
 
 	private static Stage popupStage;
 	private static DexController mainController;
@@ -103,18 +111,29 @@ public class DialogBoxContoller implements DexPopupController {
 		if (mainController == null)
 			throw new IllegalAccessError("Must set main controller before use.");
 
-		popupStage.setTitle(title);
+		if (dialogButtonClose != null)
+			dialogButtonClose.setOnAction(e -> close());
 
-		if (dialogButton != null) {
-			dialogButton.setOnAction(e -> close());
-			dialogButton.setText("Close");
+		if (dialogTitle != null) {
+			dialogTitle.getChildren().add(new Text(title));
+			popupStage.setTitle(dialogTitleLabel.getText());
 		}
 		if (dialogText != null)
-			dialogText.getChildren().add(new Text(message));
-		if (dialogTitle != null)
-			dialogTitle.getChildren().add(new Text(title));
+			dialogText.setText(message);
+		// dialogText.getChildren().add(new Text(message));
 
 		popupStage.show();
+	}
+
+	/**
+	 * Add the message to the displayed text
+	 * 
+	 * @param message
+	 */
+	public void add(String message) {
+		if (dialogText != null)
+			dialogText.setText(message);
+		// dialogText.getChildren().add(new Text(message));
 	}
 
 	public void close() {
@@ -129,7 +148,7 @@ public class DialogBoxContoller implements DexPopupController {
 
 	@Override
 	public void clear() {
-		dialogText.getChildren().clear();
+		// dialogText.getChildren().clear();
 		dialogTitle.getChildren().clear();
 	}
 
@@ -152,4 +171,15 @@ public class DialogBoxContoller implements DexPopupController {
 	public void injectStage(Stage stage) {
 		this.popupStage = stage;
 	}
+
+	@Override
+	public void postStatus(String string) {
+		// parentController.postStatus(string);
+	}
+
+	@Override
+	public void postProgress(double percentDone) {
+		// parentController.postProgress(percentDone);
+	}
+
 }
