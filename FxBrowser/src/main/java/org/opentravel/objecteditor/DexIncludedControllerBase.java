@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeTableColumn;
 
@@ -69,7 +70,18 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	}
 
 	/**
-	 * Utility to set column properties.
+	 * Utility to set table column properties.
+	 */
+	protected void setColumnProps(TableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable, int width) {
+		c.setVisible(visable);
+		c.setEditable(editable);
+		c.setSortable(sortable);
+		if (width > 0)
+			c.setPrefWidth(width);
+	}
+
+	/**
+	 * Utility to set tree table column properties.
 	 */
 	protected void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
 			int width) {

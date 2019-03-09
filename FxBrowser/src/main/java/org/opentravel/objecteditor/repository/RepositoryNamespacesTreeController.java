@@ -29,8 +29,8 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 	protected TreeItem<NamespacesDAO> root;
 	private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
 
-	@FXML
-	private NamespaceLibrariesTreeTableController namespaceLibrariesTreeTableController;
+	// @FXML
+	// private NamespaceLibrariesTreeTableController namespaceLibrariesTreeTableController;
 	@FXML
 	protected TreeView<NamespacesDAO> repositoryNamespacesTree;
 

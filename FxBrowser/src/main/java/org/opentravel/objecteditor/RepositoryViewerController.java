@@ -18,6 +18,7 @@ import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.objecteditor.repository.NamespaceLibrariesTreeTableController;
 import org.opentravel.objecteditor.repository.NamespacesDAO;
 import org.opentravel.objecteditor.repository.RepoItemDAO;
+import org.opentravel.objecteditor.repository.RepositoryItemCommitHistoriesController;
 import org.opentravel.objecteditor.repository.RepositoryNamespacesTreeController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -90,13 +91,16 @@ public class RepositoryViewerController implements DexController {
 	@FXML
 	public org.opentravel.objecteditor.repository.NamespaceLibrariesTreeTableController foo;
 
+	@FXML
+	private RepositoryItemCommitHistoriesController repositoryItemCommitHistoriesController;
+
 	// Will be initialized in startup
 	@FXML
 	private DialogBoxContoller dialogBoxController;
 
 	private ChoiceBox<String> repositoryChoice = repoTabRepoChoice;
 	private TextField userField = repoTabRepoUserField;
-	private TableView<CommitNode> historyTable = repoTabLibraryHistoryView;
+	// private TableView<CommitNode> historyTable = repoTabLibraryHistoryView;
 
 	private LibraryHistoryItemsController libHistoryController;
 
@@ -104,7 +108,7 @@ public class RepositoryViewerController implements DexController {
 
 		repositoryChoice = repoTabRepoChoice;
 		userField = repoTabRepoUserField;
-		historyTable = repoTabLibraryHistoryView;
+		// historyTable = repoTabLibraryHistoryView;
 
 		checkNodes();
 	}
@@ -114,8 +118,10 @@ public class RepositoryViewerController implements DexController {
 			throw new IllegalStateException("Null repository choice node in repository controller.");
 		if (userField == null)
 			throw new IllegalArgumentException(" null.");
-		if (historyTable == null)
-			throw new IllegalArgumentException(" null.");
+
+		if (!(repositoryItemCommitHistoriesController instanceof RepositoryItemCommitHistoriesController))
+			throw new IllegalStateException("Commit Histories controller not injected by FXML.");
+		// historyTable = repositoryItemCommitHistoriesController;
 
 		if (!(namespaceLibrariesTreeTableController instanceof NamespaceLibrariesTreeTableController))
 			throw new IllegalStateException("Libraries tree table controller not injected by FXML.");
@@ -221,7 +227,11 @@ public class RepositoryViewerController implements DexController {
 		if (item == null)
 			return;
 		log.debug("Library selected: " + item.getValue());
-		// libHistoryController.post(item.getValue());
+		try {
+			repositoryItemCommitHistoriesController.post(item.getValue());
+		} catch (Exception e) {
+			log.warn("Could not post commit history: " + e.getLocalizedMessage());
+		}
 	}
 
 	/**

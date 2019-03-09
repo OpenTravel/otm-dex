@@ -40,7 +40,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	@FXML
 	private Label namespaceLabel;
 
-	private TreeTableView<RepoItemDAO> table;
+	// private TreeTableView<RepoItemDAO> table;
 	private TreeItem<RepoItemDAO> root;
 
 	public NamespaceLibrariesTreeTableController() {
@@ -53,7 +53,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 		if (librariesTreeTableView == null)
 			throw new IllegalArgumentException("Namespace libraries tree table view is null.");
-		table = librariesTreeTableView;
+		// table = librariesTreeTableView;
 
 		// Initialize and build columns for library tree table
 		root = initializeTree();
@@ -84,24 +84,17 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	@Override
 	public void post(NamespacesDAO nsNode) throws Exception {
 		super.post(nsNode);
-		post(nsNode.getRepository(), nsNode.getFullPath());
-	}
-
-	/**
-	 * Add tree items to ROOT for each Library with the same name.
-	 * 
-	 * @param namespace
-	 * @param repository
-	 * @throws RepositoryException
-	 */
-	public void post(Repository currentRepository, String namespace) throws RepositoryException {
-		if (currentRepository == null || namespace == null || namespace.isEmpty())
+		if (nsNode == null || nsNode.getFullPath() == null || nsNode.getFullPath().isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
 
-		namespaceLabel.setText(namespace);
+		Repository currentRepository = nsNode.getRepository();
+		String namespace = nsNode.getFullPath();
 
 		// Clear the table
 		clear();
+
+		// Display the namespace
+		namespaceLabel.setText(namespace);
 
 		// Display Permission enumeration value for this user in this namespace
 		String permission = "unknown";
@@ -162,13 +155,12 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
 
-		// Give all left over space to the last column
-		double width = fileCol.widthProperty().get();
-		width += versionCol.widthProperty().get();
-		width += statusCol.widthProperty().get();
-		width += lockedCol.widthProperty().get();
-		remarkCol.prefWidthProperty().bind(table.widthProperty().subtract(width));
-
+		// // Give all left over space to the last column
+		// double width = fileCol.widthProperty().get();
+		// width += versionCol.widthProperty().get();
+		// width += statusCol.widthProperty().get();
+		// width += lockedCol.widthProperty().get();
+		// remarkCol.prefWidthProperty().bind(table.widthProperty().subtract(width));
 	}
 
 	/**

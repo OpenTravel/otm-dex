@@ -16,15 +16,16 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.162" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.opentravel.objecteditor.RepositoryViewerController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.opentravel.objecteditor.RepositoryViewerController">
    <children>
-      <ToolBar prefHeight="40.0" prefWidth="200.0">
+      <ToolBar prefHeight="40.0">
          <effect>
             <DropShadow />
          </effect>
@@ -55,36 +56,22 @@
             <ComboBox fx:id="projectCombo" prefWidth="150.0" />
          </items>
       </ToolBar>
-      <SplitPane prefHeight="160.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-        <items>
-            <BorderPane>
+            <BorderPane VBox.vgrow="ALWAYS">
                <center>
-                  <SplitPane dividerPositions="0.2">
+                  <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
                      <items>
-		                              <fx:include fx:id="repositoryNamespacesTree" source="RepositoryNamespacesTree.fxml" />
-                        <VBox>
-                           <children>
-                              <fx:include fx:id="namespaceLibrariesTreeTable" source="NamespaceLibrariesTreeTable.fxml" />
-                              <Label stylesheets="@DavesViper.css" text="History" />
-                              <TableView fx:id="repoTabLibraryHistoryView" prefHeight="161.0" prefWidth="753.0" tableMenuButtonVisible="true" />
-                              <HBox spacing="12.0">
-                                 <children>
-                                    <Label alignment="BOTTOM_LEFT" stylesheets="@DavesViper.css" text="Current Project" />
-                                    <Button layoutX="20.0" mnemonicParsing="false" prefWidth="60.0" styleClass="button-blue" stylesheets="@DavesViper.css" text="Select" />
-                                    <Button alignment="TOP_RIGHT" layoutX="150.0" mnemonicParsing="false" prefWidth="60.0" styleClass="button-red" stylesheets="@DavesViper.css" text="Remove" />
-                                 </children>
-                                 <padding>
-                                    <Insets left="12.0" right="12.0" />
-                                 </padding>
-                              </HBox>
-                              <TableView fx:id="selectedLibrariesTable1" prefHeight="200.0" prefWidth="306.0" />
-                           </children>
-                        </VBox>
+		                <fx:include fx:id="repositoryNamespacesTree" source="RepositoryNamespacesTree.fxml" />
+                              <SplitPane dividerPositions="0.7" orientation="VERTICAL">
+                                <items>
+                                    <fx:include fx:id="namespaceLibrariesTreeTable" source="NamespaceLibrariesTreeTable.fxml" />
+                                    <fx:include fx:id="repositoryItemCommitHistories" source="RepositoryItemCommitHistories.fxml" />
+                                </items>
+                              </SplitPane>
                      </items>
                   </SplitPane>
                </center>
                <top>
-                  <ToolBar prefHeight="40.0" prefWidth="200.0" styleClass="tab-menu-bar" stylesheets="@DavesViper.css" BorderPane.alignment="CENTER">
+                  <ToolBar prefHeight="40.0" styleClass="tab-menu-bar" stylesheets="@DavesViper.css" BorderPane.alignment="CENTER">
                     <items>
                         <ChoiceBox fx:id="repoTabRepoChoice" prefWidth="150.0" />
                         <TextField fx:id="repoTabRepoUserField" promptText="User Name" />
@@ -94,9 +81,7 @@
                   </ToolBar>
                </top>
             </BorderPane>
-        </items>
-      </SplitPane>
-      <HBox alignment="CENTER_LEFT" fillHeight="false" spacing="10.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="40.0" maxHeight="40.0" VBox.vgrow="NEVER" fillHeight="false" spacing="10.0">
          <children>
             <Label text="Status:">
                <font>

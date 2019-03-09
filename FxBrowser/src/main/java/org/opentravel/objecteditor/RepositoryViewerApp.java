@@ -54,11 +54,15 @@ public class RepositoryViewerApp extends AbstractOTMApplication {
 			Scene scene = new Scene(root, sceneWidth, sceneHeight);
 			primaryStage.setScene(scene);
 			scene.getStylesheets().add("DavesViper.css");
+
+			// Lock height and width -- behavior is strange - test before using
+			// primaryStage.minHeightProperty().bind(scene.widthProperty().divide(1.5));
+
 			primaryStage.show();
 			window = primaryStage;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warn("Error starting application: " + e.getLocalizedMessage());
 		}
 	}
 
