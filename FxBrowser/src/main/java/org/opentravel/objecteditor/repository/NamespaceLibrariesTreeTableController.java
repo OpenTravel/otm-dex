@@ -153,6 +153,17 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		remarkCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("history"));
 		setColumnProps(remarkCol, true, false, true, 0);
 
+		// Need to change DAO to use a task.
+		// See: https://stackoverflow.com/questions/16721380/javafx-update-progressbar-in-tableview-from-task
+		//
+		// TreeTableColumn<RepoItemDAO, Double> progressCol = new TreeTableColumn<>("Progress");
+		// progressCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, Double>("historyTask"));
+		// progressCol.setCellFactory(ProgressBarTreeTableCell.<RepoItemDAO> forTreeTableColumn());
+		// progressCol.setCellValueFactory(new PropertyValueFactory<TestTask, Double>(
+		// "progress"));
+		// progressCol.setCellFactory(ProgressBarTableCell.<TestTask> forTableColumn());
+		// setColumnProps(progressCol, true, false, true, 0);
+
 		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
 
 		// // Give all left over space to the last column

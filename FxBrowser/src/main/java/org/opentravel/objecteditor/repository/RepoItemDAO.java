@@ -29,11 +29,26 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 
 	protected RepositoryItem repoItem;
 	SimpleStringProperty lastHistory = new SimpleStringProperty(":> working...");
+	Double historyProgess = 1.0;
+
 	RepositoryItemHistory history = null;
 
 	public RepoItemDAO(RepositoryItem item) {
 		this.repoItem = item;
 
+		// Task<Void> task = new Task<Void>() {
+		// @Override
+		// protected Void call() throws Exception {
+		// historyProgess = 0.1;
+		// getHistory();
+		// updateMessage("Retrieving history.");
+		// updateProgress(historyProgess, 1);
+		// return null;
+		// }
+		// };
+
+		// Don't wait for history to be loaded.
+		// Load histories from repository in the background.
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
@@ -71,11 +86,18 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 	public void setHistory() {
 		if (history == null)
 			return;
+		historyProgess = 1.0;
 		StringBuilder remark = new StringBuilder(history.getCommitHistory().get(0).getUser());
 		remark.append(" - ");
 		remark.append(history.getCommitHistory().get(0).getRemarks());
 		lastHistory.set(remark.toString());
+		log.debug("History set: " + remark.toString());
 	}
+
+	// public DoubleProperty historyTask() {
+	// return new SimpleDoubleProperty(0.5);
+	// // return new SimpleDoubleProperty(historyProgess);
+	// }
 
 	/**
 	 * Background thread ready getter for the history of this repository item.
