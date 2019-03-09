@@ -236,9 +236,12 @@ public class RepositoryViewerController implements DexController {
 		NamespacesDAO nsNode = item.getValue();
 		if (nsNode.getRepository() != null) {
 			try {
-				namespaceLibrariesTreeTableController.post(nsNode.getRepository(), nsNode.getFullPath());
+				namespaceLibrariesTreeTableController.post(nsNode);
+				// namespaceLibrariesTreeTableController.post(nsNode.getRepository(), nsNode.getFullPath());
 				libHistoryController.clear();
-			} catch (RepositoryException e) {
+				// } catch (RepositoryException e) {
+				// log.debug("Error accessing namespace: " + e.getLocalizedMessage());
+			} catch (Exception e) {
 				log.debug("Error accessing namespace: " + e.getLocalizedMessage());
 			}
 		}
@@ -272,9 +275,12 @@ public class RepositoryViewerController implements DexController {
 			repository = getSelectedRepository();
 			postUser(repository);
 			nsTreeController.post(repository);
-		} catch (RepositoryException e) {
-			log.debug("Error: " + e.getLocalizedMessage());
+		} catch (Exception e) {
+			log.warn("Error posting repository: " + e.getLocalizedMessage());
 		}
+		// } catch (RepositoryException e) {
+		// log.debug("Error: " + e.getLocalizedMessage());
+		// }
 	}
 
 	/**

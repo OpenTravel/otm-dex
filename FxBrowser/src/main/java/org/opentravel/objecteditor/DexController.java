@@ -17,14 +17,19 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 public interface DexController {
 
 	/**
-	 * @return the model manager used by this controller
+	 * Remove all items from the controlled view(s).
 	 */
-	ImageManager getImageManager();
+	public void clear();
 
 	/**
-	 * Remove all items from the controlled view.
+	 * @return the image manager used by this controller
 	 */
-	void clear();
+	public ImageManager getImageManager();
+
+	/**
+	 * @return the model manager used by this controller
+	 */
+	public OtmModelManager getModelManager();
 
 	/**
 	 * Get the observable property so that others can register a listener.
@@ -34,25 +39,19 @@ public interface DexController {
 	 * 
 	 * @return a property or NULL if no fxNodes are of interest outside of this controller
 	 */
-	ReadOnlyObjectProperty<?> getSelectable();
-
-	/**
-	 * @return
-	 */
-	OtmModelManager getModelManager();
-
-	/**
-	 * Put the status string into the status label.
-	 * 
-	 * @param string
-	 */
-	void postStatus(String string);
+	public ReadOnlyObjectProperty<?> getSelectable();
 
 	/**
 	 * Update the progress indicator displayed value.
 	 * 
 	 * @param percentDone
 	 */
-	void postProgress(double percentDone);
+	public void postProgress(double percentDone);
 
+	/**
+	 * Put the status string into the status label.
+	 * 
+	 * @param string
+	 */
+	public void postStatus(String string);
 }

@@ -7,22 +7,18 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
-import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.DexController;
+import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.layout.VBox;
 
 /**
  * Controller for a libraries in a namespace tree table view. Creates table containing repository item properties.
@@ -33,26 +29,25 @@ import javafx.scene.layout.VBox;
  * @author dmh
  *
  */
-public class NamespaceLibrariesTreeTableController implements DexController {
+public class NamespaceLibrariesTreeTableController extends DexIncludedControllerBase<NamespacesDAO> {
 	private static Log log = LogFactory.getLog(NamespaceLibrariesTreeTableController.class);
-	protected ImageManager imageMgr;
 
 	// Injected fields
 	@FXML
 	protected TreeTableView<RepoItemDAO> librariesTreeTableView;
-	private TreeTableView<RepoItemDAO> table;
 	@FXML
 	private Label permissionLabel;
 	@FXML
 	private Label namespaceLabel;
 
+	private TreeTableView<RepoItemDAO> table;
 	private TreeItem<RepoItemDAO> root;
-	private DexController parentController;
 
 	public NamespaceLibrariesTreeTableController() {
 		log.debug("Constructing namespace libraries tree controller.");
 	}
 
+	@Override
 	public void initialize() {
 		log.debug("Initializing namespace libraries tree controller.");
 
@@ -63,61 +58,6 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 		// Initialize and build columns for library tree table
 		root = initializeTree();
 		buildColumns(librariesTreeTableView);
-
-	}
-
-	public void setParent(DexController parent) {
-		this.parentController = parent;
-		imageMgr = parent.getImageManager();
-		log.debug("Parent controller for tree controller set.");
-
-		Parent parentNode = table.getParent();
-		log.debug("parent is: " + parentNode);
-		if (parentNode instanceof VBox) {
-			VBox v = (VBox) parentNode;
-			// n.prefWidthProperty().bind(mainContent.widthProperty());
-			// n.prefHeightProperty().bind(mainContent.heightProperty());
-		}
-	}
-
-	/**
-	 * Create a view for the libraries described by repository items in the passed namespace.
-	 * 
-	 * @param nsLibraryTablePermissionField
-	 */
-	public NamespaceLibrariesTreeTableController(DexController parent, TreeTableView<RepoItemDAO> libTable,
-			Label permissionField) {
-
-		log.debug("Initializing repository library table view.");
-
-		parentController = parent;
-
-		// // Marshal and validate the parameters
-		// imageMgr = parent.getImageManager();
-		// if (imageMgr == null)
-		// throw new IllegalStateException("Image manger is null.");
-
-		// this.librariesTreeTableView = libTable;
-		// if (libTable == null)
-		// throw new IllegalStateException("Namespace libraries view is null.");
-		//
-		// this.permissionLabel = permissionField;
-		// if (permissionField == null)
-		// throw new IllegalStateException("Namespace permission field is null.");
-
-		// // Initialize and build columns for library tree table
-		// root = initializeTree();
-		// buildColumns(libTable);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
-	@Override
-	public OtmModelManager getModelManager() {
-		return null;
 	}
 
 	private TreeItem<RepoItemDAO> initializeTree() {
@@ -141,6 +81,12 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 		librariesTreeTableView.getRoot().getChildren().clear();
 	}
 
+	@Override
+	public void post(NamespacesDAO nsNode) throws Exception {
+		super.post(nsNode);
+		post(nsNode.getRepository(), nsNode.getFullPath());
+	}
+
 	/**
 	 * Add tree items to ROOT for each Library with the same name.
 	 * 
@@ -148,8 +94,8 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 	 * @param repository
 	 * @throws RepositoryException
 	 */
-	public void post(Repository repository, String namespace) throws RepositoryException {
-		if (repository == null || namespace == null || namespace.isEmpty())
+	public void post(Repository currentRepository, String namespace) throws RepositoryException {
+		if (currentRepository == null || namespace == null || namespace.isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
 
 		namespaceLabel.setText(namespace);
@@ -160,7 +106,7 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 		// Display Permission enumeration value for this user in this namespace
 		String permission = "unknown";
 		try {
-			permission = repository.getUserAuthorization(namespace).toString();
+			permission = currentRepository.getUserAuthorization(namespace).toString();
 		} catch (RepositoryException e) {
 			// no op
 		}
@@ -168,7 +114,7 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 
 		// Get a table of the latest of each library of any status
 		HashMap<String, TreeItem<RepoItemDAO>> latestVersions = new HashMap<>();
-		for (RepositoryItem ri : repository.listItems(namespace, null, true)) {
+		for (RepositoryItem ri : currentRepository.listItems(namespace, null, true)) {
 			RepoItemDAO repoItemNode = new RepoItemDAO(ri);
 			TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
 			treeItem.setExpanded(true);
@@ -177,7 +123,7 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 		}
 
 		TreeItem<RepoItemDAO> item = null;
-		for (RepositoryItem rItem : repository.listItems(namespace, null, false)) {
+		for (RepositoryItem rItem : currentRepository.listItems(namespace, null, false)) {
 			log.debug("Repo Item: " + rItem.getFilename());
 			if (latestVersions.containsKey(rItem.getLibraryName())) {
 				RepoItemDAO parent = latestVersions.get(rItem.getLibraryName()).getValue();
@@ -226,18 +172,6 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 	}
 
 	/**
-	 * Set String column properties and set value to named field.
-	 */
-	private void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
-			int width) {
-		c.setVisible(visable);
-		c.setEditable(editable);
-		c.setSortable(sortable);
-		if (width > 0)
-			c.setPrefWidth(width);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 * <p>
 	 * This exposes the library tree table's selected item.
@@ -245,23 +179,6 @@ public class NamespaceLibrariesTreeTableController implements DexController {
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<RepoItemDAO>> getSelectable() {
 		return librariesTreeTableView.getSelectionModel().selectedItemProperty();
-	}
-
-	@Override
-	public ImageManager getImageManager() {
-		if (imageMgr == null)
-			throw new IllegalStateException("Image manger is null.");
-		return imageMgr;
-	}
-
-	@Override
-	public void postStatus(String string) {
-		parentController.postStatus(string);
-	}
-
-	@Override
-	public void postProgress(double percentDone) {
-		parentController.postProgress(percentDone);
 	}
 
 }

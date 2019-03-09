@@ -11,7 +11,6 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
 import org.opentravel.objecteditor.repository.NamespacesDAO;
-import org.opentravel.objecteditor.repository.RepositoryNamespacesTreeController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -49,7 +48,7 @@ public class RepositoryTabController implements DexController {
 	protected ImageManager imageMgr;
 	protected Stage stage;
 
-	private RepositoryNamespacesTreeController nsTreeController;
+	private RepositoryNamespacesController nsTreeController;
 	private NamespaceLibrariesTableController nsLibsController;
 	private LibraryHistoryItemsController libHistoryController;
 
@@ -105,7 +104,7 @@ public class RepositoryTabController implements DexController {
 		parentController = parent;
 
 		getRepoNodes(fxNodes);
-		nsTreeController = new RepositoryNamespacesTreeController(this, tree);
+		nsTreeController = new RepositoryNamespacesController(this, tree);
 		nsTreeController.getSelectable().addListener((v, old, newValue) -> treeSelectionListener(newValue));
 
 		nsLibsController = new NamespaceLibrariesTableController(this, libTable, nsPermission);
