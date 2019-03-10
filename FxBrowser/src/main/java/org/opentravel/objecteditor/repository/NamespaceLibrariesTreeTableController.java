@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.control.cell.ProgressBarTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
 /**
@@ -156,15 +157,15 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		// Need to change DAO to use a task.
 		// See: https://stackoverflow.com/questions/16721380/javafx-update-progressbar-in-tableview-from-task
 		//
-		// TreeTableColumn<RepoItemDAO, Double> progressCol = new TreeTableColumn<>("Progress");
-		// progressCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, Double>("historyTask"));
-		// progressCol.setCellFactory(ProgressBarTreeTableCell.<RepoItemDAO> forTreeTableColumn());
+		TreeTableColumn<RepoItemDAO, Double> progressCol = new TreeTableColumn<>("Progress");
+		progressCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, Double>("historyTask"));
+		progressCol.setCellFactory(ProgressBarTreeTableCell.<RepoItemDAO> forTreeTableColumn());
 		// progressCol.setCellValueFactory(new PropertyValueFactory<TestTask, Double>(
 		// "progress"));
 		// progressCol.setCellFactory(ProgressBarTableCell.<TestTask> forTableColumn());
 		// setColumnProps(progressCol, true, false, true, 0);
 
-		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
+		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol, progressCol);
 
 		// // Give all left over space to the last column
 		// double width = fileCol.widthProperty().get();

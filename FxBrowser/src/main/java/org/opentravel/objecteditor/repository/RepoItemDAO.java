@@ -13,6 +13,8 @@ import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.image.ImageView;
 
 /**
@@ -36,17 +38,15 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 	public RepoItemDAO(RepositoryItem item) {
 		this.repoItem = item;
 
-		// Task<Void> task = new Task<Void>() {
-		// @Override
-		// protected Void call() throws Exception {
-		// historyProgess = 0.1;
-		// getHistory();
-		// updateMessage("Retrieving history.");
-		// updateProgress(historyProgess, 1);
-		// return null;
+		// try {
+		// HistoryTask ht = new HistoryTask(item);
+		// lastHistory.set("Please wait.");
+		// ht.setOnSucceeded(this::setHistory);
+		// ht.setOnFailed(this::setHistory);
+		// ht.run();
+		// } catch (Exception e) {
+		// e.printStackTrace();
 		// }
-		// };
-
 		// Don't wait for history to be loaded.
 		// Load histories from repository in the background.
 		Runnable task = new Runnable() {
@@ -83,10 +83,13 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 		return lastHistory;
 	}
 
+	public void setHistory(WorkerStateEvent e) {
+		setHistory();
+	}
+
 	public void setHistory() {
 		if (history == null)
 			return;
-		historyProgess = 1.0;
 		StringBuilder remark = new StringBuilder(history.getCommitHistory().get(0).getUser());
 		remark.append(" - ");
 		remark.append(history.getCommitHistory().get(0).getRemarks());
@@ -127,4 +130,23 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 	public RepositoryItem getValue() {
 		return repoItem;
 	}
+
+	static class HistoryTask extends Task<RepositoryItemHistory> {
+		private Double historyProgess = 0.1;
+		private RepositoryItem repoItem;
+
+		public HistoryTask(RepositoryItem repoItem) {
+			this.repoItem = repoItem;
+			updateMessage("Retrieving history.");
+		}
+
+		@Override
+		protected RepositoryItemHistory call() throws Exception {
+			RepositoryItemHistory history = repoItem.getRepository().getHistory(repoItem);
+			updateMessage("Done.");
+			updateProgress(historyProgess, 1);
+			return history;
+		}
+	};
+
 }
