@@ -14,7 +14,6 @@ import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.image.ImageView;
 
 /**
@@ -35,32 +34,61 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 
 	RepositoryItemHistory history = null;
 
+	static class HistoryTask extends Task<RepositoryItemHistory> {
+		private Double historyProgess = 0.1;
+		private Double historyMax = 1.0;
+		private RepositoryItem repoItem;
+
+		public HistoryTask(RepositoryItem repoItem) {
+			this.repoItem = repoItem;
+			updateMessage("Retrieving history.");
+			updateProgress(historyProgess, historyMax);
+		}
+
+		@Override
+		protected RepositoryItemHistory call() throws Exception {
+			RepositoryItemHistory history = repoItem.getRepository().getHistory(repoItem);
+			updateMessage("Done.");
+			updateProgress(historyMax, historyMax);
+			log.debug("History Task done. " + historyMax == null);
+			return history;
+		}
+	};
+
 	public RepoItemDAO(RepositoryItem item) {
 		this.repoItem = item;
+
+		HistoryTask ht = new HistoryTask(item);
+		ht.setOnSucceeded(event -> setHistory(ht.getValue()));
+		ht.setOnFailed(event -> setHistory(null));
+		Thread bgThread = new Thread(ht);
+		bgThread.setDaemon(true);
+		bgThread.start();
 
 		// try {
 		// HistoryTask ht = new HistoryTask(item);
 		// lastHistory.set("Please wait.");
 		// ht.setOnSucceeded(this::setHistory);
 		// ht.setOnFailed(this::setHistory);
-		// ht.run();
 		// } catch (Exception e) {
 		// e.printStackTrace();
 		// }
+		// new Thread(ht).start();
+
 		// Don't wait for history to be loaded.
 		// Load histories from repository in the background.
-		Runnable task = new Runnable() {
-			@Override
-			public void run() {
-				getHistory();
-			}
-		};
-		// Run the task in a background thread
-		Thread backgroundThread = new Thread(task);
-		// Terminate the running thread if the application exits
-		backgroundThread.setDaemon(true);
-		// Start the thread
-		backgroundThread.start();
+		// Runnable task = new Runnable() {
+		// @Override
+		// public void run() {
+		// getHistory();
+		// }
+		// };
+		// // Run the task in a background thread
+		// Thread backgroundThread = new Thread(task);
+		// // Terminate the running thread if the application exits
+		// backgroundThread.setDaemon(true);
+		// // Start the thread
+		// backgroundThread.start();
 	}
 
 	public StringProperty libraryNameProperty() {
@@ -83,7 +111,13 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 		return lastHistory;
 	}
 
-	public void setHistory(WorkerStateEvent e) {
+	// public void setHistory(WorkerStateEvent e) {
+	// log.debug("History task complete: " + e.getEventType());
+	// setHistory();
+	// }
+
+	public void setHistory(RepositoryItemHistory history) {
+		this.history = history;
 		setHistory();
 	}
 
@@ -96,11 +130,6 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 		lastHistory.set(remark.toString());
 		log.debug("History set: " + remark.toString());
 	}
-
-	// public DoubleProperty historyTask() {
-	// return new SimpleDoubleProperty(0.5);
-	// // return new SimpleDoubleProperty(historyProgess);
-	// }
 
 	/**
 	 * Background thread ready getter for the history of this repository item.
@@ -115,7 +144,7 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 		log.debug("Finding history item for " + repoItem.getFilename());
 		try {
 			history = repoItem.getRepository().getHistory(repoItem);
-			setHistory();
+			// setHistory();
 		} catch (RepositoryException e) {
 		}
 		return null;
@@ -130,23 +159,5 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 	public RepositoryItem getValue() {
 		return repoItem;
 	}
-
-	static class HistoryTask extends Task<RepositoryItemHistory> {
-		private Double historyProgess = 0.1;
-		private RepositoryItem repoItem;
-
-		public HistoryTask(RepositoryItem repoItem) {
-			this.repoItem = repoItem;
-			updateMessage("Retrieving history.");
-		}
-
-		@Override
-		protected RepositoryItemHistory call() throws Exception {
-			RepositoryItemHistory history = repoItem.getRepository().getHistory(repoItem);
-			updateMessage("Done.");
-			updateProgress(historyProgess, 1);
-			return history;
-		}
-	};
 
 }
