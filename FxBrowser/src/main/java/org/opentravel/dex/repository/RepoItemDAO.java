@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.repository;
+package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +34,12 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 
 	RepositoryItemHistory history = null;
 
+	/**
+	 * Class for a task that retrieves history item from repository.
+	 * 
+	 * @author dmh
+	 *
+	 */
 	static class HistoryTask extends Task<RepositoryItemHistory> {
 		private Double historyProgess = 0.1;
 		private Double historyMax = 1.0;
@@ -61,34 +67,14 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 		HistoryTask ht = new HistoryTask(item);
 		ht.setOnSucceeded(event -> setHistory(ht.getValue()));
 		ht.setOnFailed(event -> setHistory(null));
+
+		// Run the task in a background thread
+		// Terminate the running thread if the application exits
+		// Start the thread
 		Thread bgThread = new Thread(ht);
 		bgThread.setDaemon(true);
 		bgThread.start();
 
-		// try {
-		// HistoryTask ht = new HistoryTask(item);
-		// lastHistory.set("Please wait.");
-		// ht.setOnSucceeded(this::setHistory);
-		// ht.setOnFailed(this::setHistory);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// new Thread(ht).start();
-
-		// Don't wait for history to be loaded.
-		// Load histories from repository in the background.
-		// Runnable task = new Runnable() {
-		// @Override
-		// public void run() {
-		// getHistory();
-		// }
-		// };
-		// // Run the task in a background thread
-		// Thread backgroundThread = new Thread(task);
-		// // Terminate the running thread if the application exits
-		// backgroundThread.setDaemon(true);
-		// // Start the thread
-		// backgroundThread.start();
 	}
 
 	public StringProperty libraryNameProperty() {
@@ -110,11 +96,6 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 	public StringProperty historyProperty() {
 		return lastHistory;
 	}
-
-	// public void setHistory(WorkerStateEvent e) {
-	// log.debug("History task complete: " + e.getEventType());
-	// setHistory();
-	// }
 
 	public void setHistory(RepositoryItemHistory history) {
 		this.history = history;

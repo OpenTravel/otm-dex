@@ -1,14 +1,13 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.repositoryViewer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractOTMApplication;
 import org.opentravel.application.common.AbstractUserSettings;
 import org.opentravel.common.DialogBox;
-import org.opentravel.common.ImageManager;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -38,7 +37,7 @@ public class RepositoryViewerApp extends AbstractOTMApplication {
 		log.debug("Creating Primary Stage.");
 		try {
 			// Icons
-			ImageManager imageManager = new ImageManager(primaryStage);
+			// ImageManager imageManager = new ImageManager(primaryStage);
 			// primaryStage.getIcons().add(new Image("/icons/alt_window_16.gif"));
 			// primaryStage.getIcons().add(new Image("/icons/BusinessObject.png"));
 			primaryStage.setTitle(APPLICATION_TITLE);

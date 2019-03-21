@@ -8,9 +8,9 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.repository.NamespaceLibrariesTreeTableController;
+import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.repository.NamespaceLibrariesTreeTableController;
-import org.opentravel.objecteditor.repository.NamespacesDAO;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 

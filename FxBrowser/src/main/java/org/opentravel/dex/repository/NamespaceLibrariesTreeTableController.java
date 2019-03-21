@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.repository;
+package org.opentravel.dex.repository;
 
 import java.util.HashMap;
 
@@ -42,6 +42,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 	// private TreeTableView<RepoItemDAO> table;
 	private TreeItem<RepoItemDAO> root;
+	private NamespacesDAO currentNamespaceDAO = null;
 
 	public NamespaceLibrariesTreeTableController() {
 		log.debug("Constructing namespace libraries tree controller.");
@@ -72,7 +73,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		// tree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
 		// tree.setTableMenuButtonVisible(true); // allow users to select columns
 		// Enable context menus at the row level and add change listener for for applying style
-		// tree.setRowFactory((TreeTableView<NamespaceNode> p) -> new PropertyRowFactory());
+		librariesTreeTableView.setRowFactory((TreeTableView<RepoItemDAO> p) -> new NamespaceLibrariesRowFactory(this));
 		return root;
 	}
 
@@ -81,9 +82,22 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		librariesTreeTableView.getRoot().getChildren().clear();
 	}
 
+	public RepoItemDAO getSelectedItem() {
+		return librariesTreeTableView.getSelectionModel().getSelectedItem().getValue();
+	}
+
+	public void refresh() {
+		try {
+			post(currentNamespaceDAO);
+		} catch (Exception e) {
+			log.error("Error refreshing namespace libraries tree table: " + e.getLocalizedMessage());
+		}
+	}
+
 	@Override
 	public void post(NamespacesDAO nsNode) throws Exception {
 		super.post(nsNode);
+		currentNamespaceDAO = nsNode;
 		if (nsNode == null || nsNode.getFullPath() == null || nsNode.getFullPath().isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
 
@@ -157,6 +171,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		setColumnProps(remarkCol, true, false, true, 300);
 
 		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
+		// table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, lockedColB, remarkCol);
 
 		// // Give all left over space to the last column
 		// double width = fileCol.widthProperty().get();
@@ -174,6 +189,14 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<RepoItemDAO>> getSelectable() {
 		return librariesTreeTableView.getSelectionModel().selectedItemProperty();
+	}
+
+	/**
+	 * @return
+	 */
+	public RepositorySelectionController getRepositoryController() {
+		// TODO - make this part of DexController interface
+		return parentController.getRepositoryController();
 	}
 
 }

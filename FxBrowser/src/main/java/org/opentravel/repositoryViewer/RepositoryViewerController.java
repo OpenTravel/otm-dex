@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.repositoryViewer;
 
 import java.io.File;
 import java.util.HashMap;
@@ -11,19 +11,16 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
+import org.opentravel.dex.repository.NamespaceLibrariesTreeTableController;
+import org.opentravel.dex.repository.NamespacesDAO;
+import org.opentravel.dex.repository.RepoItemDAO;
+import org.opentravel.dex.repository.RepositoryItemCommitHistoriesController;
+import org.opentravel.dex.repository.RepositoryNamespacesTreeController;
+import org.opentravel.dex.repository.RepositorySelectionController;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.LibraryHistoryItemsController.CommitNode;
-import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
+import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
-import org.opentravel.objecteditor.repository.NamespaceLibrariesTreeTableController;
-import org.opentravel.objecteditor.repository.NamespacesDAO;
-import org.opentravel.objecteditor.repository.RepoItemDAO;
-import org.opentravel.objecteditor.repository.RepositoryItemCommitHistoriesController;
-import org.opentravel.objecteditor.repository.RepositoryNamespacesTreeController;
-import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryManager;
-import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -33,14 +30,10 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableView;
 import javafx.stage.Stage;
 
 /**
@@ -52,88 +45,35 @@ import javafx.stage.Stage;
 public class RepositoryViewerController implements DexController {
 	private static Log log = LogFactory.getLog(RepositoryViewerController.class);
 
-	private static final String LOCAL_REPO = "Local";
-
-	private RepositoryManager repositoryManager;
-
 	protected ImageManager imageMgr;
 	private OtmModelManager modelMgr;
 	protected Stage stage;
 
-	/**
-	 * FXML Java FX Nodes this controller is dependent upon
-	 * 
-	 * @author dmh
-	 *
-	 */
-	public enum RepoTabNodes {
-		TAB, RepositoryChoice, User, NamespaceTree, NamespaceLibraryTable, HistoryTable, NamespacePermission;
-	}
-
-	@FXML
-	private ChoiceBox<String> repoTabRepoChoice;
-	@FXML
-	private ChoiceBox<String> repoTabNSChoice;
-	@FXML
-	private TreeTableView<RepoItemNode> repoTabLibraryTreeTableView;
-	@FXML
-	private TextField repoTabRepoUserField;
-	@FXML
-	public TableView<CommitNode> repoTabLibraryHistoryView;
-
-	// Let FXML inject
+	// Let FXML inject controllers
 	@FXML
 	private RepositoryNamespacesTreeController repositoryNamespacesTreeController;
-	private RepositoryNamespacesTreeController nsTreeController;
-
 	@FXML
 	private NamespaceLibrariesTreeTableController namespaceLibrariesTreeTableController;
 	@FXML
-	public org.opentravel.objecteditor.repository.NamespaceLibrariesTreeTableController foo;
-
-	@FXML
 	private RepositoryItemCommitHistoriesController repositoryItemCommitHistoriesController;
+	@FXML
+	private RepositorySelectionController repositorySelectionController;
 
 	// Will be initialized in startup
 	@FXML
 	private DialogBoxContoller dialogBoxController;
 
-	private ChoiceBox<String> repositoryChoice = repoTabRepoChoice;
-	private TextField userField = repoTabRepoUserField;
-	// private TableView<CommitNode> historyTable = repoTabLibraryHistoryView;
-
-	private LibraryHistoryItemsController libHistoryController;
-
-	private void getRepoNodes() {
-
-		repositoryChoice = repoTabRepoChoice;
-		userField = repoTabRepoUserField;
-		// historyTable = repoTabLibraryHistoryView;
-
-		checkNodes();
-	}
-
 	private void checkNodes() {
-		if (repositoryChoice == null)
-			throw new IllegalStateException("Null repository choice node in repository controller.");
-		if (userField == null)
-			throw new IllegalArgumentException(" null.");
-
 		if (!(repositoryItemCommitHistoriesController instanceof RepositoryItemCommitHistoriesController))
 			throw new IllegalStateException("Commit Histories controller not injected by FXML.");
-		// historyTable = repositoryItemCommitHistoriesController;
-
 		if (!(namespaceLibrariesTreeTableController instanceof NamespaceLibrariesTreeTableController))
 			throw new IllegalStateException("Libraries tree table controller not injected by FXML.");
-
-		// Repository Namespaces
 		if (!(repositoryNamespacesTreeController instanceof RepositoryNamespacesTreeController))
 			throw new IllegalStateException("repository namespaces controller not injected by FXML.");
-		nsTreeController = repositoryNamespacesTreeController;
-		if (!(nsTreeController instanceof RepositoryNamespacesTreeController))
-			throw new IllegalStateException("Controller not injected by FXML.");
+		if (!(repositorySelectionController instanceof RepositorySelectionController))
+			throw new IllegalStateException("repository selection controller not injected by FXML.");
 
-		log.debug("FXML Nodes are not null.");
+		log.debug("FXML Nodes checked OK.");
 	}
 
 	public RepositoryViewerController() {
@@ -153,12 +93,17 @@ public class RepositoryViewerController implements DexController {
 		this.stage = primaryStage;
 		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
-		getRepoNodes();
+		checkNodes();
+
+		// Set up the repository selection
+		repositorySelectionController.setStage();
+		repositorySelectionController.setParent(this);
+		repositorySelectionController.getSelectable().addListener((v, old, newValue) -> repositorySelectionChanged());
 
 		// Inject this controller into sub-controllers
 		repositoryNamespacesTreeController.setParent(this);
 		repositoryNamespacesTreeController.getSelectable()
-				.addListener((v, old, newValue) -> nsTreeSelectionListener(newValue));
+				.addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
 
 		// Set up the libraries in a namespace table
 		namespaceLibrariesTreeTableController.setParent(this);
@@ -171,56 +116,18 @@ public class RepositoryViewerController implements DexController {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource(LAYOUT_FILE));
 		dialogBoxController = DialogBoxContoller.init(loader, this);
 
-		repositoryManager = getRepoMgr();
-		configureRepositoryChoice();
-
 		configureProjectMenuButton(); // TODO - move
 
 		log.debug("Stage set.");
 	}
 
-	// public RepositoryViewerController(Stage stage, ObjectEditorController parent, EnumMap<RepoTabNodes, Node>
-	// fxNodes) {
-	// log.debug("Starting constructor with params.");
-	// this.stage = stage;
-	// if (stage == null)
-	// throw new IllegalStateException("Stage is null.");
-	// imageMgr = new ImageManager(stage);
-	//
-	// // getRepoNodes(fxNodes);
-	// nsTreeController = new RepositoryNamespacesTreeController(this, tree);
-	// nsTreeController.getSelectable().addListener((v, old, newValue) -> treeSelectionListener(newValue));
-	//
-	// nsLibsController = new NamespaceLibrariesTableController(this, libTable, nsPermission);
-	// nsLibsController.getSelectable().addListener((v, old, newValue) -> librarySelectionListener(newValue));
-	//
-	// libHistoryController = new LibraryHistoryItemsController(this, historyTable);
-	//
-	// // Set up repository Choice
-	// // repoController = new RepositoryController();
-	// // repositoryManager = repoController.getRepositoryManager(); // FIXME
-	// repositoryManager = getRepoMgr();
-	// configureRepositoryChoice();
-	//
-	// log.debug("Repository Controller initialized.");
-	// }
+	public DialogBoxContoller getDialogBoxController() {
+		return dialogBoxController;
+	}
 
 	@FXML
 	public void doClose(ActionEvent e) {
 		log.debug("Close menu item selected.");
-	}
-
-	private RepositoryManager getRepoMgr() {
-		// // Set up repository access
-		RepositoryManager rm = null;
-		try {
-			rm = RepositoryManager.getDefault();
-			// availabilityChecker = RepositoryAvailabilityChecker.getInstance(repositoryManager);
-			// repoStatus = availabilityChecker.pingAllRepositories(true);
-		} catch (RepositoryException e) {
-			log.error("Repository manager unavailable: " + e);
-		}
-		return rm;
 	}
 
 	private void librarySelectionListener(TreeItem<RepoItemDAO> item) {
@@ -234,12 +141,19 @@ public class RepositoryViewerController implements DexController {
 		}
 	}
 
+	// TODO
+	// @Override
+	public void refresh() {
+		namespaceLibrariesTreeTableController.refresh();
+		repositoryItemCommitHistoriesController.clear();
+	}
+
 	/**
 	 * Handle namespace tree item selection by sending namespace to library table and clearing history.
 	 * 
 	 * @param item
 	 */
-	private void nsTreeSelectionListener(TreeItem<NamespacesDAO> item) {
+	private void namespaceSelectionListener(TreeItem<NamespacesDAO> item) {
 		if (item == null)
 			return;
 		log.debug("New namespace tree item selected: " + item.getValue());
@@ -247,28 +161,11 @@ public class RepositoryViewerController implements DexController {
 		if (nsNode.getRepository() != null) {
 			try {
 				namespaceLibrariesTreeTableController.post(nsNode);
-				// namespaceLibrariesTreeTableController.post(nsNode.getRepository(), nsNode.getFullPath());
-				libHistoryController.clear();
-				// } catch (RepositoryException e) {
-				// log.debug("Error accessing namespace: " + e.getLocalizedMessage());
+				repositoryItemCommitHistoriesController.clear();
 			} catch (Exception e) {
 				log.debug("Error accessing namespace: " + e.getLocalizedMessage());
 			}
 		}
-	}
-
-	private void configureRepositoryChoice() {
-		log.debug("Configuring repository choice box.");
-		stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-			ObservableList<String> repositoryIds = FXCollections.observableArrayList();
-			repositoryIds.add(LOCAL_REPO);
-			repositoryManager.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
-			repositoryChoice.setItems(repositoryIds);
-			repositoryChoice.getSelectionModel().select(0);
-		});
-
-		// Configure listener for choice box
-		repositoryChoice.valueProperty().addListener((observable, oldValue, newValue) -> repositorySelectionChanged());
 	}
 
 	/**
@@ -278,55 +175,21 @@ public class RepositoryViewerController implements DexController {
 	 */
 	private void repositorySelectionChanged() {
 		log.debug("Selected new repository");
-
-		// Pass the repository to the nsTree
-		Repository repository;
 		try {
-			repository = getSelectedRepository();
-			postUser(repository);
-			nsTreeController.post(repository);
+			repositoryNamespacesTreeController.post(repositorySelectionController.getSelectedRepository());
 		} catch (Exception e) {
 			log.warn("Error posting repository: " + e.getLocalizedMessage());
 		}
-		// } catch (RepositoryException e) {
-		// log.debug("Error: " + e.getLocalizedMessage());
-		// }
 	}
 
 	/**
-	 * Add tree items to ROOT for each child and grandchild of the member.
-	 * 
-	 * @param member
-	 * @throws RepositoryException
-	 */
-	private Repository getSelectedRepository() throws RepositoryException {
-		Repository repository = RepositoryManager.getDefault();
-		// repoController.getLocalRepository();
-		String rid = repositoryChoice.getSelectionModel().getSelectedItem();
-		if (rid != null)
-			if (rid.equals(LOCAL_REPO))
-				repository = RepositoryManager.getDefault();
-			// repository = repoController.getLocalRepository();
-			else
-				// Use selected repository
-				repository = repositoryManager.getRepository(rid);
-		return repository;
-	}
-
-	private void postUser(Repository repository) {
-		String user = "--local--";
-		if (repository instanceof RemoteRepositoryClient)
-			user = ((RemoteRepositoryClient) repository).getUserId();
-		userField.setText(user);
-	}
-
-	/**
-	 * Remove all items from the table
+	 * Remove all items from the tables
 	 */
 	@Override
 	public void clear() {
-		nsTreeController.clear();
+		repositoryNamespacesTreeController.clear();
 		namespaceLibrariesTreeTableController.clear();
+		repositoryItemCommitHistoriesController.clear();
 	}
 
 	@Override
@@ -470,6 +333,13 @@ public class RepositoryViewerController implements DexController {
 	@FXML
 	public void fileOpen(Event e) {
 		log.debug("File Open selected.");
+	}
+
+	/**
+	 * @return
+	 */
+	public RepositorySelectionController getRepositoryController() {
+		return repositorySelectionController;
 	}
 
 }

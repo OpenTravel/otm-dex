@@ -30,7 +30,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+// @SuppressWarnings("restriction")
 public class PropertiesTableController implements DexController {
 	private static Log log = LogFactory.getLog(PropertiesTableController.class);
 

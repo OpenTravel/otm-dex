@@ -54,4 +54,5 @@ public interface DexController {
 	 * @param string
 	 */
 	public void postStatus(String string);
+
 }

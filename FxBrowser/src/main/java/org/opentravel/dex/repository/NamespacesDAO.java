@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.repository;
+package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

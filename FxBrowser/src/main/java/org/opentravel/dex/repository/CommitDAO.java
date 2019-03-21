@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.repository;
+package org.opentravel.dex.repository;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.objecteditor.DexDAO;

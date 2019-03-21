@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.repository;
+package org.opentravel.dex.repository;
 
 import java.util.HashMap;
 
@@ -128,6 +128,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		}
 	}
 
+	// TODO - use fx task with repository selection controller's progress bar and status
 	private void startGetSubNamespaces(final Repository repository, final String rootNS) {
 		Runnable task = new Runnable() {
 			@Override

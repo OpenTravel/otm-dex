@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.repositoryViewer.RepositoryViewerController;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -14,6 +15,8 @@ import javafx.scene.control.TreeTableColumn;
 
 /**
  * Abstract base controller for included controllers.
+ * <p>
+ * The generic type is the type of business data object used when "posting" to this controller.
  * 
  * @author dmh
  *
@@ -22,7 +25,8 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	private static Log log = LogFactory.getLog(DexIncludedControllerBase.class);
 
 	protected ImageManager imageMgr;
-	protected DexController parentController;
+	protected RepositoryViewerController parentController;
+	// protected DexController parentController;
 	protected T postedData;
 
 	public DexIncludedControllerBase() {
@@ -36,7 +40,9 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 
 	@Override
 	public void setParent(DexController parent) {
-		this.parentController = parent;
+		// FIXME - use interface when it has been updated
+		if (parent instanceof RepositoryViewerController)
+			this.parentController = (RepositoryViewerController) parent;
 		imageMgr = parent.getImageManager();
 		log.debug("Parent controller set.");
 	}
