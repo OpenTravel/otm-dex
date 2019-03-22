@@ -58,13 +58,18 @@
                <center>
                   <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
                      <items>
-		                <fx:include fx:id="repositoryNamespacesTree" source="RepositoryNamespacesTree.fxml" />
-                              <SplitPane dividerPositions="0.7" orientation="VERTICAL">
+					    <VBox>
+						   <children>
+							<fx:include fx:id="repositorySearch" source="RepositorySearch.fxml" />
+							<fx:include fx:id="repositoryNamespacesTree" source="RepositoryNamespacesTree.fxml" VBox.vgrow="ALWAYS" />
+						   </children>
+						</VBox>
+                        <SplitPane dividerPositions="0.7" orientation="VERTICAL">
                                 <items>
                                     <fx:include fx:id="namespaceLibrariesTreeTable" source="NamespaceLibrariesTreeTable.fxml" />
                                     <fx:include fx:id="repositoryItemCommitHistories" source="RepositoryItemCommitHistories.fxml" />
                                 </items>
-                              </SplitPane>
+                        </SplitPane>
                      </items>
                   </SplitPane>
                </center>

@@ -18,18 +18,27 @@ import javafx.beans.property.StringProperty;
  */
 public class NamespacesDAO {
 	private static Log log = LogFactory.getLog(NamespacesDAO.class);
+
+	// Namespaces - for root namespaces it will be like: http://www.opentravel.org/OTM
+	// for sub-namespaces it will be just the sub-ns: e.g. hospitality
 	protected String ns;
+
+	// BasePath is the path of parent or null if root namespace
+	// e.g. http://www.opentravel.org/OTM/product
 	protected String basePath;
+
 	private Repository repository;
 
-	public NamespacesDAO(String ns) {
-		this(ns, null, null);
-	}
+	// public NamespacesDAO(String ns) {
+	// this(ns, null, null);
+	// }
 
 	public NamespacesDAO(String ns, String basePath, Repository repo) {
 		this.ns = ns;
 		this.basePath = basePath;
 		this.setRepository(repo);
+
+		log.debug("basePath = " + basePath + "   ns = " + ns);
 	}
 
 	public StringProperty nsProperty() {
@@ -52,10 +61,16 @@ public class NamespacesDAO {
 	//
 
 	/**
+	 * Get the unique name (key) for this namespace. If not a root namespace, the parent's path will be added.
+	 * 
 	 * @return
 	 */
 	public String getFullPath() {
 		return basePath != null ? basePath + "/" + ns : ns;
+	}
+
+	public String getBasePath() {
+		return basePath;
 	}
 
 	/**
@@ -71,5 +86,12 @@ public class NamespacesDAO {
 	 */
 	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+
+	/**
+	 * @return
+	 */
+	public String get() {
+		return ns;
 	}
 }

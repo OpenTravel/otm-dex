@@ -4,14 +4,18 @@
 package org.opentravel.dex.repository;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.repository.tasks.ListSubnamespacesTask;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -22,15 +26,14 @@ import javafx.scene.control.TreeView;
  * @author dmh
  *
  */
-public class RepositoryNamespacesTreeController extends DexIncludedControllerBase<Repository> {
+public class RepositoryNamespacesTreeController extends DexIncludedControllerBase<Repository>
+		implements ResultHandlerI {
 	private static Log log = LogFactory.getLog(RepositoryNamespacesTreeController.class);
 
 	protected TreeView<NamespacesDAO> tree;
 	protected TreeItem<NamespacesDAO> root;
 	private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
 
-	// @FXML
-	// private NamespaceLibrariesTreeTableController namespaceLibrariesTreeTableController;
 	@FXML
 	protected TreeView<NamespacesDAO> repositoryNamespacesTree;
 
@@ -44,40 +47,9 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 			tree.getRoot().getChildren().clear();
 	}
 
-	private TreeItem<NamespacesDAO> createTreeItem(Repository repo, String basePath, String ns,
-			TreeItem<NamespacesDAO> parent) {
-		TreeItem<NamespacesDAO> item = new TreeItem<>(new NamespacesDAO(ns, basePath, repo));
-		item.setExpanded(false);
-		parent.getChildren().add(item);
-		// item.setGraphic(images.getView(element));
-		return item;
-	}
-
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
 		return tree.getSelectionModel().selectedItemProperty();
-	}
-
-	/**
-	 * Get all children of a namespace and add to Map and Tree
-	 * 
-	 * @param repository
-	 * @param parentNS
-	 * @throws RepositoryException
-	 */
-	private void getSubNamespaces(Repository repository, String parentNS) throws RepositoryException {
-		TreeItem<NamespacesDAO> item;
-		for (String childNS : repository.listNamespaceChildren(parentNS)) {
-			TreeItem<NamespacesDAO> parent = namespaceMap.get(parentNS);
-			if (parent != null) {
-				item = createTreeItem(repository, parentNS, childNS, parent);
-				namespaceMap.put(item.getValue().getFullPath(), item);
-				// Recurse to get all descendants
-				startGetSubNamespaces(repository, item.getValue().getFullPath());
-			} else {
-				log.debug("ERROR - namespace not found in map.");
-			}
-		}
 	}
 
 	@Override
@@ -118,34 +90,50 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		// Get the root namespaces in real time
 		try {
 			for (String rootNS : repository.listRootNamespaces()) {
-				TreeItem<NamespacesDAO> treeItem = createTreeItem(repository, null, rootNS, root);
-				namespaceMap.put(rootNS, treeItem);
-				// Get sub-namespaces in background thread
-				startGetSubNamespaces(repository, rootNS);
+				TreeItem<NamespacesDAO> item = new TreeItem<>(new NamespacesDAO(rootNS, null, repository));
+				item.setExpanded(false);
+				root.getChildren().add(item);
+				namespaceMap.put(rootNS, item);
+				// // Get sub-namespaces in background thread
+				new ListSubnamespacesTask(item.getValue(), null, null, this::handle).go();
 			}
 		} catch (RepositoryException e) {
 			log.debug("Error: " + e.getLocalizedMessage());
 		}
 	}
 
-	// TODO - use fx task with repository selection controller's progress bar and status
-	private void startGetSubNamespaces(final Repository repository, final String rootNS) {
-		Runnable task = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					getSubNamespaces(repository, rootNS);
-				} catch (RepositoryException e) {
-					log.debug("Repository error: " + e.getLocalizedMessage());
+	@Override
+	public void handle(WorkerStateEvent event) {
+		if (event.getTarget() instanceof ListSubnamespacesTask) {
+			log.debug("Handling sub-namespace task results");
+			String fullPath;
+			String childNS;
+			String parentNS;
+			Map<String, NamespacesDAO> map = ((ListSubnamespacesTask) event.getTarget()).getMap();
+			for (Entry<String, NamespacesDAO> nsEntry : map.entrySet()) {
+				// un-marshal the entry
+				fullPath = nsEntry.getValue().getFullPath();
+				childNS = nsEntry.getValue().get();
+				parentNS = nsEntry.getValue().getBasePath();
+				if (parentNS == null || namespaceMap.get(parentNS) == null) {
+					log.debug("Skipping.");
+					continue;
 				}
+
+				TreeItem<NamespacesDAO> item = new TreeItem<>(nsEntry.getValue());
+				item.setExpanded(false);
+				namespaceMap.put(fullPath, item);
+
+				// null parent is a root already in the tree
+				TreeItem<NamespacesDAO> parent = namespaceMap.get(parentNS);
+				if (parent != null) {
+					parent.getChildren().add(item);
+					// item.setGraphic(images.getView(element));
+					log.debug("Added " + childNS + "  to  " + parentNS);
+				}
+
 			}
-		};
-		// Run the task in a background thread
-		Thread backgroundThread = new Thread(task);
-		// Terminate the running thread if the application exits
-		backgroundThread.setDaemon(true);
-		// Start the thread
-		backgroundThread.start();
+		}
 	}
 
 }

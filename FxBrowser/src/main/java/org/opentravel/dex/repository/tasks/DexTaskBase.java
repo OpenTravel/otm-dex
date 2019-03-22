@@ -45,13 +45,15 @@ public abstract class DexTaskBase<T> extends Task<String> {
 		this(taskData);
 
 		// Bind the passed progress bar/indicator and status properties to this task's properties.
-		progressProperty.bind(this.progressProperty());
-		statusProperty.bind(this.messageProperty());
+		if (progressProperty != null)
+			progressProperty.bind(this.progressProperty());
+		if (statusProperty != null)
+			statusProperty.bind(this.messageProperty());
 
 		// Set the result handler
 		if (handler != null) {
-			setOnSucceeded(event -> handler.handle(getValue()));
-			setOnFailed(event -> handler.handle(getValue()));
+			setOnSucceeded(handler::handle);
+			setOnFailed(handler::handle);
 		}
 	}
 
