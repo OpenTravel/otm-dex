@@ -19,7 +19,7 @@ import javafx.concurrent.WorkerStateEvent;
  * @author dmh
  *
  */
-public class RepositoryResultHandler implements ResultHandlerI {
+public class RepositoryResultHandler implements TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(RepositoryResultHandler.class);
 	private static final String TITLE = "Repository Error";
 	// private DexController parentController;
@@ -30,7 +30,7 @@ public class RepositoryResultHandler implements ResultHandlerI {
 	}
 
 	@Override
-	public void handle(WorkerStateEvent event) {
+	public void handleTaskComplete(WorkerStateEvent event) {
 		DialogBoxContoller dbc = null;
 		if (event != null && event.getTarget() instanceof Task) {
 			Object data = ((Task<?>) event.getTarget()).getValue();
@@ -44,14 +44,4 @@ public class RepositoryResultHandler implements ResultHandlerI {
 			log.warn("Invalid event in result handler.");
 		}
 	}
-
-	// private void handle(String message) {
-	// log.debug(message);
-	// if (message == null || message.isEmpty())
-	// parentController.refresh();
-	// else {
-	// DialogBoxContoller dbc = parentController.getDialogBoxController();
-	// dbc.show(TITLE, message);
-	// }
-	// }
 }

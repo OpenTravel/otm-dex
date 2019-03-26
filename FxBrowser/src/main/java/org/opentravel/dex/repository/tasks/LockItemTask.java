@@ -5,7 +5,7 @@ package org.opentravel.dex.repository.tasks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.repository.ResultHandlerI;
+import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
@@ -30,8 +30,8 @@ public class LockItemTask extends DexTaskBase<RepositoryItem> {
 	 * @param handler
 	 */
 	public LockItemTask(RepositoryItem taskData, DoubleProperty progressProperty, StringProperty statusProperty,
-			ResultHandlerI handler) {
-		super(taskData, progressProperty, statusProperty, handler);
+			TaskResultHandlerI handler) {
+		super(taskData, handler, progressProperty, statusProperty);
 
 		// Replace start message from super-type.
 		msgBuilder = new StringBuilder("Locking: ");

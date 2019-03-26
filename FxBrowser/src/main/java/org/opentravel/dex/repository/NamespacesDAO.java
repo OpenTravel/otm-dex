@@ -29,16 +29,12 @@ public class NamespacesDAO {
 
 	private Repository repository;
 
-	// public NamespacesDAO(String ns) {
-	// this(ns, null, null);
-	// }
-
 	public NamespacesDAO(String ns, String basePath, Repository repo) {
 		this.ns = ns;
 		this.basePath = basePath;
 		this.setRepository(repo);
 
-		log.debug("basePath = " + basePath + "   ns = " + ns);
+		// log.debug("basePath = " + basePath + " ns = " + ns);
 	}
 
 	public StringProperty nsProperty() {

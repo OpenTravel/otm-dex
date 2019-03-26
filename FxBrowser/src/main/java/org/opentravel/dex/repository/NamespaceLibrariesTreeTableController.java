@@ -40,7 +40,6 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	@FXML
 	private Label namespaceLabel;
 
-	// private TreeTableView<RepoItemDAO> table;
 	private TreeItem<RepoItemDAO> root;
 	private NamespacesDAO currentNamespaceDAO = null;
 

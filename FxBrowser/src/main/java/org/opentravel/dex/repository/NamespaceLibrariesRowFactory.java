@@ -61,9 +61,6 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 		// // Set editable style listener (css class)
 		treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> setCSSClass(this, newTreeItem));
 
-		// treeItemProperty().getValue() is always null!
-		// getItem() is always null!
-
 		// log.debug("");
 	}
 

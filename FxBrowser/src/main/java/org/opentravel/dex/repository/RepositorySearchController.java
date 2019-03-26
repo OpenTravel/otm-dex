@@ -3,20 +3,25 @@
  */
 package org.opentravel.dex.repository;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.repository.tasks.SearchRepositoryTask;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 
@@ -26,12 +31,13 @@ import javafx.scene.control.TextField;
  * @author dmh
  *
  */
-public class RepositorySearchController extends DexIncludedControllerBase<RepositoryManager> {
+public class RepositorySearchController extends DexIncludedControllerBase<RepositoryManager>
+		implements TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(RepositorySearchController.class);
 
-	private static final String LOCAL_REPO = "Local";
-
-	private RepositoryManager repositoryManager;
+	// private static final String LOCAL_REPO = "Local";
+	//
+	// private RepositoryManager repositoryManager;
 
 	@FXML
 	private ChoiceBox<String> statusChoice;
@@ -43,22 +49,21 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 	private RadioButton lastestOnlyRadio;
 	@FXML
 	private RadioButton lockedRadio;
-	@FXML
-	private ProgressBar progressBar;
-	@FXML
-	private Label progressStatus;
+	// @FXML
+	// private ProgressBar progressBar;
+	// @FXML
+	// private Label progressStatus;
+
+	private Repository currentRepository;
+
+	private Map<String, RepositoryItem> currentFilterMap;
 
 	private void checkNodes() {
-		// if (repositoryChoice == null)
-		// throw new IllegalStateException("Null repository choice node in repository controller.");
-		// if (repositoryUser == null)
-		// throw new IllegalArgumentException("repositoryUser is null.");
-		// if (repositoryPassword == null)
-		// throw new IllegalArgumentException("repositorPassword is null.");
-		// if (repositoryProgressBar == null)
-		// throw new IllegalArgumentException("repositoryProgressBar is null.");
-		// if (repositoryStatusField == null)
-		// throw new IllegalArgumentException("repositoryStatusField is null.");
+		if (searchTerm == null)
+			throw new IllegalStateException("Null search term in repository search controller.");
+		if (doSearch == null)
+			throw new IllegalStateException("Null search button in repository search controller.");
+
 		log.debug("FXML Nodes checked OK.");
 	}
 
@@ -73,9 +78,19 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 	}
 
 	/**
+	 * @param repository
+	 * 
+	 */
+	public void setRepository(Repository repository) {
+		currentRepository = repository;
+	}
+
+	/**
 	 */
 	public void setStage() {
 		checkNodes(); // Verify FXML loaded correctly
+
+		doSearch.setOnAction(this::runSearch);
 
 		// repositoryManager = getRepoMgr();
 		// configureRepositoryChoice();
@@ -87,7 +102,33 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 		// if (unlockDialogController == null)
 		// throw new IllegalStateException("Could not load unlock dialog controller.");
 
-		log.debug("Repository Selection Stage set.");
+		log.debug("Repository Search Stage set.");
+	}
+
+	private void runSearch(ActionEvent event) {
+		String query = searchTerm.getText();
+		if (currentRepository != null)
+			new SearchRepositoryTask(currentRepository, this::handleTaskComplete, null, null).go();
+	}
+
+	@Override
+	public void handleTaskComplete(WorkerStateEvent event) {
+		log.debug("Search returned.");
+		if (event.getTarget() instanceof SearchRepositoryTask) {
+			SearchRepositoryTask task = ((SearchRepositoryTask) event.getTarget());
+			currentFilterMap = task.getFilterMap();
+		}
+		// FIXME - property command/control structure/delegation
+		parentController.clear();
+		try {
+			parentController.getRepositoryNamespacesController().post(currentRepository);
+		} catch (Exception e) {
+			log.error("Error posting repository namespaces: " + e.getLocalizedMessage());
+		}
+	}
+
+	public Map<String, RepositoryItem> getFilter() {
+		return currentFilterMap;
 	}
 
 	private RepositoryManager getRepoMgr() {
@@ -105,7 +146,7 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 
 	@Override
 	public void post(RepositoryManager repositoryManager) throws Exception {
-		this.repositoryManager = repositoryManager;
+		// this.repositoryManager = repositoryManager;
 		// does not really do anything -- the local repository acts as default manager.
 	}
 

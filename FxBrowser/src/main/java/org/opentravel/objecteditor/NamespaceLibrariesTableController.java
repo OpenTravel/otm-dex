@@ -23,32 +23,12 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-//import javafx.concurrent.Task;
-//import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-//import javafx.scene.control.cell.TextFieldTreeTableCell;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.control.TreeView;
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.ReadOnlyStringWrapper
-//import javafx.beans.property.StringProperty;
-//import javafx.beans.property.SimpleStringProperty;
-
 /**
  * Controller for a library table. Creates table containing repository item properties.
  * 
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
 public class NamespaceLibrariesTableController implements DexController {
 	private static Log log = LogFactory.getLog(NamespaceLibrariesTableController.class);
 

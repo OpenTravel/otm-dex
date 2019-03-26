@@ -8,8 +8,9 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.repository.NamespacesDAO;
-import org.opentravel.dex.repository.ResultHandlerI;
+import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
 import javafx.beans.property.DoubleProperty;
@@ -36,21 +37,14 @@ public class ListSubnamespacesTask extends DexTaskBase<NamespacesDAO> {
 	 * @param statusProperty
 	 * @param handler
 	 */
-	public ListSubnamespacesTask(NamespacesDAO taskData, DoubleProperty progressProperty, StringProperty statusProperty,
-			ResultHandlerI handler) {
-		super(taskData, progressProperty, statusProperty, handler);
-
-		// if (handler != null) {
-		// setOnSucceeded(handler::handle);
-		// setOnFailed(handler::handle);
-		// // setOnSucceeded(event -> handler.handle(event));
-		// // setOnFailed(event -> handler.handle(event));
-		// }
+	public ListSubnamespacesTask(NamespacesDAO taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
+			StringProperty statusProperty, DexStatusController statusController) {
+		super(taskData, handler, progressProperty, statusProperty, statusController);
 
 		// Replace start message from super-type.
-		// msgBuilder = new StringBuilder("Locking: ");
-		// msgBuilder.append(taskData.getLibraryName());
-		// updateMessage(msgBuilder.toString());
+		msgBuilder = new StringBuilder("Getting: ");
+		msgBuilder.append(taskData.getBasePath());
+		updateMessage(msgBuilder.toString());
 	}
 
 	/**
@@ -69,13 +63,6 @@ public class ListSubnamespacesTask extends DexTaskBase<NamespacesDAO> {
 	public void doIT() throws RepositoryException {
 		namespaceMap.put(taskData.getFullPath(), taskData);
 		get(taskData);
-		// NamespacesDAO nsData = null;
-		// for (String childNS : taskData.getRepository().listNamespaceChildren(taskData.getFullPath())) {
-		// nsData = new NamespacesDAO(childNS, taskData.getFullPath(), taskData.getRepository());
-		// namespaceMap.put(nsData.getFullPath(), nsData);
-		// // Get all sub-namespaces
-		// get(nsData);
-		// }
 	}
 
 	private void get(NamespacesDAO parentDAO) throws RepositoryException {

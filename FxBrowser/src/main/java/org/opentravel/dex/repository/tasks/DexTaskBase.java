@@ -5,7 +5,8 @@ package org.opentravel.dex.repository.tasks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.repository.ResultHandlerI;
+import org.opentravel.dex.controllers.DexStatusController;
+import org.opentravel.dex.repository.TaskResultHandlerI;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
@@ -27,21 +28,30 @@ public abstract class DexTaskBase<T> extends Task<String> {
 	private Double progressMax = 1.0;
 	private StringBuilder errorBuilder = null;
 	protected StringBuilder msgBuilder = null;
+	private DexStatusController statusController = null;
+
+	public DexTaskBase(T taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
+			StringProperty statusProperty) {
+		this(taskData, handler, progressProperty, statusProperty, null);
+	}
 
 	/**
 	 * Create a task complete with result handler, double progress value and status
 	 * 
 	 * @param taskData
 	 *            - ALL data needed to execute the task
-	 * @param progressProperty
-	 *            - progress bar or indicator progress property
-	 * @param statusProperty
-	 *            - a label or stringProperty for messages from the task
 	 * @param handler
 	 *            - handler to receive completion message. Must have controller for accessing the stage.
+	 * @param progressProperty
+	 *            - optional - progress bar or indicator progress property
+	 * @param statusProperty
+	 *            - optional - a label or stringProperty for messages from the task
+	 * @param statusController
+	 *            - Optional, Tracks and shows progress on how many tasks are running
+	 * 
 	 */
-	public DexTaskBase(T taskData, DoubleProperty progressProperty, StringProperty statusProperty,
-			ResultHandlerI handler) {
+	public DexTaskBase(T taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
+			StringProperty statusProperty, DexStatusController statusController) {
 		this(taskData);
 
 		// Bind the passed progress bar/indicator and status properties to this task's properties.
@@ -52,9 +62,12 @@ public abstract class DexTaskBase<T> extends Task<String> {
 
 		// Set the result handler
 		if (handler != null) {
-			setOnSucceeded(handler::handle);
-			setOnFailed(handler::handle);
+			setOnSucceeded(handler::handleTaskComplete);
+			setOnFailed(handler::handleTaskComplete);
 		}
+
+		// Track how many tasks are running
+		this.statusController = statusController;
 	}
 
 	public DexTaskBase(T taskData) {
@@ -72,6 +85,8 @@ public abstract class DexTaskBase<T> extends Task<String> {
 	 * 
 	 */
 	public void go() {
+		if (statusController != null)
+			statusController.start(this);
 		Thread lt = new Thread(this);
 		lt.setDaemon(true);
 		lt.start();
@@ -104,9 +119,28 @@ public abstract class DexTaskBase<T> extends Task<String> {
 	}
 
 	@Override
+	protected void succeeded() {
+		super.succeeded();
+		updateMessage("Done!");
+		if (statusController != null)
+			statusController.finish(this);
+
+	}
+
+	@Override
+	protected void cancelled() {
+		super.cancelled();
+		updateMessage("Cancelled!");
+		if (statusController != null)
+			statusController.finish(this);
+	}
+
+	@Override
 	protected void failed() {
 		super.failed();
 		updateMessage("Failed!");
+		if (statusController != null)
+			statusController.finish(this);
 	}
 
 	public String getErrorMsg() {

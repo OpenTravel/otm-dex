@@ -77,24 +77,6 @@
 			      <fx:include fx:id="repositorySelection" source="RepositorySelection.fxml" />
                </top>
             </BorderPane>
-      <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="40.0" prefHeight="40.0" spacing="10.0" VBox.vgrow="NEVER">
-         <children>
-            <Label text="Status:">
-               <font>
-                  <Font size="12.0" />
-               </font>
-            </Label>
-            <Label fx:id="statusLabel" text="Label">
-               <font>
-                  <Font size="12.0" />
-               </font>
-            </Label>
-            <Region HBox.hgrow="ALWAYS" />
-            <ProgressIndicator fx:id="statusProgress" progress="0.0" />
-         </children>
-         <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-         </padding>
-      </HBox>
+      <fx:include fx:id="dexStatus" source="DexStatus.fxml" />
    </children>
 </VBox>

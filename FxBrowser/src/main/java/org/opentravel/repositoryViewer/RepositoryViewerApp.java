@@ -36,10 +36,6 @@ public class RepositoryViewerApp extends AbstractOTMApplication {
 	public void start(Stage primaryStage) {
 		log.debug("Creating Primary Stage.");
 		try {
-			// Icons
-			// ImageManager imageManager = new ImageManager(primaryStage);
-			// primaryStage.getIcons().add(new Image("/icons/alt_window_16.gif"));
-			// primaryStage.getIcons().add(new Image("/icons/BusinessObject.png"));
 			primaryStage.setTitle(APPLICATION_TITLE);
 
 			// Set up main controller

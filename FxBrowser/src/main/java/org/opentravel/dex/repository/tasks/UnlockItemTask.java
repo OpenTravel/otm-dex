@@ -5,7 +5,7 @@ package org.opentravel.dex.repository.tasks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.repository.ResultHandlerI;
+import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
@@ -25,8 +25,8 @@ public class UnlockItemTask extends DexTaskBase<RepositoryItem> {
 	String remarks = "testing";
 
 	public UnlockItemTask(RepositoryItem repoItem, boolean commitWIP, String remarks, DoubleProperty progressProperty,
-			StringProperty statusProperty, ResultHandlerI handler) {
-		super(repoItem, progressProperty, statusProperty, handler);
+			StringProperty statusProperty, TaskResultHandlerI handler) {
+		super(repoItem, handler, progressProperty, statusProperty);
 		this.commitWIP = commitWIP;
 		this.remarks = remarks;
 

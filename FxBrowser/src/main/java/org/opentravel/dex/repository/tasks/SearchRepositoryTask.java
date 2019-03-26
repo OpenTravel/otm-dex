@@ -3,12 +3,15 @@
  */
 package org.opentravel.dex.repository.tasks;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.repository.ResultHandlerI;
+import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.LibrarySearchResult;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -27,6 +30,9 @@ import javafx.beans.property.StringProperty;
 public class SearchRepositoryTask extends DexTaskBase<Repository> {
 	private static Log log = LogFactory.getLog(SearchRepositoryTask.class);
 
+	// private List<RepositorySearchResult> found;
+	private Map<String, RepositoryItem> filterMap;
+
 	/**
 	 * Create a lock repository item task.
 	 * 
@@ -35,9 +41,9 @@ public class SearchRepositoryTask extends DexTaskBase<Repository> {
 	 * @param statusProperty
 	 * @param handler
 	 */
-	public SearchRepositoryTask(Repository taskData, DoubleProperty progressProperty, StringProperty statusProperty,
-			ResultHandlerI handler) {
-		super(taskData, progressProperty, statusProperty, handler);
+	public SearchRepositoryTask(Repository taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
+			StringProperty statusProperty) {
+		super(taskData, handler, progressProperty, statusProperty);
 
 		// Replace start message from super-type.
 		// msgBuilder = new StringBuilder("Locking: ");
@@ -55,14 +61,47 @@ public class SearchRepositoryTask extends DexTaskBase<Repository> {
 	 */
 	@Override
 	public void doIT() throws RepositoryException {
-		String freeTextQuery = null;
-		TLLibraryStatus includeStatus = null; // Draft, Review, Final, Obsolete
+		String freeTextQuery = "test";
 		boolean latestVersionsOnly = false;
-		RepositoryItemType itemType = null; // .otm or .otr
+		// TLLibraryStatus includeStatus = null; // Draft, Review, Final, Obsolete
+		TLLibraryStatus includeStatus = TLLibraryStatus.DRAFT; // Draft, Review, Final, Obsolete
+		// RepositoryItemType itemType = null; // .otm or .otr
+		RepositoryItemType itemType = RepositoryItemType.LIBRARY; // .otm or .otr
+		// Run search
 		List<RepositorySearchResult> found = taskData.search(freeTextQuery, includeStatus, latestVersionsOnly,
 				itemType);
+		// Without itemType set, list contains EntitySearchResult(s) and LibrarySearchResult(s)
+		// Library results contain a repositoryItem
+		// Entity contains: object (bo, core, choice...), object type, repositoryItem
 
-		List<RepositoryItem> locked = taskData.getLockedItems();
+		//
+		// Package up a map of namespaces (repoItem.baseNamespace() : repoItem) as filter selector
+		// Use keys in namespace tree
+		// use entryset for repo items in ns-libraries tree
+		// Throw away entity entries
+		filterMap = new HashMap<>();
+		for (RepositorySearchResult result : found) {
+			if (result instanceof LibrarySearchResult) {
+				RepositoryItem ri = ((LibrarySearchResult) result).getRepositoryItem();
+				if (ri != null)
+					filterMap.put(ri.getBaseNamespace(), ri);
+			}
+		}
+
+		// TODO -
+		// Merge into repositorySelectionController???
+		// Add filter for object names
+
+		// TODO
+		// List<RepositoryItem> locked = taskData.getLockedItems();
 	}
 
+	/**
+	 * Get the map of namespaces and repository items that should be included in displayed trees.
+	 * 
+	 * @return
+	 */
+	public Map<String, RepositoryItem> getFilterMap() {
+		return filterMap;
+	}
 }

@@ -44,7 +44,6 @@ public class DialogBoxContoller implements DexPopupController {
 	BorderPane dialogBox;
 	@FXML
 	TextArea dialogText;
-	// TextFlow dialogText;
 	@FXML
 	TextFlow dialogTitle;
 	@FXML

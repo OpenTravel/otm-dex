@@ -147,21 +147,6 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		} catch (Exception e) {
 			log.warn("Error posting repository: " + e.getLocalizedMessage());
 		}
-
-		// // Pass the repository to the nsTree
-		// Repository repository;
-		// try {
-		// repository = getSelectedRepository();
-		// postUser(repository);
-		// // FIXME
-		//
-		// // repositoryNamespacesTreeController.post(repository);
-		// } catch (Exception e) {
-		// log.warn("Error posting repository: " + e.getLocalizedMessage());
-		// }
-		// // } catch (RepositoryException e) {
-		// // log.debug("Error: " + e.getLocalizedMessage());
-		// // }
 	}
 
 	/**
@@ -193,9 +178,6 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 	 */
 	@Override
 	public void clear() {
-		// repositoryNamespacesTreeController.clear();
-		// namespaceLibrariesTreeTableController.clear();
-		// repositoryItemCommitHistoriesController.clear();
 	}
 
 	@Override
@@ -241,51 +223,6 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 				Platform.runLater(() -> postStatus(status));
 	}
 
-	// public void openFile(File selectedFile) {
-	// if (selectedFile == null)
-	// return;
-	// // dialogBoxController.show("Loading Project", "Please wait");
-	// // postNotify("Loading Project", "Wait please.");
-	// // dialog.display("LOADING", "Well now, just wait and watch...");
-	//
-	// // memberController.clear(); // prevent concurrent modification
-	// // propertiesTableController.clear();
-	// // modelMgr.clear();
-	// postStatus("Opening " + selectedFile.getName());
-	// postProgress(0.1F);
-	//
-	// // Run the task in a background thread and Terminate the running thread if the application exits
-	// Runnable task = () -> openFileTask(selectedFile);
-	// Thread backgroundThread = new Thread(task);
-	// backgroundThread.setDaemon(true);
-	// backgroundThread.start();
-	//
-	// // See openFileTask for post completion actions
-	// }
-
-	// /**
-	// * Open the file using the handler. Expected to be run in the background.
-	// *
-	// * @param fileHandler
-	// * @param selectedFile
-	// */
-	// public void openFileTask(File selectedFile) {
-	// // Do Work
-	// // modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
-	// // When done, update display in the UI thread
-	// Platform.runLater(() -> {
-	// // dialogBoxController.close();
-	// // clearNotify();
-	// // memberController.post(modelMgr);
-	// // libController.post(modelMgr);
-	// postStatus("");
-	// postProgress(1F);
-	// });
-	// // TODO
-	// // update ProjectLibrariesTable
-	// // update RepositoryTab with selected repository from project
-	// }
-
 	public void lock(RepoItemDAO repoItem) {
 		LockItemTask task = new LockItemTask(repoItem.getValue(), repositoryProgressBar.progressProperty(),
 				repositoryStatusField.textProperty(), new RepositoryResultHandler(parentController));
@@ -307,38 +244,4 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		task.go();
 	}
 
-	// public interface ResultHandlerI {
-	// public void handle(String errorMessage);
-	// }
-	//
-	// public class ResultHandler implements ResultHandlerI {
-	// // private DexController parentController;
-	// private static final String TITLE = "Repository Error";
-	// private RepositoryViewerController parentController;
-	//
-	// public ResultHandler(DexController parentController) {
-	// this.parentController = (RepositoryViewerController) parentController;
-	// }
-	//
-	// @Override
-	// public void handle(String message) {
-	// log.debug(message);
-	// if (message == null || message.isEmpty())
-	// parentController.refresh();
-	// else {
-	// DialogBoxContoller dbc = parentController.getDialogBoxController();
-	// dbc.show(TITLE, message);
-	// }
-	// }
-	// }
-
-	// public void postTaskResults(String errorMsg) {
-	// if (errorMsg == null || errorMsg.isEmpty())
-	// parentController.refresh();
-	// else {
-	// DialogBoxContoller dbc = parentController.getDialogBoxController();
-	// dbc.show(TITLE, errorMsg);
-	// log.debug("TODO - put this in dialog:" + errorMsg);
-	// }
-	// }
 }

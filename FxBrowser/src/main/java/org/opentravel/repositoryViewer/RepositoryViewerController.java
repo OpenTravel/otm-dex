@@ -11,11 +11,13 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
+import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.repository.NamespaceLibrariesTreeTableController;
 import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.dex.repository.RepoItemDAO;
 import org.opentravel.dex.repository.RepositoryItemCommitHistoriesController;
 import org.opentravel.dex.repository.RepositoryNamespacesTreeController;
+import org.opentravel.dex.repository.RepositorySearchController;
 import org.opentravel.dex.repository.RepositorySelectionController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexController;
@@ -31,8 +33,6 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 
@@ -50,6 +50,10 @@ public class RepositoryViewerController implements DexController {
 	protected Stage stage;
 
 	// Let FXML inject controllers
+	@FXML
+	private RepositorySearchController repositorySearchController;
+	@FXML
+	private DexStatusController dexStatusController;
 	@FXML
 	private RepositoryNamespacesTreeController repositoryNamespacesTreeController;
 	@FXML
@@ -72,6 +76,10 @@ public class RepositoryViewerController implements DexController {
 			throw new IllegalStateException("repository namespaces controller not injected by FXML.");
 		if (!(repositorySelectionController instanceof RepositorySelectionController))
 			throw new IllegalStateException("repository selection controller not injected by FXML.");
+		if (!(dexStatusController instanceof DexStatusController))
+			throw new IllegalStateException("Status controller not injected by FXML.");
+		if (!(repositorySearchController instanceof RepositorySearchController))
+			throw new IllegalStateException("Search controller not injected by FXML.");
 
 		log.debug("FXML Nodes checked OK.");
 	}
@@ -110,6 +118,13 @@ public class RepositoryViewerController implements DexController {
 		namespaceLibrariesTreeTableController.getSelectable()
 				.addListener((v, old, newValue) -> librarySelectionListener(newValue));
 
+		dexStatusController.setStage(primaryStage);
+		dexStatusController.setParent(this);
+
+		repositorySearchController.setParent(this);
+		repositorySearchController.setStage();
+		repositorySearchController.setRepository(null);
+
 		// initialize Dialog Box
 		final String LAYOUT_FILE = "/DialogBox.fxml";
 		// Create a new dynamic loader
@@ -119,6 +134,10 @@ public class RepositoryViewerController implements DexController {
 		configureProjectMenuButton(); // TODO - move
 
 		log.debug("Stage set.");
+	}
+
+	public DexStatusController getStatusController() {
+		return dexStatusController;
 	}
 
 	public DialogBoxContoller getDialogBoxController() {
@@ -177,6 +196,7 @@ public class RepositoryViewerController implements DexController {
 		log.debug("Selected new repository");
 		try {
 			repositoryNamespacesTreeController.post(repositorySelectionController.getSelectedRepository());
+			repositorySearchController.setRepository(repositorySelectionController.getSelectedRepository());
 		} catch (Exception e) {
 			log.warn("Error posting repository: " + e.getLocalizedMessage());
 		}
@@ -190,6 +210,16 @@ public class RepositoryViewerController implements DexController {
 		repositoryNamespacesTreeController.clear();
 		namespaceLibrariesTreeTableController.clear();
 		repositoryItemCommitHistoriesController.clear();
+	}
+
+	@Override
+	public void postProgress(double percent) {
+		dexStatusController.postProgress(percent);
+	}
+
+	@Override
+	public void postStatus(String status) {
+		dexStatusController.postStatus(status);
 	}
 
 	@Override
@@ -219,29 +249,6 @@ public class RepositoryViewerController implements DexController {
 	 * 
 	 * @param e
 	 */
-	@FXML
-	private ProgressIndicator statusProgress;
-
-	@Override
-	public void postProgress(double percent) {
-		if (statusProgress != null)
-			if (Platform.isFxApplicationThread())
-				statusProgress.setProgress(percent);
-			else
-				Platform.runLater(() -> postProgress(percent));
-	}
-
-	@FXML
-	private Label statusLabel;
-
-	@Override
-	public void postStatus(String status) {
-		if (statusLabel != null)
-			if (Platform.isFxApplicationThread())
-				statusLabel.setText(status);
-			else
-				Platform.runLater(() -> postStatus(status));
-	}
 
 	@FXML
 	public ComboBox<String> projectCombo;
@@ -342,4 +349,11 @@ public class RepositoryViewerController implements DexController {
 		return repositorySelectionController;
 	}
 
+	public RepositorySearchController getRepositorySearchController() {
+		return repositorySearchController;
+	}
+
+	public RepositoryNamespacesTreeController getRepositoryNamespacesController() {
+		return repositoryNamespacesTreeController;
+	}
 }
