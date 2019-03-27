@@ -4,6 +4,7 @@
 package org.opentravel.dex.repository;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +13,6 @@ import org.opentravel.dex.repository.tasks.SearchRepositoryTask;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.Repository;
-import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
@@ -35,10 +35,6 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 		implements TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(RepositorySearchController.class);
 
-	// private static final String LOCAL_REPO = "Local";
-	//
-	// private RepositoryManager repositoryManager;
-
 	@FXML
 	private ChoiceBox<String> statusChoice;
 	@FXML
@@ -46,13 +42,11 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 	@FXML
 	private Button doSearch;
 	@FXML
+	private Button clearSearch;
+	@FXML
 	private RadioButton lastestOnlyRadio;
 	@FXML
 	private RadioButton lockedRadio;
-	// @FXML
-	// private ProgressBar progressBar;
-	// @FXML
-	// private Label progressStatus;
 
 	private Repository currentRepository;
 
@@ -63,6 +57,8 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 			throw new IllegalStateException("Null search term in repository search controller.");
 		if (doSearch == null)
 			throw new IllegalStateException("Null search button in repository search controller.");
+		if (clearSearch == null)
+			throw new IllegalStateException("Null clear search button in repository search controller.");
 
 		log.debug("FXML Nodes checked OK.");
 	}
@@ -91,24 +87,26 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 		checkNodes(); // Verify FXML loaded correctly
 
 		doSearch.setOnAction(this::runSearch);
-
-		// repositoryManager = getRepoMgr();
-		// configureRepositoryChoice();
-		//
-		// // initialize unlock Dialog Box using a new dynamic loader
-		// FXMLLoader loader = new FXMLLoader(getClass().getResource(UnlockLibraryDialogContoller.LAYOUT_FILE));
-		// unlockDialogController = UnlockLibraryDialogContoller.init(loader, this);
-		//
-		// if (unlockDialogController == null)
-		// throw new IllegalStateException("Could not load unlock dialog controller.");
-
+		lockedRadio.setOnAction(this::setLockedFilter);
+		clearSearch.setOnAction(this::clearFilter);
 		log.debug("Repository Search Stage set.");
 	}
 
+	private void clearFilter(ActionEvent event) {
+		currentFilterMap = null;
+		searchTerm.setText("");
+		refreshParent();
+	}
+
 	private void runSearch(ActionEvent event) {
-		String query = searchTerm.getText();
+		RepositorySearchCriteria criteria = new RepositorySearchCriteria(currentRepository, searchTerm.getText());
+		parentController.postStatus("Searching for: " + criteria.getQuery());
 		if (currentRepository != null)
-			new SearchRepositoryTask(currentRepository, this::handleTaskComplete, null, null).go();
+			new SearchRepositoryTask(criteria, this::handleTaskComplete, null, null).go();
+	}
+
+	private void setLockedFilter(ActionEvent event) {
+
 	}
 
 	@Override
@@ -118,127 +116,78 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 			SearchRepositoryTask task = ((SearchRepositoryTask) event.getTarget());
 			currentFilterMap = task.getFilterMap();
 		}
-		// FIXME - property command/control structure/delegation
+
+		refreshParent();
+
+		printFilter();
+		// parentController.clear();
+		// try {
+		// parentController.getRepositoryNamespacesController().post(currentRepository);
+		// } catch (Exception e) {
+		// log.error("Error posting repository namespaces: " + e.getLocalizedMessage());
+		// }
+	}
+
+	private void refreshParent() {
+		// FIXME - proper command/control structure/delegation
+		parentController.postStatus("Done.");
 		parentController.clear();
 		try {
 			parentController.getRepositoryNamespacesController().post(currentRepository);
 		} catch (Exception e) {
 			log.error("Error posting repository namespaces: " + e.getLocalizedMessage());
 		}
+
 	}
 
 	public Map<String, RepositoryItem> getFilter() {
 		return currentFilterMap;
 	}
 
-	private RepositoryManager getRepoMgr() {
-		// // Set up repository access
-		RepositoryManager rm = null;
-		try {
-			rm = RepositoryManager.getDefault();
-			// availabilityChecker = RepositoryAvailabilityChecker.getInstance(repositoryManager);
-			// repoStatus = availabilityChecker.pingAllRepositories(true);
-		} catch (RepositoryException e) {
-			log.error("Repository manager unavailable: " + e);
-		}
-		return rm;
+	/**
+	 * 
+	 * @param namespace
+	 * @return true if the map contains the passed namespace as a key
+	 */
+	public boolean isSelected(String namespace) {
+		if (currentFilterMap != null)
+			log.debug("Is " + namespace + "\t contained in map?\t" + currentFilterMap.containsKey(namespace));
+		// return currentFilterMap != null ? currentFilterMap.containsKey(namespace) : true;
+		return currentFilterMap == null || currentFilterMap.containsKey(namespace);
 	}
 
-	@Override
-	public void post(RepositoryManager repositoryManager) throws Exception {
-		// this.repositoryManager = repositoryManager;
-		// does not really do anything -- the local repository acts as default manager.
+	public boolean isSelected(RepositoryItem item) {
+		return currentFilterMap == null || currentFilterMap.containsValue(item);
 	}
 
-	// private void configureRepositoryChoice() {
-	// log.debug("Configuring repository choice box.");
-	//
-	// ObservableList<String> repositoryIds = FXCollections.observableArrayList();
-	// repositoryIds.add(LOCAL_REPO);
-	// repositoryManager.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
-	// repositoryChoice.setItems(repositoryIds);
-	// repositoryChoice.getSelectionModel().select(0);
-	//
-	// // Configure listener for choice box
-	// repositoryChoice.valueProperty().addListener((observable, oldValue, newValue) -> repositorySelectionChanged());
-	// log.debug("Repository choice has " + repositoryIds.size() + " items.");
-	// }
-
-	// /**
-	// * Called when the user modifies the selection of the 'repositoryChoice' control.
-	// *
-	// * @throws RepositoryException
-	// */
-	// private void repositorySelectionChanged() {
-	// log.debug("Selected new repository");
-	// try {
-	// postUser(getSelectedRepository());
-	// // post password
-	// } catch (Exception e) {
-	// log.warn("Error posting repository: " + e.getLocalizedMessage());
-	// }
-	//
-	// // // Pass the repository to the nsTree
-	// // Repository repository;
-	// // try {
-	// // repository = getSelectedRepository();
-	// // postUser(repository);
-	// // // FIXME
-	// //
-	// // // repositoryNamespacesTreeController.post(repository);
-	// // } catch (Exception e) {
-	// // log.warn("Error posting repository: " + e.getLocalizedMessage());
-	// // }
-	// // // } catch (RepositoryException e) {
-	// // // log.debug("Error: " + e.getLocalizedMessage());
-	// // // }
-	// }
-
-	// /**
-	// * @throws RepositoryException
-	// */
-	// public Repository getSelectedRepository() throws RepositoryException {
-	// Repository repository = RepositoryManager.getDefault();
-	// // repoController.getLocalRepository();
-	// String rid = repositoryChoice.getSelectionModel().getSelectedItem();
-	// if (rid != null)
-	// if (rid.equals(LOCAL_REPO))
-	// repository = RepositoryManager.getDefault();
-	// // repository = repoController.getLocalRepository();
-	// else
-	// // Use selected repository
-	// repository = repositoryManager.getRepository(rid);
-	// return repository;
-	// }
-
-	// private void postUser(Repository repository) {
-	// String user = "--local--";
-	// if (repository instanceof RemoteRepositoryClient)
-	// user = ((RemoteRepositoryClient) repository).getUserId();
-	// repositoryUser.setText(user);
-	// }
+	private void printFilter() {
+		log.debug("\nCurrent Filter Entries");
+		if (currentFilterMap != null)
+			for (Entry<String, RepositoryItem> entry : currentFilterMap.entrySet())
+				log.debug(entry.getKey() + " \t " + entry.getValue().getLibraryName());
+	}
 
 	/**
 	 * Remove all items from the tables
 	 */
 	@Override
 	public void clear() {
-		// repositoryNamespacesTreeController.clear();
-		// namespaceLibrariesTreeTableController.clear();
-		// repositoryItemCommitHistoriesController.clear();
+		// TODO
+	}
+
+	@Override
+	public void post(RepositoryManager repositoryManager) throws Exception {
+		// does nothing
 	}
 
 	@Override
 	public ImageManager getImageManager() {
-		if (imageMgr == null)
-			throw new IllegalStateException("Image manger is null.");
-		return imageMgr;
+		return null;
 	}
 
 	@Override
 	public ReadOnlyObjectProperty<String> getSelectable() {
 		return null;
-		// return repositoryChoice.getSelectionModel().selectedItemProperty();
 	}
 
 	/**
@@ -251,25 +200,14 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 		return null;
 	}
 
-	/******************************************
-	 * @param e
-	 */
 	@Override
 	public void postProgress(double percent) {
-		// if (repositoryProgressBar != null)
-		// if (Platform.isFxApplicationThread())
-		// repositoryProgressBar.setProgress(percent);
-		// else
-		// Platform.runLater(() -> postProgress(percent));
+		// Does nothing.
 	}
 
 	@Override
 	public void postStatus(String status) {
-		// if (repositoryStatusField != null)
-		// if (Platform.isFxApplicationThread())
-		// repositoryStatusField.setText(status);
-		// else
-		// Platform.runLater(() -> postStatus(status));
+		// Does nothing.
 	}
 
 }

@@ -29,7 +29,6 @@ public class ImageManager {
 		INDICATOR("/icons/Indicator.gif"),
 		INDICATORELEMENT("/icons/IndicatorElement.gif"),
 		ELEMENTREF("/icons/ElementRef.gif");
-
 		private String label; // User displayed value
 
 		Icons(String label) {

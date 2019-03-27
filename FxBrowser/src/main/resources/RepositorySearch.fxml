@@ -26,26 +26,20 @@
             <RadioButton fx:id="lockedRadio" mnemonicParsing="false" stylesheets="@DavesViper.css" text="Locked" />
          </children>
       </HBox>
+      <Separator prefWidth="200.0" />
       <HBox>
          <children>
-            <TextField fx:id="searchTerm" promptText="User Name" text="Search Query">
+            <TextField fx:id="searchTerm" promptText="Query" text="Query">
                <HBox.margin>
                   <Insets top="5.0" />
                </HBox.margin>
             </TextField>
-          <Button fx:id="doSearch" mnemonicParsing="false" styleClass="button-blue" stylesheets="@DavesViper.css" text="Search" textAlignment="CENTER">
+          <Button fx:id="doSearch" prefWidth="100.0" mnemonicParsing="false" styleClass="button-blue" stylesheets="@DavesViper.css" text="Search" textAlignment="CENTER"/>
+          <Button fx:id="clearSearch" prefWidth="100.0" mnemonicParsing="false" styleClass="button-blue" stylesheets="@DavesViper.css" text="Clear" textAlignment="CENTER">
                <HBox.margin>
                   <Insets left="20.0" />
                </HBox.margin>
             </Button>
-         </children>
-      </HBox>
-      <Separator prefWidth="200.0" />
-      <HBox spacing="5.0">
-         <children>
-            <Label fx:id="repositoryStatusField" text="Status:" textAlignment="RIGHT" />
-            <Label fx:id="progressStatus" layoutX="10.0" layoutY="10.0" prefWidth="100.0" text="Idle" textAlignment="RIGHT" />
-            <ProgressBar fx:id="progressBar" progress="0.0" />
          </children>
       </HBox>
    </children>

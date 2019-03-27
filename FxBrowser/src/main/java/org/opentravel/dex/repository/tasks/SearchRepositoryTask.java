@@ -9,13 +9,12 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.repository.RepositorySearchCriteria;
 import org.opentravel.dex.repository.TaskResultHandlerI;
-import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.LibrarySearchResult;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
-import org.opentravel.schemacompiler.repository.RepositoryItemType;
 import org.opentravel.schemacompiler.repository.RepositorySearchResult;
 
 import javafx.beans.property.DoubleProperty;
@@ -27,7 +26,7 @@ import javafx.beans.property.StringProperty;
  * @author dmh
  *
  */
-public class SearchRepositoryTask extends DexTaskBase<Repository> {
+public class SearchRepositoryTask extends DexTaskBase<RepositorySearchCriteria> {
 	private static Log log = LogFactory.getLog(SearchRepositoryTask.class);
 
 	// private List<RepositorySearchResult> found;
@@ -41,8 +40,8 @@ public class SearchRepositoryTask extends DexTaskBase<Repository> {
 	 * @param statusProperty
 	 * @param handler
 	 */
-	public SearchRepositoryTask(Repository taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
-			StringProperty statusProperty) {
+	public SearchRepositoryTask(RepositorySearchCriteria taskData, TaskResultHandlerI handler,
+			DoubleProperty progressProperty, StringProperty statusProperty) {
 		super(taskData, handler, progressProperty, statusProperty);
 
 		// Replace start message from super-type.
@@ -61,15 +60,17 @@ public class SearchRepositoryTask extends DexTaskBase<Repository> {
 	 */
 	@Override
 	public void doIT() throws RepositoryException {
-		String freeTextQuery = "test";
-		boolean latestVersionsOnly = false;
-		// TLLibraryStatus includeStatus = null; // Draft, Review, Final, Obsolete
-		TLLibraryStatus includeStatus = TLLibraryStatus.DRAFT; // Draft, Review, Final, Obsolete
-		// RepositoryItemType itemType = null; // .otm or .otr
-		RepositoryItemType itemType = RepositoryItemType.LIBRARY; // .otm or .otr
+		Repository repo = taskData.getRepository();
+
+		// // TLLibraryStatus includeStatus = null; // Draft, Review, Final, Obsolete
+		// TLLibraryStatus includeStatus = TLLibraryStatus.DRAFT; // Draft, Review, Final, Obsolete
+		// // RepositoryItemType itemType = null; // .otm or .otr
+		// RepositoryItemType itemType = RepositoryItemType.LIBRARY; // .otm or .otr
+
 		// Run search
-		List<RepositorySearchResult> found = taskData.search(freeTextQuery, includeStatus, latestVersionsOnly,
-				itemType);
+		List<RepositorySearchResult> found = repo.search(taskData.getQuery(), taskData.getIncludeStatus(),
+				taskData.isLatestVersionsOnly(), taskData.getItemType());
+
 		// Without itemType set, list contains EntitySearchResult(s) and LibrarySearchResult(s)
 		// Library results contain a repositoryItem
 		// Entity contains: object (bo, core, choice...), object type, repositoryItem
@@ -94,6 +95,7 @@ public class SearchRepositoryTask extends DexTaskBase<Repository> {
 
 		// TODO
 		// List<RepositoryItem> locked = taskData.getLockedItems();
+		// Clear search
 	}
 
 	/**

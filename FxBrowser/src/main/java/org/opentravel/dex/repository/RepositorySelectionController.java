@@ -89,6 +89,9 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		checkNodes(); // Verify FXML loaded correctly
 
 		repositoryManager = getRepoMgr();
+		repositoryUser.setEditable(false);
+		if (repositoryPassword != null)
+			repositoryPassword.setVisible(false);
 		configureRepositoryChoice();
 
 		// initialize unlock Dialog Box using a new dynamic loader

@@ -120,17 +120,27 @@ public class ObjectEditorController implements DexController {
 
 	// TODO - formalize handler for view controllers with iterator
 
-	// TODO - hook up to the launcher
+	// DONE - hook up to the launcher
 	// 1. Create *ApplicationProvider class
+	// 1a. Create Images class for icon
 	// 2. Create resources/META-INF file
-	// 3. Add dependacy to launcher pom.xml
+	// 3. Add dependency to launcher pom.xml
+	// 3a. artifactId and version from its POM
+	// *** FIXME - this is wrong for repoViewer, project setup is wrong.
+	// 4. Add application display name to /ota2-app-launcher/src/main/resources/ota2-app-launcher.properties
+	//
+	// DONE - Implement (extend) AbstractMainWindowController
+	// Requires setStatusMessage(), xxx() methods
 
 	// TODO - preferences (improve as i use it)
-	// Abstract User Settings class (application common)
 	// Uses java beans to read/write to file
-	// AbstractOtmApplication -
-	// AbstractMainWindowController
-	// - background task
+	// 1. Abstract User Settings class (application common)
+	// 1a. Add fields, getters, setters for app specific preferences
+	// 2. Add load to main controller initialize
+
+	// DONE - AbstractOtmApplication -
+	// DONE - AbstractMainWindowController
+	// DONE - background task
 	//
 
 	// TODO - create wizard/pop-up handlers
@@ -308,6 +318,7 @@ public class ObjectEditorController implements DexController {
 	@FXML
 	ProgressIndicator statusProgress;
 
+	@Override
 	public void postProgress(double percent) {
 		if (statusProgress != null)
 			if (Platform.isFxApplicationThread())
@@ -319,6 +330,7 @@ public class ObjectEditorController implements DexController {
 	@FXML
 	Label statusLabel;
 
+	@Override
 	public void postStatus(String status) {
 		if (statusLabel != null)
 			if (Platform.isFxApplicationThread())

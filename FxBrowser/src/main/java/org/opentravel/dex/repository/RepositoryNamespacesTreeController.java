@@ -3,9 +3,9 @@
  */
 package org.opentravel.dex.repository;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,12 +33,15 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 
 	protected TreeView<NamespacesDAO> tree;
 	protected TreeItem<NamespacesDAO> root;
-	private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
+	private Map<String, TreeItem<NamespacesDAO>> namespaceMap = new TreeMap<>();
+	// private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
 
 	@FXML
 	protected TreeView<NamespacesDAO> repositoryNamespacesTree;
 
 	private Map<String, RepositoryItem> currentFilter = null;
+
+	private RepositorySearchController filterController;
 
 	public RepositoryNamespacesTreeController() {
 		super();
@@ -88,7 +91,13 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 	 */
 	@Override
 	public void post(Repository repository) throws Exception {
-		super.post(repository);
+		if (postedData == repository) {
+			log.debug("Just apply filters.");
+			updateTree();
+			return;
+		}
+		super.post(repository); // clear view and hold onto repo
+
 		parentController.postStatus("Loading root namespaces");
 		currentFilter = parentController.getRepositorySearchController().getFilter();
 
@@ -145,4 +154,64 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		}
 	}
 
+	/**
+	 * Update the entire tree. Use global namespaceMap and apply filters if set.
+	 */
+	private void updateTree() {
+		// Build a new tree
+		TreeItem<NamespacesDAO> filteredRoot = new TreeItem<>();
+
+		// Set new tree structure
+		for (Entry<String, TreeItem<NamespacesDAO>> entry : namespaceMap.entrySet()) {
+			String parentNS = entry.getValue().getValue().getBasePath();
+			TreeItem<NamespacesDAO> parent = filteredRoot;
+			if (parentNS != null)
+				parent = namespaceMap.get(parentNS);
+			if (parent == null) {
+				if (!filteredRoot.getChildren().contains(entry.getValue()))
+					filteredRoot.getChildren().add(entry.getValue());
+			} else if (isSelected(entry.getValue())) {
+				if (!parent.getChildren().contains(entry.getValue()))
+					parent.getChildren().add(entry.getValue());
+				addParent(parent, filteredRoot);
+			}
+		}
+		tree.setRoot(filteredRoot);
+	}
+
+	private void addParent(TreeItem<NamespacesDAO> parent, TreeItem<NamespacesDAO> root) {
+		// Get it's parent and add if needed
+		if (parent.getValue() != null) {
+			if (parent.getValue().getBasePath() == null) {
+				if (!root.getChildren().contains(parent))
+					root.getChildren().add(parent);
+			} else {
+				TreeItem<NamespacesDAO> ancestor = namespaceMap.get(parent.getValue().getBasePath());
+				if (ancestor != null && !ancestor.getChildren().contains(parent)) {
+					ancestor.getChildren().add(parent);
+					addParent(ancestor, root); // Recurse
+				}
+			}
+		}
+	}
+
+	/**
+	 * Filter the tree items based on full path.
+	 * 
+	 * @param item
+	 * @return true if there is a filter and the full path is selected or if there is no filter
+	 */
+	private boolean isSelected(TreeItem<NamespacesDAO> item) {
+		return filterController == null || filterController.isSelected(item.getValue().getFullPath());
+		// return filterController == null ? true : filterController.isSelected(item.getValue().getFullPath());
+	}
+
+	/**
+	 * Provide this controller a filter.
+	 * 
+	 * @param repositorySearchController
+	 */
+	public void setFilter(RepositorySearchController repositorySearchController) {
+		filterController = repositorySearchController;
+	}
 }

@@ -8,6 +8,8 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.application.common.AbstractMainWindowController;
+import org.opentravel.application.common.StatusType;
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
@@ -42,7 +44,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class RepositoryViewerController implements DexController {
+public class RepositoryViewerController extends AbstractMainWindowController implements DexController {
 	private static Log log = LogFactory.getLog(RepositoryViewerController.class);
 
 	protected ImageManager imageMgr;
@@ -91,6 +93,10 @@ public class RepositoryViewerController implements DexController {
 	@FXML
 	public void initialize() {
 		log.debug("Repository Viewer Controller initialized.");
+
+		// Get user settings / preferences
+		UserSettings settings = UserSettings.load();
+		// settings.getWindowSize();
 	}
 
 	/**
@@ -103,6 +109,10 @@ public class RepositoryViewerController implements DexController {
 		modelMgr = new OtmModelManager();
 		checkNodes();
 
+		repositorySearchController.setParent(this);
+		repositorySearchController.setStage();
+		repositorySearchController.setRepository(null);
+
 		// Set up the repository selection
 		repositorySelectionController.setStage();
 		repositorySelectionController.setParent(this);
@@ -112,6 +122,7 @@ public class RepositoryViewerController implements DexController {
 		repositoryNamespacesTreeController.setParent(this);
 		repositoryNamespacesTreeController.getSelectable()
 				.addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
+		repositoryNamespacesTreeController.setFilter(repositorySearchController);
 
 		// Set up the libraries in a namespace table
 		namespaceLibrariesTreeTableController.setParent(this);
@@ -120,10 +131,6 @@ public class RepositoryViewerController implements DexController {
 
 		dexStatusController.setStage(primaryStage);
 		dexStatusController.setParent(this);
-
-		repositorySearchController.setParent(this);
-		repositorySearchController.setStage();
-		repositorySearchController.setRepository(null);
 
 		// initialize Dialog Box
 		final String LAYOUT_FILE = "/DialogBox.fxml";
@@ -220,6 +227,16 @@ public class RepositoryViewerController implements DexController {
 	@Override
 	public void postStatus(String status) {
 		dexStatusController.postStatus(status);
+	}
+
+	@Override
+	protected void setStatusMessage(String message, StatusType statusType, boolean disableControls) {
+		dexStatusController.postStatus(message);
+		// TODO - disable controllers if set
+		// TODO - create controller data structure.
+		// TODO - use status type
+		//
+		// libraryText.disableProperty().set( disableControls );
 	}
 
 	@Override
@@ -356,4 +373,29 @@ public class RepositoryViewerController implements DexController {
 	public RepositoryNamespacesTreeController getRepositoryNamespacesController() {
 		return repositoryNamespacesTreeController;
 	}
+
+	@Override
+	protected void updateControlStates() {
+		// Platform.runLater(() -> {
+		// // boolean exDisplayDisabled = (originalDocument == null);
+		// // boolean exControlsDisabled = (model == null) || (originalDocument == null);
+		// //
+		// // libraryText.setText( (modelFile == null) ? "" : modelFile.getName() );
+		// // libraryTooltip.setText( (modelFile == null) ? "" : modelFile.getAbsolutePath() );
+		// // exampleText.setText( (exampleFile == null) ? "" : exampleFile.getName() );
+		// // exampleTooltip.setText( (exampleFile == null) ? "" : exampleFile.getAbsolutePath() );
+		// //
+		// // rootElementPrefixText.disableProperty().set( exDisplayDisabled );
+		// // rootElementNSText.disableProperty().set( exDisplayDisabled );
+		// // originalTreeView.disableProperty().set( exDisplayDisabled );
+		// //
+		// // entityChoice.disableProperty().set( exControlsDisabled );
+		// // strategyButton.disableProperty().set( exControlsDisabled );
+		// // resetButton.disableProperty().set( exControlsDisabled );
+		// // saveButton.disableProperty().set( exControlsDisabled );
+		// // upgradedTreeView.disableProperty().set( exControlsDisabled );
+		// // previewPane.disableProperty().set( exControlsDisabled );
+		// });
+	}
+
 }
