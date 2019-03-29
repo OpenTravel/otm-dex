@@ -113,8 +113,20 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 						parentController.getStatusController()).go();
 			}
 		} catch (RepositoryException e) {
+			parentController.postRepoError(e);
 			log.debug("Error: " + e.getLocalizedMessage());
+			// FIXME - post a error dialog
+
+			// RepositoryManager repoMgr = repository.getManager();
+			// log.debug("Error: " + repository.getManager());
+			// String dName = repository.getDisplayName();
 		}
+		// RepositoryManager repoMgr = repository.getManager();
+		// log.debug("Error: " + repository.getManager());
+		// String dName = repository.getDisplayName();
+		// String endpoint;
+		// if (repository instanceof RemoteRepositoryClient)
+		// endpoint = ((RemoteRepositoryClient) repository).getEndpointUrl();
 	}
 
 	@Override
@@ -124,6 +136,19 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 			String fullPath;
 			// String childNS;
 			String parentNS;
+			if (event == null || !(event.getTarget() instanceof ListSubnamespacesTask)) {
+				log.error("Invalid event returned.");
+				return;
+			}
+			ListSubnamespacesTask task = (ListSubnamespacesTask) event.getTarget();
+			if (task == null) {
+				log.error("Missing task.");
+				return;
+			}
+			if (task.getErrorException() != null) {
+				parentController.postRepoError(task.getErrorException());
+				return;
+			}
 			Map<String, NamespacesDAO> map = ((ListSubnamespacesTask) event.getTarget()).getMap();
 			for (Entry<String, NamespacesDAO> nsEntry : map.entrySet()) {
 				// un-marshal the entry
@@ -142,10 +167,10 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 				// null parent is a root already in the tree
 				TreeItem<NamespacesDAO> parent = namespaceMap.get(parentNS);
 				if (parent != null) {
-					if (currentFilter != null && currentFilter.containsKey(fullPath))
+					if (currentFilter == null || currentFilter.containsKey(fullPath))
 						parent.getChildren().add(item);
-					else if (currentFilter == null)
-						parent.getChildren().add(item);
+					// else if (currentFilter == null)
+					// parent.getChildren().add(item);
 					// item.setGraphic(images.getView(element));
 					// log.debug("Added " + childNS + " to " + parentNS);
 				}

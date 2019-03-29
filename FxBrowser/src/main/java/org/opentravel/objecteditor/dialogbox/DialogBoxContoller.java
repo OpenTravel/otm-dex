@@ -104,6 +104,12 @@ public class DialogBoxContoller implements DexPopupController {
 		return controller;
 	}
 
+	/**
+	 * Show the title and message in a pop-up dialog window.
+	 * 
+	 * @param title
+	 * @param message
+	 */
 	public void show(String title, String message) {
 		if (popupStage == null)
 			throw new IllegalAccessError("Must set stage before use.");
@@ -112,8 +118,13 @@ public class DialogBoxContoller implements DexPopupController {
 
 		if (dialogButtonClose != null)
 			dialogButtonClose.setOnAction(e -> close());
+		// TODO - how to know if/when to show OK or not?
+		if (dialogButtonOK != null)
+			// dialogButtonOK.setOnAction(e -> close());
+			dialogButtonOK.setVisible(false);
 
 		if (dialogTitle != null) {
+			dialogTitle.getChildren().clear();
 			dialogTitle.getChildren().add(new Text(title));
 			popupStage.setTitle(dialogTitleLabel.getText());
 		}

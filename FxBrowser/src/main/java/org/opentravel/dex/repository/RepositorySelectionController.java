@@ -10,6 +10,7 @@ import org.opentravel.dex.repository.tasks.LockItemTask;
 import org.opentravel.dex.repository.tasks.UnlockItemTask;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.objecteditor.dialogbox.RepositoryLoginDialogContoller;
 import org.opentravel.objecteditor.dialogbox.UnlockLibraryDialogContoller;
 import org.opentravel.objecteditor.dialogbox.UnlockLibraryDialogContoller.Results;
 import org.opentravel.schemacompiler.repository.Repository;
@@ -21,6 +22,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -58,6 +60,8 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 
 	@FXML
 	private UnlockLibraryDialogContoller unlockDialogController;
+	@FXML
+	private RepositoryLoginDialogContoller loginDialogController;
 
 	private void checkNodes() {
 		if (repositoryChoice == null)
@@ -98,10 +102,21 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		FXMLLoader loader = new FXMLLoader(getClass().getResource(UnlockLibraryDialogContoller.LAYOUT_FILE));
 		unlockDialogController = UnlockLibraryDialogContoller.init(loader, this);
 
+		// initialize login Dialog Box using a new dynamic loader
+		loader = new FXMLLoader(getClass().getResource(RepositoryLoginDialogContoller.LAYOUT_FILE));
+		loginDialogController = RepositoryLoginDialogContoller.init(loader, this);
+		addRepository.setOnAction(this::addRepository);
+
 		if (unlockDialogController == null)
+			throw new IllegalStateException("Could not load unlock dialog controller.");
+		if (loginDialogController == null)
 			throw new IllegalStateException("Could not load unlock dialog controller.");
 
 		log.debug("Repository Selection Stage set.");
+	}
+
+	private void addRepository(ActionEvent event) {
+		loginDialogController.showAndWait("", "");
 	}
 
 	private RepositoryManager getRepoMgr() {
@@ -246,5 +261,4 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 				new RepositoryResultHandler(parentController));
 		task.go();
 	}
-
 }

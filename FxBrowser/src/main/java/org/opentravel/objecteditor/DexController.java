@@ -55,4 +55,9 @@ public interface DexController {
 	 */
 	public void postStatus(String string);
 
+	// /**
+	// * @return
+	// */
+	// public RepositoryManager getRepositoryManager();
+	//
 }

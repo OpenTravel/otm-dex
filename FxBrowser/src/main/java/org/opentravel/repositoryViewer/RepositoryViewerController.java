@@ -189,7 +189,10 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 				namespaceLibrariesTreeTableController.post(nsNode);
 				repositoryItemCommitHistoriesController.clear();
 			} catch (Exception e) {
-				log.debug("Error accessing namespace: " + e.getLocalizedMessage());
+				postRepoError(e);
+				// log.debug("Error accessing namespace: " + e.getLocalizedMessage() + " " + e.getCause().toString());
+				// dialogBoxController.show("Error accessing repository",
+				// e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
 			}
 		}
 	}
@@ -206,7 +209,15 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 			repositorySearchController.setRepository(repositorySelectionController.getSelectedRepository());
 		} catch (Exception e) {
 			log.warn("Error posting repository: " + e.getLocalizedMessage());
+			postRepoError(e);
 		}
+	}
+
+	public void postRepoError(Exception e) {
+		log.debug("Error accessing namespace: " + e.getLocalizedMessage() + " " + e.getCause().toString());
+		dialogBoxController.show("Error accessing repository",
+				e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
+
 	}
 
 	/**

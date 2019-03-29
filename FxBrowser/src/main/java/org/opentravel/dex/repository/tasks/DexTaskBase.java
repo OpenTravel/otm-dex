@@ -30,6 +30,8 @@ public abstract class DexTaskBase<T> extends Task<String> {
 	protected StringBuilder msgBuilder = null;
 	private DexStatusController statusController = null;
 
+	private Exception errorException;
+
 	public DexTaskBase(T taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
 			StringProperty statusProperty) {
 		this(taskData, handler, progressProperty, statusProperty, null);
@@ -106,6 +108,7 @@ public abstract class DexTaskBase<T> extends Task<String> {
 				doIT();
 				updateMessage("Done.");
 			} catch (Exception e) {
+				errorException = e;
 				errorBuilder = new StringBuilder("Error: ");
 				errorBuilder.append(e.getLocalizedMessage());
 				result = errorBuilder.toString(); // Signal business error via result
@@ -147,4 +150,7 @@ public abstract class DexTaskBase<T> extends Task<String> {
 		return errorBuilder != null ? errorBuilder.toString() : null;
 	}
 
+	public Exception getErrorException() {
+		return errorException;
+	}
 }

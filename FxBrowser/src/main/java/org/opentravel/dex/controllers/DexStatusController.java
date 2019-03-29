@@ -101,6 +101,8 @@ public class DexStatusController implements DexIncludedController<String> {
 	}
 
 	/**
+	 * Remove the task from list of running tasks.
+	 * 
 	 * @param dexTaskBase
 	 */
 	public void finish(DexTaskBase<?> task) {
@@ -111,13 +113,23 @@ public class DexStatusController implements DexIncludedController<String> {
 	private void update() {
 		postStatus("Running " + runningTasks.size() + " tasks.");
 		if (runningTasks.isEmpty()) {
-			taskProgress.set(1.0);
+			updateProgress(1.0);
+			// taskProgress.set(1.0);
 			postStatus("Done.");
 		} else
-			taskProgress.set(-1.0);
+			updateProgress(-1.0);
+		// taskProgress.set(-1.0);
 		// if (runningTasks.size() > -1)
 		// taskProgress.set(1.0 / (runningTasks.size() + 1));
 		// statusProgress.setProgress(1.0 / (runningTasks.size() + 1));
+	}
+
+	private void updateProgress(double value) {
+		if (Platform.isFxApplicationThread())
+			taskProgress.set(value);
+		else
+			Platform.runLater(() -> updateProgress(value));
+
 	}
 
 	// @Override
