@@ -60,7 +60,7 @@
                      <items>
 					    <VBox>
 						   <children>
-							<fx:include fx:id="repositorySearch" source="RepositorySearch.fxml" />
+							<!-- fx:include fx:id="repositorySearch" source="RepositorySearch.fxml" / -->
 							<fx:include fx:id="repositoryNamespacesTree" source="RepositoryNamespacesTree.fxml" VBox.vgrow="ALWAYS" />
 						   </children>
 						</VBox>

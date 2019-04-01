@@ -13,9 +13,6 @@ import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.StringProperty;
-
 /**
  * A JavaFX task for listing all sub-namespaces of a namespace root in a repository
  * 
@@ -37,9 +34,9 @@ public class ListSubnamespacesTask extends DexTaskBase<NamespacesDAO> {
 	 * @param statusProperty
 	 * @param handler
 	 */
-	public ListSubnamespacesTask(NamespacesDAO taskData, TaskResultHandlerI handler, DoubleProperty progressProperty,
-			StringProperty statusProperty, DexStatusController statusController) {
-		super(taskData, handler, progressProperty, statusProperty, statusController);
+	public ListSubnamespacesTask(NamespacesDAO taskData, TaskResultHandlerI handler,
+			DexStatusController statusController) {
+		super(taskData, handler, statusController);
 
 		// Replace start message from super-type.
 		msgBuilder = new StringBuilder("Getting: ");

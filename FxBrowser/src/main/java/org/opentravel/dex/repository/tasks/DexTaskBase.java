@@ -72,6 +72,26 @@ public abstract class DexTaskBase<T> extends Task<String> {
 		this.statusController = statusController;
 	}
 
+	/**
+	 * Start a task with a handler for results and use the status controller.
+	 * 
+	 * @param taskData
+	 * @param handler
+	 * @param statusController
+	 */
+	public DexTaskBase(T taskData, TaskResultHandlerI handler, DexStatusController statusController) {
+		this(taskData);
+
+		// Set the result handler
+		if (handler != null) {
+			setOnSucceeded(handler::handleTaskComplete);
+			setOnFailed(handler::handleTaskComplete);
+		}
+
+		// Track how many tasks are running
+		this.statusController = statusController;
+	}
+
 	public DexTaskBase(T taskData) {
 		this.taskData = taskData;
 

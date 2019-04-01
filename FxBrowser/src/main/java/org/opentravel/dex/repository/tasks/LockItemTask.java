@@ -5,12 +5,10 @@ package org.opentravel.dex.repository.tasks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
-
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.StringProperty;
 
 /**
  * A JavaFX task for locking repository items
@@ -25,13 +23,14 @@ public class LockItemTask extends DexTaskBase<RepositoryItem> {
 	 * Create a lock repository item task.
 	 * 
 	 * @param taskData
-	 * @param progressProperty
-	 * @param statusProperty
+	 *            - an repository item to lock
 	 * @param handler
+	 *            - results handler
+	 * @param status
+	 *            - a status controller that can post message and progress indicator
 	 */
-	public LockItemTask(RepositoryItem taskData, DoubleProperty progressProperty, StringProperty statusProperty,
-			TaskResultHandlerI handler) {
-		super(taskData, handler, progressProperty, statusProperty);
+	public LockItemTask(RepositoryItem taskData, TaskResultHandlerI handler, DexStatusController status) {
+		super(taskData, handler, status);
 
 		// Replace start message from super-type.
 		msgBuilder = new StringBuilder("Locking: ");

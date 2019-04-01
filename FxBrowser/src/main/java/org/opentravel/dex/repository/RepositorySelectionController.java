@@ -18,7 +18,6 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,9 +27,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
 
 /**
  * Manage the repository selection choice, user, password bar.
@@ -48,15 +44,15 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 	@FXML
 	private ChoiceBox<String> repositoryChoice;
 	@FXML
-	private TextField repositoryUser;
-	@FXML
-	private PasswordField repositoryPassword;
+	private Label repositoryUser;
+	// @FXML
+	// private PasswordField repositoryPassword;
 	@FXML
 	private Button addRepository;
-	@FXML
-	private ProgressBar repositoryProgressBar;
-	@FXML
-	private Label repositoryStatusField;
+	// @FXML
+	// private ProgressBar repositoryProgressBar;
+	// @FXML
+	// private Label repositoryStatusField;
 
 	@FXML
 	private UnlockLibraryDialogContoller unlockDialogController;
@@ -68,12 +64,12 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 			throw new IllegalStateException("Null repository choice node in repository controller.");
 		if (repositoryUser == null)
 			throw new IllegalArgumentException("repositoryUser is null.");
-		if (repositoryPassword == null)
-			throw new IllegalArgumentException("repositorPassword is null.");
-		if (repositoryProgressBar == null)
-			throw new IllegalArgumentException("repositoryProgressBar is null.");
-		if (repositoryStatusField == null)
-			throw new IllegalArgumentException("repositoryStatusField is null.");
+		// if (repositoryPassword == null)
+		// throw new IllegalArgumentException("repositorPassword is null.");
+		// if (repositoryProgressBar == null)
+		// throw new IllegalArgumentException("repositoryProgressBar is null.");
+		// if (repositoryStatusField == null)
+		// throw new IllegalArgumentException("repositoryStatusField is null.");
 		log.debug("FXML Nodes checked OK.");
 	}
 
@@ -93,9 +89,9 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		checkNodes(); // Verify FXML loaded correctly
 
 		repositoryManager = getRepoMgr();
-		repositoryUser.setEditable(false);
-		if (repositoryPassword != null)
-			repositoryPassword.setVisible(false);
+		// repositoryUser.setEditable(false);
+		// if (repositoryPassword != null)
+		// repositoryPassword.setVisible(false);
 		configureRepositoryChoice();
 
 		// initialize unlock Dialog Box using a new dynamic loader
@@ -225,26 +221,25 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 	 */
 	@Override
 	public void postProgress(double percent) {
-		if (repositoryProgressBar != null)
-			if (Platform.isFxApplicationThread())
-				repositoryProgressBar.setProgress(percent);
-			else
-				Platform.runLater(() -> postProgress(percent));
+		// if (repositoryProgressBar != null)
+		// if (Platform.isFxApplicationThread())
+		// repositoryProgressBar.setProgress(percent);
+		// else
+		// Platform.runLater(() -> postProgress(percent));
 	}
 
 	@Override
 	public void postStatus(String status) {
-		if (repositoryStatusField != null)
-			if (Platform.isFxApplicationThread())
-				repositoryStatusField.setText(status);
-			else
-				Platform.runLater(() -> postStatus(status));
+		// if (repositoryStatusField != null)
+		// if (Platform.isFxApplicationThread())
+		// repositoryStatusField.setText(status);
+		// else
+		// Platform.runLater(() -> postStatus(status));
 	}
 
 	public void lock(RepoItemDAO repoItem) {
-		LockItemTask task = new LockItemTask(repoItem.getValue(), repositoryProgressBar.progressProperty(),
-				repositoryStatusField.textProperty(), new RepositoryResultHandler(parentController));
-		task.go();
+		new LockItemTask(repoItem.getValue(), new RepositoryResultHandler(parentController),
+				parentController.getStatusController()).go();
 	}
 
 	public void unlock(RepoItemDAO repoItem) {
@@ -256,9 +251,7 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 			return;
 
 		// Proceed with unlock in background thread.
-		UnlockItemTask task = new UnlockItemTask(repoItem.getValue(), commitWIP, remarks,
-				repositoryProgressBar.progressProperty(), repositoryStatusField.textProperty(),
-				new RepositoryResultHandler(parentController));
-		task.go();
+		new UnlockItemTask(repoItem.getValue(), commitWIP, remarks, new RepositoryResultHandler(parentController),
+				parentController.getStatusController()).go();
 	}
 }

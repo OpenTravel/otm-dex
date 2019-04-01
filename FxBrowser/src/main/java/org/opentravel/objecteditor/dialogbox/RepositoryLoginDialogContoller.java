@@ -4,16 +4,19 @@
 package org.opentravel.objecteditor.dialogbox;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryInfoType;
+import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryPermission;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.DexPopupController;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryUtils;
 
@@ -28,6 +31,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
@@ -101,12 +105,12 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	TextField loginUser;
 	@FXML
 	TextField loginPassword;
-
 	@FXML
 	Button dialogButtonCancel;
 	@FXML
 	Button dialogButtonOK;
-
+	@FXML
+	RadioButton dialogButtonAnonymous;
 	@FXML
 	Button dialogButtonTest;
 	@FXML
@@ -119,6 +123,13 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	RepositoryManager rMgr;
 	RemoteRepository selectedRemoteRepository = null; // Selected repository
 
+	private void anonymousSelectionChanged() {
+		// If selected, grey out the user name and password
+		testResults.setText("");
+		loginPassword.setDisable(dialogButtonAnonymous.isSelected());
+		loginUser.setDisable(dialogButtonAnonymous.isSelected());
+	}
+
 	@Override
 	public void clear() {
 		loginRepoID.setText("");
@@ -126,6 +137,22 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		loginUser.setText("");
 		loginPassword.setText("");
 		testResults.setText("");
+	}
+
+	private void configureRepositoryCombo() {
+		log.debug("Configuring repository combo box.");
+
+		ObservableList<String> repositoryIds = FXCollections.observableArrayList();
+		// rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
+		rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getEndpointUrl()));
+		loginURLCombo.setItems(repositoryIds);
+		loginURLCombo.getSelectionModel().select(0);
+
+		// Configure listener for choice box
+		loginURLCombo.valueProperty().addListener((observable, oldValue, newValue) -> repositorySelectionChanged());
+		log.debug("Repository choice has " + repositoryIds.size() + " items.");
+
+		repositorySelectionChanged(); // initialize values
 	}
 
 	public void doCancel() {
@@ -137,33 +164,58 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 
 	public void doOK() {
 		clear();
+		doTest(); // use test to setup user in repo
 		popupStage.close();
 		result = Results.OK;
 	}
 
 	public void doTest() {
 		log.debug("Test: " + loginUser.getText() + " : " + loginPassword.getText());
-		testResults.setText("");
+		testResults.setText("Testing");
 
-		String url = loginURLCombo.getValue();
 		String user = loginUser.getText();
 		String pwd = loginPassword.getText();
-		RemoteRepository repo = null;
 		dialogProgress.progressProperty().set(-1.0);
-		if (getRepositoryManager() != null)
-			repo = getRemoteRepository(rMgr, url);
-		// FIXME - if there is already an known repo with URL do not throw error
-		// repo = rMgr.addRemoteRepository(url); // throws error if can not be added
 
-		if (repo != null)
+		StringBuilder results = new StringBuilder("Test Results\n\t");
+		if (selectedRemoteRepository != null) {
+			if (!dialogButtonAnonymous.isSelected())
+				try {
+					rMgr.setCredentials(selectedRemoteRepository, user, pwd);
+				} catch (RepositoryException e) {
+					postException(e);
+				}
+			// Check to see what rights these credentials have
 			try {
-				rMgr.setCredentials(repo, user, pwd);
-			} catch (RepositoryException e) {
-				postException(e);
+				List<RepositoryItem> items = selectedRemoteRepository.getLockedItems();
+				results.append("User has " + items.size() + " locked items.\n\t");
+			} catch (Exception e) {
+				results.append("User can not access locked items.\n\t");
 			}
-		// TODO - how to know if this worked?
-
+			try {
+				RepositoryPermission auth = selectedRemoteRepository
+						.getUserAuthorization(selectedRemoteRepository.getEndpointUrl());
+				results.append("Authorization on " + selectedRemoteRepository.getEndpointUrl() + " = " + auth.toString()
+						+ "\n");
+			} catch (Exception e) {
+				results.append(
+						"User can not access authorization for " + selectedRemoteRepository.getEndpointUrl() + "\n");
+			}
+		} else {
+			results.append("No valid repository selected.");
+		}
+		testResults.setText(results.toString());
 		dialogProgress.progressProperty().set(1.0);
+	}
+
+	@Override
+	public ImageManager getImageManager() {
+		return mainController.getImageManager();
+	}
+
+	@Override
+	public OtmModelManager getModelManager() {
+		return mainController.getModelManager();
 	}
 
 	private RemoteRepository getRemoteRepository(RepositoryManager rMgr, String url) {
@@ -182,10 +234,6 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 
 		if (rMgr.getRepository(newRepositoryID) instanceof RemoteRepository)
 			rr = (RemoteRepository) rMgr.getRepository(newRepositoryID);
-		// // Note: will only find exact matches, not DNS name and IP Address
-		// for (RemoteRepository candidate : rMgr.listRemoteRepositories())
-		// if (candidate.getEndpointUrl().equals(url))
-		// return candidate;
 
 		// Repo with URL not found, try to add the URL to the repository manager
 		if (rr == null)
@@ -206,29 +254,6 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 				postException(e);
 			}
 		return rMgr;
-	}
-
-	private void postException(Exception e) {
-		log.error("Error.");
-		StringBuilder errMsg = new StringBuilder("Error: ");
-		errMsg.append(e.getLocalizedMessage());
-		if (e.getCause() != null)
-			errMsg.append("\n" + e.getCause().toString());
-
-		log.error(errMsg.toString());
-		testResults.setWrapText(true);
-		testResults.setText(errMsg.toString());
-
-	}
-
-	@Override
-	public ImageManager getImageManager() {
-		return mainController.getImageManager();
-	}
-
-	@Override
-	public OtmModelManager getModelManager() {
-		return mainController.getModelManager();
 	}
 
 	public Results getResult() {
@@ -258,6 +283,25 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		this.popupStage = stage;
 	}
 
+	private void postException(Exception e) {
+		postException(e, null);
+	}
+
+	private void postException(Exception e, String operation) {
+		log.error("Error.");
+		StringBuilder errMsg = new StringBuilder("Error: ");
+		if (operation != null)
+			errMsg.append(operation);
+		errMsg.append(e.getLocalizedMessage());
+		if (e.getCause() != null)
+			errMsg.append("\n" + e.getCause().toString());
+
+		log.error(errMsg.toString());
+		testResults.setWrapText(true);
+		testResults.setText(errMsg.toString());
+
+	}
+
 	@Override
 	public void postProgress(double percentDone) {
 		// parentController.postProgress(percentDone);
@@ -266,6 +310,20 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	@Override
 	public void postStatus(String string) {
 		// parentController.postStatus(string);
+	}
+
+	private void repositorySelectionChanged() {
+		clear();
+		// Try connecting
+		String url = loginURLCombo.getValue();
+		if (url != null && getRepositoryManager() != null)
+			selectedRemoteRepository = getRemoteRepository(rMgr, url);
+
+		if (selectedRemoteRepository != null)
+			loginRepoID.setText(selectedRemoteRepository.getDisplayName());
+
+		// Set check box to show success or failure
+		repoOKCheckbox.setSelected(selectedRemoteRepository != null);
 	}
 
 	public void setup(String title, String message) {
@@ -287,41 +345,13 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		try {
 			rMgr = RepositoryManager.getDefault();
 		} catch (RepositoryException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			postException(e1);
+			return;
 		}
 		configureRepositoryCombo();
-		// dialogHelp.getChildren().add(new Text(helpText));
-	}
 
-	private void configureRepositoryCombo() {
-		log.debug("Configuring repository combo box.");
-
-		ObservableList<String> repositoryIds = FXCollections.observableArrayList();
-		// rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
-		rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getEndpointUrl()));
-		loginURLCombo.setItems(repositoryIds);
-		loginURLCombo.getSelectionModel().select(0);
-
-		// Configure listener for choice box
-		loginURLCombo.valueProperty().addListener((observable, oldValue, newValue) -> repositorySelectionChanged());
-		log.debug("Repository choice has " + repositoryIds.size() + " items.");
-
-		repositorySelectionChanged(); // initialize values
-	}
-
-	private void repositorySelectionChanged() {
-		clear();
-		// Try connecting
-		String url = loginURLCombo.getValue();
-		if (url != null && getRepositoryManager() != null)
-			selectedRemoteRepository = getRemoteRepository(rMgr, url);
-
-		if (selectedRemoteRepository != null)
-			loginRepoID.setText(selectedRemoteRepository.getDisplayName());
-
-		// Set check box to show success or failure
-		repoOKCheckbox.setSelected(selectedRemoteRepository != null);
+		anonymousSelectionChanged();
+		dialogButtonAnonymous.setOnAction(e -> anonymousSelectionChanged());
 	}
 
 	public void show(String title, String message) {

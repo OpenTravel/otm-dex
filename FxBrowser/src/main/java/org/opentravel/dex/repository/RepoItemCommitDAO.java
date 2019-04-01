@@ -19,12 +19,12 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
-public class CommitDAO implements DexDAO<RepositoryItemCommit> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CommitDAO.class);
+public class RepoItemCommitDAO implements DexDAO<RepositoryItemCommit> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RepoItemCommitDAO.class);
 
 	private RepositoryItemCommit item;
 
-	public CommitDAO(RepositoryItemCommit item) {
+	public RepoItemCommitDAO(RepositoryItemCommit item) {
 		this.item = item;
 	}
 

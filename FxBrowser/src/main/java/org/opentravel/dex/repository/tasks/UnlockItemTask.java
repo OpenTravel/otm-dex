@@ -5,12 +5,10 @@ package org.opentravel.dex.repository.tasks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
-
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.StringProperty;
 
 /**
  * A Dex/JavaFX task for unlocking repository items
@@ -24,9 +22,9 @@ public class UnlockItemTask extends DexTaskBase<RepositoryItem> {
 	boolean commitWIP = true;
 	String remarks = "testing";
 
-	public UnlockItemTask(RepositoryItem repoItem, boolean commitWIP, String remarks, DoubleProperty progressProperty,
-			StringProperty statusProperty, TaskResultHandlerI handler) {
-		super(repoItem, handler, progressProperty, statusProperty);
+	public UnlockItemTask(RepositoryItem repoItem, boolean commitWIP, String remarks, TaskResultHandlerI handler,
+			DexStatusController status) {
+		super(repoItem, handler, status);
 		this.commitWIP = commitWIP;
 		this.remarks = remarks;
 

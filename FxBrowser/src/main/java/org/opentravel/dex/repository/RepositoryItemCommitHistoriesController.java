@@ -29,10 +29,10 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 	private static Log log = LogFactory.getLog(RepositoryItemCommitHistoriesController.class);
 
 	@FXML
-	public TableView<CommitDAO> commitHistoriesTable;
+	public TableView<RepoItemCommitDAO> commitHistoriesTable;
 
-	private TableView<CommitDAO> historyTable;
-	private ObservableList<CommitDAO> commitList = FXCollections.observableArrayList();
+	private TableView<RepoItemCommitDAO> historyTable;
+	private ObservableList<RepoItemCommitDAO> commitList = FXCollections.observableArrayList();
 
 	@Override
 	public void initialize() {
@@ -76,28 +76,28 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 			return; // FIXME
 		}
 		for (RepositoryItemCommit cItem : history.getCommitHistory()) {
-			commitList.add(new CommitDAO(cItem));
+			commitList.add(new RepoItemCommitDAO(cItem));
 		}
 	}
 
 	/**
 	 * Create Columns and set cell values
 	 */
-	private void buildColumns(TableView<CommitDAO> table) {
-		TableColumn<CommitDAO, String> numCol = new TableColumn<>("Number");
-		numCol.setCellValueFactory(new PropertyValueFactory<CommitDAO, String>("number"));
+	private void buildColumns(TableView<RepoItemCommitDAO> table) {
+		TableColumn<RepoItemCommitDAO, String> numCol = new TableColumn<>("Number");
+		numCol.setCellValueFactory(new PropertyValueFactory<RepoItemCommitDAO, String>("number"));
 		setColumnProps(numCol, true, false, true, 0);
 
-		TableColumn<CommitDAO, String> dateCol = new TableColumn<>("Date");
-		dateCol.setCellValueFactory(new PropertyValueFactory<CommitDAO, String>("effective"));
+		TableColumn<RepoItemCommitDAO, String> dateCol = new TableColumn<>("Date");
+		dateCol.setCellValueFactory(new PropertyValueFactory<RepoItemCommitDAO, String>("effective"));
 		setColumnProps(dateCol, true, false, true, 250);
 
-		TableColumn<CommitDAO, String> userCol = new TableColumn<>("User");
-		userCol.setCellValueFactory(new PropertyValueFactory<CommitDAO, String>("user"));
+		TableColumn<RepoItemCommitDAO, String> userCol = new TableColumn<>("User");
+		userCol.setCellValueFactory(new PropertyValueFactory<RepoItemCommitDAO, String>("user"));
 		setColumnProps(userCol, true, false, true, 150);
 
-		TableColumn<CommitDAO, String> remarksCol = new TableColumn<>("Remarks");
-		remarksCol.setCellValueFactory(new PropertyValueFactory<CommitDAO, String>("remarks"));
+		TableColumn<RepoItemCommitDAO, String> remarksCol = new TableColumn<>("Remarks");
+		remarksCol.setCellValueFactory(new PropertyValueFactory<RepoItemCommitDAO, String>("remarks"));
 		setColumnProps(remarksCol, true, false, true, 0);
 
 		table.getColumns().setAll(numCol, dateCol, userCol, remarksCol);
@@ -116,7 +116,7 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 	 * @return null
 	 */
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<CommitDAO>> getSelectable() {
+	public ReadOnlyObjectProperty<TreeItem<RepoItemCommitDAO>> getSelectable() {
 		return null;
 	}
 

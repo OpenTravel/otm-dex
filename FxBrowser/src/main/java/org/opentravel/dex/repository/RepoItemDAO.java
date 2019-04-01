@@ -6,6 +6,8 @@ package org.opentravel.dex.repository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.controllers.DexStatusController;
+import org.opentravel.dex.repository.tasks.GetRepositoryItemHistoryTask;
 import org.opentravel.objecteditor.DexDAO;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -13,7 +15,7 @@ import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.image.ImageView;
 
 /**
@@ -25,7 +27,7 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
-public class RepoItemDAO implements DexDAO<RepositoryItem> {
+public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(RepoItemDAO.class);
 
 	protected RepositoryItem repoItem;
@@ -34,47 +36,20 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 
 	RepositoryItemHistory history = null;
 
-	/**
-	 * Class for a task that retrieves history item from repository.
-	 * 
-	 * @author dmh
-	 *
-	 */
-	static class HistoryTask extends Task<RepositoryItemHistory> {
-		private Double historyProgess = 0.1;
-		private Double historyMax = 1.0;
-		private RepositoryItem repoItem;
-
-		public HistoryTask(RepositoryItem repoItem) {
-			this.repoItem = repoItem;
-			updateMessage("Retrieving history.");
-			updateProgress(historyProgess, historyMax);
-		}
-
-		@Override
-		protected RepositoryItemHistory call() throws Exception {
-			RepositoryItemHistory history = repoItem.getRepository().getHistory(repoItem);
-			updateMessage("Done.");
-			updateProgress(historyMax, historyMax);
-			log.debug("History Task done. " + historyMax == null);
-			return history;
-		}
-	};
-
-	public RepoItemDAO(RepositoryItem item) {
+	public RepoItemDAO(RepositoryItem item, DexStatusController dexStatusController) {
 		this.repoItem = item;
 
-		HistoryTask ht = new HistoryTask(item);
-		ht.setOnSucceeded(event -> setHistory(ht.getValue()));
-		ht.setOnFailed(event -> setHistory(null));
+		// Start a task to retrieve history
+		new GetRepositoryItemHistoryTask(repoItem, this::handleTaskComplete, dexStatusController).go();
+	}
 
-		// Run the task in a background thread
-		// Terminate the running thread if the application exits
-		// Start the thread
-		Thread bgThread = new Thread(ht);
-		bgThread.setDaemon(true);
-		bgThread.start();
-
+	// Handle setting history with results from task
+	@Override
+	public void handleTaskComplete(WorkerStateEvent event) {
+		if (event.getTarget() instanceof GetRepositoryItemHistoryTask) {
+			log.debug("Handling get history task results");
+			setHistory(((GetRepositoryItemHistoryTask) event.getTarget()).getHistory());
+		}
 	}
 
 	public StringProperty libraryNameProperty() {
@@ -125,7 +100,6 @@ public class RepoItemDAO implements DexDAO<RepositoryItem> {
 		log.debug("Finding history item for " + repoItem.getFilename());
 		try {
 			history = repoItem.getRepository().getHistory(repoItem);
-			// setHistory();
 		} catch (RepositoryException e) {
 		}
 		return null;

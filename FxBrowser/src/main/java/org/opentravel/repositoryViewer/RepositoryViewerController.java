@@ -5,6 +5,7 @@ package org.opentravel.repositoryViewer;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +26,7 @@ import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -52,8 +54,8 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	protected Stage stage;
 
 	// Let FXML inject controllers
-	@FXML
-	private RepositorySearchController repositorySearchController;
+	// @FXML
+	// private RepositorySearchController repositorySearchController;
 	@FXML
 	private DexStatusController dexStatusController;
 	@FXML
@@ -80,8 +82,8 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 			throw new IllegalStateException("repository selection controller not injected by FXML.");
 		if (!(dexStatusController instanceof DexStatusController))
 			throw new IllegalStateException("Status controller not injected by FXML.");
-		if (!(repositorySearchController instanceof RepositorySearchController))
-			throw new IllegalStateException("Search controller not injected by FXML.");
+		// if (!(repositorySearchController instanceof RepositorySearchController))
+		// throw new IllegalStateException("Search controller not injected by FXML.");
 
 		log.debug("FXML Nodes checked OK.");
 	}
@@ -109,9 +111,9 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		modelMgr = new OtmModelManager();
 		checkNodes();
 
-		repositorySearchController.setParent(this);
-		repositorySearchController.setStage();
-		repositorySearchController.setRepository(null);
+		// repositorySearchController.setParent(this);
+		// repositorySearchController.setStage();
+		// repositorySearchController.setRepository(null);
 
 		// Set up the repository selection
 		repositorySelectionController.setStage();
@@ -122,7 +124,7 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		repositoryNamespacesTreeController.setParent(this);
 		repositoryNamespacesTreeController.getSelectable()
 				.addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
-		repositoryNamespacesTreeController.setFilter(repositorySearchController);
+		// repositoryNamespacesTreeController.setFilter(repositorySearchController);
 
 		// Set up the libraries in a namespace table
 		namespaceLibrariesTreeTableController.setParent(this);
@@ -206,7 +208,7 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		log.debug("Selected new repository");
 		try {
 			repositoryNamespacesTreeController.post(repositorySelectionController.getSelectedRepository());
-			repositorySearchController.setRepository(repositorySelectionController.getSelectedRepository());
+			// repositorySearchController.setRepository(repositorySelectionController.getSelectedRepository());
 		} catch (Exception e) {
 			log.warn("Error posting repository: " + e.getLocalizedMessage());
 			postRepoError(e);
@@ -214,10 +216,14 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	}
 
 	public void postRepoError(Exception e) {
-		log.debug("Error accessing namespace: " + e.getLocalizedMessage() + " " + e.getCause().toString());
-		dialogBoxController.show("Error accessing repository",
-				e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
-
+		if (e.getCause() != null) {
+			log.debug("Error accessing namespace: " + e.getLocalizedMessage() + " " + e.getCause().toString());
+			dialogBoxController.show("Error accessing repository",
+					e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
+		} else {
+			log.debug("Error accessing namespace: " + e.getLocalizedMessage());
+			dialogBoxController.show("Error accessing repository", e.getLocalizedMessage());
+		}
 	}
 
 	/**
@@ -378,7 +384,12 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	}
 
 	public RepositorySearchController getRepositorySearchController() {
-		return repositorySearchController;
+		// return repositorySearchController;
+		return null;
+	}
+
+	public Map<String, RepositoryItem> getRepositorySearchFilter() {
+		return null;
 	}
 
 	public RepositoryNamespacesTreeController getRepositoryNamespacesController() {

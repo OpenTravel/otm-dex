@@ -98,6 +98,7 @@ public class DexStatusController implements DexIncludedController<String> {
 	public void start(DexTaskBase<?> task) {
 		runningTasks.add(task);
 		update();
+		postStatus("Running " + runningTasks.size() + " tasks. Current task: " + task.getMessage());
 	}
 
 	/**

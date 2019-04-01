@@ -121,7 +121,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		// Get a table of the latest of each library of any status
 		HashMap<String, TreeItem<RepoItemDAO>> latestVersions = new HashMap<>();
 		for (RepositoryItem ri : currentRepository.listItems(namespace, null, true)) {
-			RepoItemDAO repoItemNode = new RepoItemDAO(ri);
+			RepoItemDAO repoItemNode = new RepoItemDAO(ri, parentController.getStatusController());
 			TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
 			treeItem.setExpanded(true);
 			root.getChildren().add(treeItem);
@@ -134,7 +134,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 			if (latestVersions.containsKey(rItem.getLibraryName())) {
 				RepoItemDAO parent = latestVersions.get(rItem.getLibraryName()).getValue();
 				if (!parent.versionProperty().get().equals(rItem.getVersion())) {
-					RepoItemDAO repoItemNode = new RepoItemDAO(rItem);
+					RepoItemDAO repoItemNode = new RepoItemDAO(rItem, parentController.getStatusController());
 					TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
 					latestVersions.get(rItem.getLibraryName()).getChildren().add(treeItem);
 				}

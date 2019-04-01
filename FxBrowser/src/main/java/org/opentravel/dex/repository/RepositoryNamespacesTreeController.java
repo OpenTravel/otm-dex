@@ -41,7 +41,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 
 	private Map<String, RepositoryItem> currentFilter = null;
 
-	private RepositorySearchController filterController;
+	private RepositorySearchController filterController = null;
 
 	public RepositoryNamespacesTreeController() {
 		super();
@@ -99,7 +99,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		super.post(repository); // clear view and hold onto repo
 
 		parentController.postStatus("Loading root namespaces");
-		currentFilter = parentController.getRepositorySearchController().getFilter();
+		currentFilter = parentController.getRepositorySearchFilter();
 
 		// Get the root namespaces in real time
 		try {
@@ -109,7 +109,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 				root.getChildren().add(item);
 				namespaceMap.put(rootNS, item);
 				// Get sub-namespaces in background thread
-				new ListSubnamespacesTask(item.getValue(), this::handleTaskComplete, null, null,
+				new ListSubnamespacesTask(item.getValue(), this::handleTaskComplete,
 						parentController.getStatusController()).go();
 			}
 		} catch (RepositoryException e) {
