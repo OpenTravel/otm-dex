@@ -15,6 +15,7 @@ import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.controllers.DexStatusController;
+import org.opentravel.dex.controllers.MenuBarWithProjectController;
 import org.opentravel.dex.repository.NamespaceLibrariesTreeTableController;
 import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.dex.repository.RepoItemDAO;
@@ -66,6 +67,8 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	private RepositoryItemCommitHistoriesController repositoryItemCommitHistoriesController;
 	@FXML
 	private RepositorySelectionController repositorySelectionController;
+	@FXML
+	private MenuBarWithProjectController menuBarWithProjectController;
 
 	// Will be initialized in startup
 	@FXML
@@ -84,6 +87,8 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 			throw new IllegalStateException("Status controller not injected by FXML.");
 		// if (!(repositorySearchController instanceof RepositorySearchController))
 		// throw new IllegalStateException("Search controller not injected by FXML.");
+		if (!(menuBarWithProjectController instanceof MenuBarWithProjectController))
+			throw new IllegalStateException("Menu bar not injected by FXML.");
 
 		log.debug("FXML Nodes checked OK.");
 	}
@@ -110,6 +115,9 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
 		checkNodes();
+
+		// Hide the project combo
+		menuBarWithProjectController.showProjectCombo(false);
 
 		// repositorySearchController.setParent(this);
 		// repositorySearchController.setStage();
@@ -153,10 +161,10 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		return dialogBoxController;
 	}
 
-	@FXML
-	public void doClose(ActionEvent e) {
-		log.debug("Close menu item selected.");
-	}
+	// @FXML
+	// public void doClose(ActionEvent e) {
+	// log.debug("Close menu item selected.");
+	// }
 
 	private void librarySelectionListener(TreeItem<RepoItemDAO> item) {
 		if (item == null)
@@ -359,22 +367,22 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		log.debug("open");
 	}
 
-	@FXML
-	public void appExit(ActionEvent e) {
-		log.debug("exit");
-		// TODO
-		// primaryStage.close();
-	}
+	// @FXML
+	// public void appExit(ActionEvent e) {
+	// log.debug("exit");
+	// // TODO
+	// // primaryStage.close();
+	// }
 
 	@FXML
 	public void aboutApplication(ActionEvent event) {
 		// AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
 	}
 
-	@FXML
-	public void fileOpen(Event e) {
-		log.debug("File Open selected.");
-	}
+	// @FXML
+	// public void fileOpen(Event e) {
+	// log.debug("File Open selected.");
+	// }
 
 	/**
 	 * @return
