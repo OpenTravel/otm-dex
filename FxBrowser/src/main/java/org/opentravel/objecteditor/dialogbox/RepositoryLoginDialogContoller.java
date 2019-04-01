@@ -9,18 +9,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryInfoType;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.DexPopupController;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryUtils;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -74,7 +80,7 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 			dialogStage.initModality(Modality.APPLICATION_MODAL);
 			popupStage = dialogStage;
 
-			// get the controller from it.
+			// get the controller from loader.
 			controller = loader.getController();
 			if (!(controller instanceof RepositoryLoginDialogContoller))
 				log.error("Error creating dialog box controller.");
@@ -86,7 +92,11 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 
 	private Results result = Results.OK;
 	@FXML
-	TextField loginURL;
+	TextField loginRepoID;
+	@FXML
+	CheckBox repoOKCheckbox;
+	@FXML
+	ComboBox<String> loginURLCombo;
 	@FXML
 	TextField loginUser;
 	@FXML
@@ -105,12 +115,14 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	ProgressIndicator dialogProgress;
 
 	Parent root;
-
 	Scene scene;
+	RepositoryManager rMgr;
+	RemoteRepository selectedRemoteRepository = null; // Selected repository
 
 	@Override
 	public void clear() {
-		loginURL.setText("");
+		loginRepoID.setText("");
+		repoOKCheckbox.setSelected(false);
 		loginUser.setText("");
 		loginPassword.setText("");
 		testResults.setText("");
@@ -130,30 +142,83 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	}
 
 	public void doTest() {
-		log.debug("Test: " + loginURL.getText() + " : " + loginUser.getText() + " : " + loginPassword.getText());
+		log.debug("Test: " + loginUser.getText() + " : " + loginPassword.getText());
+		testResults.setText("");
 
-		String url = loginURL.getText();
+		String url = loginURLCombo.getValue();
 		String user = loginUser.getText();
 		String pwd = loginPassword.getText();
-
+		RemoteRepository repo = null;
 		dialogProgress.progressProperty().set(-1.0);
-		RepositoryManager rMgr;
-		try {
-			rMgr = RepositoryManager.getDefault();
-			// FIXME - if there is already an known repo with URL do not throw error
-			RemoteRepository repo = rMgr.addRemoteRepository(url); // throws error if can not be added
-			rMgr.setCredentials(repo, user, pwd);
-		} catch (RepositoryException e) {
-			StringBuilder errMsg = new StringBuilder("Error: ");
-			errMsg.append(e.getLocalizedMessage());
-			if (e.getCause() != null)
-				errMsg.append("\n" + e.getCause().toString());
+		if (getRepositoryManager() != null)
+			repo = getRemoteRepository(rMgr, url);
+		// FIXME - if there is already an known repo with URL do not throw error
+		// repo = rMgr.addRemoteRepository(url); // throws error if can not be added
 
-			log.error(errMsg.toString());
-			testResults.setWrapText(true);
-			testResults.setText(errMsg.toString());
-		}
+		if (repo != null)
+			try {
+				rMgr.setCredentials(repo, user, pwd);
+			} catch (RepositoryException e) {
+				postException(e);
+			}
+		// TODO - how to know if this worked?
+
 		dialogProgress.progressProperty().set(1.0);
+	}
+
+	private RemoteRepository getRemoteRepository(RepositoryManager rMgr, String url) {
+		RemoteRepository rr = null;
+
+		// Repository utils will resolve IP addresses and DNS names
+		RemoteRepositoryUtils remoteUtils = new RemoteRepositoryUtils();
+		RepositoryInfoType remoteRepositoryMetadata = null;
+		try {
+			remoteRepositoryMetadata = remoteUtils.getRepositoryMetadata(url);
+		} catch (Exception e1) {
+			postException(e1);
+			return null;
+		}
+		String newRepositoryID = remoteRepositoryMetadata.getID();
+
+		if (rMgr.getRepository(newRepositoryID) instanceof RemoteRepository)
+			rr = (RemoteRepository) rMgr.getRepository(newRepositoryID);
+		// // Note: will only find exact matches, not DNS name and IP Address
+		// for (RemoteRepository candidate : rMgr.listRemoteRepositories())
+		// if (candidate.getEndpointUrl().equals(url))
+		// return candidate;
+
+		// Repo with URL not found, try to add the URL to the repository manager
+		if (rr == null)
+			try {
+				rr = rMgr.addRemoteRepository(url); // throws error if can not be added
+			} catch (RepositoryException e) {
+				postException(e);
+				return null;
+			}
+		return rr;
+	}
+
+	private RepositoryManager getRepositoryManager() {
+		if (rMgr == null)
+			try {
+				rMgr = RepositoryManager.getDefault();
+			} catch (RepositoryException e) {
+				postException(e);
+			}
+		return rMgr;
+	}
+
+	private void postException(Exception e) {
+		log.error("Error.");
+		StringBuilder errMsg = new StringBuilder("Error: ");
+		errMsg.append(e.getLocalizedMessage());
+		if (e.getCause() != null)
+			errMsg.append("\n" + e.getCause().toString());
+
+		log.error(errMsg.toString());
+		testResults.setWrapText(true);
+		testResults.setText(errMsg.toString());
+
 	}
 
 	@Override
@@ -209,8 +274,8 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		if (mainController == null)
 			throw new IllegalAccessError("Must set main controller before use.");
 
-		if (dialogProgress == null || testResults == null || dialogButtonCancel == null || loginURL == null
-				|| loginUser == null || loginPassword == null)
+		if (dialogProgress == null || testResults == null || dialogButtonCancel == null || loginUser == null
+				|| loginPassword == null)
 			throw new IllegalStateException("Missing dialog FXML fields.");
 
 		popupStage.setTitle(title);
@@ -219,7 +284,44 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		dialogButtonOK.setOnAction(e -> doOK());
 		dialogButtonTest.setOnAction(e -> doTest());
 
+		try {
+			rMgr = RepositoryManager.getDefault();
+		} catch (RepositoryException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		configureRepositoryCombo();
 		// dialogHelp.getChildren().add(new Text(helpText));
+	}
+
+	private void configureRepositoryCombo() {
+		log.debug("Configuring repository combo box.");
+
+		ObservableList<String> repositoryIds = FXCollections.observableArrayList();
+		// rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
+		rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getEndpointUrl()));
+		loginURLCombo.setItems(repositoryIds);
+		loginURLCombo.getSelectionModel().select(0);
+
+		// Configure listener for choice box
+		loginURLCombo.valueProperty().addListener((observable, oldValue, newValue) -> repositorySelectionChanged());
+		log.debug("Repository choice has " + repositoryIds.size() + " items.");
+
+		repositorySelectionChanged(); // initialize values
+	}
+
+	private void repositorySelectionChanged() {
+		clear();
+		// Try connecting
+		String url = loginURLCombo.getValue();
+		if (url != null && getRepositoryManager() != null)
+			selectedRemoteRepository = getRemoteRepository(rMgr, url);
+
+		if (selectedRemoteRepository != null)
+			loginRepoID.setText(selectedRemoteRepository.getDisplayName());
+
+		// Set check box to show success or failure
+		repoOKCheckbox.setSelected(selectedRemoteRepository != null);
 	}
 
 	public void show(String title, String message) {
