@@ -196,7 +196,7 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	 * @throws RepositoryException
 	 */
 	private void repositorySelectionChanged() {
-		log.debug("Selected new repository");
+		// log.debug("Selected new repository");
 		try {
 			repositoryNamespacesTreeController.post(repositorySelectionController.getSelectedRepository());
 			// repositorySearchController.setRepository(repositorySelectionController.getSelectedRepository());

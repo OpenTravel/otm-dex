@@ -121,7 +121,7 @@ public abstract class DexTaskBase<T> extends Task<String> {
 
 	@Override
 	protected String call() throws Exception {
-		log.debug("Starting Task.");
+		// log.debug("Starting Task.");
 		String result = null; // Null result implies success
 		if (taskData != null)
 			try {
@@ -133,11 +133,11 @@ public abstract class DexTaskBase<T> extends Task<String> {
 				errorBuilder.append(e.getLocalizedMessage());
 				result = errorBuilder.toString(); // Signal business error via result
 				failed();
-				log.debug(errorBuilder.toString());
+				log.warn(errorBuilder.toString());
 			}
 
 		updateProgress(progressMax, progressMax);
-		log.debug(" Task done. ");
+		// log.debug(" Task done. ");
 		return result;
 	}
 

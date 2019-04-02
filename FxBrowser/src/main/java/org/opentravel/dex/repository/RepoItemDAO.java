@@ -47,7 +47,7 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 	@Override
 	public void handleTaskComplete(WorkerStateEvent event) {
 		if (event.getTarget() instanceof GetRepositoryItemHistoryTask) {
-			log.debug("Handling get history task results");
+			// log.debug("Handling get history task results");
 			setHistory(((GetRepositoryItemHistoryTask) event.getTarget()).getHistory());
 		}
 	}
@@ -68,6 +68,10 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 		return new SimpleStringProperty(repoItem.getLockedByUser());
 	}
 
+	public boolean isLocked() {
+		return repoItem.getLockedByUser() != null;
+	}
+
 	public StringProperty historyProperty() {
 		return lastHistory;
 	}
@@ -84,7 +88,7 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 		remark.append(" - ");
 		remark.append(history.getCommitHistory().get(0).getRemarks());
 		lastHistory.set(remark.toString());
-		log.debug("History set: " + remark.toString());
+		// log.debug("History set: " + remark.toString());
 	}
 
 	/**
@@ -97,7 +101,7 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 	public RepositoryItemHistory getHistory() {
 		if (history != null)
 			return history;
-		log.debug("Finding history item for " + repoItem.getFilename());
+		// log.debug("Finding history item for " + repoItem.getFilename());
 		try {
 			history = repoItem.getRepository().getHistory(repoItem);
 		} catch (RepositoryException e) {

@@ -8,8 +8,6 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
-import org.opentravel.schemacompiler.repository.Repository;
-import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -100,27 +98,16 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		if (nsNode == null || nsNode.getFullPath() == null || nsNode.getFullPath().isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
 
-		Repository currentRepository = nsNode.getRepository();
-		String namespace = nsNode.getFullPath();
-
 		// Clear the table
 		clear();
 
-		// Display the namespace
-		namespaceLabel.setText(namespace);
-
-		// Display Permission enumeration value for this user in this namespace
-		String permission = "unknown";
-		try {
-			permission = currentRepository.getUserAuthorization(namespace).toString();
-		} catch (RepositoryException e) {
-			// no op
-		}
-		permissionLabel.setText(permission);
+		// Display the namespace and permission
+		namespaceLabel.textProperty().bind(nsNode.fullPathProperty());
+		permissionLabel.textProperty().bind(nsNode.permissionProperty());
 
 		// Get a table of the latest of each library of any status
 		HashMap<String, TreeItem<RepoItemDAO>> latestVersions = new HashMap<>();
-		for (RepositoryItem ri : currentRepository.listItems(namespace, null, true)) {
+		for (RepositoryItem ri : nsNode.getLatestItems()) {
 			RepoItemDAO repoItemNode = new RepoItemDAO(ri, parentController.getStatusController());
 			TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
 			treeItem.setExpanded(true);
@@ -128,9 +115,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 			latestVersions.put(ri.getLibraryName(), treeItem);
 		}
 
-		TreeItem<RepoItemDAO> item = null;
-		for (RepositoryItem rItem : currentRepository.listItems(namespace, null, false)) {
-			log.debug("Repo Item: " + rItem.getFilename());
+		for (RepositoryItem rItem : nsNode.getAllItems()) {
 			if (latestVersions.containsKey(rItem.getLibraryName())) {
 				RepoItemDAO parent = latestVersions.get(rItem.getLibraryName()).getValue();
 				if (!parent.versionProperty().get().equals(rItem.getVersion())) {
@@ -140,8 +125,6 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 				}
 			}
 		}
-		// TODO - use progress indicator for history item retrieval
-		// RepositoryViewerController.postStatus();
 	}
 
 	/**
@@ -160,7 +143,6 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		statusCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("status"));
 		setColumnProps(statusCol, true, false, true, 0);
 
-		// TODO - if WRITE status, post a lock/unlock button
 		TreeTableColumn<RepoItemDAO, String> lockedCol = new TreeTableColumn<>("Locked By");
 		lockedCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("locked"));
 		setColumnProps(lockedCol, true, false, true, 0);
