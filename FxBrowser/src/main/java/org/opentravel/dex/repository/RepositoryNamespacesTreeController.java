@@ -31,17 +31,15 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		implements TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(RepositoryNamespacesTreeController.class);
 
-	protected TreeView<NamespacesDAO> tree;
-	protected TreeItem<NamespacesDAO> root;
-	private Map<String, TreeItem<NamespacesDAO>> namespaceMap = new TreeMap<>();
-	// private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
-
 	@FXML
 	protected TreeView<NamespacesDAO> repositoryNamespacesTree;
 
-	private Map<String, RepositoryItem> currentFilter = null;
+	protected TreeView<NamespacesDAO> tree;
+	protected TreeItem<NamespacesDAO> root;
+	private Map<String, TreeItem<NamespacesDAO>> namespaceMap = new TreeMap<>();
 
 	private RepositorySearchController filterController = null;
+	private Map<String, RepositoryItem> currentFilter = null;
 
 	public RepositoryNamespacesTreeController() {
 		super();
@@ -60,28 +58,18 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 
 	@Override
 	public void initialize() {
-		log.debug("Initializing repository tree controller.");
+		log.debug("Initializing repository namespace tree controller.");
 
 		if (repositoryNamespacesTree == null)
-			throw new IllegalArgumentException("Repository tree view is null.");
+			throw new IllegalArgumentException("Repository namespaces tree view is null.");
 		this.tree = repositoryNamespacesTree;
 
-		root = initializeTree(tree);
-	}
-
-	private TreeItem<NamespacesDAO> initializeTree(TreeView<NamespacesDAO> tree) {
-		// Set the hidden root item
-		TreeItem<NamespacesDAO> root = new TreeItem<>();
+		root = new TreeItem<>();
 		root.setExpanded(true); // Startout fully expanded
 		// Set up the TreeTable
 		tree.setRoot(root);
 		tree.setShowRoot(false);
 		tree.setEditable(true);
-
-		// nsTreeController.getSelectable().addListener((v, old, newValue) -> treeSelectionListener(newValue));
-		// tree.getSelectionModel().selectedItemProperty()
-		// .addListener((v, old, newValue) -> treeSelectionListener(newValue));
-		return root;
 	}
 
 	/**
@@ -115,18 +103,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		} catch (RepositoryException e) {
 			parentController.postRepoError(e);
 			log.debug("Error: " + e.getLocalizedMessage());
-			// FIXME - post a error dialog
-
-			// RepositoryManager repoMgr = repository.getManager();
-			// log.debug("Error: " + repository.getManager());
-			// String dName = repository.getDisplayName();
 		}
-		// RepositoryManager repoMgr = repository.getManager();
-		// log.debug("Error: " + repository.getManager());
-		// String dName = repository.getDisplayName();
-		// String endpoint;
-		// if (repository instanceof RemoteRepositoryClient)
-		// endpoint = ((RemoteRepositoryClient) repository).getEndpointUrl();
 	}
 
 	@Override
@@ -153,10 +130,9 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 			for (Entry<String, NamespacesDAO> nsEntry : map.entrySet()) {
 				// un-marshal the entry
 				fullPath = nsEntry.getValue().getFullPath();
-				// childNS = nsEntry.getValue().get();
 				parentNS = nsEntry.getValue().getBasePath();
 				if (parentNS == null || namespaceMap.get(parentNS) == null) {
-					log.debug("Skipping.");
+					// log.debug("Skipping.");
 					continue;
 				}
 
@@ -166,16 +142,11 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 
 				// null parent is a root already in the tree
 				TreeItem<NamespacesDAO> parent = namespaceMap.get(parentNS);
-				if (parent != null) {
-					if (currentFilter == null || currentFilter.containsKey(fullPath))
-						parent.getChildren().add(item);
-					// else if (currentFilter == null)
-					// parent.getChildren().add(item);
-					// item.setGraphic(images.getView(element));
-					// log.debug("Added " + childNS + " to " + parentNS);
-				}
-
+				if ((parent != null) && (currentFilter == null || currentFilter.containsKey(fullPath)))
+					parent.getChildren().add(item);
+				// log.debug("Added " + childNS + " to " + parentNS);
 			}
+
 		}
 	}
 
@@ -228,7 +199,6 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 	 */
 	private boolean isSelected(TreeItem<NamespacesDAO> item) {
 		return filterController == null || filterController.isSelected(item.getValue().getFullPath());
-		// return filterController == null ? true : filterController.isSelected(item.getValue().getFullPath());
 	}
 
 	/**

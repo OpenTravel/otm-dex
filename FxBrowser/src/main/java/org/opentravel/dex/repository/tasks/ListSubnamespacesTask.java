@@ -39,8 +39,8 @@ public class ListSubnamespacesTask extends DexTaskBase<NamespacesDAO> {
 		super(taskData, handler, statusController);
 
 		// Replace start message from super-type.
-		msgBuilder = new StringBuilder("Getting: ");
-		msgBuilder.append(taskData.getBasePath());
+		msgBuilder = new StringBuilder("Getting namespace: ");
+		msgBuilder.append(taskData.getFullPath());
 		updateMessage(msgBuilder.toString());
 	}
 

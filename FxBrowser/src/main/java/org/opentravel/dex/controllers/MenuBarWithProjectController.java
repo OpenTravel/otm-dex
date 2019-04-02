@@ -5,6 +5,7 @@ package org.opentravel.dex.controllers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.model.OtmModelManager;
@@ -35,11 +36,14 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	@FXML
 	private Label projectLabel;
 
+	private Stage stage;
+
 	@FXML
 	public void appExit(ActionEvent e) {
 		log.debug("exit");
-		// TODO
-		// primaryStage.close();
+		e.consume(); // take the event away from windows
+		if (DialogBox.display("Exit", "Do you really want to exit?"))
+			stage.close();
 	}
 
 	@FXML
@@ -51,6 +55,15 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	public void fileOpen(Event e) {
 		log.debug("File Open selected.");
 	}
+
+	// @FXML
+	// public void aboutApplication(ActionEvent event) {
+	// // AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
+	// }
+	// @FXML
+	// public void open(ActionEvent e) {
+	// log.debug("open");
+	// }
 
 	/** *********************************************************** **/
 	/**
@@ -84,6 +97,7 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	public void setStage(Stage primaryStage) {
 		checkNodes();
 		log.debug("Stage set.");
+		stage = primaryStage;
 	}
 
 	@Override
@@ -128,6 +142,7 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 
 	@Override
 	public void post(String businessData) throws Exception {
+		// No-op - no active fields to post into
 	}
 
 }

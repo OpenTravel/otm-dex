@@ -85,7 +85,7 @@ public class NamespacesDAO {
 	}
 
 	/**
-	 * @return
+	 * @return the namespace without base path
 	 */
 	public String get() {
 		return ns;

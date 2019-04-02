@@ -41,12 +41,16 @@ public class DexStatusController implements DexIncludedController<String> {
 	private ProgressIndicator statusProgress;
 	@FXML
 	private Label statusLabel;
+	@FXML
+	private Label taskCount;
 
 	private void checkNodes() {
 		if (!(statusProgress instanceof ProgressIndicator))
 			throw new IllegalStateException("Progress indicator not injected by FXML.");
 		if (!(statusLabel instanceof Label))
 			throw new IllegalStateException("Status label not injected by FXML.");
+		if (!(taskCount instanceof Label))
+			throw new IllegalStateException("Task count not injected by FXML.");
 
 		log.debug("FXML Nodes checked OK.");
 	}
@@ -92,13 +96,23 @@ public class DexStatusController implements DexIncludedController<String> {
 				Platform.runLater(() -> postStatus(status));
 	}
 
+	public void postStatus(int count, String status) {
+		if (statusLabel != null)
+			if (Platform.isFxApplicationThread()) {
+				statusLabel.setText(status);
+				taskCount.setText(String.valueOf(count));
+			} else
+				Platform.runLater(() -> postStatus(count, status));
+	}
+
 	/**
 	 * @param dexTaskBase
 	 */
 	public void start(DexTaskBase<?> task) {
 		runningTasks.add(task);
 		update();
-		postStatus("Running " + runningTasks.size() + " tasks. Current task: " + task.getMessage());
+		postStatus(runningTasks.size(), "Running: " + task.getMessage());
+		// postStatus("Running " + runningTasks.size() + " tasks. Current task: " + task.getMessage());
 	}
 
 	/**
@@ -116,13 +130,11 @@ public class DexStatusController implements DexIncludedController<String> {
 		if (runningTasks.isEmpty()) {
 			updateProgress(1.0);
 			// taskProgress.set(1.0);
-			postStatus("Done.");
-		} else
+			postStatus(0, "Done.");
+		} else {
 			updateProgress(-1.0);
-		// taskProgress.set(-1.0);
-		// if (runningTasks.size() > -1)
-		// taskProgress.set(1.0 / (runningTasks.size() + 1));
-		// statusProgress.setProgress(1.0 / (runningTasks.size() + 1));
+			postStatus(runningTasks.size(), "Running: " + runningTasks.get(runningTasks.size() - 1).getMessage());
+		}
 	}
 
 	private void updateProgress(double value) {

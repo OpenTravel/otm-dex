@@ -3,17 +3,13 @@
  */
 package org.opentravel.repositoryViewer;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
-import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.ImageManager;
-import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.controllers.MenuBarWithProjectController;
 import org.opentravel.dex.repository.NamespaceLibrariesTreeTableController;
@@ -29,15 +25,9 @@ import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 
@@ -51,7 +41,7 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	private static Log log = LogFactory.getLog(RepositoryViewerController.class);
 
 	protected ImageManager imageMgr;
-	private OtmModelManager modelMgr;
+	// private OtmModelManager modelMgr;
 	protected Stage stage;
 
 	// Let FXML inject controllers
@@ -113,11 +103,12 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		// These may be needed by sub-controllers
 		this.stage = primaryStage;
 		imageMgr = new ImageManager(primaryStage);
-		modelMgr = new OtmModelManager();
+		// modelMgr = new OtmModelManager();
 		checkNodes();
 
 		// Hide the project combo
 		menuBarWithProjectController.showProjectCombo(false);
+		menuBarWithProjectController.setStage(primaryStage);
 
 		// repositorySearchController.setParent(this);
 		// repositorySearchController.setStage();
@@ -148,7 +139,7 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		FXMLLoader loader = new FXMLLoader(getClass().getResource(LAYOUT_FILE));
 		dialogBoxController = DialogBoxContoller.init(loader, this);
 
-		configureProjectMenuButton(); // TODO - move
+		// configureProjectMenuButton(); // TODO - move
 
 		log.debug("Stage set.");
 	}
@@ -160,11 +151,6 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	public DialogBoxContoller getDialogBoxController() {
 		return dialogBoxController;
 	}
-
-	// @FXML
-	// public void doClose(ActionEvent e) {
-	// log.debug("Close menu item selected.");
-	// }
 
 	private void librarySelectionListener(TreeItem<RepoItemDAO> item) {
 		if (item == null)
@@ -200,9 +186,6 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 				repositoryItemCommitHistoriesController.clear();
 			} catch (Exception e) {
 				postRepoError(e);
-				// log.debug("Error accessing namespace: " + e.getLocalizedMessage() + " " + e.getCause().toString());
-				// dialogBoxController.show("Error accessing repository",
-				// e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
 			}
 		}
 	}
@@ -257,11 +240,6 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	@Override
 	protected void setStatusMessage(String message, StatusType statusType, boolean disableControls) {
 		dexStatusController.postStatus(message);
-		// TODO - disable controllers if set
-		// TODO - create controller data structure.
-		// TODO - use status type
-		//
-		// libraryText.disableProperty().set( disableControls );
 	}
 
 	@Override
@@ -292,80 +270,80 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	 * @param e
 	 */
 
-	@FXML
-	public ComboBox<String> projectCombo;
+	// @FXML
+	// public ComboBox<String> projectCombo;
+	//
+	// @FXML
+	// public void projectComboSelectionListener(Event e) {
+	// log.debug("project selection event");
+	// if (e.getTarget() instanceof ComboBox)
+	// openFile(projectMap.get(((ComboBox<?>) e.getTarget()).getValue()));
+	// }
 
-	@FXML
-	public void projectComboSelectionListener(Event e) {
-		log.debug("project selection event");
-		if (e.getTarget() instanceof ComboBox)
-			openFile(projectMap.get(((ComboBox<?>) e.getTarget()).getValue()));
-	}
+	// private DexFileHandler fileHandler = new DexFileHandler();
+	// private HashMap<String, File> projectMap = new HashMap<>();
 
-	private DexFileHandler fileHandler = new DexFileHandler();
-	private HashMap<String, File> projectMap = new HashMap<>();
+	// private void configureProjectMenuButton() {
+	// if (projectCombo != null) {
+	// File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
+	// for (File file : fileHandler.getProjectList(initialDirectory)) {
+	// projectMap.put(file.getName(), file);
+	// }
+	// ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
+	// projectList.sort(null);
+	// projectCombo.setItems(projectList);
+	// projectCombo.setOnAction(e -> projectComboSelectionListener(e));
+	// }
+	// }
 
-	public void configureProjectMenuButton() {
-		if (projectCombo != null) {
-			File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
-			for (File file : fileHandler.getProjectList(initialDirectory)) {
-				projectMap.put(file.getName(), file);
-			}
-			ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
-			projectList.sort(null);
-			projectCombo.setItems(projectList);
-			projectCombo.setOnAction(e -> projectComboSelectionListener(e));
-		}
-	}
+	// public void openFile(File selectedFile) {
+	// if (selectedFile == null)
+	// return;
+	// dialogBoxController.show("Loading Project", "Please wait");
+	// // postNotify("Loading Project", "Wait please.");
+	// // dialog.display("LOADING", "Well now, just wait and watch...");
+	//
+	// // memberController.clear(); // prevent concurrent modification
+	// // propertiesTableController.clear();
+	// modelMgr.clear();
+	// postStatus("Opening " + selectedFile.getName());
+	// postProgress(0.1F);
+	//
+	// // Run the task in a background thread and Terminate the running thread if the application exits
+	// Runnable task = () -> openFileTask(selectedFile);
+	// Thread backgroundThread = new Thread(task);
+	// backgroundThread.setDaemon(true);
+	// backgroundThread.start();
+	//
+	// // See openFileTask for post completion actions
+	// }
 
-	public void openFile(File selectedFile) {
-		if (selectedFile == null)
-			return;
-		dialogBoxController.show("Loading Project", "Please wait");
-		// postNotify("Loading Project", "Wait please.");
-		// dialog.display("LOADING", "Well now, just wait and watch...");
+	// /**
+	// * Open the file using the handler. Expected to be run in the background.
+	// *
+	// * @param fileHandler
+	// * @param selectedFile
+	// */
+	// public void openFileTask(File selectedFile) {
+	// modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
+	// // When done, update display in the UI thread
+	// Platform.runLater(() -> {
+	// dialogBoxController.close();
+	// // clearNotify();
+	// // memberController.post(modelMgr);
+	// // libController.post(modelMgr);
+	// postStatus("");
+	// postProgress(1F);
+	// });
+	// // TODO
+	// // update ProjectLibrariesTable
+	// // update RepositoryTab with selected repository from project
+	// }
 
-		// memberController.clear(); // prevent concurrent modification
-		// propertiesTableController.clear();
-		modelMgr.clear();
-		postStatus("Opening " + selectedFile.getName());
-		postProgress(0.1F);
-
-		// Run the task in a background thread and Terminate the running thread if the application exits
-		Runnable task = () -> openFileTask(selectedFile);
-		Thread backgroundThread = new Thread(task);
-		backgroundThread.setDaemon(true);
-		backgroundThread.start();
-
-		// See openFileTask for post completion actions
-	}
-
-	/**
-	 * Open the file using the handler. Expected to be run in the background.
-	 * 
-	 * @param fileHandler
-	 * @param selectedFile
-	 */
-	public void openFileTask(File selectedFile) {
-		modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
-		// When done, update display in the UI thread
-		Platform.runLater(() -> {
-			dialogBoxController.close();
-			// clearNotify();
-			// memberController.post(modelMgr);
-			// libController.post(modelMgr);
-			postStatus("");
-			postProgress(1F);
-		});
-		// TODO
-		// update ProjectLibrariesTable
-		// update RepositoryTab with selected repository from project
-	}
-
-	@FXML
-	public void open(ActionEvent e) {
-		log.debug("open");
-	}
+	// @FXML
+	// public void open(ActionEvent e) {
+	// log.debug("open");
+	// }
 
 	// @FXML
 	// public void appExit(ActionEvent e) {
@@ -374,10 +352,10 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 	// // primaryStage.close();
 	// }
 
-	@FXML
-	public void aboutApplication(ActionEvent event) {
-		// AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
-	}
+	// @FXML
+	// public void aboutApplication(ActionEvent event) {
+	// // AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
+	// }
 
 	// @FXML
 	// public void fileOpen(Event e) {
