@@ -56,10 +56,10 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 		log.debug("File Open selected.");
 	}
 
-	// @FXML
-	// public void aboutApplication(ActionEvent event) {
-	// // AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
-	// }
+	@FXML
+	public void aboutApplication(ActionEvent event) {
+		AboutDialogController.createAboutDialog(stage).showAndWait();
+	}
 	// @FXML
 	// public void open(ActionEvent e) {
 	// log.debug("open");

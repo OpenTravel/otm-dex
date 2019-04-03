@@ -67,8 +67,6 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		librariesTreeTableView.setShowRoot(false);
 		librariesTreeTableView.setEditable(false);
 
-		// tree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
-		// tree.setTableMenuButtonVisible(true); // allow users to select columns
 		// Enable context menus at the row level and add change listener for for applying style
 		librariesTreeTableView.setRowFactory((TreeTableView<RepoItemDAO> p) -> new NamespaceLibrariesRowFactory(this));
 		return root;
