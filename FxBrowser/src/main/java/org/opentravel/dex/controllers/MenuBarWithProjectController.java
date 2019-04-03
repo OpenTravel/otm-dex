@@ -52,15 +52,16 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	public MenuItem doCloseItem;
 
 	public void setdoCloseHandler(EventHandler<ActionEvent> handler) {
-		doCloseItem.setOnAction(handler);
+		// doCloseItem.setOnAction(handler);
 	}
 
 	@FXML
 	public void doClose(ActionEvent e) {
 		// This is only run if the handler is not set.
 		log.debug("Close menu item selected.");
-		if (dialogBoxController != null)
-			dialogBoxController.show("Close", "Not Implemented");
+		DialogBox.notify("Close", "Not implemented.");
+		// if (dialogBoxController != null)
+		// dialogBoxController.show("Close", "Not Implemented");
 	}
 
 	@FXML

@@ -15,7 +15,6 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-// @SuppressWarnings("restriction")
 public class DialogBox {
 	static boolean answer;
 	private static String cancelText = "Cancel";
@@ -23,11 +22,16 @@ public class DialogBox {
 
 	static Stage notifyWindow;
 
+	// Hide constructor
+	private DialogBox() {
+	}
+
 	public static void notify(String title, String message) {
 		notifyWindow = new Stage();
 		notifyWindow.initModality(Modality.NONE);
 		notifyWindow.setTitle(title);
 		notifyWindow.setMinWidth(350);
+		notifyWindow.setMinHeight(200);
 
 		Label label = new Label(message);
 

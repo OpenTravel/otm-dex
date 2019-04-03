@@ -37,6 +37,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
+// FIXME - this style, etc is much better than DialogBox but it's status nature is great.
 public class DialogBoxContoller implements DexPopupController {
 	private static Log log = LogFactory.getLog(DialogBoxContoller.class);
 
