@@ -10,15 +10,16 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.DexIncludedController;
+import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
 /**
@@ -30,12 +31,13 @@ import javafx.stage.Stage;
 public class MenuBarWithProjectController implements DexIncludedController<String> {
 	private static Log log = LogFactory.getLog(MenuBarWithProjectController.class);
 
-	// FXML inject
+	// FXML injected objects
 	@FXML
 	private ComboBox<String> projectCombo;
 	@FXML
 	private Label projectLabel;
 
+	private DialogBoxContoller dialogBoxController = null;
 	private Stage stage;
 
 	@FXML
@@ -47,34 +49,54 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	}
 
 	@FXML
-	public void doClose(ActionEvent e) {
-		log.debug("Close menu item selected.");
+	public MenuItem doCloseItem;
+
+	public void setdoCloseHandler(EventHandler<ActionEvent> handler) {
+		doCloseItem.setOnAction(handler);
 	}
 
 	@FXML
-	public void fileOpen(Event e) {
+	public void doClose(ActionEvent e) {
+		// This is only run if the handler is not set.
+		log.debug("Close menu item selected.");
+		if (dialogBoxController != null)
+			dialogBoxController.show("Close", "Not Implemented");
+	}
+
+	@FXML
+	public MenuItem fileOpenItem;
+
+	public void setFileOpenHandler(EventHandler<ActionEvent> handler) {
+		fileOpenItem.setOnAction(handler);
+	}
+
+	@FXML
+	public void fileOpen(ActionEvent e) {
+		// This is only run if the handler is not set.
 		log.debug("File Open selected.");
+		if (dialogBoxController != null)
+			dialogBoxController.show("Open", "Not implemented");
 	}
 
 	@FXML
 	public void aboutApplication(ActionEvent event) {
 		AboutDialogController.createAboutDialog(stage).showAndWait();
 	}
-	// @FXML
-	// public void open(ActionEvent e) {
-	// log.debug("open");
-	// }
 
 	/** *********************************************************** **/
 	/**
-	 * Show or hide the project combo box and its label.
+	 * Show or hide the combo box and its label.
 	 * 
 	 * @param value
 	 *            true to show, false to hide
 	 */
-	public void showProjectCombo(boolean value) {
+	public void showCombo(boolean value) {
 		projectCombo.setVisible(value);
 		projectLabel.setVisible(value);
+	}
+
+	public void setComboLabel(String text) {
+		projectLabel.setText(text);
 	}
 
 	/**
@@ -85,8 +107,8 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	 * @param projectList
 	 * @param listener
 	 */
-	public void configureProjectMenuButton(ObservableList<String> projectList, EventHandler<ActionEvent> listener) {
-		log.debug("Setting project combo.");
+	public void configureComboBox(ObservableList<String> projectList, EventHandler<ActionEvent> listener) {
+		// log.debug("Setting combo.");
 		projectList.sort(null);
 		projectCombo.setItems(projectList);
 		projectCombo.setOnAction(listener);
@@ -120,6 +142,10 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 		checkNodes();
 		log.debug("Stage set.");
 		stage = primaryStage;
+	}
+
+	public void setDialogBox(DialogBoxContoller controller) {
+		this.dialogBoxController = controller;
 	}
 
 	@Override

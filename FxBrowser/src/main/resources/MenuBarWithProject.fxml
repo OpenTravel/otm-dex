@@ -22,10 +22,10 @@
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#doClose" text="Close" />
-                        <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open..." />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                    <MenuItem mnemonicParsing="false" onAction="#appExit" text="Exit" />
+                    <MenuItem fx:id="doCloseItem" mnemonicParsing="false" onAction="#doClose" text="Close" />
+                    <MenuItem fx:id="fileOpenItem" mnemonicParsing="false" onAction="#fileOpen" text="Open..." />
+                    <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem fx:id="appExitItem" mnemonicParsing="false" onAction="#appExit" text="Exit" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit" />

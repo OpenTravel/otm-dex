@@ -107,7 +107,7 @@ public class RepositoryViewerController extends AbstractMainWindowController imp
 		checkNodes();
 
 		// Hide the project combo
-		menuBarWithProjectController.showProjectCombo(false);
+		menuBarWithProjectController.showCombo(false);
 		menuBarWithProjectController.setStage(primaryStage);
 
 		// repositorySearchController.setParent(this);

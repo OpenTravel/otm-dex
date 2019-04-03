@@ -12,9 +12,10 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
-import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.controllers.MenuBarWithProjectController;
+import org.opentravel.dex.repository.TaskResultHandlerI;
+import org.opentravel.dex.repository.tasks.OpenProjectFileTask;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -29,10 +30,10 @@ import org.opentravel.objecteditor.modelMembers.MemberTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibrariesTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibraryDAO;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -42,6 +43,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -55,8 +57,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
-public class ObjectEditorController implements DexController {
+public class ObjectEditorController implements DexController, TaskResultHandlerI {
 	// public class ObjectEditorController implements Initializable, DexController {
 	private static Log log = LogFactory.getLog(ObjectEditorController.class);
 
@@ -173,11 +174,15 @@ public class ObjectEditorController implements DexController {
 		// Initialize managers
 		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
-		modelMgr.createTestLibrary();
+		// modelMgr.createTestLibrary();
 
 		// Set up menu bar and show the project combo
-		menuBarWithProjectController.showProjectCombo(true);
+		menuBarWithProjectController.showCombo(true);
 		menuBarWithProjectController.setStage(primaryStage);
+		menuBarWithProjectController.setDialogBox(dialogBoxController); // needed for not implemented
+		menuBarWithProjectController.setdoCloseHandler(this::handleCloseMenu);
+		menuBarWithProjectController.setFileOpenHandler(this::handleOpenMenu);
+
 		// Setup status controller
 		dexStatusController.setStage(primaryStage);
 		dexStatusController.setParent(this);
@@ -237,26 +242,6 @@ public class ObjectEditorController implements DexController {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource(LAYOUT_FILE));
 		dialogBoxController = DialogBoxContoller.init(loader, this);
 		// dialogBoxController.injectMainController(this);
-
-		// try {
-		// // Load the fxml file initialize controller it declares.
-		// Pane pane = loader.load();
-		// // Create scene and stage
-		// Stage dialogStage = new Stage();
-		// dialogStage.setScene(new Scene(pane));
-		// dialogStage.initModality(Modality.APPLICATION_MODAL);
-		//
-		// // get the controller from it.
-		// dialogBoxController = loader.getController();
-		// if (dialogBoxController == null)
-		// log.error("Missing dialog box controller.");
-		// else {
-		// dialogBoxController.injectMainController(this);
-		// dialogBoxController.injectStage(dialogStage);
-		// }
-		// } catch (IOException e1) {
-		// log.error("Error loading dialog box.");
-		// }
 	}
 
 	/**
@@ -269,59 +254,43 @@ public class ObjectEditorController implements DexController {
 		return modelMgr;
 	}
 
-	@FXML
-	public void fileOpen(Event e) {
-		// FIXME - this is in MenuBarWithProjectController - hook it up
-		log.debug("File Open selected.");
-		File selectedFile = fileHandler.fileChooser(primaryStage);
-		openFile(selectedFile);
-	}
-
 	public void openFile(File selectedFile) {
 		if (selectedFile == null)
 			return;
 		dialogBoxController.show("Loading Project", "Please wait");
-		// postNotify("Loading Project", "Wait please.");
-		// dialog.display("LOADING", "Well now, just wait and watch...");
 
 		memberController.clear(); // prevent concurrent modification
 		propertiesTableController.clear();
 		modelMgr.clear();
-		postStatus("Opening " + selectedFile.getName());
-		postProgress(0.1F);
 
-		// Run the task in a background thread and Terminate the running thread if the application exits
-		Runnable task = () -> openFileTask(selectedFile);
-		Thread backgroundThread = new Thread(task);
-		backgroundThread.setDaemon(true);
-		backgroundThread.start();
-
-		// See openFileTask for post completion actions
+		new OpenProjectFileTask(selectedFile, modelMgr, this::handleTaskComplete, dexStatusController).go();
 	}
 
-	/**
-	 * Open the file using the handler. Expected to be run in the background.
-	 * 
-	 * @param fileHandler
-	 * @param selectedFile
-	 */
-	public void openFileTask(File selectedFile) {
-		modelMgr.openProject(selectedFile, new OpenProjectProgressMonitor(this));
-		// When done, update display in the UI thread
-		Platform.runLater(() -> {
+	@Override
+	public void handleTaskComplete(WorkerStateEvent event) {
+		if (event.getTarget() instanceof OpenProjectFileTask) {
 			dialogBoxController.close();
-			// clearNotify();
 			memberController.post(modelMgr);
 			libController.post(modelMgr);
-			postStatus("");
-			postProgress(1F);
-		});
-		// TODO
-		// update ProjectLibrariesTable
-		// update RepositoryTab with selected repository from project
+		}
 	}
 
-	// DialogBox dialog = new DialogBox();
+	public void handleOpenMenu(ActionEvent event) {
+		log.debug("Handle file open action event.");
+		if (event.getTarget() instanceof MenuItem) {
+			File selectedFile = fileHandler.fileChooser(primaryStage);
+			openFile(selectedFile);
+		}
+	}
+
+	public void handleCloseMenu(ActionEvent event) {
+		log.debug("Handle file open action event.");
+		if (event.getTarget() instanceof MenuItem) {
+			memberController.clear(); // prevent concurrent modification
+			propertiesTableController.clear();
+			modelMgr.clear();
+		}
+	}
 
 	public void postNotify(String label, String msg) {
 		DialogBox.notify(label, msg);
@@ -339,30 +308,14 @@ public class ObjectEditorController implements DexController {
 		memberController.select(name);
 	}
 
-	// @FXML
-	// ProgressIndicator statusProgress;
-
 	@Override
 	public void postProgress(double percent) {
 		dexStatusController.postProgress(percent);
-		// if (statusProgress != null)
-		// if (Platform.isFxApplicationThread())
-		// statusProgress.setProgress(percent);
-		// else
-		// Platform.runLater(() -> postProgress(percent));
 	}
-
-	// @FXML
-	// Label statusLabel;
 
 	@Override
 	public void postStatus(String status) {
 		dexStatusController.postStatus(status);
-		// if (statusLabel != null)
-		// if (Platform.isFxApplicationThread())
-		// statusLabel.setText(status);
-		// else
-		// Platform.runLater(() -> postStatus(status));
 	}
 
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
@@ -387,7 +340,7 @@ public class ObjectEditorController implements DexController {
 			projectMap.put(file.getName(), file);
 		}
 		ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
-		menuBarWithProjectController.configureProjectMenuButton(projectList, this::projectComboSelectionListener);
+		menuBarWithProjectController.configureComboBox(projectList, this::projectComboSelectionListener);
 	}
 
 	public void projectComboSelectionListener(Event e) {
@@ -406,36 +359,9 @@ public class ObjectEditorController implements DexController {
 		log.debug("set Name");
 	}
 
-	@FXML
-	public void open(ActionEvent e) {
-		log.debug("open");
-	}
-
 	// @FXML
-	// public void doClose(ActionEvent e) {
-	// log.debug("Close menu item selected.");
-	// StringBuilder libs = new StringBuilder();
-	// for (OtmLibrary lib : getModelManager().getLibraries())
-	// libs.append(lib.getBaseNamespace() + "\n");
-	// dialogBoxController.show("Do you want to close the project?", libs.toString());
-	// // dialogBoxController.add(libs.toString());
-	// }
-
-	// @FXML
-	// public void appExit(ActionEvent e) {
-	// log.debug("exit");
-	// primaryStage.close();
-	// }
-
-	// /**
-	// * Called when the user clicks the menu to display the about-application dialog.
-	// *
-	// * @param event
-	// * the action event that triggered this method call
-	// */
-	// @FXML
-	// public void aboutApplication(ActionEvent event) {
-	// // AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
+	// public void open(ActionEvent e) {
+	// log.debug("open");
 	// }
 
 	/**
