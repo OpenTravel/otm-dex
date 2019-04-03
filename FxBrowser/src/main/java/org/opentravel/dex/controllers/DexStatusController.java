@@ -73,6 +73,7 @@ public class DexStatusController implements DexIncludedController<String> {
 	 */
 	public void setStage(Stage primaryStage) {
 		checkNodes();
+		// FIXME - should progress be set when there are no tasks?
 		statusProgress.progressProperty().bind(taskProgress);
 		taskProgress.set(1.0);
 		log.debug("Stage set.");
@@ -81,10 +82,11 @@ public class DexStatusController implements DexIncludedController<String> {
 	@Override
 	public void postProgress(double percent) {
 		if (statusProgress != null)
-			if (Platform.isFxApplicationThread())
-				statusProgress.setProgress(percent);
-			else
-				Platform.runLater(() -> postProgress(percent));
+			updateProgress(percent);
+		// if (Platform.isFxApplicationThread())
+		// statusProgress.setProgress(percent);
+		// else
+		// Platform.runLater(() -> postProgress(percent));
 	}
 
 	@Override
@@ -128,7 +130,7 @@ public class DexStatusController implements DexIncludedController<String> {
 	private void update() {
 		postStatus("Running " + runningTasks.size() + " tasks.");
 		if (runningTasks.isEmpty()) {
-			updateProgress(1.0);
+			updateProgress(1F);
 			// taskProgress.set(1.0);
 			postStatus(0, "Done.");
 		} else {

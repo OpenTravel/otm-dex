@@ -13,6 +13,8 @@ import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.OpenProjectProgressMonitor;
+import org.opentravel.dex.controllers.DexStatusController;
+import org.opentravel.dex.controllers.MenuBarWithProjectController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -40,7 +42,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -59,6 +60,12 @@ public class ObjectEditorController implements DexController {
 	// public class ObjectEditorController implements Initializable, DexController {
 	private static Log log = LogFactory.getLog(ObjectEditorController.class);
 
+	@FXML
+	private MenuBarWithProjectController menuBarWithProjectController;
+	@FXML
+	private DexStatusController dexStatusController;
+
+	/** **** OLD FXML usage **/
 	//
 	// FIXME - use import/include to break up fxml files and controllers.
 	// See: https://www.youtube.com/watch?v=osIRfgHTfyg
@@ -145,6 +152,14 @@ public class ObjectEditorController implements DexController {
 
 	// TODO - create wizard/pop-up handlers
 	// use TitledPane fx control
+
+	private void checkNodes() {
+		if (!(menuBarWithProjectController instanceof MenuBarWithProjectController))
+			throw new IllegalStateException("Menu bar not injected by FXML.");
+		if (!(dexStatusController instanceof DexStatusController))
+			throw new IllegalStateException("Status controller not injected by FXML.");
+	}
+
 	/**
 	 * Set up this FX controller
 	 * 
@@ -159,6 +174,13 @@ public class ObjectEditorController implements DexController {
 		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
 		modelMgr.createTestLibrary();
+
+		// Set up menu bar and show the project combo
+		menuBarWithProjectController.showProjectCombo(true);
+		menuBarWithProjectController.setStage(primaryStage);
+		// Setup status controller
+		dexStatusController.setStage(primaryStage);
+		dexStatusController.setParent(this);
 
 		// Set up Repository Tab
 		EnumMap<RepoTabNodes, Node> repoNodes = new EnumMap<>(RepoTabNodes.class);
@@ -175,7 +197,7 @@ public class ObjectEditorController implements DexController {
 		// TODO - what is right way to have facet listen to treeTable?
 		propertiesTableController.registerListeners(navTreeTableView);
 
-		configureProjectMenuButton();
+		configureProjectCombo();
 
 		memberController = new MemberTreeController(this, navTreeTableView, modelMgr);
 		// Set up library selector/filter controller
@@ -199,6 +221,7 @@ public class ObjectEditorController implements DexController {
 	// public void initialize(URL location, ResourceBundle resources) {
 	public void initialize() {
 		log.debug("Object Editor Controller - Initialize w/params is now loading!");
+		checkNodes();
 		initializeDialogBox();
 	}
 
@@ -248,6 +271,7 @@ public class ObjectEditorController implements DexController {
 
 	@FXML
 	public void fileOpen(Event e) {
+		// FIXME - this is in MenuBarWithProjectController - hook it up
 		log.debug("File Open selected.");
 		File selectedFile = fileHandler.fileChooser(primaryStage);
 		openFile(selectedFile);
@@ -315,28 +339,30 @@ public class ObjectEditorController implements DexController {
 		memberController.select(name);
 	}
 
-	@FXML
-	ProgressIndicator statusProgress;
+	// @FXML
+	// ProgressIndicator statusProgress;
 
 	@Override
 	public void postProgress(double percent) {
-		if (statusProgress != null)
-			if (Platform.isFxApplicationThread())
-				statusProgress.setProgress(percent);
-			else
-				Platform.runLater(() -> postProgress(percent));
+		dexStatusController.postProgress(percent);
+		// if (statusProgress != null)
+		// if (Platform.isFxApplicationThread())
+		// statusProgress.setProgress(percent);
+		// else
+		// Platform.runLater(() -> postProgress(percent));
 	}
 
-	@FXML
-	Label statusLabel;
+	// @FXML
+	// Label statusLabel;
 
 	@Override
 	public void postStatus(String status) {
-		if (statusLabel != null)
-			if (Platform.isFxApplicationThread())
-				statusLabel.setText(status);
-			else
-				Platform.runLater(() -> postStatus(status));
+		dexStatusController.postStatus(status);
+		// if (statusLabel != null)
+		// if (Platform.isFxApplicationThread())
+		// statusLabel.setText(status);
+		// else
+		// Platform.runLater(() -> postStatus(status));
 	}
 
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.
@@ -350,24 +376,20 @@ public class ObjectEditorController implements DexController {
 		log.debug("memberTab selection event");
 	}
 
-	@FXML
-	public ComboBox<String> projectCombo;
 	private HashMap<String, File> projectMap = new HashMap<>();
 
-	public void configureProjectMenuButton() {
-		if (projectCombo != null) {
-			File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
-			for (File file : fileHandler.getProjectList(initialDirectory)) {
-				projectMap.put(file.getName(), file);
-			}
-			ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
-			projectList.sort(null);
-			projectCombo.setItems(projectList);
-			projectCombo.setOnAction(e -> projectComboSelectionListener(e));
+	public void configureProjectCombo() {
+		// FIXME - use UserSettings
+		// TODO - should getting projects be migrated into menu bar? Or should menu bar allow changing combo label?
+		// I don't think it should be...we will end up with multiple projects so the combo will not be enough
+		File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
+		for (File file : fileHandler.getProjectList(initialDirectory)) {
+			projectMap.put(file.getName(), file);
 		}
+		ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
+		menuBarWithProjectController.configureProjectMenuButton(projectList, this::projectComboSelectionListener);
 	}
 
-	@FXML
 	public void projectComboSelectionListener(Event e) {
 		log.debug("project selection event");
 		if (e.getTarget() instanceof ComboBox)
@@ -389,32 +411,32 @@ public class ObjectEditorController implements DexController {
 		log.debug("open");
 	}
 
-	@FXML
-	public void doClose(ActionEvent e) {
-		log.debug("Close menu item selected.");
-		StringBuilder libs = new StringBuilder();
-		for (OtmLibrary lib : getModelManager().getLibraries())
-			libs.append(lib.getBaseNamespace() + "\n");
-		dialogBoxController.show("Do you want to close the project?", libs.toString());
-		// dialogBoxController.add(libs.toString());
-	}
+	// @FXML
+	// public void doClose(ActionEvent e) {
+	// log.debug("Close menu item selected.");
+	// StringBuilder libs = new StringBuilder();
+	// for (OtmLibrary lib : getModelManager().getLibraries())
+	// libs.append(lib.getBaseNamespace() + "\n");
+	// dialogBoxController.show("Do you want to close the project?", libs.toString());
+	// // dialogBoxController.add(libs.toString());
+	// }
 
-	@FXML
-	public void appExit(ActionEvent e) {
-		log.debug("exit");
-		primaryStage.close();
-	}
+	// @FXML
+	// public void appExit(ActionEvent e) {
+	// log.debug("exit");
+	// primaryStage.close();
+	// }
 
-	/**
-	 * Called when the user clicks the menu to display the about-application dialog.
-	 * 
-	 * @param event
-	 *            the action event that triggered this method call
-	 */
-	@FXML
-	public void aboutApplication(ActionEvent event) {
-		// AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
-	}
+	// /**
+	// * Called when the user clicks the menu to display the about-application dialog.
+	// *
+	// * @param event
+	// * the action event that triggered this method call
+	// */
+	// @FXML
+	// public void aboutApplication(ActionEvent event) {
+	// // AboutDialogController.createAboutDialog( getPrimaryStage() ).showAndWait();
+	// }
 
 	/**
 	 * {@inheritDoc}

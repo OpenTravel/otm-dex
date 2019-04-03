@@ -7,18 +7,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
-import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.DexIncludedController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 
 /**
@@ -77,6 +77,28 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 		projectLabel.setVisible(value);
 	}
 
+	/**
+	 * Configure the combo box with a list and listener.
+	 * <p>
+	 * Usage: menuBarWithProjectController.configureProjectMenuButton(projectList, this::projectComboSelectionListener);
+	 * 
+	 * @param projectList
+	 * @param listener
+	 */
+	public void configureProjectMenuButton(ObservableList<String> projectList, EventHandler<ActionEvent> listener) {
+		log.debug("Setting project combo.");
+		projectList.sort(null);
+		projectCombo.setItems(projectList);
+		projectCombo.setOnAction(listener);
+	}
+
+	@Deprecated
+	@Override
+	public ReadOnlyObjectProperty<String> getSelectable() {
+		return projectCombo.getSelectionModel().selectedItemProperty();
+		// return null;
+	}
+
 	private void checkNodes() {
 		log.debug("FXML Nodes checked OK.");
 	}
@@ -114,11 +136,6 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 
 	@Override
 	public ImageManager getImageManager() {
-		return null;
-	}
-
-	@Override
-	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
 		return null;
 	}
 
