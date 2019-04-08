@@ -8,11 +8,11 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
+import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
-import org.opentravel.objecteditor.DexMainController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -77,7 +77,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private MemberTreeController memberController;
 
 	public void setParentController(DexMainController parent, MemberTreeController controller) {
-		super.setParent(parent);
+		super.configure(parent);
 		memberController = controller;
 		modelMgr = parent.getModelManager();
 		configureLibraryChoice();
@@ -92,7 +92,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	}
 
-	private void checkNodes() {
+	@Override
+	public void checkNodes() {
 		if (!(librarySelector instanceof ChoiceBox))
 			throw new IllegalComponentStateException("Library selector not injected by FXML.");
 		if (!(memberNameFilter instanceof TextField))
@@ -123,6 +124,10 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	}
 
 	private void configureLibraryChoice() {
+		if (modelMgr == null) {
+			log.error("Needed Model Manager is null.");
+			return;
+		}
 		libraryMap.clear();
 		libraryMap.put(ALLLIBS, null);
 		for (OtmLibrary lib : modelMgr.getLibraries())

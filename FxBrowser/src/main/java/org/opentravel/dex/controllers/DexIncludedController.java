@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.dex.controllers;
 
 /**
  * Abstract interface for all included OTM-DE FX view controllers. These controllers must be able to "Post" a view of
@@ -19,17 +19,9 @@ package org.opentravel.objecteditor;
 public interface DexIncludedController<T> extends DexController {
 
 	/**
-	 * Initialize is called by the FXML loader when the FXML file is loaded. These methods must make the controller
-	 * ready to "Post" to their view components. Trees must be initialized, table columns set, etc.
+	 * Do any post-initialization configuration needed by this controller now that it has full access to program
+	 * resource.
 	 * <p>
-	 * This method should verify that all views and fields have been injected correctly and throw
-	 * illegalArgumentException if not.
-	 * <p>
-	 * Note: parent controller is not known and business data will not be available when this is called.
-	 */
-	public void initialize();
-
-	/**
 	 * Set the main parent controller. Included controllers will not have access to the parent controller until this
 	 * method is called. An illegalState exception should be thrown if the parent controller is needed for posting data
 	 * into the view before the parent is set.
@@ -38,7 +30,26 @@ public interface DexIncludedController<T> extends DexController {
 	 * 
 	 * @param parent
 	 */
-	public void setParent(DexMainController parent);
+	public void configure(DexMainController parent);
+
+	/**
+	 * Get the parent main controller.
+	 * 
+	 * @return
+	 */
+	public DexMainController getParentController();
+
+	/**
+	 * Initialize is called by the FXML loader when the FXML file is loaded. These methods must make the controller
+	 * ready to "Post" to their view components. Trees must be initialized, table columns set, etc.
+	 * <p>
+	 * This method should verify that all views and fields have been injected correctly and throw
+	 * illegalArgumentException if not.
+	 * <p>
+	 * Note: parent controller is not known and business data will not be available when this is called.
+	 */
+	@Override
+	public void initialize();
 
 	/**
 	 * Post the business data into this controller's view(s). This method is expected to be extended to handle
@@ -53,8 +64,7 @@ public interface DexIncludedController<T> extends DexController {
 	public void post(T businessData) throws Exception;
 
 	/**
-	 * @return
+	 * 
 	 */
-	Object getParentController();
 
 }

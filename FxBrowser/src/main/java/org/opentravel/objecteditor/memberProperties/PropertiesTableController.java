@@ -7,11 +7,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexIntegerStringConverter;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.controllers.DexController;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.objecteditor.DexController;
 import org.opentravel.objecteditor.ObjectEditorController;
 import org.opentravel.objecteditor.modelMembers.MemberDAO;
 
@@ -314,6 +314,28 @@ public class PropertiesTableController implements DexController {
 
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.objecteditor.DexController#initialize()
+	 */
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.objecteditor.DexController#checkNodes()
+	 */
+	@Override
+	public void checkNodes() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

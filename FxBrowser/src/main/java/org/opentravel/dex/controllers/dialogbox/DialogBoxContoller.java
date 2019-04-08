@@ -33,7 +33,6 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-// FIXME - this style, etc is much better than DialogBox but it's status nature is great.
 public class DialogBoxContoller implements DexPopupController {
 	private static Log log = LogFactory.getLog(DialogBoxContoller.class);
 
@@ -60,9 +59,14 @@ public class DialogBoxContoller implements DexPopupController {
 	/**
 	 * Is run when the associated .fxml file is loaded.
 	 */
+	@Override
 	@FXML
 	public void initialize() {
 		log.debug("Initialize injection point.");
+	}
+
+	@Override
+	public void checkNodes() {
 	}
 
 	/**
@@ -76,6 +80,13 @@ public class DialogBoxContoller implements DexPopupController {
 	 * @param mainController
 	 * @return dialog box controller or null
 	 */
+	public static DialogBoxContoller init() {
+		FXMLLoader loader = new FXMLLoader(DialogBoxContoller.class.getResource(LAYOUT_FILE));
+		return init(loader);
+	}
+
+	// Use init() instead
+	@Deprecated
 	public static DialogBoxContoller init(FXMLLoader loader) {
 		DialogBoxContoller controller = null;
 		try {

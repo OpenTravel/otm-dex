@@ -7,7 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DialogBox;
 import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
@@ -38,7 +37,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	@FXML
 	private Label projectLabel;
 
-	private DialogBoxContoller dialogBoxController = null;
+	// private DialogBoxContoller dialogBoxController = null;
 	private Stage stage;
 
 	@FXML
@@ -60,8 +59,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	public void doClose(ActionEvent e) {
 		// This is only run if the handler is not set.
 		log.debug("Close menu item selected.");
-		if (dialogBoxController != null)
-			dialogBoxController.show("Close", "Not Implemented");
+		DialogBoxContoller.init().show("Close", "Not Implemented");
 	}
 
 	@FXML
@@ -75,8 +73,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	public void fileOpen(ActionEvent e) {
 		// This is only run if the handler is not set.
 		log.debug("File Open selected.");
-		if (dialogBoxController != null)
-			dialogBoxController.show("Open", "Not implemented");
+		DialogBoxContoller.init().show("Open", "Not implemented");
 		stage.fireEvent(new MyEvent(BEFORE_STORE, "Test"));
 		// Event.fireEvent(new EventDispatcher(), null);
 	}
@@ -117,6 +114,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	}
 
 	/** *********************************************************** **/
+
 	/**
 	 * Show or hide the combo box and its label.
 	 * 
@@ -154,7 +152,8 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 		// return null;
 	}
 
-	private void checkNodes() {
+	@Override
+	public void checkNodes() {
 		log.debug("FXML Nodes checked OK.");
 	}
 
@@ -199,10 +198,6 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 
 			return originalDispatcher.dispatchEvent(event, tail);
 		}
-	}
-
-	public void setDialogBox(DialogBoxContoller controller) {
-		this.dialogBoxController = controller;
 	}
 
 	@Override

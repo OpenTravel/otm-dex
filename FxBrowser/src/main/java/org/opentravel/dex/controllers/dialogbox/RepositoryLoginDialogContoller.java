@@ -130,6 +130,10 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		testResults.setText("");
 	}
 
+	@Override
+	public void checkNodes() {
+	}
+
 	private void configureRepositoryCombo() {
 		log.debug("Configuring repository combo box.");
 
@@ -256,6 +260,7 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	/**
 	 * Is run when the associated .fxml file is loaded.
 	 */
+	@Override
 	@FXML
 	public void initialize() {
 		log.debug("Initialize injection point.");

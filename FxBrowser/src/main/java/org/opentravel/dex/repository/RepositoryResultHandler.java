@@ -5,9 +5,8 @@ package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.repositoryViewer.RepositoryViewerController;
 
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -22,20 +21,18 @@ import javafx.concurrent.WorkerStateEvent;
 public class RepositoryResultHandler implements TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(RepositoryResultHandler.class);
 	private static final String TITLE = "Repository Error";
-	// private DexController parentController;
-	private RepositoryViewerController parentController;
+	private DexMainController parentController;
 
-	public RepositoryResultHandler(DexController parentController) {
-		this.parentController = (RepositoryViewerController) parentController;
+	public RepositoryResultHandler(DexMainController parentController) {
+		this.parentController = parentController;
 	}
 
 	@Override
 	public void handleTaskComplete(WorkerStateEvent event) {
-		DialogBoxContoller dbc = null;
+		DialogBoxContoller dbc = DialogBoxContoller.init();
 		if (event != null && event.getTarget() instanceof Task) {
 			Object data = ((Task<?>) event.getTarget()).getValue();
 			if (data instanceof String && (!((String) data).isEmpty())) {
-				dbc = parentController.getDialogBoxController();
 				if (dbc != null)
 					dbc.show(TITLE, (String) data);
 			}

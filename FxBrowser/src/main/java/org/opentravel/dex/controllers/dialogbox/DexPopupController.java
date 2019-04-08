@@ -3,7 +3,7 @@
  */
 package org.opentravel.dex.controllers.dialogbox;
 
-import org.opentravel.objecteditor.DexController;
+import org.opentravel.dex.controllers.DexController;
 
 /**
  * Abstract interface for all Otm-DE FX view controllers.

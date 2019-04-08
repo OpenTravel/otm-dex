@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.repository.tasks.SearchRepositoryTask;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -50,7 +50,8 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 
 	private Map<String, RepositoryItem> currentFilterMap;
 
-	private void checkNodes() {
+	@Override
+	public void checkNodes() {
 		if (searchTerm == null)
 			throw new IllegalStateException("Null search term in repository search controller.");
 		if (doSearch == null)
@@ -81,7 +82,7 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 
 	/**
 	 */
-	public void setStage() {
+	public void configure() {
 		checkNodes(); // Verify FXML loaded correctly
 
 		doSearch.setOnAction(this::runSearch);

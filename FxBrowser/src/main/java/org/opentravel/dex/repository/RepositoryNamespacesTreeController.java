@@ -9,9 +9,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.repository.tasks.ListSubnamespacesTask;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
-import org.opentravel.repositoryViewer.RepositoryViewerController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -50,6 +49,10 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 	public void clear() {
 		if (tree != null && tree.getRoot() != null)
 			tree.getRoot().getChildren().clear();
+	}
+
+	@Override
+	public void checkNodes() {
 	}
 
 	@Override
@@ -102,9 +105,8 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 						parentController.getStatusController()).go();
 			}
 		} catch (RepositoryException e) {
-			if (parentController instanceof RepositoryViewerController)
-				((RepositoryViewerController) parentController).postRepoError(e);
 			log.debug("Error: " + e.getLocalizedMessage());
+			parentController.postError(e, "Error listing namespaces.");
 		}
 	}
 
@@ -125,8 +127,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 				return;
 			}
 			if (task.getErrorException() != null) {
-				if (parentController instanceof RepositoryViewerController)
-					((RepositoryViewerController) parentController).postRepoError(task.getErrorException());
+				parentController.postError(task.getErrorException(), "Error listing namespaces.");
 				return;
 			}
 			Map<String, NamespacesDAO> map = ((ListSubnamespacesTask) event.getTarget()).getMap();

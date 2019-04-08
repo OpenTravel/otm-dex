@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.dex.repository.tasks.DexTaskBase;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -42,7 +41,8 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 	@FXML
 	private Label taskCount;
 
-	private void checkNodes() {
+	@Override
+	public void checkNodes() {
 		if (!(statusProgress instanceof ProgressIndicator))
 			throw new IllegalStateException("Progress indicator not injected by FXML.");
 		if (!(statusLabel instanceof Label))

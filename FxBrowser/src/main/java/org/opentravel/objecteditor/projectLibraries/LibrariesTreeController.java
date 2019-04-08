@@ -8,10 +8,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.controllers.DexController;
+import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexMainController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -253,6 +253,28 @@ public class LibrariesTreeController implements DexController {
 
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.objecteditor.DexController#initialize()
+	 */
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.objecteditor.DexController#checkNodes()
+	 */
+	@Override
+	public void checkNodes() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

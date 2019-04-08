@@ -71,9 +71,22 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	/**
 	 * Is run when the associated .fxml file is loaded.
 	 */
+	@Override
 	@FXML
 	public void initialize() {
 		log.debug("Initialize injection point.");
+	}
+
+	@Override
+	public void checkNodes() {
+		if (dialogBox == null || dialogTitleLabel == null || dialogHelp == null || dialogText == null
+				|| ulCommitButton == null || dialogButtonCancel == null || dialogButtonOK == null)
+			throw new IllegalStateException("Missing injected field.");
+	}
+
+	public static UnlockLibraryDialogContoller init() {
+		FXMLLoader loader = new FXMLLoader(UnlockLibraryDialogContoller.class.getResource(LAYOUT_FILE));
+		return UnlockLibraryDialogContoller.init(loader);
 	}
 
 	/**

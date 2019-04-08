@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.dex.controllers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +23,6 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	private static Log log = LogFactory.getLog(DexIncludedControllerBase.class);
 
 	protected ImageManager imageMgr;
-	// protected RepositoryViewerController parentController;
 	protected DexMainController parentController;
 	protected T postedData;
 
@@ -32,18 +31,24 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	}
 
 	@Override
-	public void initialize() {
-		log.debug("Initializing controller.");
+	public void clear() {
 	}
 
 	@Override
-	public void setParent(DexMainController parent) {
-		// FIXME - use interface when it has been updated
-		// if (parent instanceof RepositoryViewerController)
-		// this.parentController = (RepositoryViewerController) parent;
+	public void configure(DexMainController parent) {
 		this.parentController = parent;
 		imageMgr = parent.getImageManager();
 		log.debug("Parent controller set.");
+	}
+
+	@Override
+	public DexMainController getParentController() {
+		return parentController;
+	}
+
+	@Override
+	public void initialize() {
+		log.debug("Initializing controller.");
 	}
 
 	@Override
@@ -56,26 +61,12 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	}
 
 	@Override
-	public Object getParentController() {
-		return parentController;
-	}
-
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * TODO
-	 */
-	protected void setWidths(TableView table) {
-		// Give all left over space to the last column
-		// double width = fileCol.widthProperty().get();
-		// width += versionCol.widthProperty().get();
-		// width += statusCol.widthProperty().get();
-		// width += lockedCol.widthProperty().get();
-		// remarkCol.prefWidthProperty().bind(table.widthProperty().subtract(width));
+	public void refresh() {
+		try {
+			post(postedData);
+		} catch (Exception e) {
+			log.error("Unhandled error refreshing repository item commit history: " + e.getLocalizedMessage());
+		}
 	}
 
 	/**
@@ -101,13 +92,16 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 			c.setPrefWidth(width);
 	}
 
-	@Override
-	public void refresh() {
-		try {
-			post(postedData);
-		} catch (Exception e) {
-			log.error("Unhandled error refreshing repository item commit history: " + e.getLocalizedMessage());
-		}
+	/**
+	 * TODO
+	 */
+	protected void setWidths(TableView table) {
+		// Give all left over space to the last column
+		// double width = fileCol.widthProperty().get();
+		// width += versionCol.widthProperty().get();
+		// width += statusCol.widthProperty().get();
+		// width += lockedCol.widthProperty().get();
+		// remarkCol.prefWidthProperty().bind(table.widthProperty().subtract(width));
 	}
 
 }

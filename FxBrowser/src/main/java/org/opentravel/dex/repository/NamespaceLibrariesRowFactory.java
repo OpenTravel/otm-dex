@@ -5,6 +5,10 @@ package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.controllers.dialogbox.UnlockLibraryDialogContoller;
+import org.opentravel.dex.repository.tasks.LockItemTask;
+import org.opentravel.dex.repository.tasks.UnlockItemTask;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.css.PseudoClass;
@@ -25,7 +29,7 @@ import javafx.scene.control.TreeTableRow;
  * 
  * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
  */
-@SuppressWarnings("restriction")
+@SuppressWarnings("squid:MaximumInheritanceDepth")
 public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO> {
 	private static Log log = LogFactory.getLog(NamespaceLibrariesRowFactory.class);
 
@@ -37,8 +41,11 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 	MenuItem unlockLibrary;
 	MenuItem promoteLibrary;
 
+	private DexMainController mainController;
+
 	public NamespaceLibrariesRowFactory(NamespaceLibrariesTreeTableController controller) {
 		this.controller = controller;
+		mainController = controller.getParentController();
 
 		// Create Context menu
 		lockLibrary = new MenuItem("Lock");
@@ -54,8 +61,8 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 		// this.setUserData(otm);
 
 		// Create action for events
-		lockLibrary.setOnAction(this::lockLibraryEventHandler);
-		unlockLibrary.setOnAction(this::unlockLibraryEventHandler);
+		lockLibrary.setOnAction((e) -> lockLibraryEventHandler());
+		unlockLibrary.setOnAction((e) -> unlockLibraryEventHandler());
 		promoteLibrary.setOnAction(this::promoteLibraryEventHandler);
 
 		// // Set editable style listener (css class)
@@ -67,18 +74,22 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 	/**
 	 * Add a new member to the tree
 	 * 
-	 * @param t
 	 */
-	private void lockLibraryEventHandler(ActionEvent t) {
+	private void lockLibraryEventHandler() {
 		log.debug("Lock in Row Factory.");
-		if (controller.getRepositoryViewerController() != null)
-			controller.getRepositoryViewerController().lock(controller.getSelectedItem());
+		new LockItemTask(controller.getSelectedItem().getValue(), new RepositoryResultHandler(mainController),
+				mainController.getStatusController()).go();
 	}
 
-	private void unlockLibraryEventHandler(ActionEvent t) {
+	private void unlockLibraryEventHandler() {
 		log.debug("Unlock in Row Factory.");
-		if (controller.getRepositoryViewerController() != null)
-			controller.getRepositoryViewerController().unlock(controller.getSelectedItem());
+		UnlockLibraryDialogContoller uldc = UnlockLibraryDialogContoller.init();
+		uldc.showAndWait("Unlock Library", "");
+		boolean commitWIP = uldc.getCommitState();
+		String remarks = uldc.getCommitRemarks();
+
+		new UnlockItemTask(controller.getSelectedItem().getValue(), commitWIP, remarks,
+				new RepositoryResultHandler(mainController), mainController.getStatusController()).go();
 	}
 
 	private void promoteLibraryEventHandler(ActionEvent t) {

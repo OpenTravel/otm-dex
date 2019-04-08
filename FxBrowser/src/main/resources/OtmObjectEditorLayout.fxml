@@ -117,7 +117,7 @@
                         </Pane>
                      </content>
                   </Tab>
-                  <Tab fx:id="libraryTab1" text="Repositories">
+                  <!-- Tab fx:id="libraryTab1" text="Repositories">
                      <content>
                         <BorderPane>
                            <center>
@@ -168,9 +168,8 @@
                            </top>
                         </BorderPane>
                      </content>
-                  </Tab>
-				  <Tab fx:id="repoTab" text="Repository (New)">
-				  </Tab>
+                  </Tab -->
+				  <fx:include fx:id="repositoryTab" source="RepositoryTab.fxml" />
               </tabs>
             </TabPane>
         </items>

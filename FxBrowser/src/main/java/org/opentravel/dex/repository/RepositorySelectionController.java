@@ -5,9 +5,10 @@ package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
+import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.dialogbox.RepositoryLoginDialogContoller;
 import org.opentravel.dex.controllers.dialogbox.RepositoryLoginDialogContoller.Results;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -55,7 +56,8 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		}
 	}
 
-	private void checkNodes() {
+	@Override
+	public void checkNodes() {
 		if (repositoryChoice == null)
 			throw new IllegalStateException("Null repository choice node in repository controller.");
 		if (repositoryUser == null)
@@ -161,7 +163,8 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 
 	/**
 	 */
-	public void setStage() {
+	@Override
+	public void configure(DexMainController parent) {
 		checkNodes(); // Verify FXML loaded correctly
 
 		repositoryManager = getRepoMgr();

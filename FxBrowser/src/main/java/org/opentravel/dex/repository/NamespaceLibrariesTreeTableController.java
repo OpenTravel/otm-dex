@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.repositoryViewer.RepositoryViewerController;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
@@ -44,6 +44,10 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 	public NamespaceLibrariesTreeTableController() {
 		log.debug("Constructing namespace libraries tree controller.");
+	}
+
+	@Override
+	public void checkNodes() {
 	}
 
 	@Override

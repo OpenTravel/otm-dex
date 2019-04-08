@@ -5,7 +5,7 @@ package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
 import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 
@@ -51,6 +51,10 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 	@Override
 	public void clear() {
 		historyTable.getItems().clear();
+	}
+
+	@Override
+	public void checkNodes() {
 	}
 
 	@Override
