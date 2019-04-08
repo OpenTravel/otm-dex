@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.NamespaceLibrariesTableController.RepoItemNode;
@@ -35,8 +36,8 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-// @SuppressWarnings("restriction")
-public class RepositoryTabController implements DexController {
+@Deprecated
+public class RepositoryTabController implements DexMainController {
 	private static Log log = LogFactory.getLog(RepositoryTabController.class);
 
 	private static final String LOCAL_REPO = "Local";
@@ -257,6 +258,23 @@ public class RepositoryTabController implements DexController {
 	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public RepositoryManager getRepositoryManager() {
+		return repositoryManager;
+	}
+
+	@Override
+	public DexStatusController getStatusController() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

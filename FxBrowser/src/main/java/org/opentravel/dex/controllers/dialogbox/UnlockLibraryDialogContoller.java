@@ -1,16 +1,12 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.dialogbox;
+package org.opentravel.dex.controllers.dialogbox;
 
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
-import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexPopupController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
@@ -39,7 +35,7 @@ import javafx.stage.Stage;
 public class UnlockLibraryDialogContoller implements DexPopupController {
 	private static Log log = LogFactory.getLog(UnlockLibraryDialogContoller.class);
 
-	public static String LAYOUT_FILE = "/UnlockLibraryDialog.fxml";
+	public static final String LAYOUT_FILE = "/UnlockLibraryDialog.fxml";
 
 	public enum Results {
 		OK, CANCEL;
@@ -63,7 +59,6 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	Button dialogButtonOK;
 
 	private static Stage popupStage;
-	private static DexController mainController;
 
 	Parent root;
 	Scene scene;
@@ -92,8 +87,7 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	 * @param mainController
 	 * @return dialog box controller or null
 	 */
-	public static UnlockLibraryDialogContoller init(FXMLLoader loader, DexController mainController) {
-		UnlockLibraryDialogContoller.mainController = mainController;
+	public static UnlockLibraryDialogContoller init(FXMLLoader loader) {
 		UnlockLibraryDialogContoller controller = null;
 		try {
 			// Load the fxml file initialize controller it declares.
@@ -117,8 +111,6 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	public void setup(String title, String message) {
 		if (popupStage == null)
 			throw new IllegalAccessError("Must set stage before use.");
-		if (mainController == null)
-			throw new IllegalAccessError("Must set main controller before use.");
 
 		if (dialogButtonCancel == null || dialogHelp == null || dialogText == null)
 			throw new IllegalStateException("Missing dialog FXML fields.");
@@ -136,6 +128,7 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 
 	}
 
+	@Override
 	public void show(String title, String message) {
 		setup(title, message);
 		popupStage.show();
@@ -187,11 +180,6 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	}
 
 	@Override
-	public ImageManager getImageManager() {
-		return mainController.getImageManager();
-	}
-
-	@Override
 	public void clear() {
 		// dialogText.getChildren().clear();
 		dialogHelp.getChildren().clear();
@@ -203,28 +191,8 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	}
 
 	@Override
-	public OtmModelManager getModelManager() {
-		return mainController.getModelManager();
-	}
-
-	@Override
-	public void injectMainController(DexController mainController) {
-		this.mainController = mainController;
-	}
-
-	@Override
-	public void injectStage(Stage stage) {
-		this.popupStage = stage;
-	}
-
-	@Override
-	public void postStatus(String string) {
-		// parentController.postStatus(string);
-	}
-
-	@Override
-	public void postProgress(double percentDone) {
-		// parentController.postProgress(percentDone);
+	public void refresh() {
+		// TODO Auto-generated method stub
 	}
 
 }

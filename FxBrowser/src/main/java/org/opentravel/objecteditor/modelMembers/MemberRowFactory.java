@@ -17,7 +17,7 @@ import javafx.scene.control.TreeTableRow;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+@SuppressWarnings("squid:MaximumInheritanceDepth")
 public final class MemberRowFactory extends TreeTableRow<MemberDAO> {
 	private static Log log = LogFactory.getLog(MemberRowFactory.class);
 

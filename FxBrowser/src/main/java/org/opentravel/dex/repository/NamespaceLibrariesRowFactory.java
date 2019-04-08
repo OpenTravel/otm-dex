@@ -71,14 +71,14 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 	 */
 	private void lockLibraryEventHandler(ActionEvent t) {
 		log.debug("Lock in Row Factory.");
-		if (controller.getRepositoryController() != null)
-			controller.getRepositoryController().lock(controller.getSelectedItem());
+		if (controller.getRepositoryViewerController() != null)
+			controller.getRepositoryViewerController().lock(controller.getSelectedItem());
 	}
 
 	private void unlockLibraryEventHandler(ActionEvent t) {
 		log.debug("Unlock in Row Factory.");
-		if (controller.getRepositoryController() != null)
-			controller.getRepositoryController().unlock(controller.getSelectedItem());
+		if (controller.getRepositoryViewerController() != null)
+			controller.getRepositoryViewerController().unlock(controller.getSelectedItem());
 	}
 
 	private void promoteLibraryEventHandler(ActionEvent t) {

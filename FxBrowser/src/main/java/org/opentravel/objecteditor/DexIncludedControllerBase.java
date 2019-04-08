@@ -6,8 +6,6 @@ package org.opentravel.objecteditor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
-import org.opentravel.model.OtmModelManager;
-import org.opentravel.repositoryViewer.RepositoryViewerController;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -25,8 +23,8 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	private static Log log = LogFactory.getLog(DexIncludedControllerBase.class);
 
 	protected ImageManager imageMgr;
-	protected RepositoryViewerController parentController;
-	// protected DexController parentController;
+	// protected RepositoryViewerController parentController;
+	protected DexMainController parentController;
 	protected T postedData;
 
 	public DexIncludedControllerBase() {
@@ -39,19 +37,13 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	}
 
 	@Override
-	public void setParent(DexController parent) {
+	public void setParent(DexMainController parent) {
 		// FIXME - use interface when it has been updated
-		if (parent instanceof RepositoryViewerController)
-			this.parentController = (RepositoryViewerController) parent;
+		// if (parent instanceof RepositoryViewerController)
+		// this.parentController = (RepositoryViewerController) parent;
+		this.parentController = parent;
 		imageMgr = parent.getImageManager();
 		log.debug("Parent controller set.");
-	}
-
-	@Override
-	public OtmModelManager getModelManager() {
-		if (parentController != null)
-			return parentController.getModelManager();
-		return null;
 	}
 
 	@Override
@@ -61,6 +53,17 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 		// Hold onto data
 		postedData = businessData;
 		// FUTURE - create navigation event
+	}
+
+	@Override
+	public Object getParentController() {
+		return parentController;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+
 	}
 
 	/**
@@ -99,23 +102,12 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 	}
 
 	@Override
-	public ImageManager getImageManager() {
-		if (imageMgr == null)
-			if (parentController != null)
-				return parentController.getImageManager();
-			else
-				throw new IllegalStateException("Image manger is null.");
-		return imageMgr;
-	}
-
-	@Override
-	public void postStatus(String string) {
-		parentController.postStatus(string);
-	}
-
-	@Override
-	public void postProgress(double percentDone) {
-		parentController.postProgress(percentDone);
+	public void refresh() {
+		try {
+			post(postedData);
+		} catch (Exception e) {
+			log.error("Unhandled error refreshing repository item commit history: " + e.getLocalizedMessage());
+		}
 	}
 
 }

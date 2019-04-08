@@ -11,7 +11,6 @@ import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.DexIncludedController;
 
 /**
  * A JavaFX opening a project file
@@ -23,7 +22,7 @@ public class OpenProjectFileTask extends DexTaskBase<File> {
 	private static Log log = LogFactory.getLog(OpenProjectFileTask.class);
 
 	private OtmModelManager modelMgr;
-	private DexIncludedController<?> status;
+	private DexStatusController status;
 
 	/**
 	 * Create a open project file task.

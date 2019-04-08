@@ -30,15 +30,15 @@ public interface DexIncludedController<T> extends DexController {
 	public void initialize();
 
 	/**
-	 * Set the parent controller. Included controllers will not have access to the parent controller until this method
-	 * is called. An illegalState exception should be thrown if the parent controller is needed for posting data into
-	 * the view before the parent is set.
+	 * Set the main parent controller. Included controllers will not have access to the parent controller until this
+	 * method is called. An illegalState exception should be thrown if the parent controller is needed for posting data
+	 * into the view before the parent is set.
 	 * <p>
 	 * This method should retrieve all of the resources it needs from the parent such as image or model managers.
 	 * 
 	 * @param parent
 	 */
-	public void setParent(DexController parent);
+	public void setParent(DexMainController parent);
 
 	/**
 	 * Post the business data into this controller's view(s). This method is expected to be extended to handle
@@ -51,5 +51,10 @@ public interface DexIncludedController<T> extends DexController {
 	 *             if business logic throws exceptions or parent controller is needed and not set.
 	 */
 	public void post(T businessData) throws Exception;
+
+	/**
+	 * @return
+	 */
+	Object getParentController();
 
 }

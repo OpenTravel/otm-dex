@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.repository.NamespaceLibrariesTreeTableController;
 import org.opentravel.dex.repository.NamespacesDAO;
-import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
@@ -26,6 +25,7 @@ import javafx.scene.control.TreeView;
  *
  */
 // FIXME - this should be replaced with the included RepositoryNamespacesTreeController
+@Deprecated
 public class RepositoryNamespacesController implements DexController {
 	private static Log log = LogFactory.getLog(RepositoryNamespacesController.class);
 
@@ -33,7 +33,7 @@ public class RepositoryNamespacesController implements DexController {
 	protected TreeView<NamespacesDAO> tree;
 	protected TreeItem<NamespacesDAO> root;
 	private HashMap<String, TreeItem<NamespacesDAO>> namespaceMap = new HashMap<>();
-	private DexController parentController;
+	private DexMainController parentController;
 
 	@FXML
 	private NamespaceLibrariesTreeTableController namespaceLibrariesTreeTableController;
@@ -53,7 +53,7 @@ public class RepositoryNamespacesController implements DexController {
 	 * @param nsLibraryTablePermissionField
 	 */
 	// Use FXML include and injection instead of constructor
-	public RepositoryNamespacesController(DexController parent, TreeView<NamespacesDAO> tree) {
+	public RepositoryNamespacesController(DexMainController parent, TreeView<NamespacesDAO> tree) {
 		log.debug("Initializing repository tab with parameters.");
 
 		imageMgr = parent.getImageManager();
@@ -89,21 +89,10 @@ public class RepositoryNamespacesController implements DexController {
 	// return repositoryNamespacesTree;
 	// }
 
-	@Override
 	public ImageManager getImageManager() {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
-	@Override
-	public OtmModelManager getModelManager() {
-		return null;
 	}
 
 	@Override
@@ -198,12 +187,10 @@ public class RepositoryNamespacesController implements DexController {
 		}
 	}
 
-	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
 	}
 
-	@Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
@@ -244,6 +231,17 @@ public class RepositoryNamespacesController implements DexController {
 		backgroundThread.setDaemon(true);
 		// Start the thread
 		backgroundThread.start();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.objecteditor.DexController#refresh()
+	 */
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

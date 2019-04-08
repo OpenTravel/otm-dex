@@ -3,26 +3,28 @@
  */
 package org.opentravel.objecteditor.modelMembers;
 
-import java.util.EnumMap;
+import java.awt.IllegalComponentStateException;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.DexController;
+import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.objecteditor.DexMainController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.scene.Node;
+import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 
@@ -32,8 +34,7 @@ import javafx.scene.control.TreeItem;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
-public class MemberFilterController implements DexController {
+public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private static Log log = LogFactory.getLog(MemberFilterController.class);
 
 	/**
@@ -46,15 +47,24 @@ public class MemberFilterController implements DexController {
 		Library, Name, Type, State;
 	}
 
+	// Library Member Table Selection Filters
+	@FXML
+	private ChoiceBox<String> librarySelector;
+	@FXML
+	private TextField memberNameFilter;
+	@FXML
+	private MenuButton memberTypeMenu;
+	@FXML
+	private RadioButton latestButton;
+	@FXML
+	private RadioButton editableButton;
+	@FXML
+	private RadioButton errorsButton;
+
+	// FIX these
 	private static final String ALLLIBS = "All";
 
-	private ChoiceBox<String> libraryChoice;
-	private TextField nameFilter;
-	private MenuButton typeMenu;
-	private MenuButton stateMenu;
-
 	private String textFilterValue = null;
-	private DexController parentController;
 	private OtmModelManager modelMgr;
 
 	private HashMap<String, OtmLibrary> libraryMap = new HashMap<>();
@@ -64,38 +74,52 @@ public class MemberFilterController implements DexController {
 
 	private boolean latestVersionOnly = false;
 	private boolean editableOnly = false;
+	private MemberTreeController memberController;
 
-	/**
-	 * Manage interaction with library selection panel.
-	 * 
-	 * @param nsLibraryTablePermissionField
-	 */
-	public MemberFilterController(DexController parent, EnumMap<LibraryFilterNodes, Node> fxNodes) {
-		log.debug("Initializing library filter controller.");
-		getFxNodes(fxNodes);
-		this.parentController = parent;
+	public void setParentController(DexMainController parent, MemberTreeController controller) {
+		super.setParent(parent);
+		memberController = controller;
 		modelMgr = parent.getModelManager();
-
 		configureLibraryChoice();
-
-		nameFilter.setOnKeyTyped(this::applyTextFilter);
-		nameFilter.setOnAction(this::applyTextFilter);
-		typeMenu.setOnAction(this::setTypeFilter);
-		stateMenu.setOnAction(this::setStateFilter);
-		// May have to set the actions on each item
-		for (MenuItem item : stateMenu.getItems())
-			item.setOnAction(this::setStateFilter);
 	}
 
-	@SuppressWarnings("unchecked")
-	private void getFxNodes(EnumMap<LibraryFilterNodes, Node> fxNodes) {
-		libraryChoice = (ChoiceBox<String>) fxNodes.get(LibraryFilterNodes.Library);
-		nameFilter = (TextField) fxNodes.get(LibraryFilterNodes.Name);
-		typeMenu = (MenuButton) fxNodes.get(LibraryFilterNodes.Type);
-		stateMenu = (MenuButton) fxNodes.get(LibraryFilterNodes.State);
+	// public void setMemberController(MemberTreeController controller) {
+	// memberController = controller;
+	// }
 
-		if (libraryChoice == null || nameFilter == null || typeMenu == null || stateMenu == null)
-			throw new IllegalArgumentException("Null parameter.");
+	public MemberFilterController() {
+		log.debug("Member Filter Controller constructor.");
+
+	}
+
+	private void checkNodes() {
+		if (!(librarySelector instanceof ChoiceBox))
+			throw new IllegalComponentStateException("Library selector not injected by FXML.");
+		if (!(memberNameFilter instanceof TextField))
+			throw new IllegalComponentStateException("memberNameFilter not injected by FXML.");
+		if (!(memberTypeMenu instanceof MenuButton))
+			throw new IllegalComponentStateException("memberTypeMenu not injected by FXML.");
+
+		if (!(latestButton instanceof RadioButton))
+			throw new IllegalComponentStateException("latestButton not injected by FXML.");
+		if (!(editableButton instanceof RadioButton))
+			throw new IllegalComponentStateException("editableButton not injected by FXML.");
+		if (!(errorsButton instanceof RadioButton))
+			throw new IllegalComponentStateException("errorsButton not injected by FXML.");
+	}
+
+	@Override
+	public void initialize() {
+		log.debug("Member Filter Controller - Initialize");
+		checkNodes();
+
+		memberNameFilter.setOnKeyTyped(this::applyTextFilter);
+		memberNameFilter.setOnAction(this::applyTextFilter);
+		memberTypeMenu.setOnAction(this::setTypeFilter);
+		editableButton.setOnAction(this::setEditableOnly);
+		latestButton.setOnAction(this::setLatestOnly);
+
+		errorsButton.setVisible(false); // hide for now
 	}
 
 	private void configureLibraryChoice() {
@@ -107,8 +131,8 @@ public class MemberFilterController implements DexController {
 
 		ObservableList<String> libList = FXCollections.observableArrayList(libraryMap.keySet());
 		libList.sort(null);
-		libraryChoice.setItems(libList);
-		libraryChoice.setOnAction(this::setLibraryFilter);
+		librarySelector.setItems(libList);
+		librarySelector.setOnAction(this::setLibraryFilter);
 	}
 
 	/**
@@ -118,9 +142,9 @@ public class MemberFilterController implements DexController {
 	 * @return true if the object passes the selection filters (should be displayed)
 	 */
 	public boolean isSelected(OtmModelElement<?> object) {
+		// log.debug("Is " + object.getName() + " selected?");
 		if (object.getOwningMember() == null || object.getOwningMember().getLibrary() == null)
 			return true;
-		// log.debug(" Filter test of " + object.getName());
 		if (libraryFilter != null && !object.getLibrary().getName().startsWith(libraryFilter))
 			return false;
 		if (textFilterValue != null && !object.getName().toLowerCase().startsWith(textFilterValue))
@@ -138,28 +162,47 @@ public class MemberFilterController implements DexController {
 	//
 	private void setLibraryFilter(Event e) {
 		String selection = ALLLIBS;
-		if (libraryChoice.getSelectionModel().getSelectedItem() != null) {
-			selection = libraryChoice.getSelectionModel().getSelectedItem();
-			if (libraryChoice.getSelectionModel().getSelectedItem().equals(ALLLIBS)) {
+		if (librarySelector.getSelectionModel().getSelectedItem() != null) {
+			selection = librarySelector.getSelectionModel().getSelectedItem();
+			if (librarySelector.getSelectionModel().getSelectedItem().equals(ALLLIBS)) {
 				clear();
-				((MemberTreeController) parentController).refresh();
+				refreshMembers();
 			} else {
 				setLibraryFilter(libraryMap.get(selection));
 			}
 		}
-		libraryChoice.setValue(selection);
+		librarySelector.setValue(selection);
 	}
 
 	public void setLibraryFilter(OtmLibrary lib) {
 		ignoreClear = true;
 		libraryFilter = lib.getName();
-		((MemberTreeController) parentController).refresh();
-		log.debug("Set Library Filter to: " + libraryFilter);
+		librarySelector.getSelectionModel().select(lib.getName());
+		refreshMembers();
+		// log.debug("Set Library Filter to: " + libraryFilter);
 		ignoreClear = false;
 	}
 
 	public void setTypeFilter(Event e) {
 		log.debug("Set Type Filter: " + e.toString());
+	}
+
+	public void setEditableOnly(ActionEvent event) {
+		log.debug("Editable set to: " + editableButton.isSelected());
+		editableOnly = editableButton.isSelected();
+		refreshMembers();
+	}
+
+	private void refreshMembers() {
+		if (memberController == null)
+			throw new IllegalStateException("Could not refresh view because member controller was null.");
+		memberController.refresh();
+	}
+
+	public void setLatestOnly(ActionEvent event) {
+		log.debug("Latest only set to: " + latestButton.isSelected());
+		latestVersionOnly = latestButton.isSelected();
+		refreshMembers();
 	}
 
 	public void setStateFilter(Event e) {
@@ -174,15 +217,15 @@ public class MemberFilterController implements DexController {
 			if (((MenuItem) e.getTarget()).getText().startsWith("Edit")) {
 				editableOnly = mi.isSelected();
 			}
-			((MemberTreeController) parentController).refresh();
+			refreshMembers();
 		}
 	}
 
 	// Filter on any case of the value
 	public void applyTextFilter(Event e) {
 		ignoreClear = true;
-		textFilterValue = nameFilter.getText().toLowerCase();
-		((MemberTreeController) parentController).refresh();
+		textFilterValue = memberNameFilter.getText().toLowerCase();
+		refreshMembers();
 		log.debug("Apply text Filter: " + textFilterValue);
 		ignoreClear = false;
 	}
@@ -200,7 +243,7 @@ public class MemberFilterController implements DexController {
 			libraryFilter = null;
 
 			textFilterValue = null;
-			nameFilter.setText("");
+			memberNameFilter.setText("");
 		}
 	}
 
@@ -209,24 +252,26 @@ public class MemberFilterController implements DexController {
 		return null;
 	}
 
-	@Override
-	public ImageManager getImageManager() {
-		return null;
-	}
+	// public ImageManager getImageManager() {
+	// return null;
+	// }
+
+	// public OtmModelManager getModelManager() {
+	// return modelMgr;
+	// }
+
+	// public void postStatus(String string) {
+	// parentController.postStatus(string);
+	// }
+
+	// public void postProgress(double percentDone) {
+	// parentController.postProgress(percentDone);
+	// }
 
 	@Override
-	public OtmModelManager getModelManager() {
-		return modelMgr;
-	}
+	public void refresh() {
+		// TODO Auto-generated method stub
 
-	@Override
-	public void postStatus(String string) {
-		parentController.postStatus(string);
-	}
-
-	@Override
-	public void postProgress(double percentDone) {
-		parentController.postProgress(percentDone);
 	}
 
 }

@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.repository.tasks.ListSubnamespacesTask;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.repositoryViewer.RepositoryViewerController;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -87,7 +88,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		super.post(repository); // clear view and hold onto repo
 
 		parentController.postStatus("Loading root namespaces");
-		currentFilter = parentController.getRepositorySearchFilter();
+		// currentFilter = parentController.getRepositorySearchFilter();
 
 		// Get the root namespaces in real time
 		try {
@@ -101,7 +102,8 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 						parentController.getStatusController()).go();
 			}
 		} catch (RepositoryException e) {
-			parentController.postRepoError(e);
+			if (parentController instanceof RepositoryViewerController)
+				((RepositoryViewerController) parentController).postRepoError(e);
 			log.debug("Error: " + e.getLocalizedMessage());
 		}
 	}
@@ -123,7 +125,8 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 				return;
 			}
 			if (task.getErrorException() != null) {
-				parentController.postRepoError(task.getErrorException());
+				if (parentController instanceof RepositoryViewerController)
+					((RepositoryViewerController) parentController).postRepoError(task.getErrorException());
 				return;
 			}
 			Map<String, NamespacesDAO> map = ((ListSubnamespacesTask) event.getTarget()).getMap();

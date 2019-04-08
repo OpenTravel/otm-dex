@@ -14,21 +14,21 @@ import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.controllers.MenuBarWithProjectController;
+import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.dex.repository.tasks.OpenProjectFileTask;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.RepositoryTabController.RepoTabNodes;
-import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.objecteditor.memberProperties.PropertiesDAO;
 import org.opentravel.objecteditor.memberProperties.PropertiesTableController;
 import org.opentravel.objecteditor.modelMembers.MemberDAO;
 import org.opentravel.objecteditor.modelMembers.MemberFilterController;
-import org.opentravel.objecteditor.modelMembers.MemberFilterController.LibraryFilterNodes;
 import org.opentravel.objecteditor.modelMembers.MemberTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibrariesTreeController;
 import org.opentravel.objecteditor.projectLibraries.LibraryDAO;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -42,11 +42,11 @@ import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
@@ -57,14 +57,15 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class ObjectEditorController implements DexController, TaskResultHandlerI {
-	// public class ObjectEditorController implements Initializable, DexController {
+public class ObjectEditorController implements DexMainController, TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(ObjectEditorController.class);
 
 	@FXML
 	private MenuBarWithProjectController menuBarWithProjectController;
 	@FXML
 	private DexStatusController dexStatusController;
+	@FXML
+	private MemberFilterController memberFilterController;
 
 	/** **** OLD FXML usage **/
 	//
@@ -98,30 +99,16 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 	@FXML
 	public TableView<?> repoTabLibraryHistoryView;
 
-	// Library Member Table Selection Filters
-	@FXML
-	private ChoiceBox<String> librarySelector;
-	@FXML
-	private TextField libraryNameFilter;
-	@FXML
-	private MenuButton libraryTypeMenu;
-	@FXML
-	private MenuButton libraryStateMenu;
-
 	@FXML
 	public TreeTableView<LibraryDAO> libraryTabTreeTableView;
 
-	// Let FXML inject into the dialog box controller.
-	@FXML
 	private DialogBoxContoller dialogBoxController;
-
-	Stage primaryStage = null;
+	private Stage primaryStage = null;
 	private OtmModelManager modelMgr;
 	private ImageManager imageMgr;
 	private DexFileHandler fileHandler = new DexFileHandler();
 
 	// View Controllers
-	private MemberFilterController memberFilters;
 	private MemberTreeController memberController;
 	private LibrariesTreeController libController;
 	private PropertiesTableController propertiesTableController;
@@ -159,6 +146,8 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 			throw new IllegalStateException("Menu bar not injected by FXML.");
 		if (!(dexStatusController instanceof DexStatusController))
 			throw new IllegalStateException("Status controller not injected by FXML.");
+		if (!(memberFilterController instanceof MemberFilterController))
+			throw new IllegalStateException("Member Filter Controller not injected by FXML.");
 	}
 
 	/**
@@ -174,14 +163,13 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 		// Initialize managers
 		imageMgr = new ImageManager(primaryStage);
 		modelMgr = new OtmModelManager();
-		// modelMgr.createTestLibrary();
 
 		// Set up menu bar and show the project combo
 		menuBarWithProjectController.showCombo(true);
 		menuBarWithProjectController.setStage(primaryStage);
 		menuBarWithProjectController.setDialogBox(dialogBoxController); // needed for not implemented
 		menuBarWithProjectController.setdoCloseHandler(this::handleCloseMenu);
-		menuBarWithProjectController.setFileOpenHandler(this::handleOpenMenu);
+		// menuBarWithProjectController.setFileOpenHandler(this::handleOpenMenu);
 
 		// Setup status controller
 		dexStatusController.setStage(primaryStage);
@@ -205,43 +193,31 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 		configureProjectCombo();
 
 		memberController = new MemberTreeController(this, navTreeTableView, modelMgr);
-		// Set up library selector/filter controller
-		EnumMap<LibraryFilterNodes, Node> filterNodes = new EnumMap<>(LibraryFilterNodes.class);
-		filterNodes.put(LibraryFilterNodes.Library, librarySelector);
-		filterNodes.put(LibraryFilterNodes.Name, libraryNameFilter);
-		filterNodes.put(LibraryFilterNodes.Type, libraryTypeMenu);
-		filterNodes.put(LibraryFilterNodes.State, libraryStateMenu);
-		memberFilters = new MemberFilterController(memberController, filterNodes);
-		memberController.setFilter(memberFilters);
+		memberFilterController.setParentController(this, memberController);
+		memberController.setFilter(memberFilterController);
 
 		libController = new LibrariesTreeController(this, libraryTabTreeTableView);
+		libController.setSelectionListener((v, o, item) -> librarySelectionListener(item));
+	}
+
+	private void librarySelectionListener(TreeItem<LibraryDAO> item) {
+		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
+			return;
+		handleLibrarySelectionEvent(item.getValue().getValue());
 	}
 
 	public void handleLibrarySelectionEvent(OtmLibrary library) {
-		memberFilters.setLibraryFilter(library);
+		memberFilterController.setLibraryFilter(library);
 		memberController.refresh();
 	}
 
-	// @Override
-	// public void initialize(URL location, ResourceBundle resources) {
 	public void initialize() {
 		log.debug("Object Editor Controller - Initialize w/params is now loading!");
 		checkNodes();
-		initializeDialogBox();
-	}
 
-	/**
-	 * Create a working stage from an FXML file and its own controller complete with its own FXML injected controls and
-	 * nodes.
-	 * <p>
-	 * Use this pattern for FXML files that are not included in another FXML file.
-	 */
-	private void initializeDialogBox() {
-		final String LAYOUT_FILE = "/DialogBox.fxml";
-		// Create a new dynamic loader
-		FXMLLoader loader = new FXMLLoader(getClass().getResource(LAYOUT_FILE));
-		dialogBoxController = DialogBoxContoller.init(loader, this);
-		// dialogBoxController.injectMainController(this);
+		// Load dialog box controller using a new dynamic loader
+		FXMLLoader loader = new FXMLLoader(getClass().getResource(DialogBoxContoller.LAYOUT_FILE));
+		dialogBoxController = DialogBoxContoller.init(loader);
 	}
 
 	/**
@@ -329,12 +305,13 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 		log.debug("memberTab selection event");
 	}
 
+	/**
+	 * Configure the menu bar's combo box with projects
+	 */
 	private HashMap<String, File> projectMap = new HashMap<>();
 
 	public void configureProjectCombo() {
 		// FIXME - use UserSettings
-		// TODO - should getting projects be migrated into menu bar? Or should menu bar allow changing combo label?
-		// I don't think it should be...we will end up with multiple projects so the combo will not be enough
 		File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
 		for (File file : fileHandler.getProjectList(initialDirectory)) {
 			projectMap.put(file.getName(), file);
@@ -359,14 +336,8 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 		log.debug("set Name");
 	}
 
-	// @FXML
-	// public void open(ActionEvent e) {
-	// log.debug("open");
-	// }
-
 	/**
 	 * {@inheritDoc}
-	 * <p>
 	 * 
 	 * @return null
 	 */
@@ -390,6 +361,22 @@ public class ObjectEditorController implements DexController, TaskResultHandlerI
 	@Override
 	public void clear() {
 		// TODO - should this do anything?
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public RepositoryManager getRepositoryManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DexStatusController getStatusController() {
+		return dexStatusController;
 	}
 
 }

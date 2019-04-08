@@ -30,7 +30,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
-// @SuppressWarnings("restriction")
+@Deprecated
 public class PropertiesTableController implements DexController {
 	private static Log log = LogFactory.getLog(PropertiesTableController.class);
 
@@ -99,6 +99,7 @@ public class PropertiesTableController implements DexController {
 		}
 	}
 
+	@Override
 	public void refresh() {
 		table.refresh();
 	}
@@ -257,7 +258,7 @@ public class PropertiesTableController implements DexController {
 			return;
 		if (item.getValue().getValue() instanceof OtmLibraryMember)
 			createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());
-		log.debug("Facet Table Selection Listener: " + item.getValue());
+		// log.debug("Facet Table Selection Listener: " + item.getValue());
 	}
 
 	/**
@@ -299,22 +300,18 @@ public class PropertiesTableController implements DexController {
 		return null;
 	}
 
-	@Override
 	public ImageManager getImageManager() {
 		return imageMgr;
 	}
 
-	@Override
 	public OtmModelManager getModelManager() {
 		return null;
 	}
 
-	@Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
 
-	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
 	}

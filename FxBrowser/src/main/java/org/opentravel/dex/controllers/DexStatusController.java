@@ -8,12 +8,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
 import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.dex.repository.tasks.DexTaskBase;
-import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexIncludedController;
+import org.opentravel.objecteditor.DexIncludedControllerBase;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -30,7 +27,8 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class DexStatusController implements DexIncludedController<String> {
+public class DexStatusController extends DexIncludedControllerBase<String> {
+	// public class DexStatusController implements DexIncludedController<String> {
 	private static Log log = LogFactory.getLog(DexStatusController.class);
 
 	List<DexTaskBase<?>> runningTasks;
@@ -71,6 +69,7 @@ public class DexStatusController implements DexIncludedController<String> {
 	/**
 	 * @param primaryStage
 	 */
+	@SuppressWarnings("squid:S1172")
 	public void setStage(Stage primaryStage) {
 		checkNodes();
 		// FIXME - should progress be set when there are no tasks?
@@ -79,7 +78,6 @@ public class DexStatusController implements DexIncludedController<String> {
 		log.debug("Stage set.");
 	}
 
-	@Override
 	public void postProgress(double percent) {
 		if (statusProgress != null)
 			updateProgress(percent);
@@ -89,7 +87,6 @@ public class DexStatusController implements DexIncludedController<String> {
 		// Platform.runLater(() -> postProgress(percent));
 	}
 
-	@Override
 	public void postStatus(String status) {
 		if (statusLabel != null)
 			if (Platform.isFxApplicationThread())
@@ -147,46 +144,9 @@ public class DexStatusController implements DexIncludedController<String> {
 
 	}
 
-	// @Override
-	public void refresh() {
-	}
-
-	@Override
-	public ImageManager getImageManager() {
-		return null;
-	}
-
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
 		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
-	@Override
-	public OtmModelManager getModelManager() {
-		return null;
-	}
-
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setParent(DexController parent) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void post(String businessData) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 }

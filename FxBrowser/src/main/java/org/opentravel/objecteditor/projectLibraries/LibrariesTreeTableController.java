@@ -11,6 +11,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.objecteditor.DexController;
+import org.opentravel.objecteditor.DexMainController;
 import org.opentravel.objecteditor.ObjectEditorController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -26,6 +27,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
+@Deprecated
 public class LibrariesTreeTableController implements DexController {
 	private static Log log = LogFactory.getLog(LibrariesTreeTableController.class);
 
@@ -48,7 +50,7 @@ public class LibrariesTreeTableController implements DexController {
 
 	private OtmModelManager modelMgr;
 	private ImageManager imageMgr;
-	private DexController parentController;
+	private DexMainController parentController;
 
 	public LibrariesTreeTableController() {
 		log.debug("Constructing library tree table controller.");
@@ -58,7 +60,7 @@ public class LibrariesTreeTableController implements DexController {
 		log.debug("Initializing library tree table controller.");
 	}
 
-	public LibrariesTreeTableController(DexController parent, TreeTableView<LibraryDAO> view) {
+	public LibrariesTreeTableController(DexMainController parent, TreeTableView<LibraryDAO> view) {
 		log.debug("Initializing project-library tree table.");
 
 		// remember and check the parameters
@@ -99,7 +101,6 @@ public class LibrariesTreeTableController implements DexController {
 		}
 	}
 
-	@Override
 	public OtmModelManager getModelManager() {
 		return modelMgr;
 	}
@@ -115,6 +116,7 @@ public class LibrariesTreeTableController implements DexController {
 		refresh();
 	}
 
+	@Override
 	public void refresh() {
 		// create cells for libraries in a namespace. Latest at top, older ones under it.
 		libraryTree.getRoot().getChildren().clear();
@@ -241,19 +243,16 @@ public class LibrariesTreeTableController implements DexController {
 		return libraryTree.getSelectionModel().selectedItemProperty();
 	}
 
-	@Override
 	public ImageManager getImageManager() {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
 	}
 
-	@Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
 
-	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
 	}

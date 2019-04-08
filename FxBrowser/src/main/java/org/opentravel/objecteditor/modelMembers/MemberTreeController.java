@@ -10,6 +10,7 @@ import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.DexController;
+import org.opentravel.objecteditor.DexMainController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.css.PseudoClass;
@@ -56,10 +57,10 @@ public class MemberTreeController implements DexController {
 
 	ImageManager imageMgr;
 
-	private DexController parentController;
+	private DexMainController parentController;
 
 	@SuppressWarnings("unchecked")
-	public MemberTreeController(DexController parent, TreeTableView<MemberDAO> navTreeTableView,
+	public MemberTreeController(DexMainController parent, TreeTableView<MemberDAO> navTreeTableView,
 			OtmModelManager model) {
 		log.debug("Initializing navigation tree table.");
 
@@ -191,14 +192,12 @@ public class MemberTreeController implements DexController {
 		return filter;
 	}
 
-	@Override
 	public ImageManager getImageManager() {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
 	}
 
-	@Override
 	public OtmModelManager getModelManager() {
 		return currentModelMgr;
 	}
@@ -225,7 +224,7 @@ public class MemberTreeController implements DexController {
 	private void memberSelectionListener(TreeItem<MemberDAO> item) {
 		if (item == null)
 			return;
-		log.debug("Selection Listener: " + item.getValue());
+		// log.debug("Selection Listener: " + item.getValue());
 		assert item != null;
 		boolean editable = false;
 		if (item.getValue() != null)
@@ -266,6 +265,7 @@ public class MemberTreeController implements DexController {
 		log.debug(name + " not found.");
 	}
 
+	@Override
 	public void refresh() {
 		// create cells for members
 		memberTree.getRoot().getChildren().clear();
@@ -284,12 +284,10 @@ public class MemberTreeController implements DexController {
 		this.filter = filter;
 	}
 
-	@Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
 
-	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
 	}

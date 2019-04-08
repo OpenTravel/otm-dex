@@ -1,16 +1,12 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.dialogbox;
+package org.opentravel.dex.controllers.dialogbox;
 
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
-import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexPopupController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
@@ -41,6 +37,8 @@ import javafx.stage.Stage;
 public class DialogBoxContoller implements DexPopupController {
 	private static Log log = LogFactory.getLog(DialogBoxContoller.class);
 
+	public static final String LAYOUT_FILE = "/DialogBox.fxml";
+
 	@FXML
 	BorderPane dialogBox;
 	@FXML
@@ -55,7 +53,6 @@ public class DialogBoxContoller implements DexPopupController {
 	Label dialogTitleLabel;
 
 	private static Stage popupStage;
-	private static DexController mainController;
 
 	Parent root;
 	Scene scene;
@@ -79,8 +76,7 @@ public class DialogBoxContoller implements DexPopupController {
 	 * @param mainController
 	 * @return dialog box controller or null
 	 */
-	public static DialogBoxContoller init(FXMLLoader loader, DexController mainController) {
-		DialogBoxContoller.mainController = mainController;
+	public static DialogBoxContoller init(FXMLLoader loader) {
 		DialogBoxContoller controller = null;
 		try {
 			// Load the fxml file initialize controller it declares.
@@ -93,14 +89,12 @@ public class DialogBoxContoller implements DexPopupController {
 
 			// get the controller from it.
 			controller = loader.getController();
-			if (!(controller instanceof DialogBoxContoller))
-				log.error("Error creating dialog box controller.");
-			// else {
-			// controller.injectMainController(this);
-			//// controller.injectStage(dialogStage);
-			// }
+			if (!(controller instanceof DialogBoxContoller)) {
+				throw new IllegalStateException("Error creating dialog box controller.");
+			}
 		} catch (IOException e1) {
-			log.error("Error loading dialog box.");
+			log.error("Error loading dialog box: " + e1.getLocalizedMessage());
+			throw new IllegalStateException("Error creating dialog box controller.");
 		}
 		return controller;
 	}
@@ -111,11 +105,10 @@ public class DialogBoxContoller implements DexPopupController {
 	 * @param title
 	 * @param message
 	 */
+	@Override
 	public void show(String title, String message) {
 		if (popupStage == null)
 			throw new IllegalAccessError("Must set stage before use.");
-		if (mainController == null)
-			throw new IllegalAccessError("Must set main controller before use.");
 
 		if (dialogButtonClose != null)
 			dialogButtonClose.setOnAction(e -> close());
@@ -131,7 +124,6 @@ public class DialogBoxContoller implements DexPopupController {
 		}
 		if (dialogText != null)
 			dialogText.setText(message);
-		// dialogText.getChildren().add(new Text(message));
 
 		popupStage.show();
 	}
@@ -144,17 +136,11 @@ public class DialogBoxContoller implements DexPopupController {
 	public void add(String message) {
 		if (dialogText != null)
 			dialogText.setText(message);
-		// dialogText.getChildren().add(new Text(message));
 	}
 
 	public void close() {
 		clear();
 		popupStage.close();
-	}
-
-	@Override
-	public ImageManager getImageManager() {
-		return mainController.getImageManager();
 	}
 
 	@Override
@@ -169,28 +155,8 @@ public class DialogBoxContoller implements DexPopupController {
 	}
 
 	@Override
-	public OtmModelManager getModelManager() {
-		return mainController.getModelManager();
-	}
-
-	@Override
-	public void injectMainController(DexController mainController) {
-		this.mainController = mainController;
-	}
-
-	@Override
-	public void injectStage(Stage stage) {
-		this.popupStage = stage;
-	}
-
-	@Override
-	public void postStatus(String string) {
-		// parentController.postStatus(string);
-	}
-
-	@Override
-	public void postProgress(double percentDone) {
-		// parentController.postProgress(percentDone);
+	public void refresh() {
+		// TODO Auto-generated method stub
 	}
 
 }

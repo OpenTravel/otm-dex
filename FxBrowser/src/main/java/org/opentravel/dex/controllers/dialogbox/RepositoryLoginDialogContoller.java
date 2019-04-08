@@ -1,19 +1,15 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.dialogbox;
+package org.opentravel.dex.controllers.dialogbox;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
-import org.opentravel.model.OtmModelManager;
 import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryInfoType;
 import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryPermission;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexPopupController;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -25,7 +21,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -53,12 +48,12 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 
 	private static Log log = LogFactory.getLog(RepositoryLoginDialogContoller.class);
 
-	public static String LAYOUT_FILE = "/RepositoryLoginDialog.fxml";
+	public static final String LAYOUT_FILE = "/RepositoryLoginDialog.fxml";
 
+	// Stage create by FXML loader
 	private static Stage popupStage;
 
-	private static DexController mainController;
-	private static String helpText = "Login to repository using provided credentials.";
+	// private static String helpText = "Login to repository using provided credentials.";
 
 	/**
 	 * Initialize this controller using the passed FXML loader.
@@ -71,10 +66,8 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	 * @param mainController
 	 * @return dialog box controller or null
 	 */
-	public static RepositoryLoginDialogContoller init(FXMLLoader loader, DexController mainController) {
+	public static RepositoryLoginDialogContoller init(FXMLLoader loader) {
 		RepositoryLoginDialogContoller controller = null;
-		RepositoryLoginDialogContoller.mainController = mainController;
-
 		try {
 			// Load the fxml file initialize controller it declares.
 			Pane pane = loader.load();
@@ -96,6 +89,12 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 
 	private Results result = Results.OK;
 	@FXML
+	Button dialogButtonOK;
+	@FXML
+	RadioButton dialogButtonAnonymous;
+	@FXML
+	Button dialogButtonCancel;
+	@FXML
 	TextField loginRepoID;
 	@FXML
 	CheckBox repoOKCheckbox;
@@ -106,20 +105,12 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	@FXML
 	TextField loginPassword;
 	@FXML
-	Button dialogButtonCancel;
-	@FXML
-	Button dialogButtonOK;
-	@FXML
-	RadioButton dialogButtonAnonymous;
-	@FXML
 	Button dialogButtonTest;
 	@FXML
-	TextArea testResults;
-	@FXML
 	ProgressIndicator dialogProgress;
+	@FXML
+	TextArea testResults;
 
-	Parent root;
-	Scene scene;
 	RepositoryManager rMgr;
 	RemoteRepository selectedRemoteRepository = null; // Selected repository
 
@@ -143,7 +134,6 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		log.debug("Configuring repository combo box.");
 
 		ObservableList<String> repositoryIds = FXCollections.observableArrayList();
-		// rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getId()));
 		rMgr.listRemoteRepositories().forEach(r -> repositoryIds.add(r.getEndpointUrl()));
 		loginURLCombo.setItems(repositoryIds);
 		loginURLCombo.getSelectionModel().select(0);
@@ -163,8 +153,8 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	}
 
 	public void doOK() {
-		clear();
 		doTest(); // use test to setup user in repo
+		clear();
 		popupStage.close();
 		result = Results.OK;
 	}
@@ -208,16 +198,14 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		dialogProgress.progressProperty().set(1.0);
 	}
 
-	@Override
-	public ImageManager getImageManager() {
-		return mainController.getImageManager();
-	}
-
-	@Override
-	public OtmModelManager getModelManager() {
-		return mainController.getModelManager();
-	}
-
+	/**
+	 * Get the repository at the URL. If not found, try to add the URL to the repository managers list of known
+	 * repositories.
+	 * 
+	 * @param rMgr
+	 * @param url
+	 * @return a remote repository or null if unsuccessful.
+	 */
 	private RemoteRepository getRemoteRepository(RepositoryManager rMgr, String url) {
 		RemoteRepository rr = null;
 
@@ -273,20 +261,17 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		log.debug("Initialize injection point.");
 	}
 
-	@Override
-	public void injectMainController(DexController mainController) {
-		this.mainController = mainController;
-	}
-
-	@Override
-	public void injectStage(Stage stage) {
-		this.popupStage = stage;
-	}
-
 	private void postException(Exception e) {
 		postException(e, null);
 	}
 
+	/**
+	 * Post in testResults field the exception message and cause if any.
+	 * 
+	 * @param e
+	 * @param operation
+	 *            text added to message before exception messaage
+	 */
 	private void postException(Exception e, String operation) {
 		log.error("Error.");
 		StringBuilder errMsg = new StringBuilder("Error: ");
@@ -300,16 +285,6 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		testResults.setWrapText(true);
 		testResults.setText(errMsg.toString());
 
-	}
-
-	@Override
-	public void postProgress(double percentDone) {
-		// parentController.postProgress(percentDone);
-	}
-
-	@Override
-	public void postStatus(String string) {
-		// parentController.postStatus(string);
 	}
 
 	private void repositorySelectionChanged() {
@@ -326,12 +301,13 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		repoOKCheckbox.setSelected(selectedRemoteRepository != null);
 	}
 
+	public String getLoginRepoID() {
+		return loginRepoID.getText();
+	}
+
 	public void setup(String title, String message) {
 		if (popupStage == null)
 			throw new IllegalAccessError("Must set stage before use.");
-		if (mainController == null)
-			throw new IllegalAccessError("Must set main controller before use.");
-
 		if (dialogProgress == null || testResults == null || dialogButtonCancel == null || loginUser == null
 				|| loginPassword == null)
 			throw new IllegalStateException("Missing dialog FXML fields.");
@@ -348,20 +324,30 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 			postException(e1);
 			return;
 		}
+		// FIXME - get the starting credentials so there can be a cancel
+		// Requires repository change
+		// startingCredentials = rMgr.get
 		configureRepositoryCombo();
 
 		anonymousSelectionChanged();
 		dialogButtonAnonymous.setOnAction(e -> anonymousSelectionChanged());
 	}
 
+	@Override
 	public void show(String title, String message) {
 		setup(title, message);
 		popupStage.show();
 	}
 
-	public void showAndWait(String title, String message) {
+	public Results showAndWait(String title, String message) {
 		setup(title, message);
 		popupStage.showAndWait();
+		return result;
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
 	}
 
 }

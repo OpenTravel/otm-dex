@@ -5,8 +5,8 @@ package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
 import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
 import org.opentravel.repositoryViewer.RepositoryViewerController;
 
 import javafx.concurrent.Task;

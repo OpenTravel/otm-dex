@@ -73,11 +73,13 @@ public class NamespacesDAO implements DexDAO<String>, TaskResultHandlerI {
 			permission = ((GetRepositoryItemsTask) event.getTarget()).getPermission();
 			allItems = ((GetRepositoryItemsTask) event.getTarget()).getAllItems();
 			latestItems = ((GetRepositoryItemsTask) event.getTarget()).getLatestItems();
-			int locked = 0;
-			for (RepositoryItem item : allItems)
-				if (item.getLockedByUser() != null)
-					locked++;
-			decoration = "   ( " + allItems.size() + "/" + locked + " )";
+			if (allItems != null) {
+				int locked = 0;
+				for (RepositoryItem item : allItems)
+					if (item.getLockedByUser() != null)
+						locked++;
+				decoration = "   ( " + allItems.size() + "/" + locked + " )";
+			}
 		}
 	}
 

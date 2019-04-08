@@ -6,16 +6,17 @@ package org.opentravel.dex.controllers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DialogBox;
-import org.opentravel.common.ImageManager;
-import org.opentravel.model.OtmModelManager;
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexIncludedController;
-import org.opentravel.objecteditor.dialogbox.DialogBoxContoller;
+import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
+import org.opentravel.objecteditor.DexIncludedControllerBase;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventDispatchChain;
+import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -28,7 +29,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class MenuBarWithProjectController implements DexIncludedController<String> {
+public class MenuBarWithProjectController extends DexIncludedControllerBase<String> {
 	private static Log log = LogFactory.getLog(MenuBarWithProjectController.class);
 
 	// FXML injected objects
@@ -41,9 +42,9 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	private Stage stage;
 
 	@FXML
-	public void appExit(ActionEvent e) {
+	public void appExit(Event e) {
 		log.debug("exit");
-		e.consume(); // take the event away from windows
+		e.consume(); // take the event away from windows in case they answer no.
 		if (DialogBox.display("Exit", "Do you really want to exit?"))
 			stage.close();
 	}
@@ -52,16 +53,15 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	public MenuItem doCloseItem;
 
 	public void setdoCloseHandler(EventHandler<ActionEvent> handler) {
-		// doCloseItem.setOnAction(handler);
+		doCloseItem.setOnAction(handler);
 	}
 
 	@FXML
 	public void doClose(ActionEvent e) {
 		// This is only run if the handler is not set.
 		log.debug("Close menu item selected.");
-		DialogBox.notify("Close", "Not implemented.");
-		// if (dialogBoxController != null)
-		// dialogBoxController.show("Close", "Not Implemented");
+		if (dialogBoxController != null)
+			dialogBoxController.show("Close", "Not Implemented");
 	}
 
 	@FXML
@@ -77,6 +77,38 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 		log.debug("File Open selected.");
 		if (dialogBoxController != null)
 			dialogBoxController.show("Open", "Not implemented");
+		stage.fireEvent(new MyEvent(BEFORE_STORE, "Test"));
+		// Event.fireEvent(new EventDispatcher(), null);
+	}
+
+	// https://stackoverflow.com/questions/27416758/how-to-emit-and-handle-custom-events
+	//
+	// On fx.nodes that hand events:
+	// public final void setOnAction(EventHandler<ActionEvent> value) { onActionProperty().set(value); }
+	public static final EventType<MyEvent> OPTIONS_ALL = new EventType<>("OPTIONS_ALL");
+	// make sub-event-type
+	public static final EventType<MyEvent> BEFORE_STORE = new EventType<>(OPTIONS_ALL, "BEFORE_STORE");
+
+	public class MyEvent extends Event {
+		private static final long serialVersionUID = 20190406L;
+		private String subject;
+
+		/**
+		 * @param eventType
+		 */
+		public MyEvent(EventType<? extends Event> eventType) {
+			super(eventType);
+		}
+
+		public MyEvent(EventType<? extends Event> eventType, String data) {
+			super(eventType);
+			subject = data;
+			log.debug("MyEvent constructor ran. data = " + data);
+		}
+
+		public void handle() {
+			log.debug("Handling event: " + getEventType() + " data = " + subject);
+		}
 	}
 
 	@FXML
@@ -143,6 +175,30 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 		checkNodes();
 		log.debug("Stage set.");
 		stage = primaryStage;
+		// handle window and other close request events
+		stage.setOnCloseRequest(this::appExit);
+
+		stage.setEventDispatcher(new MyDispatcher(stage.getEventDispatcher()));
+	}
+
+	private class MyDispatcher implements EventDispatcher {
+		private final EventDispatcher originalDispatcher;
+
+		private MyDispatcher(EventDispatcher originalDispatcher) {
+			this.originalDispatcher = originalDispatcher;
+		}
+
+		@Override
+		public Event dispatchEvent(Event event, EventDispatchChain tail) {
+			if (event instanceof MyEvent) {
+				log.debug("Using my dispatcher on my event");
+				// event.consume();
+				((MyEvent) event).handle();
+				return event;
+			}
+
+			return originalDispatcher.dispatchEvent(event, tail);
+		}
 	}
 
 	public void setDialogBox(DialogBoxContoller controller) {
@@ -150,43 +206,7 @@ public class MenuBarWithProjectController implements DexIncludedController<Strin
 	}
 
 	@Override
-	public void postProgress(double percent) {
-	}
-
-	@Override
-	public void postStatus(String status) {
-	}
-
-	// @Override
-	public void refresh() {
-	}
-
-	@Override
-	public ImageManager getImageManager() {
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
-	@Override
-	public OtmModelManager getModelManager() {
-		return null;
-	}
-
-	@Override
 	public void clear() {
-	}
-
-	@Override
-	public void setParent(DexController parent) {
-	}
-
-	@Override
-	public void post(String businessData) throws Exception {
-		// No-op - no active fields to post into
 	}
 
 }

@@ -22,42 +22,18 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-//import javafx.concurrent.Task;
-//import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-//import javafx.scene.control.cell.TextFieldTreeTableCell;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.control.TreeView;
-//import javafx.util.converter.IntegerStringConverter;
-//javafx.beans.property.SimpleBooleanProperty
-// import javafx.beans.property.ReadOnlyStringWrapper;
-//javafx.beans.property.ReadOnlyBooleanWrapper
-//javafx.beans.property.SimpleintegerProperty
-//javafx.beans.property.ReadOnlyintegerWrapper
-//javafx.beans.property.SimpleDoubleProperty
-//javafx.beans.property.ReadOnlyDoubleWrapper
-//javafx.beans.property.ReadOnlyStringWrapper
-//import javafx.beans.property.StringProperty;
-//import javafx.beans.property.SimpleStringProperty;
-
 /**
  * Controller for a library history table. Creates table containing library history properties.
  * 
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+@Deprecated
 public class LibraryHistoryItemsController implements DexController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryHistoryItemsController.class);
 
 	public class CommitNode {
 		private RepositoryItemCommit item;
-
-		// private int commitNumber;
-		// private Date effectiveOn;
-		// private String user;
-		// private String remarks;
 
 		public CommitNode(RepositoryItemCommit item) {
 			this.item = item;
@@ -82,14 +58,14 @@ public class LibraryHistoryItemsController implements DexController {
 
 	private TableView<CommitNode> historyTable;
 	private ObservableList<CommitNode> commitList = FXCollections.observableArrayList();
-	private DexController parentController;
+	private DexMainController parentController;
 
 	/**
 	 * Create a view for the libraries described by repository items in the passed namespace.
 	 * 
 	 * @param nsLibraryTablePermissionField
 	 */
-	public LibraryHistoryItemsController(DexController parent, TableView<CommitNode> table) {
+	public LibraryHistoryItemsController(DexMainController parent, TableView<CommitNode> table) {
 
 		System.out.println("Initializing repository library table view.");
 
@@ -111,26 +87,9 @@ public class LibraryHistoryItemsController implements DexController {
 	 * 
 	 * @return null
 	 */
-	@Override
 	public OtmModelManager getModelManager() {
 		return null;
 	}
-
-	// private TreeItem<RepoItemNode> initializeTree() {
-	// // Set the hidden root item
-	// root = new TreeItem<>();
-	// root.setExpanded(true); // Startout fully expanded
-	// // Set up the TreeTable
-	// libTable.setRoot(root);
-	// libTable.setShowRoot(false);
-	// libTable.setEditable(false);
-	//
-	// // tree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
-	// // tree.setTableMenuButtonVisible(true); // allow users to select columns
-	// // Enable context menus at the row level and add change listener for for applying style
-	// // tree.setRowFactory((TreeTableView<NamespaceNode> p) -> new PropertyRowFactory());
-	// return root;
-	// }
 
 	@Override
 	public void clear() {
@@ -211,21 +170,29 @@ public class LibraryHistoryItemsController implements DexController {
 		return null;
 	}
 
-	@Override
 	public ImageManager getImageManager() {
 		// if (imageMgr == null)
 		// throw new IllegalStateException("Image manger is null.");
 		return null;
 	}
 
-	@Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
 
-	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.objecteditor.DexController#refresh()
+	 */
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

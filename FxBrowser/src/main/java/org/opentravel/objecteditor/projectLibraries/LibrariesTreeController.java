@@ -11,9 +11,10 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.ObjectEditorController;
+import org.opentravel.objecteditor.DexMainController;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.SortType;
@@ -26,7 +27,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
+@Deprecated
 public class LibrariesTreeController implements DexController {
 	private static Log log = LogFactory.getLog(LibrariesTreeController.class);
 
@@ -49,10 +50,9 @@ public class LibrariesTreeController implements DexController {
 
 	private OtmModelManager modelMgr;
 	private ImageManager imageMgr;
-	private DexController parentController;
+	private DexMainController parentController;
 
-	@SuppressWarnings("unchecked")
-	public LibrariesTreeController(DexController parent, TreeTableView<LibraryDAO> view) {
+	public LibrariesTreeController(DexMainController parent, TreeTableView<LibraryDAO> view) {
 		log.debug("Initializing project-library tree table.");
 
 		// remember and check the parameters
@@ -78,8 +78,8 @@ public class LibrariesTreeController implements DexController {
 		libraryTree.setTableMenuButtonVisible(true); // allow users to select columns
 
 		// add a listener class with three parameters that invokes selection listener
-		libraryTree.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> librarySelectionListener(newValue));
+		// libraryTree.getSelectionModel().selectedItemProperty()
+		// .addListener((v, old, newValue) -> librarySelectionListener(newValue));
 
 		// Set up the TreeTable
 		buildColumns();
@@ -93,7 +93,10 @@ public class LibrariesTreeController implements DexController {
 		}
 	}
 
-	@Override
+	public void setSelectionListener(ChangeListener<TreeItem<LibraryDAO>> listener) {
+		libraryTree.getSelectionModel().selectedItemProperty().addListener(listener);
+	}
+
 	public OtmModelManager getModelManager() {
 		return modelMgr;
 	}
@@ -109,6 +112,7 @@ public class LibrariesTreeController implements DexController {
 		refresh();
 	}
 
+	@Override
 	public void refresh() {
 		// create cells for libraries in a namespace. Latest at top, older ones under it.
 		libraryTree.getRoot().getChildren().clear();
@@ -130,21 +134,21 @@ public class LibrariesTreeController implements DexController {
 		}
 	}
 
-	/**
-	 * Listener for selected library members.
-	 * 
-	 * @param item
-	 */
-	private void librarySelectionListener(TreeItem<LibraryDAO> item) {
-		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
-			return;
-
-		log.debug("Selection Listener: " + item.getValue().getValue());
-
-		if (parentController instanceof ObjectEditorController)
-			if (item.getValue().getValue() instanceof OtmLibrary)
-				((ObjectEditorController) parentController).handleLibrarySelectionEvent(item.getValue().getValue());
-	}
+	// /**
+	// * Listener for selected library members.
+	// *
+	// * @param item
+	// */
+	// private void librarySelectionListener(TreeItem<LibraryDAO> item) {
+	// if (item == null || item.getValue() == null || item.getValue().getValue() == null)
+	// return;
+	//
+	// log.debug("Selection Listener: " + item.getValue().getValue());
+	//
+	// if (parentController instanceof ObjectEditorController)
+	// if (item.getValue().getValue() instanceof OtmLibrary)
+	// ((ObjectEditorController) parentController).handleLibrarySelectionEvent(item.getValue().getValue());
+	// }
 
 	public TreeItem<LibraryDAO> getRoot() {
 		return root;
@@ -230,24 +234,23 @@ public class LibrariesTreeController implements DexController {
 	 * 
 	 * @return the member tree selected item property.
 	 */
+	@Deprecated
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<LibraryDAO>> getSelectable() {
-		return libraryTree.getSelectionModel().selectedItemProperty();
+		return null;
+		// return libraryTree.getSelectionModel().selectedItemProperty();
 	}
 
-	@Override
 	public ImageManager getImageManager() {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
 	}
 
-	@Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
 
-	@Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
 	}

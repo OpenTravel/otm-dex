@@ -5,7 +5,6 @@ package org.opentravel.dex.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
 import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
@@ -49,16 +48,6 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 		historyTable.setItems(commitList);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
-	@Override
-	public OtmModelManager getModelManager() {
-		return null;
-	}
-
 	@Override
 	public void clear() {
 		historyTable.getItems().clear();
@@ -77,6 +66,15 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 		}
 		for (RepositoryItemCommit cItem : history.getCommitHistory()) {
 			commitList.add(new RepoItemCommitDAO(cItem));
+		}
+	}
+
+	@Override
+	public void refresh() {
+		try {
+			post(postedData);
+		} catch (Exception e) {
+			log.error("Unhandled error refreshing repository item commit history: " + e.getLocalizedMessage());
 		}
 	}
 

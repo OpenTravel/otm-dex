@@ -8,9 +8,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
 import org.opentravel.dex.repository.tasks.SearchRepositoryTask;
-import org.opentravel.model.OtmModelManager;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -132,11 +130,11 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 		// FIXME - proper command/control structure/delegation
 		parentController.postStatus("Done.");
 		parentController.clear();
-		try {
-			parentController.getRepositoryNamespacesController().post(currentRepository);
-		} catch (Exception e) {
-			log.error("Error posting repository namespaces: " + e.getLocalizedMessage());
-		}
+		// try {
+		// parentController.getRepositoryNamespacesController().post(currentRepository);
+		// } catch (Exception e) {
+		// log.error("Error posting repository namespaces: " + e.getLocalizedMessage());
+		// }
 
 	}
 
@@ -181,33 +179,8 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 	}
 
 	@Override
-	public ImageManager getImageManager() {
-		return null;
-	}
-
-	@Override
 	public ReadOnlyObjectProperty<String> getSelectable() {
 		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
-	@Override
-	public OtmModelManager getModelManager() {
-		return null;
-	}
-
-	@Override
-	public void postProgress(double percent) {
-		// Does nothing.
-	}
-
-	@Override
-	public void postStatus(String status) {
-		// Does nothing.
 	}
 
 }

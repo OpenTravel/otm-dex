@@ -29,6 +29,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
+@Deprecated
 public class NamespaceLibrariesTableController implements DexController {
 	private static Log log = LogFactory.getLog(NamespaceLibrariesTableController.class);
 
@@ -108,14 +109,14 @@ public class NamespaceLibrariesTableController implements DexController {
 	protected TreeTableView<RepoItemNode> libTable;
 	private TreeItem<RepoItemNode> root;
 	private Label permissionField;
-	private DexController parentController;
+	private DexMainController parentController;
 
 	/**
 	 * Create a view for the libraries described by repository items in the passed namespace.
 	 * 
 	 * @param nsLibraryTablePermissionField
 	 */
-	public NamespaceLibrariesTableController(DexController parent, TreeTableView<RepoItemNode> libTable,
+	public NamespaceLibrariesTableController(DexMainController parent, TreeTableView<RepoItemNode> libTable,
 			Label permissionField) {
 
 		log.debug("Initializing repository library table view.");
@@ -145,7 +146,6 @@ public class NamespaceLibrariesTableController implements DexController {
 	 * 
 	 * @return null
 	 */
-	@Override
 	public OtmModelManager getModelManager() {
 		return null;
 	}
@@ -275,21 +275,26 @@ public class NamespaceLibrariesTableController implements DexController {
 		return libTable.getSelectionModel().selectedItemProperty();
 	}
 
-	@Override
+	// @Override
 	public ImageManager getImageManager() {
 		if (imageMgr == null)
 			throw new IllegalStateException("Image manger is null.");
 		return imageMgr;
 	}
 
-	@Override
+	// @Override
 	public void postStatus(String string) {
 		parentController.postStatus(string);
 	}
 
-	@Override
+	// @Override
 	public void postProgress(double percentDone) {
 		parentController.postProgress(percentDone);
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
 	}
 
 }

@@ -3,8 +3,7 @@
  */
 package org.opentravel.common;
 
-import org.opentravel.objecteditor.DexController;
-import org.opentravel.objecteditor.DexIncludedController;
+import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.schemacompiler.loader.LoaderProgressMonitor;
 
 /**
@@ -13,15 +12,15 @@ import org.opentravel.schemacompiler.loader.LoaderProgressMonitor;
  */
 public class OpenProjectProgressMonitor implements LoaderProgressMonitor {
 
-	DexController controller;
-	double percentDone = 0;
-	double increment;
+	private DexStatusController controller;
+	private double percentDone = 0;
+	private double increment;
 
 	/**
 	 * @param objectEditorController
 	 * 
 	 */
-	public OpenProjectProgressMonitor(DexIncludedController objectEditorController) {
+	public OpenProjectProgressMonitor(DexStatusController objectEditorController) {
 		controller = objectEditorController;
 		increment = 0.90F;
 	}

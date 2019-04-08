@@ -8,6 +8,7 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.objecteditor.DexIncludedControllerBase;
+import org.opentravel.repositoryViewer.RepositoryViewerController;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -81,6 +82,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		return librariesTreeTableView.getSelectionModel().getSelectedItem().getValue();
 	}
 
+	@Override
 	public void refresh() {
 		try {
 			post(currentNamespaceDAO);
@@ -105,24 +107,26 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 		// Get a table of the latest of each library of any status
 		HashMap<String, TreeItem<RepoItemDAO>> latestVersions = new HashMap<>();
-		for (RepositoryItem ri : nsNode.getLatestItems()) {
-			RepoItemDAO repoItemNode = new RepoItemDAO(ri, parentController.getStatusController());
-			TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
-			treeItem.setExpanded(true);
-			root.getChildren().add(treeItem);
-			latestVersions.put(ri.getLibraryName(), treeItem);
-		}
+		if (nsNode.getLatestItems() != null)
+			for (RepositoryItem ri : nsNode.getLatestItems()) {
+				RepoItemDAO repoItemNode = new RepoItemDAO(ri, parentController.getStatusController());
+				TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
+				treeItem.setExpanded(true);
+				root.getChildren().add(treeItem);
+				latestVersions.put(ri.getLibraryName(), treeItem);
+			}
 
-		for (RepositoryItem rItem : nsNode.getAllItems()) {
-			if (latestVersions.containsKey(rItem.getLibraryName())) {
-				RepoItemDAO parent = latestVersions.get(rItem.getLibraryName()).getValue();
-				if (!parent.versionProperty().get().equals(rItem.getVersion())) {
-					RepoItemDAO repoItemNode = new RepoItemDAO(rItem, parentController.getStatusController());
-					TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
-					latestVersions.get(rItem.getLibraryName()).getChildren().add(treeItem);
+		if (nsNode.getAllItems() != null)
+			for (RepositoryItem rItem : nsNode.getAllItems()) {
+				if (latestVersions.containsKey(rItem.getLibraryName())) {
+					RepoItemDAO parent = latestVersions.get(rItem.getLibraryName()).getValue();
+					if (!parent.versionProperty().get().equals(rItem.getVersion())) {
+						RepoItemDAO repoItemNode = new RepoItemDAO(rItem, parentController.getStatusController());
+						TreeItem<RepoItemDAO> treeItem = new TreeItem<>(repoItemNode);
+						latestVersions.get(rItem.getLibraryName()).getChildren().add(treeItem);
+					}
 				}
 			}
-		}
 	}
 
 	/**
@@ -170,12 +174,10 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		return librariesTreeTableView.getSelectionModel().selectedItemProperty();
 	}
 
-	/**
-	 * @return
-	 */
-	public RepositorySelectionController getRepositoryController() {
-		// TODO - make this part of DexController interface
-		return parentController.getRepositoryController();
+	public RepositoryViewerController getRepositoryViewerController() {
+		if (parentController instanceof RepositoryViewerController)
+			return (RepositoryViewerController) parentController;
+		return null;
 	}
 
 }
