@@ -86,6 +86,21 @@ public class MemberTreeController implements DexController {
 		}
 
 		navTreeTableView.getSelectionModel().select(0);
+
+	}
+
+	// private class FilterChangeEventHandler implements EventHandler<MyEvent> {
+	// @Override
+	// public void handle(MyEvent event) {
+	// log.debug("Event handler");
+	// EventTarget target = event.getTarget();
+	// refresh();
+	// }
+	// }
+
+	private void filterChangedHandler() {
+		log.debug("Filter change event received.");
+		refresh();
 	}
 
 	private void buildColumns() {
@@ -282,6 +297,9 @@ public class MemberTreeController implements DexController {
 
 	public void setFilter(MemberFilterController filter) {
 		this.filter = filter;
+
+		// Get Events from the filter
+		filter.setChangeEventHandler(e -> filterChangedHandler());
 	}
 
 	public void postStatus(String string) {

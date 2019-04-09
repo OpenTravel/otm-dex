@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor;
+package org.opentravel.dex.controllers;
 
 import org.opentravel.common.ImageManager;
 

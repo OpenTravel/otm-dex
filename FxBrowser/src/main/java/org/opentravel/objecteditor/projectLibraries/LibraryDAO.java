@@ -6,8 +6,8 @@ package org.opentravel.objecteditor.projectLibraries;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.DexDAO;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;

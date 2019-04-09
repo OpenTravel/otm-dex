@@ -36,6 +36,7 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 
 	@Override
 	public void configure(DexMainController parent) {
+		checkNodes();
 		this.parentController = parent;
 		imageMgr = parent.getImageManager();
 		log.debug("Parent controller set.");

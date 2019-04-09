@@ -4,7 +4,7 @@
 package org.opentravel.dex.repository;
 
 import org.opentravel.common.ImageManager;
-import org.opentravel.objecteditor.DexDAO;
+import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

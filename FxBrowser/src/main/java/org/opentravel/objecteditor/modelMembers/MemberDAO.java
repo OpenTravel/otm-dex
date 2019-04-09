@@ -6,10 +6,10 @@ package org.opentravel.objecteditor.modelMembers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.objecteditor.DexDAO;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

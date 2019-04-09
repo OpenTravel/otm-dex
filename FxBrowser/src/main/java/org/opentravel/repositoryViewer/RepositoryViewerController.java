@@ -94,34 +94,32 @@ public class RepositoryViewerController extends DexMainControllerBase implements
 		// These may be needed by sub-controllers
 		this.stage = primaryStage;
 		imageMgr = new ImageManager(primaryStage);
-		// modelMgr = new OtmModelManager();
 		checkNodes();
 
 		// Hide the project combo
+		addIncludedController(menuBarWithProjectController);
 		menuBarWithProjectController.showCombo(false);
-		menuBarWithProjectController.setStage(primaryStage);
 
 		// repositorySearchController.setParent(this);
 		// repositorySearchController.setStage();
 		// repositorySearchController.setRepository(null);
 
 		// Set up the repository selection
-		repositorySelectionController.configure(this);
+		addIncludedController(repositorySelectionController);
 		repositorySelectionController.getSelectable().addListener((v, old, newValue) -> repositorySelectionChanged());
 
 		// Inject this controller into sub-controllers
-		repositoryNamespacesTreeController.configure(this);
+		addIncludedController(repositoryNamespacesTreeController);
 		repositoryNamespacesTreeController.getSelectable()
 				.addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
 		// repositoryNamespacesTreeController.setFilter(repositorySearchController);
 
 		// Set up the libraries in a namespace table
-		namespaceLibrariesTreeTableController.configure(this);
+		addIncludedController(namespaceLibrariesTreeTableController);
 		namespaceLibrariesTreeTableController.getSelectable()
 				.addListener((v, old, newValue) -> librarySelectionListener(newValue));
 
-		dexStatusController.setStage(primaryStage);
-		dexStatusController.configure(this);
+		addIncludedController(dexStatusController);
 		statusController = dexStatusController; // make available to base class
 
 		log.debug("Stage set.");

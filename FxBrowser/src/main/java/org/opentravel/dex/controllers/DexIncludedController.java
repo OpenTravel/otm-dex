@@ -20,13 +20,15 @@ public interface DexIncludedController<T> extends DexController {
 
 	/**
 	 * Do any post-initialization configuration needed by this controller now that it has full access to program
-	 * resource.
+	 * resource. Is invoked when the included controller is
+	 * {@link DexMainControllerBase#addIncludedController(DexIncludedController)} is called.
 	 * <p>
 	 * Set the main parent controller. Included controllers will not have access to the parent controller until this
 	 * method is called. An illegalState exception should be thrown if the parent controller is needed for posting data
 	 * into the view before the parent is set.
 	 * <p>
-	 * This method should retrieve all of the resources it needs from the parent such as image or model managers.
+	 * This method should retrieve all of the resources it needs from the parent such as the stage or image and model
+	 * managers.
 	 * 
 	 * @param parent
 	 */

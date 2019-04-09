@@ -73,29 +73,9 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	@FXML
 	public TreeTableView<PropertiesDAO> facetTabTreeTable;
 
-	// Repository Tab
-	// @FXML
-	// public TreeView<?> repoTabRootNSs;
-	// @FXML
-	// private ChoiceBox<String> repoTabRepoChoice;
-	// @FXML
-	// private ChoiceBox<String> repoTabNSChoice;
-	// @FXML
-	// private TreeTableView<?> repoTabLibraryTreeTableView;
-	// @FXML
-	// private Label nsLibraryTablePermissionLabel;
-	// @FXML
-	// private TextField repoTabRepoUserField;
-	// @FXML
-	// public TableView<?> repoTabLibraryHistoryView;
-
 	@FXML
 	public TreeTableView<LibraryDAO> libraryTabTreeTableView;
 
-	// private DialogBoxContoller dialogBoxController;
-	// private Stage stage = null;
-	// private OtmModelManager modelMgr;
-	// private ImageManager imageMgr;
 	private DexFileHandler fileHandler = new DexFileHandler();
 
 	// View Controllers
@@ -159,14 +139,13 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 		modelMgr = new OtmModelManager();
 
 		// Set up menu bar and show the project combo
+		addIncludedController(menuBarWithProjectController);
 		menuBarWithProjectController.showCombo(true);
-		menuBarWithProjectController.setStage(stage);
 		menuBarWithProjectController.setdoCloseHandler(this::handleCloseMenu);
 		// menuBarWithProjectController.setFileOpenHandler(this::handleOpenMenu);
 
 		// Setup status controller
-		dexStatusController.setStage(stage);
-		dexStatusController.configure(this);
+		addIncludedController(dexStatusController);
 		statusController = dexStatusController; // Make available to base class
 
 		// Setup Repository Tab controller
@@ -178,8 +157,10 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 
 		configureProjectCombo();
 
+		addIncludedController(memberFilterController);
+
 		memberController = new MemberTreeController(this, navTreeTableView, modelMgr);
-		memberFilterController.setParentController(this, memberController);
+		// memberFilterController.setFilteredController(memberController);
 		memberController.setFilter(memberFilterController);
 
 		libController = new LibrariesTreeController(this, libraryTabTreeTableView);

@@ -7,6 +7,8 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
+import javafx.stage.Stage;
+
 /**
  * Abstract interface for main Otm-DE FX controllers. Main controllers:
  * <ul>
@@ -53,6 +55,11 @@ public interface DexMainController extends DexController {
 	 * @return repository manager or null
 	 */
 	public RepositoryManager getRepositoryManager();
+
+	/**
+	 * 
+	 */
+	public Stage getStage();
 
 	/**
 	 * @return status controller used by this application

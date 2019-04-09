@@ -11,12 +11,12 @@
 
 <VBox xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.opentravel.objecteditor.modelMembers.MemberFilterController">
    <children>
-      <HBox styleClass="tab-menu-bar" stylesheets="@DavesViper.css">
+      <HBox fx:id="memberFilter" styleClass="tab-menu-bar" stylesheets="@DavesViper.css">
          <children>
             <VBox layoutX="10.0" layoutY="10.0" spacing="3.0">
                <children>
-                  <ChoiceBox fx:id="librarySelector" accessibleRole="CHECK_BOX" prefWidth="100.0" />
-                  <MenuButton fx:id="memberTypeMenu" mnemonicParsing="false" prefWidth="100.0" text="Type (future)">
+                  <ChoiceBox fx:id="librarySelector" accessibleRole="CHECK_BOX" minWidth="100.0" prefWidth="150.0" />
+                  <MenuButton fx:id="memberTypeMenu" minWidth="100.0" mnemonicParsing="false" prefWidth="150.0" text="Type (future)">
                     <items>
                       <MenuItem mnemonicParsing="false" text="ALL" />
                       <MenuItem mnemonicParsing="false" text="Objects" />

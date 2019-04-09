@@ -81,6 +81,11 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	}
 
 	@Override
+	public Stage getStage() {
+		return stage;
+	}
+
+	@Override
 	public ReadOnlyObjectProperty<?> getSelectable() {
 		return null;
 	}
