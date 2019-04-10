@@ -1,9 +1,8 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.modelMembers;
+package org.opentravel.dex.controllers.member;
 
-import java.awt.IllegalComponentStateException;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
@@ -11,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.events.DexFilterChangeEvent;
+import org.opentravel.dex.events.DexLibrarySelectionEvent;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
@@ -80,19 +80,19 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	@Override
 	public void checkNodes() {
 		if (!(memberFilter instanceof HBox))
-			throw new IllegalComponentStateException("Member Filter not injected by FXML.");
+			throw new IllegalStateException("Member Filter not injected by FXML.");
 		if (!(librarySelector instanceof ChoiceBox))
-			throw new IllegalComponentStateException("Library selector not injected by FXML.");
+			throw new IllegalStateException("Library selector not injected by FXML.");
 		if (!(memberNameFilter instanceof TextField))
-			throw new IllegalComponentStateException("memberNameFilter not injected by FXML.");
+			throw new IllegalStateException("memberNameFilter not injected by FXML.");
 		if (!(memberTypeMenu instanceof MenuButton))
-			throw new IllegalComponentStateException("memberTypeMenu not injected by FXML.");
+			throw new IllegalStateException("memberTypeMenu not injected by FXML.");
 		if (!(latestButton instanceof RadioButton))
-			throw new IllegalComponentStateException("latestButton not injected by FXML.");
+			throw new IllegalStateException("latestButton not injected by FXML.");
 		if (!(editableButton instanceof RadioButton))
-			throw new IllegalComponentStateException("editableButton not injected by FXML.");
+			throw new IllegalStateException("editableButton not injected by FXML.");
 		if (!(errorsButton instanceof RadioButton))
-			throw new IllegalComponentStateException("errorsButton not injected by FXML.");
+			throw new IllegalStateException("errorsButton not injected by FXML.");
 	}
 
 	@Override
@@ -165,6 +165,9 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	// Future - use fxControls or other package to get a multiple check box or even check tree to select versions.
 	//
+	/**
+	 * Run when a GUI control changes the selected library.
+	 */
 	private void setLibraryFilter() {
 		String selection = ALLLIBS;
 		if (librarySelector.getSelectionModel().getSelectedItem() != null) {
@@ -177,6 +180,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 			}
 		}
 		librarySelector.setValue(selection);
+		memberFilter.fireEvent(new DexLibrarySelectionEvent(libraryMap.get(selection)));
 	}
 
 	public void setLibraryFilter(OtmLibrary lib) {
@@ -210,6 +214,10 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	public void setChangeEventHandler(EventHandler<DexFilterChangeEvent> eventHandler) {
 		memberFilter.addEventHandler(DexFilterChangeEvent.FILTER_CHANGED, eventHandler);
+	}
+
+	public void setLibrarySelectedEventHandler(EventHandler<DexLibrarySelectionEvent> eventHandler) {
+		memberFilter.addEventHandler(DexLibrarySelectionEvent.LIBRARY_SELECTED, eventHandler);
 	}
 
 	public void setLatestOnly() {

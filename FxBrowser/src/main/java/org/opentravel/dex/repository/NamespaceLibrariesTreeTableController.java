@@ -33,7 +33,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 	// Injected fields
 	@FXML
-	protected TreeTableView<RepoItemDAO> librariesTreeTableView;
+	private TreeTableView<RepoItemDAO> nsLibrariesTreeTableView;
 	@FXML
 	private Label permissionLabel;
 	@FXML
@@ -43,24 +43,31 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	private NamespacesDAO currentNamespaceDAO = null;
 
 	public NamespaceLibrariesTreeTableController() {
-		log.debug("Constructing namespace libraries tree controller.");
+		super();
 	}
 
 	@Override
 	public void checkNodes() {
+		if (!(nsLibrariesTreeTableView instanceof TreeTableView))
+			throw new IllegalStateException("Libraries tree table not injected.");
+		if (!(permissionLabel instanceof Label))
+			throw new IllegalStateException("Permission label not injected.");
+		if (!(namespaceLabel instanceof Label))
+			throw new IllegalStateException("Namespace label not injected.");
+		log.debug("Constructing namespace libraries tree controller.");
 	}
 
 	@Override
 	public void initialize() {
 		log.debug("Initializing namespace libraries tree controller.");
 
-		if (librariesTreeTableView == null)
+		if (nsLibrariesTreeTableView == null)
 			throw new IllegalArgumentException("Namespace libraries tree table view is null.");
 		// table = librariesTreeTableView;
 
 		// Initialize and build columns for library tree table
 		root = initializeTree();
-		buildColumns(librariesTreeTableView);
+		buildColumns(nsLibrariesTreeTableView);
 	}
 
 	private TreeItem<RepoItemDAO> initializeTree() {
@@ -68,22 +75,23 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		root = new TreeItem<>();
 		root.setExpanded(true); // Startout fully expanded
 		// Set up the TreeTable
-		librariesTreeTableView.setRoot(root);
-		librariesTreeTableView.setShowRoot(false);
-		librariesTreeTableView.setEditable(false);
+		nsLibrariesTreeTableView.setRoot(root);
+		nsLibrariesTreeTableView.setShowRoot(false);
+		nsLibrariesTreeTableView.setEditable(false);
 
 		// Enable context menus at the row level and add change listener for for applying style
-		librariesTreeTableView.setRowFactory((TreeTableView<RepoItemDAO> p) -> new NamespaceLibrariesRowFactory(this));
+		nsLibrariesTreeTableView
+				.setRowFactory((TreeTableView<RepoItemDAO> p) -> new NamespaceLibrariesRowFactory(this));
 		return root;
 	}
 
 	@Override
 	public void clear() {
-		librariesTreeTableView.getRoot().getChildren().clear();
+		nsLibrariesTreeTableView.getRoot().getChildren().clear();
 	}
 
 	public RepoItemDAO getSelectedItem() {
-		return librariesTreeTableView.getSelectionModel().getSelectedItem().getValue();
+		return nsLibrariesTreeTableView.getSelectionModel().getSelectedItem().getValue();
 	}
 
 	@Override
@@ -175,7 +183,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	 */
 	@Override
 	public ReadOnlyObjectProperty<TreeItem<RepoItemDAO>> getSelectable() {
-		return librariesTreeTableView.getSelectionModel().selectedItemProperty();
+		return nsLibrariesTreeTableView.getSelectionModel().selectedItemProperty();
 	}
 
 	public RepositoryViewerController getRepositoryViewerController() {

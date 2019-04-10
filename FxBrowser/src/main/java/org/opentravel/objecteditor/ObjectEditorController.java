@@ -13,18 +13,20 @@ import org.opentravel.dex.controllers.DexMainControllerBase;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.controllers.MenuBarWithProjectController;
 import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
+import org.opentravel.dex.controllers.library.LibrariesTabController;
+import org.opentravel.dex.controllers.library.LibrariesTreeTableController;
+import org.opentravel.dex.controllers.library.LibraryDAO;
+import org.opentravel.dex.controllers.member.MemberFilterController;
+import org.opentravel.dex.controllers.member.MemberTreeTableController;
+import org.opentravel.dex.controllers.member.properties.MemberPropertiesTabController;
+import org.opentravel.dex.controllers.member.properties.MemberPropertiesTreeTableController;
+import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
+import org.opentravel.dex.events.DexLibrarySelectionEvent;
 import org.opentravel.dex.repository.RepositoryTabController;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.dex.repository.tasks.OpenProjectFileTask;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
-import org.opentravel.objecteditor.memberProperties.PropertiesDAO;
-import org.opentravel.objecteditor.memberProperties.PropertiesTableController;
-import org.opentravel.objecteditor.modelMembers.MemberDAO;
-import org.opentravel.objecteditor.modelMembers.MemberFilterController;
-import org.opentravel.objecteditor.modelMembers.MemberTreeController;
-import org.opentravel.objecteditor.projectLibraries.LibrariesTreeController;
-import org.opentravel.objecteditor.projectLibraries.LibraryDAO;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,7 +37,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.stage.Stage;
 
@@ -56,6 +57,12 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	private MemberFilterController memberFilterController;
 	@FXML
 	private RepositoryTabController repositoryTabController;
+	@FXML
+	private MemberTreeTableController memberTreeTableController;
+	@FXML
+	private MemberPropertiesTabController memberPropertiesTabController;
+	@FXML
+	private LibrariesTabController librariesTabController;
 
 	/** **** OLD FXML usage **/
 	//
@@ -64,8 +71,8 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	//
 	// Navigation Table Tree View
 	//
-	@FXML
-	public TreeTableView<MemberDAO> navTreeTableView;
+	// @FXML
+	// public TreeTableView<MemberDAO> navTreeTableView;
 
 	// Facet Tab
 	@FXML
@@ -79,9 +86,9 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	private DexFileHandler fileHandler = new DexFileHandler();
 
 	// View Controllers
-	private MemberTreeController memberController;
-	private LibrariesTreeController libController;
-	private PropertiesTableController propertiesTableController;
+	// private MemberTreeTableController memberController;
+	private LibrariesTreeTableController libController;
+	// private MemberPropertiesTreeTableController propertiesTableController;
 
 	// TODO - formalize handler for view controllers with iterator
 
@@ -113,14 +120,26 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 
 	@Override
 	public void checkNodes() {
-		if (!(menuBarWithProjectController instanceof MenuBarWithProjectController))
-			throw new IllegalStateException("Menu bar not injected by FXML.");
-		if (!(dexStatusController instanceof DexStatusController))
-			throw new IllegalStateException("Status controller not injected by FXML.");
-		if (!(memberFilterController instanceof MemberFilterController))
-			throw new IllegalStateException("Member Filter Controller not injected by FXML.");
 		if (!(repositoryTabController instanceof RepositoryTabController))
-			throw new IllegalStateException("Repository Tab Controller not injected by FXML.");
+			throw new IllegalStateException("Repository tab not injected by FXML.");
+		if (!(memberPropertiesTabController instanceof MemberPropertiesTabController))
+			throw new IllegalStateException("Member properties tab not injected by FXML.");
+		if (!(librariesTabController instanceof LibrariesTabController))
+			throw new IllegalStateException("Libraries tab not injected by FXML.");
+
+		// Included controllers do not need to be checked...they will be checked when added
+		// if (!(menuBarWithProjectController instanceof MenuBarWithProjectController))
+		// throw new IllegalComponentStateException("Menu bar not injected by FXML.");
+		// if (!(dexStatusController instanceof DexStatusController))
+		// throw new IllegalComponentStateException("Status controller not injected by FXML.");
+		// if (!(memberFilterController instanceof MemberFilterController))
+		// throw new IllegalComponentStateException("Member Filter Controller not injected by FXML.");
+		// if (!(repositoryTabController instanceof RepositoryTabController))
+		// throw new IllegalComponentStateException("Repository Tab Controller not injected by FXML.");
+		// if (!(memberTreeTableController instanceof MemberTreeTableController))
+		// throw new IllegalComponentStateException("Member tree table Controller not injected by FXML.");
+		// if (!(memberPropertiesTreeTableController instanceof MemberPropertiesTreeTableController))
+		// throw new IllegalComponentStateException("Member properties tree table Controller not injected by FXML.");
 	}
 
 	/**
@@ -148,34 +167,43 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 		addIncludedController(dexStatusController);
 		statusController = dexStatusController; // Make available to base class
 
-		// Setup Repository Tab controller
-		repositoryTabController.setStage(stage, this);
-
-		propertiesTableController = new PropertiesTableController(null, facetTabTreeTable, this);
-		// TODO - what is right way to have facet listen to treeTable?
-		propertiesTableController.registerListeners(navTreeTableView);
-
+		// Setup Tab controllers
+		repositoryTabController.setStage(stage, this); // TODO - this is slow!
+		memberPropertiesTabController.setStage(stage, this);
+		librariesTabController.setStage(stage, this);
+		librariesTabController.setLibrarySelectionEventHandler(this::librarySelectionEventHandler);
 		configureProjectCombo();
 
+		// Member tree and its filter
 		addIncludedController(memberFilterController);
+		addIncludedController(memberTreeTableController);
+		memberTreeTableController.setFilter(memberFilterController);
 
-		memberController = new MemberTreeController(this, navTreeTableView, modelMgr);
-		// memberFilterController.setFilteredController(memberController);
-		memberController.setFilter(memberFilterController);
+		// TODO - there has to be a better way to access the properties table controller
+		MemberPropertiesTreeTableController memberPropertiesTreeTableController = memberPropertiesTabController
+				.getPropertiesTableController();
+		memberTreeTableController.setChangeEventHandler(memberPropertiesTreeTableController::memberSelectionListener);
 
-		libController = new LibrariesTreeController(this, libraryTabTreeTableView);
-		libController.setSelectionListener((v, o, item) -> librarySelectionListener(item));
+		// libController = new LibrariesTreeTableController(this, libraryTabTreeTableView);
+		// FIXME - set selection handler/event/etc.
+		// libController.setSelectionListener((v, o, item) -> librarySelectionListener(item));
 	}
 
-	private void librarySelectionListener(TreeItem<LibraryDAO> item) {
-		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
-			return;
-		handleLibrarySelectionEvent(item.getValue().getValue());
+	// private void librarySelectionListener(TreeItem<LibraryDAO> item) {
+	// if (item == null || item.getValue() == null || item.getValue().getValue() == null)
+	// return;
+	// handleLibrarySelectionEvent(item.getValue().getValue());
+	// }
+
+	private void librarySelectionEventHandler(DexLibrarySelectionEvent event) {
+		memberFilterController.setLibraryFilter(event.getLibrary());
+		memberTreeTableController.refresh();
 	}
 
+	@Deprecated
 	public void handleLibrarySelectionEvent(OtmLibrary library) {
 		memberFilterController.setLibraryFilter(library);
-		memberController.refresh();
+		memberTreeTableController.refresh();
 	}
 
 	@Override
@@ -190,8 +218,8 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 			return;
 		dialogBoxController.show("Loading Project", "Please wait");
 
-		memberController.clear(); // prevent concurrent modification
-		propertiesTableController.clear();
+		memberTreeTableController.clear(); // prevent concurrent modification
+		memberPropertiesTabController.clear();
 		modelMgr.clear();
 
 		new OpenProjectFileTask(selectedFile, modelMgr, this::handleTaskComplete, statusController).go();
@@ -201,8 +229,9 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	public void handleTaskComplete(WorkerStateEvent event) {
 		if (event.getTarget() instanceof OpenProjectFileTask) {
 			dialogBoxController.close();
-			memberController.post(modelMgr);
-			libController.post(modelMgr);
+			// TODO - pass to tab not table controller
+			memberTreeTableController.post(modelMgr);
+			librariesTabController.post(modelMgr);
 		}
 	}
 
@@ -217,27 +246,15 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	public void handleCloseMenu(ActionEvent event) {
 		log.debug("Handle close action event.");
 		if (event.getTarget() instanceof MenuItem) {
-			memberController.clear(); // prevent concurrent modification
-			propertiesTableController.clear();
+			memberTreeTableController.clear(); // prevent concurrent modification
+			memberPropertiesTabController.clear();
 			modelMgr.clear();
 			clear();
 		}
 	}
 
-	// public void postNotify(String label, String msg) {
-	// DialogBox.notify(label, msg);
-	// }
-	//
-	// public void clearNotify() {
-	// DialogBox.close();
-	// }
-
-	// public void select(OtmLibraryMember<?> member) {
-	// memberController.select(member);
-	// }
-
 	public void select(String name) {
-		memberController.select(name);
+		memberTreeTableController.select(name);
 	}
 
 	// Fires whenever a tab is selected. Fires on closed tab and opened tab.

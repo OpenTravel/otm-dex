@@ -10,6 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexController;
 import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.controllers.library.LibraryDAO;
+import org.opentravel.dex.controllers.library.LibraryRowFactory;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.objecteditor.ObjectEditorController;
@@ -27,9 +29,10 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
+// FIXME - dead code. delete.
 @Deprecated
-public class LibrariesTreeTableController implements DexController {
-	private static Log log = LogFactory.getLog(LibrariesTreeTableController.class);
+public class LibrariesTreeTableControllerDEAD implements DexController {
+	private static Log log = LogFactory.getLog(LibrariesTreeTableControllerDEAD.class);
 
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMELABEL = "Name";
@@ -52,7 +55,7 @@ public class LibrariesTreeTableController implements DexController {
 	private ImageManager imageMgr;
 	private DexMainController parentController;
 
-	public LibrariesTreeTableController() {
+	public LibrariesTreeTableControllerDEAD() {
 		log.debug("Constructing library tree table controller.");
 	}
 
@@ -61,7 +64,7 @@ public class LibrariesTreeTableController implements DexController {
 		log.debug("Initializing library tree table controller.");
 	}
 
-	public LibrariesTreeTableController(DexMainController parent, TreeTableView<LibraryDAO> view) {
+	public LibrariesTreeTableControllerDEAD(DexMainController parent, TreeTableView<LibraryDAO> view) {
 		log.debug("Initializing project-library tree table.");
 
 		// remember and check the parameters

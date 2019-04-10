@@ -1,19 +1,21 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.modelMembers;
+package org.opentravel.dex.controllers.member;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexController;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.css.PseudoClass;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellDataFeatures;
@@ -22,6 +24,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 
 /**
  * Manage the library member navigation tree.
@@ -29,48 +32,64 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
-public class MemberTreeController implements DexController {
-	private static Log log = LogFactory.getLog(MemberTreeController.class);
+public class MemberTreeTableController extends DexIncludedControllerBase<OtmModelManager> implements DexController {
+	private static Log log = LogFactory.getLog(MemberTreeTableController.class);
 
+	// Column labels
+	// TODO - externalize strings
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMECOLUMNLABEL = "Member";
-
 	private static final String VERSIONCOLUMNLABEL = "Version";
-
 	private static final String LIBRARYLABEL = "Library";
-	/**
-	 * TreeTableRow is an IndexedCell, but rarely needs to be used by developers creating TreeTableView instances. The
-	 * only time TreeTableRow is likely to be encountered at all by a developer is if they wish to create a custom
-	 * rowFactory that replaces an entire row of a TreeTableView.
-	 * 
-	 * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
+
+	// /**
+	// * TreeTableRow is an IndexedCell, but rarely needs to be used by developers creating TreeTableView instances. The
+	// * only time TreeTableRow is likely to be encountered at all by a developer is if they wish to create a custom
+	// * rowFactory that replaces an entire row of a TreeTableView.
+	// *
+	// * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
+	// */
+	//// private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
+
+	/*
+	 * FXML injected
 	 */
-	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
+	@FXML
 	TreeTableView<MemberDAO> memberTree;
+	@FXML
+	private VBox memberTreeController;
+
+	//
 	TreeItem<MemberDAO> root; // Root of the navigation tree. Is displayed.
 
 	TreeTableColumn<MemberDAO, String> nameColumn; // an editable column
+
+	// ImageManager imageMgr;
+	// private DexMainController parentController;
+	OtmModelManager currentModelMgr; // this is postedData
 	MemberFilterController filter = null;
 
-	OtmModelManager currentModelMgr;
-
-	ImageManager imageMgr;
-
-	private DexMainController parentController;
-
-	@SuppressWarnings("unchecked")
-	public MemberTreeController(DexMainController parent, TreeTableView<MemberDAO> navTreeTableView,
+	public MemberTreeTableController(DexMainController parent, TreeTableView<MemberDAO> navTreeTableView,
 			OtmModelManager model) {
-		log.debug("Initializing navigation tree table.");
 
-		if (navTreeTableView == null)
+	}
+
+	public MemberTreeTableController() {
+		super();
+	}
+
+	@Override
+	public void checkNodes() {
+		// TODO Auto-generated method stub
+		if (memberTree == null)
 			throw new IllegalStateException("Tree table view is null.");
 
-		// remember the view, and get an image manager for the stage.
-		this.memberTree = navTreeTableView;
-		imageMgr = parent.getImageManager();
-		parentController = parent;
+	}
+
+	@Override
+	public void configure(DexMainController parent) {
+		super.configure(parent);
+		log.debug("Configuring Member Tree Table.");
 
 		// Set the hidden root item
 		root = new TreeItem<>();
@@ -80,23 +99,13 @@ public class MemberTreeController implements DexController {
 		buildColumns();
 
 		// create cells for members
-		currentModelMgr = model;
-		for (OtmLibraryMember<?> member : model.getMembers()) {
+		currentModelMgr = parent.getModelManager();
+		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
 			createTreeItem(member, root);
 		}
 
-		navTreeTableView.getSelectionModel().select(0);
-
+		memberTree.getSelectionModel().select(0);
 	}
-
-	// private class FilterChangeEventHandler implements EventHandler<MyEvent> {
-	// @Override
-	// public void handle(MyEvent event) {
-	// log.debug("Event handler");
-	// EventTarget target = event.getTarget();
-	// refresh();
-	// }
-	// }
 
 	private void filterChangedHandler() {
 		log.debug("Filter change event received.");
@@ -129,6 +138,7 @@ public class MemberTreeController implements DexController {
 		iconColumn.setPrefWidth(50);
 		iconColumn.setSortable(false);
 
+		// TODO - use formatter in base type
 		nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
 		nameColumn.setPrefWidth(150);
 		nameColumn.setEditable(true);
@@ -207,16 +217,16 @@ public class MemberTreeController implements DexController {
 		return filter;
 	}
 
-	public ImageManager getImageManager() {
-		if (imageMgr == null)
-			throw new IllegalStateException("Image manger is null.");
-		return imageMgr;
-	}
+	// public ImageManager getImageManager() {
+	// if (imageMgr == null)
+	// throw new IllegalStateException("Image manger is null.");
+	// return imageMgr;
+	// }
 
-	public OtmModelManager getModelManager() {
-		return currentModelMgr;
-	}
-
+	// public OtmModelManager getModelManager() {
+	// return currentModelMgr;
+	// }
+	//
 	public TreeItem<MemberDAO> getRoot() {
 		return root;
 	}
@@ -239,12 +249,13 @@ public class MemberTreeController implements DexController {
 	private void memberSelectionListener(TreeItem<MemberDAO> item) {
 		if (item == null)
 			return;
-		// log.debug("Selection Listener: " + item.getValue());
+		log.debug("Selection Listener: " + item.getValue());
 		assert item != null;
 		boolean editable = false;
 		if (item.getValue() != null)
 			editable = item.getValue().isEditable();
 		nameColumn.setEditable(editable);
+		memberTreeController.fireEvent(new DexMemberSelectionEvent(this, item));
 	}
 
 	/**
@@ -252,6 +263,7 @@ public class MemberTreeController implements DexController {
 	 * 
 	 * @param modelMgr
 	 */
+	@Override
 	public void post(OtmModelManager modelMgr) {
 		if (modelMgr != null)
 			currentModelMgr = modelMgr;
@@ -265,6 +277,7 @@ public class MemberTreeController implements DexController {
 			select(otm.getName());
 	}
 
+	// Used by property table to jump to new member
 	public void select(String name) {
 		log.debug("Selecting member: " + name);
 		// Find the row to select
@@ -302,34 +315,27 @@ public class MemberTreeController implements DexController {
 		filter.setChangeEventHandler(e -> filterChangedHandler());
 	}
 
-	public void postStatus(String string) {
-		parentController.postStatus(string);
-	}
-
-	public void postProgress(double percentDone) {
-		parentController.postProgress(percentDone);
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Set up for broadcasting member selection events.
 	 * 
-	 * @see org.opentravel.objecteditor.DexController#initialize()
+	 * @param eventHandler
 	 */
-	@Override
-	public void initialize() {
-		// TODO Auto-generated method stub
-
+	public void setChangeEventHandler(EventHandler<DexMemberSelectionEvent> eventHandler) {
+		memberTreeController.addEventHandler(DexMemberSelectionEvent.MEMBER_SELECTED, eventHandler);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.objecteditor.DexController#checkNodes()
-	 */
-	@Override
-	public void checkNodes() {
-		// TODO Auto-generated method stub
+	// public void postStatus(String string) {
+	// parentController.postStatus(string);
+	// }
 
-	}
+	// public void postProgress(double percentDone) {
+	// parentController.postProgress(percentDone);
+	// }
+
+	// @Override
+	// public void initialize() {
+	// // TODO Auto-generated method stub
+	//
+	// }
 
 }

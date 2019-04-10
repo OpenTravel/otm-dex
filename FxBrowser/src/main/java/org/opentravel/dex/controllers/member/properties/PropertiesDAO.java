@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.memberProperties;
+package org.opentravel.dex.controllers.member.properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,13 +45,13 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	static final String STRING = "xsd:String (future)";
 
 	protected OtmModelElement<?> element;
-	protected PropertiesTableController controller;
+	protected MemberPropertiesTreeTableController controller;
 
 	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
 	}
 
-	public PropertiesDAO(OtmModelElement<?> element, PropertiesTableController controller) {
+	public PropertiesDAO(OtmModelElement<?> element, MemberPropertiesTreeTableController controller) {
 		this.element = element;
 		this.controller = controller;
 	}
@@ -76,8 +76,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	/**
-	 * 
-	 * @return an observable list of values for minimum repeat field
+	 * @return an observable list of values for the assigned type actions
 	 */
 	public static ObservableList<String> getAssignedTypeList() {
 		ObservableList<String> list = FXCollections.observableArrayList();
@@ -113,6 +112,12 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		return ssp;
 	}
 
+	// TODO
+	// 1. Where does the combo behavior belong?
+	// 2. Who is responsible for finding the assigned type
+	// 3. How to inform consumers without event loop
+	// 4. Where does editing action behavior belong
+	//
 	public StringProperty deprecationProperty() {
 		String value = element.getDeprecation();
 
@@ -122,6 +127,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 			return new ReadOnlyStringWrapper(value);
 
 		StringProperty desc = new SimpleStringProperty(value);
+		// TODO - move to action handler
 		desc.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
 			// element.setDesc(newValue);
 			log.debug("TODO: Set " + element + " deprecation to " + newValue);
@@ -138,6 +144,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 			return new ReadOnlyStringWrapper(value);
 
 		StringProperty desc = new SimpleStringProperty(value);
+		// TODO - move to action handler
 		desc.addListener(
 				(ObservableValue<? extends String> ov, String oldValue, String newValue) -> setDescription(newValue));
 		return desc;
@@ -159,6 +166,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 			return new ReadOnlyStringWrapper(value);
 
 		StringProperty desc = new SimpleStringProperty(value);
+		// TODO - move to action handler
 		desc.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
 			// element.setDesc(newValue);
 			log.debug("TODO: Set " + element + " example to " + newValue);
@@ -188,6 +196,8 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		if (element.getTL() instanceof TLProperty)
 			value = ((TLProperty) element.getTL()).getRepeat();
 		return new SimpleIntegerProperty(value);
+		// TODO - move to action handler
+		// add listener
 	}
 
 	public StringProperty minProperty() {
@@ -200,6 +210,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 
 		SimpleStringProperty ssp = new SimpleStringProperty(value);
 		if (element.isEditable())
+			// TODO - move to action handler
 			ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
 				((OtmProperty<?>) element).setManditory(newVal.equals(REQUIRED));
 				log.debug("Set optional/manditory of " + element.getName() + " to " + newVal);
@@ -212,6 +223,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		StringProperty nameProperty;
 		if (element.isEditable()) {
 			nameProperty = new SimpleStringProperty(element.getName());
+			// TODO - move to action handler
 			// Adding a change listener with lambda expression
 			nameProperty.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
 				element.setName(newVal);
@@ -224,6 +236,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 
 	public StringProperty roleProperty() {
 		StringProperty ssp = new SimpleStringProperty(element.getRole());
+		// TODO - move to action handler
 		ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
 			// element.setName(newVal);
 			log.debug("TODO - set role of " + element.getName() + " to " + newVal);

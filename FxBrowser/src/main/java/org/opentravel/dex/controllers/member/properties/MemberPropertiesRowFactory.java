@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.memberProperties;
+package org.opentravel.dex.controllers.member.properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,16 +29,15 @@ import javafx.scene.control.TreeTableRow;
  * 
  * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
  */
-@SuppressWarnings("restriction")
-public final class PropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
-	private static Log log = LogFactory.getLog(PropertiesRowFactory.class);
+public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO> {
+	private static Log log = LogFactory.getLog(MemberPropertiesRowFactory.class);
 
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private static final PseudoClass DIVIDER = PseudoClass.getPseudoClass("divider");
 	private final ContextMenu addMenu = new ContextMenu();
-	private PropertiesTableController controller;
+	private MemberPropertiesTreeTableController controller;
 
-	public PropertiesRowFactory(PropertiesTableController controller) {
+	public MemberPropertiesRowFactory(MemberPropertiesTreeTableController controller) {
 		this.controller = controller;
 
 		// Create Context menu

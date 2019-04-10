@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 
+import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeTableColumn;
@@ -47,6 +48,7 @@ public abstract class DexIncludedControllerBase<T> implements DexIncludedControl
 		return parentController;
 	}
 
+	@FXML
 	@Override
 	public void initialize() {
 		log.debug("Initializing controller.");

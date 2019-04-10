@@ -5,7 +5,7 @@ package org.opentravel.dex.events;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.objecteditor.modelMembers.MemberFilterController;
+import org.opentravel.dex.controllers.member.MemberFilterController;
 
 import javafx.event.Event;
 import javafx.event.EventTarget;

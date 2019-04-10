@@ -1,21 +1,24 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.memberProperties;
+package org.opentravel.dex.controllers.member.properties;
+
+import java.awt.IllegalComponentStateException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexIntegerStringConverter;
-import org.opentravel.common.ImageManager;
-import org.opentravel.dex.controllers.DexController;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
+import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.objecteditor.ObjectEditorController;
-import org.opentravel.objecteditor.modelMembers.MemberDAO;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -23,6 +26,7 @@ import javafx.scene.control.cell.ChoiceBoxTreeTableCell;
 import javafx.scene.control.cell.ComboBoxTreeTableCell;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.layout.VBox;
 
 /**
  * Manage a facets and properties in a tree table.
@@ -30,15 +34,19 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
-@Deprecated
-public class PropertiesTableController implements DexController {
-	private static Log log = LogFactory.getLog(PropertiesTableController.class);
+public class MemberPropertiesTreeTableController extends DexIncludedControllerBase<MemberDAO> {
+	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
-	protected ImageManager imageMgr;
-	protected TreeTableView<PropertiesDAO> table;
+	@FXML
+	protected TreeTableView<PropertiesDAO> propertiesTable;
+	@FXML
+	private VBox memberProperties;
+
 	protected TreeItem<PropertiesDAO> root;
-	protected ObjectEditorController parentController;
+	// protected ImageManager imageMgr;
+	// protected ObjectEditorController parentController;
 
+	// Table Columns
 	protected TreeTableColumn<PropertiesDAO, String> nameCol;
 	// protected TreeTableColumn<PropertyNode, ImageView> iconCol;
 	protected TreeTableColumn<PropertiesDAO, String> roleCol;
@@ -53,11 +61,36 @@ public class PropertiesTableController implements DexController {
 	/**
 	 * Create a facet and property treeTable with manager.
 	 * 
+	 */
+	public MemberPropertiesTreeTableController() {
+		super();
+	}
+
+	@Override
+	public void checkNodes() {
+		if (propertiesTable == null)
+			throw new IllegalComponentStateException("Property table not injected by FXML");
+	}
+
+	@Override
+	public void configure(DexMainController parent) {
+		super.configure(parent);
+
+		propertiesTable.getSelectionModel().selectedItemProperty()
+				.addListener((v, old, newValue) -> propertySelectionListener(newValue));
+
+		// Layout the table
+		root = initializeTable(propertiesTable);
+	}
+
+	/**
+	 * Create a facet and property treeTable with manager.
+	 * 
 	 * @param member
 	 * @param table
 	 * @param stage
 	 */
-	public PropertiesTableController(OtmLibraryMember<?> member, TreeTableView<PropertiesDAO> table,
+	public MemberPropertiesTreeTableController(OtmLibraryMember<?> member, TreeTableView<PropertiesDAO> table,
 			ObjectEditorController parent) {
 		log.debug("Initializing property table for " + member + "member.");
 
@@ -68,7 +101,7 @@ public class PropertiesTableController implements DexController {
 
 		if (table == null)
 			throw new IllegalStateException("Tree view is null.");
-		this.table = table;
+		this.propertiesTable = table;
 
 		// table.setEventDispatcher(new MyEventDispatcher());
 		table.getSelectionModel().selectedItemProperty()
@@ -89,19 +122,20 @@ public class PropertiesTableController implements DexController {
 	 */
 	private void createTreeItems(OtmLibraryMember<?> member) {
 		// create cells for member's facets and properties
-		for (OtmModelElement<?> element : member.getChildren()) {
-			TreeItem<PropertiesDAO> item = createTreeItem(element, root);
-			item.setExpanded(true);
-			if (element instanceof OtmFacet) {
-				for (OtmModelElement<?> child : ((OtmFacet<?>) element).getChildren())
-					createTreeItem(child, item);
+		if (member != null)
+			for (OtmModelElement<?> element : member.getChildren()) {
+				TreeItem<PropertiesDAO> item = createTreeItem(element, root);
+				item.setExpanded(true);
+				if (element instanceof OtmFacet) {
+					for (OtmModelElement<?> child : ((OtmFacet<?>) element).getChildren())
+						createTreeItem(child, item);
+				}
 			}
-		}
 	}
 
 	@Override
 	public void refresh() {
-		table.refresh();
+		propertiesTable.refresh();
 	}
 
 	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
@@ -124,7 +158,7 @@ public class PropertiesTableController implements DexController {
 		table.setTableMenuButtonVisible(true); // allow users to select columns
 
 		// Enable context menus at the row level and add change listener for for applying style
-		table.setRowFactory((TreeTableView<PropertiesDAO> p) -> new PropertiesRowFactory(this));
+		table.setRowFactory((TreeTableView<PropertiesDAO> p) -> new MemberPropertiesRowFactory(this));
 
 		// Define Columns and cell content providers
 		buildColumns(table);
@@ -143,7 +177,8 @@ public class PropertiesTableController implements DexController {
 
 	public void select(String name) {
 		log.debug("TODO - select " + name);
-		parentController.select(name);
+		// FIXME - pass the action request : MemberSelection(string)
+		// ((ObjectEditorController) parentController).select(name);
 	}
 
 	/**
@@ -151,7 +186,7 @@ public class PropertiesTableController implements DexController {
 	 */
 	@Override
 	public void clear() {
-		table.getRoot().getChildren().clear();
+		propertiesTable.getRoot().getChildren().clear();
 	}
 
 	/**
@@ -233,7 +268,8 @@ public class PropertiesTableController implements DexController {
 	/**
 	 * Set String column properties and set value to named field.
 	 */
-	private void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
+	@Override
+	protected void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
 			int width) {
 		c.setVisible(visable);
 		c.setEditable(editable);
@@ -242,24 +278,29 @@ public class PropertiesTableController implements DexController {
 			c.setPrefWidth(width);
 	}
 
-	/**
-	 * Add event listeners to passed tree table view.
-	 * 
-	 * @param navTreeTableView
-	 */
-	public void registerListeners(TreeTableView<MemberDAO> navTreeTableView) {
-		navTreeTableView.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> newMemberSelectionListener(newValue));
+	// /**
+	// * Add event listeners to passed tree table view.
+	// *
+	// * @param navTreeTableView
+	// */
+	// public void registerListeners(TreeTableView<MemberDAO> navTreeTableView) {
+	// navTreeTableView.getSelectionModel().selectedItemProperty()
+	// .addListener((v, old, newValue) -> newMemberSelectionListener(newValue));
+	// }
+	public void memberSelectionListener(DexMemberSelectionEvent event) {
+		log.debug("Dex member selection event received.");
+		clear();
+		createTreeItems(event.getMember());
 	}
 
-	private void newMemberSelectionListener(TreeItem<MemberDAO> item) {
-		clear();
-		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
-			return;
-		if (item.getValue().getValue() instanceof OtmLibraryMember)
-			createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());
-		// log.debug("Facet Table Selection Listener: " + item.getValue());
-	}
+	// public void newMemberSelectionListener(TreeItem<MemberDAO> item) {
+	// clear();
+	// if (item == null || item.getValue() == null || item.getValue().getValue() == null)
+	// return;
+	// if (item.getValue().getValue() instanceof OtmLibraryMember)
+	// createTreeItems((OtmLibraryMember<?>) item.getValue().getValue());
+	// // log.debug("Facet Table Selection Listener: " + item.getValue());
+	// }
 
 	/**
 	 * Set edit-ability of columns
@@ -300,42 +341,26 @@ public class PropertiesTableController implements DexController {
 		return null;
 	}
 
-	public ImageManager getImageManager() {
-		return imageMgr;
-	}
+	// public ImageManager getImageManager() {
+	// return imageMgr;
+	// }
 
-	public OtmModelManager getModelManager() {
-		return null;
-	}
+	// public OtmModelManager getModelManager() {
+	// return null;
+	// }
 
-	public void postStatus(String string) {
-		parentController.postStatus(string);
-	}
+	// public void postStatus(String string) {
+	// parentController.postStatus(string);
+	// }
+	//
+	// public void postProgress(double percentDone) {
+	// parentController.postProgress(percentDone);
+	// }
 
-	public void postProgress(double percentDone) {
-		parentController.postProgress(percentDone);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.objecteditor.DexController#initialize()
-	 */
-	@Override
-	public void initialize() {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.objecteditor.DexController#checkNodes()
-	 */
-	@Override
-	public void checkNodes() {
-		// TODO Auto-generated method stub
-
-	}
+	// @Override
+	// public void initialize() {
+	// // TODO Auto-generated method stub
+	//
+	// }
 
 }

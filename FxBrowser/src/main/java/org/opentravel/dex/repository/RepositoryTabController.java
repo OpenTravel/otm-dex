@@ -79,7 +79,7 @@ public class RepositoryTabController extends DexMainControllerBase {
 		if (!(repositoryItemCommitHistoriesController instanceof RepositoryItemCommitHistoriesController))
 			throw new IllegalStateException("Commit Histories controller not injected by FXML.");
 		if (!(namespaceLibrariesTreeTableController instanceof NamespaceLibrariesTreeTableController))
-			throw new IllegalStateException("Libraries tree table controller not injected by FXML.");
+			throw new IllegalStateException("Namespace Libraries tree table controller not injected by FXML.");
 		if (!(repositoryNamespacesTreeController instanceof RepositoryNamespacesTreeController))
 			throw new IllegalStateException("repository namespaces controller not injected by FXML.");
 		if (!(repositorySelectionController instanceof RepositorySelectionController))

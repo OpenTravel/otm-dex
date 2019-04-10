@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.projectLibraries;
+package org.opentravel.dex.controllers.library;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,9 +17,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
 
-//import javafx.beans.property.SimpleBooleanProperty;
-//import javafx.beans.property.BooleanProperty;
-
 /**
  * The type of the TreeItem instances used in this TreeTableView. Simple Data Access Object that contains and provides
  * gui access to OTM model library members.
@@ -30,7 +27,6 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
-@SuppressWarnings("restriction")
 public class LibraryDAO implements DexDAO<OtmLibrary> {
 	private static Log log = LogFactory.getLog(LibraryDAO.class);
 

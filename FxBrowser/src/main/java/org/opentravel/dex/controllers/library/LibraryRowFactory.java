@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.projectLibraries;
+package org.opentravel.dex.controllers.library;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,10 +22,10 @@ public final class LibraryRowFactory extends TreeTableRow<LibraryDAO> {
 
 	private final ContextMenu addMenu = new ContextMenu();
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
-	private LibrariesTreeController controller;
+	private LibrariesTreeTableController controller;
 
 	// controller injected from FXML
-	public LibraryRowFactory(LibrariesTreeController controller) {
+	public LibraryRowFactory(LibrariesTreeTableController controller) {
 		this();
 		this.controller = controller;
 	}

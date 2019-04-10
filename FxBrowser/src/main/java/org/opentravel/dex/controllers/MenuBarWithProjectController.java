@@ -3,8 +3,6 @@
  */
 package org.opentravel.dex.controllers;
 
-import java.awt.IllegalComponentStateException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DialogBox;
@@ -65,7 +63,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	@Override
 	public void checkNodes() {
 		if (projectCombo == null || projectLabel == null)
-			throw new IllegalComponentStateException("Missing FXML injected fields.");
+			throw new IllegalStateException("Menu bar is missing FXML injected fields.");
 		log.debug("FXML Nodes checked OK.");
 	}
 

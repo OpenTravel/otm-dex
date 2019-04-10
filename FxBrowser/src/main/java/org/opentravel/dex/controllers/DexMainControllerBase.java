@@ -42,9 +42,9 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 
 	@Override
 	public void addIncludedController(DexIncludedController<?> controller) {
-		if (controller == null)
-			throw new IllegalStateException("Included controller is null.");
 		checkNodes();
+		if (controller == null)
+			throw new IllegalStateException("Tried to add null Included controller");
 
 		includedControllers.add(controller);
 		controller.configure(this);
@@ -148,6 +148,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	 * @param primaryStage
 	 * @param parent
 	 */
+	// FIXME - only pass parent, get stage from parent
 	public void setStage(Stage primaryStage, DexMainController parent) {
 		this.stage = primaryStage;
 		this.parentController = parent;

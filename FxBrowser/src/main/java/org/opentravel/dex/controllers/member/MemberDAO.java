@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.modelMembers;
+package org.opentravel.dex.controllers.member;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +23,6 @@ import javafx.scene.image.ImageView;
  * @param <T>
  *
  */
-@SuppressWarnings("restriction")
 public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 	private static Log log = LogFactory.getLog(MemberDAO.class);
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.modelMembers;
+package org.opentravel.dex.controllers.member;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,9 +23,9 @@ public final class MemberRowFactory extends TreeTableRow<MemberDAO> {
 
 	private final ContextMenu addMenu = new ContextMenu();
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
-	private MemberTreeController controller;
+	private MemberTreeTableController controller;
 
-	public MemberRowFactory(MemberTreeController controller) {
+	public MemberRowFactory(MemberTreeTableController controller) {
 		this.controller = controller;
 
 		// Create Context menu

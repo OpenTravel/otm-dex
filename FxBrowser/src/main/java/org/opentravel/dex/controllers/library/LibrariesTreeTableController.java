@@ -1,25 +1,28 @@
 /**
  * 
  */
-package org.opentravel.objecteditor.projectLibraries;
+package org.opentravel.dex.controllers.library;
 
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
-import org.opentravel.dex.controllers.DexController;
+import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.events.DexLibrarySelectionEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.SortType;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.layout.VBox;
 
 /**
  * Manage the tree table view for libraries in projects (Library Tab)
@@ -27,10 +30,10 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
  * @author dmh
  *
  */
-@Deprecated
-public class LibrariesTreeController implements DexController {
-	private static Log log = LogFactory.getLog(LibrariesTreeController.class);
+public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmModelManager> {
+	private static Log log = LogFactory.getLog(LibrariesTreeTableController.class);
 
+	// TODO - use properties
 	public static final String PREFIXCOLUMNLABEL = "Prefix";
 	private static final String NAMELABEL = "Name";
 	private static final String NAMESPACELABEL = "Namespace";
@@ -42,50 +45,60 @@ public class LibrariesTreeController implements DexController {
 	private static final String LOCKEDLABEL = "Locked-by";
 	private static final String READONLYLABEL = "Read-only";
 
-	private TreeTableView<LibraryDAO> libraryTree;
+	@FXML
+	private TreeTableView<LibraryDAO> librariesTreeTable;
+	@FXML
+	private VBox libraries;
+
 	private TreeItem<LibraryDAO> root; // Root of the tree.
 
 	// Editable Columns
 	// None
 
 	private OtmModelManager modelMgr;
-	private ImageManager imageMgr;
-	private DexMainController parentController;
+	// private ImageManager imageMgr;
+	// private DexMainController parentController;
 
-	public LibrariesTreeController(DexMainController parent, TreeTableView<LibraryDAO> view) {
-		log.debug("Initializing project-library tree table.");
+	public LibrariesTreeTableController() {
+		super();
+	}
 
-		// remember and check the parameters
-		this.parentController = parent;
-		this.libraryTree = view;
-		if (parent == null)
-			throw new IllegalArgumentException("Parent is null.");
-		if (view == null)
-			throw new IllegalArgumentException("Tree table view is null.");
+	@Override
+	public void checkNodes() {
+		if (!(librariesTreeTable instanceof TreeTableView))
+			throw new IllegalStateException("Library tree table controller not injected by FXML.");
+	}
 
-		imageMgr = parent.getImageManager();
+	@Override
+	public void configure(DexMainController parent) {
+		super.configure(parent);
+
 		modelMgr = parent.getModelManager();
 		if (modelMgr == null)
-			throw new IllegalStateException("Model manager is null.");
+			throw new IllegalStateException("Model manager is null but needed for the library view controller.");
 
 		// Set the hidden root item
 		root = new TreeItem<>();
 		root.setExpanded(true); // Startout fully expanded
-		libraryTree.setRoot(root);
-		libraryTree.setShowRoot(false);
-		libraryTree.setEditable(true);
+		librariesTreeTable.setRoot(root);
+		librariesTreeTable.setShowRoot(false);
+		librariesTreeTable.setEditable(true);
 		// libraryTree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
-		libraryTree.setTableMenuButtonVisible(true); // allow users to select columns
+		librariesTreeTable.setTableMenuButtonVisible(true); // allow users to select columns
 
-		// add a listener class with three parameters that invokes selection listener
-		// libraryTree.getSelectionModel().selectedItemProperty()
-		// .addListener((v, old, newValue) -> librarySelectionListener(newValue));
+		// add a listener for tree selections
+		librariesTreeTable.getSelectionModel().selectedItemProperty()
+				.addListener((v, o, n) -> librarySelectionListener(n));
+
+		// // TODO
+		// MemberFilterController filter = parentController.getMemberFilterController();
+		// filter.setLibrarySelectedEventHandler(this::librarySelectionListener);
 
 		// Set up the TreeTable
 		buildColumns();
 
 		// Enable context menus at the row level and add change listener for for applying style
-		libraryTree.setRowFactory((TreeTableView<LibraryDAO> p) -> new LibraryRowFactory(this));
+		librariesTreeTable.setRowFactory((TreeTableView<LibraryDAO> p) -> new LibraryRowFactory(this));
 
 		// create cells for members
 		for (OtmLibrary lib : modelMgr.getLibraries()) {
@@ -94,11 +107,7 @@ public class LibrariesTreeController implements DexController {
 	}
 
 	public void setSelectionListener(ChangeListener<TreeItem<LibraryDAO>> listener) {
-		libraryTree.getSelectionModel().selectedItemProperty().addListener(listener);
-	}
-
-	public OtmModelManager getModelManager() {
-		return modelMgr;
+		librariesTreeTable.getSelectionModel().selectedItemProperty().addListener(listener);
 	}
 
 	/**
@@ -106,6 +115,7 @@ public class LibrariesTreeController implements DexController {
 	 * 
 	 * @param modelMgr
 	 */
+	@Override
 	public void post(OtmModelManager modelMgr) {
 		if (modelMgr != null)
 			this.modelMgr = modelMgr;
@@ -115,7 +125,7 @@ public class LibrariesTreeController implements DexController {
 	@Override
 	public void refresh() {
 		// create cells for libraries in a namespace. Latest at top, older ones under it.
-		libraryTree.getRoot().getChildren().clear();
+		librariesTreeTable.getRoot().getChildren().clear();
 		for (String baseNS : modelMgr.getBaseNamespaces()) {
 			TreeItem<LibraryDAO> latestItem = null;
 			OtmLibrary latest = null;
@@ -134,24 +144,30 @@ public class LibrariesTreeController implements DexController {
 		}
 	}
 
-	// /**
-	// * Listener for selected library members.
-	// *
-	// * @param item
-	// */
-	// private void librarySelectionListener(TreeItem<LibraryDAO> item) {
-	// if (item == null || item.getValue() == null || item.getValue().getValue() == null)
-	// return;
-	//
-	// log.debug("Selection Listener: " + item.getValue().getValue());
-	//
-	// if (parentController instanceof ObjectEditorController)
-	// if (item.getValue().getValue() instanceof OtmLibrary)
-	// ((ObjectEditorController) parentController).handleLibrarySelectionEvent(item.getValue().getValue());
-	// }
+	private void librarySelectionListener(DexLibrarySelectionEvent event) {
+		log.debug("Library selection Listener: " + event.getLibrary().getName());
+	}
 
-	public TreeItem<LibraryDAO> getRoot() {
-		return root;
+	/**
+	 * Listener for selected library members.
+	 *
+	 * @param item
+	 */
+	private void librarySelectionListener(TreeItem<LibraryDAO> item) {
+		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
+			return;
+
+		log.debug("Selection Listener: " + item.getValue().getValue());
+
+		libraries.fireEvent(new DexLibrarySelectionEvent(libraries, item));
+
+		// if (parentController instanceof ObjectEditorController)
+		// if (item.getValue().getValue() instanceof OtmLibrary)
+		// ((ObjectEditorController) parentController).handleLibrarySelectionEvent(item.getValue().getValue());
+	}
+
+	public void setLibrarySelectionEventHandler(EventHandler<DexLibrarySelectionEvent> handler) {
+		libraries.addEventHandler(DexLibrarySelectionEvent.LIBRARY_SELECTED, handler);
 	}
 
 	//
@@ -162,27 +178,30 @@ public class LibrariesTreeController implements DexController {
 				true, 0);
 		TreeTableColumn<LibraryDAO, String> nameColumn = createStringColumn(NAMELABEL, "name", true, false, true, 200);
 		TreeTableColumn<LibraryDAO, String> namespaceColumn = createStringColumn(NAMESPACELABEL, "namespace", true,
-				false, true, 0);
+				false, true, 250);
 		TreeTableColumn<LibraryDAO, String> versionColumn = createStringColumn(VERSIONLABEL, "version", true, false,
 				true, 0);
 		TreeTableColumn<LibraryDAO, String> statusColumn = createStringColumn(STATUSLABEL, "status", true, false, true,
 				0);
-		TreeTableColumn<LibraryDAO, String> stateColumn = createStringColumn(STATELABEL, "state", true, false, true, 0);
+		TreeTableColumn<LibraryDAO, String> stateColumn = createStringColumn(STATELABEL, "state", true, false, true,
+				150);
 		TreeTableColumn<LibraryDAO, String> editColumn = createStringColumn(EDITABLELABEL, "edit", true, false, true,
 				0);
 		TreeTableColumn<LibraryDAO, String> lockedColumn = createStringColumn(LOCKEDLABEL, "locked", true, false, true,
 				0);
 		TreeTableColumn<LibraryDAO, Boolean> readonlyColumn = new TreeTableColumn<>(READONLYLABEL);
 		readonlyColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, Boolean>("readonly"));
+
 		TreeTableColumn<LibraryDAO, Integer> refColumn = new TreeTableColumn<>(REFERENCELABEL);
 		refColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, Integer>("reference"));
+		refColumn.setPrefWidth(100);
 
-		libraryTree.getColumns().addAll(nameColumn, prefixColumn, namespaceColumn, versionColumn, statusColumn,
+		librariesTreeTable.getColumns().addAll(nameColumn, prefixColumn, namespaceColumn, versionColumn, statusColumn,
 				stateColumn, lockedColumn, refColumn, readonlyColumn, editColumn);
 
 		// Start out sorted on names
 		nameColumn.setSortType(SortType.ASCENDING);
-		libraryTree.getSortOrder().add(nameColumn);
+		librariesTreeTable.getSortOrder().add(nameColumn);
 	}
 
 	/**
@@ -194,11 +213,7 @@ public class LibrariesTreeController implements DexController {
 			boolean editable, boolean sortable, int width) {
 		TreeTableColumn<LibraryDAO, String> c = new TreeTableColumn<>(label);
 		c.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, String>(propertyName));
-		c.setVisible(visable);
-		c.setEditable(editable);
-		c.setSortable(sortable);
-		if (width > 0)
-			c.setPrefWidth(width);
+		setColumnProps(c, visable, editable, sortable, width);
 		return c;
 	}
 
@@ -226,7 +241,7 @@ public class LibrariesTreeController implements DexController {
 	 */
 	@Override
 	public void clear() {
-		libraryTree.getRoot().getChildren().clear();
+		librariesTreeTable.getRoot().getChildren().clear();
 	}
 
 	/**
@@ -239,42 +254,6 @@ public class LibrariesTreeController implements DexController {
 	public ReadOnlyObjectProperty<TreeItem<LibraryDAO>> getSelectable() {
 		return null;
 		// return libraryTree.getSelectionModel().selectedItemProperty();
-	}
-
-	public ImageManager getImageManager() {
-		if (imageMgr == null)
-			throw new IllegalStateException("Image manger is null.");
-		return imageMgr;
-	}
-
-	public void postStatus(String string) {
-		parentController.postStatus(string);
-	}
-
-	public void postProgress(double percentDone) {
-		parentController.postProgress(percentDone);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.objecteditor.DexController#initialize()
-	 */
-	@Override
-	public void initialize() {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.objecteditor.DexController#checkNodes()
-	 */
-	@Override
-	public void checkNodes() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

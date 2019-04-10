@@ -18,14 +18,14 @@
  */
 package org.opentravel.model.otmProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for attribute properties.
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> implements OtmTypeUser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmElement.class);
+	private static Log log = LogFactory.getLog(OtmElement.class);
 
 	/**
 	 */
@@ -59,6 +59,10 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 
 	@Override
 	public String getAssignedTypeLocalName() {
+		if (getTL() == null || getTL().getType() == null) {
+			log.warn("Missing TL assigned type.");
+			return "";
+		}
 		return getTL().getType().getLocalName();
 	}
 

@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractOTMApplication;
 import org.opentravel.application.common.AbstractUserSettings;
 import org.opentravel.common.DialogBox;
-import org.opentravel.common.ImageManager;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -39,7 +38,7 @@ public class ObjectEditorApp extends AbstractOTMApplication {
 		log.debug("Creating Primary Stage.");
 		try {
 			// Icons
-			ImageManager imageManager = new ImageManager(primaryStage);
+			// ImageManager imageManager = new ImageManager(primaryStage);
 			// primaryStage.getIcons().add(new Image("/icons/alt_window_16.gif"));
 			// primaryStage.getIcons().add(new Image("/icons/BusinessObject.png"));
 			primaryStage.setTitle(APPLICATION_TITLE);
@@ -58,7 +57,7 @@ public class ObjectEditorApp extends AbstractOTMApplication {
 			window = primaryStage;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Error starting application: " + e.getLocalizedMessage());
 		}
 	}
 
@@ -68,32 +67,17 @@ public class ObjectEditorApp extends AbstractOTMApplication {
 			window.close();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.application.common.AbstractOTMApplication#getMainWindowFxmlLocation()
-	 */
 	@Override
 	protected String getMainWindowFxmlLocation() {
 		return LAYOUT_FILE;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.application.common.AbstractOTMApplication#getUserSettings()
-	 */
 	@Override
 	protected AbstractUserSettings getUserSettings() {
 		// TODO return UserSettings.load();
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.application.common.AbstractOTMApplication#getMainWindowTitle()
-	 */
 	@Override
 	protected String getMainWindowTitle() {
 		return APPLICATION_TITLE;
