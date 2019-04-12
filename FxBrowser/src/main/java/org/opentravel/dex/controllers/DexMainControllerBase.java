@@ -4,7 +4,10 @@
 package org.opentravel.dex.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,10 +15,11 @@ import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
+import org.opentravel.dex.events.DexEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
 
@@ -28,13 +32,18 @@ import javafx.stage.Stage;
 public abstract class DexMainControllerBase extends AbstractMainWindowController implements DexMainController {
 	private static Log log = LogFactory.getLog(DexMainControllerBase.class);
 
-	protected DexMainController parentController;
+	protected DexMainController mainController;
 	protected ImageManager imageMgr;
 	protected OtmModelManager modelMgr;
-	protected Stage stage;
+
 	private List<DexIncludedController<?>> includedControllers = new ArrayList<>();
+	private Map<EventType<?>, List<DexIncludedController<?>>> eventPublishers = new HashMap<>();
+	private Map<EventType<?>, List<DexIncludedController<?>>> eventSubscribers = new HashMap<>();
+
 	protected DexStatusController statusController;
 	protected DialogBoxContoller dialogBoxController;
+
+	protected Stage stage;
 
 	public DexMainControllerBase() {
 		log.debug("Constructing controller.");
@@ -42,17 +51,82 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 
 	@Override
 	public void addIncludedController(DexIncludedController<?> controller) {
-		checkNodes();
 		if (controller == null)
 			throw new IllegalStateException("Tried to add null Included controller");
 
+		controller.checkNodes();
 		includedControllers.add(controller);
 		controller.configure(this);
+
+		// Register any published event types
+		for (EventType et : controller.getPublishedEventTypes())
+			if (eventPublishers.containsKey(et)) {
+				eventPublishers.get(et).add(controller);
+			} else {
+				ArrayList<DexIncludedController<?>> list = new ArrayList<>();
+				list.add(controller);
+				eventPublishers.put(et, list);
+			}
+		// Register any subscribed event types
+		for (EventType et : controller.getSubscribedEventTypes())
+			if (eventSubscribers.containsKey(et)) {
+				eventSubscribers.get(et).add(controller);
+			} else {
+				ArrayList<DexIncludedController<?>> list = new ArrayList<>();
+				list.add(controller);
+				eventSubscribers.put(et, list);
+			}
 	}
 
 	@Override
 	public void clear() {
 		includedControllers.forEach(DexIncludedController::clear);
+	}
+
+	/**
+	 * Use the subscribers and publishers maps to set handlers
+	 */
+	// TODO - do i need subscriber map? Can i just traverse all included controllers?
+	protected void configureEventHandlersX() {
+		if (!eventSubscribers.isEmpty())
+			for (Entry<EventType<?>, List<DexIncludedController<?>>> entry : eventSubscribers.entrySet())
+				// For each subscriber to this event type
+				for (DexIncludedController<?> c : entry.getValue()) {
+					// Get the handler from the subscriber
+					EventType<? extends DexEvent> et = (EventType<? extends DexEvent>) entry.getKey();
+					// EventHandler<DexEvent> handler = c::handler;
+					if (eventPublishers.containsKey(entry.getValue()))
+						for (DexIncludedController<?> publisher : eventPublishers.get(entry.getValue()))
+							// Put handler in all publishers of this event
+							publisher.setEventHandler(et, c::handleEvent);
+				}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void configureEventHandlers() {
+		for (DexIncludedController<?> c : includedControllers) {
+			List<EventType> subscriptions = c.getSubscribedEventTypes();
+			if (subscriptions != null && !subscriptions.isEmpty())
+				for (EventType et : subscriptions)
+					if (eventPublishers.containsKey(et)) {
+						List<DexIncludedController<?>> publishers = eventPublishers.get(et);
+						EventType<? extends DexEvent> dexET = et;
+						for (DexIncludedController<?> publisher : publishers)
+							publisher.setEventHandler(dexET, c::handleEvent);
+					}
+		}
+		// if (!eventSubscribers.isEmpty())
+		// for (Entry<EventType<?>, List<DexIncludedController<?>>> entry : eventSubscribers.entrySet())
+		// // For each subscriber to this event type
+		// for (DexIncludedController<?> c : entry.getValue()) {
+		// // Get the handler from the subscriber
+		// EventType<? extends DexEvent> et = (EventType<? extends DexEvent>) entry.getKey();
+		// // EventHandler<DexEvent> handler = c::handler;
+		// if (eventPublishers.containsKey(entry.getValue()))
+		// for (DexIncludedController<?> publisher : eventPublishers.get(entry.getValue()))
+		// // Put handler in all publishers of this event
+		// publisher.setEventHandler(et, c::eventHandler);
+		// }
 	}
 
 	public DialogBoxContoller getDialogBoxController() {
@@ -65,14 +139,14 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	public ImageManager getImageManager() {
 		if (imageMgr != null)
 			return imageMgr;
-		return parentController != null ? parentController.getImageManager() : null;
+		return mainController != null ? mainController.getImageManager() : null;
 	}
 
 	@Override
 	public OtmModelManager getModelManager() {
 		if (modelMgr != null)
 			return modelMgr;
-		return parentController != null ? parentController.getModelManager() : null;
+		return mainController != null ? mainController.getModelManager() : null;
 	}
 
 	@Override
@@ -85,16 +159,16 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		return stage;
 	}
 
-	@Override
-	public ReadOnlyObjectProperty<?> getSelectable() {
-		return null;
-	}
+	// @Override
+	// public ReadOnlyObjectProperty<?> getSelectable() {
+	// return null;
+	// }
 
 	@Override
 	public DexStatusController getStatusController() {
 		if (statusController != null)
 			return statusController;
-		return parentController != null ? parentController.getStatusController() : null;
+		return mainController != null ? mainController.getStatusController() : null;
 	}
 
 	@FXML
@@ -105,16 +179,19 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 
 	@Override
 	public void postError(Exception e, String title) {
-		log.debug(title + e.getLocalizedMessage());
-		if (getDialogBoxController() != null) {
-			if (e.getCause() != null) {
-				log.debug(title + e.getCause().toString());
-				getDialogBoxController().show(title,
-						e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
-			} else {
-				getDialogBoxController().show(title, e.getLocalizedMessage());
+		if (getDialogBoxController() != null)
+			if (e == null)
+				getDialogBoxController().show("", title);
+			else {
+				log.debug(title + e.getLocalizedMessage());
+				if (e.getCause() == null)
+					getDialogBoxController().show(title, e.getLocalizedMessage());
+				else
+					getDialogBoxController().show(title,
+							e.getLocalizedMessage() + " \n\n(" + e.getCause().toString() + ")");
 			}
-		}
+		else
+			log.debug("Missing dialog box to show: " + title);
 	}
 
 	@Override
@@ -134,10 +211,15 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		includedControllers.forEach(DexIncludedController::refresh);
 	}
 
+	/**
+	 * Set the stage for a top level main controller. Called by the application on startup.
+	 * 
+	 * @param primaryStage
+	 */
 	public void setStage(Stage primaryStage) {
 		// These may be needed by sub-controllers
 		this.stage = primaryStage;
-		this.parentController = null;
+		this.mainController = null;
 		imageMgr = new ImageManager(primaryStage);
 		checkNodes();
 	}
@@ -145,15 +227,13 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	/**
 	 * Create a main controller that has a main controller parent.
 	 * 
-	 * @param primaryStage
 	 * @param parent
 	 */
-	// FIXME - only pass parent, get stage from parent
-	public void setStage(Stage primaryStage, DexMainController parent) {
-		this.stage = primaryStage;
-		this.parentController = parent;
-		if (parentController.getImageManager() == null)
-			imageMgr = new ImageManager(primaryStage);
+	public void setParent(DexMainController parent) {
+		this.stage = parent.getStage();
+		this.mainController = parent;
+		if (mainController.getImageManager() == null)
+			imageMgr = new ImageManager(stage);
 	}
 
 	// Required by AbstractApp...

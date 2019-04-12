@@ -15,11 +15,10 @@ import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
-import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
@@ -27,7 +26,6 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
 
 /**
@@ -61,6 +59,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	@FXML
 	private RadioButton errorsButton;
 
+	// Class specific data
+	//
 	private static final String ALLLIBS = "All";
 
 	private String textFilterValue = null;
@@ -73,7 +73,15 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private boolean latestVersionOnly = false;
 	private boolean editableOnly = false;
 
+	// All event types fired by this controller.
+	private static final EventType[] publishedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
+			DexLibrarySelectionEvent.LIBRARY_SELECTED };
+
+	// All event types listened to by this controller's handlers
+	private static final EventType[] subscribedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED };
+
 	public MemberFilterController() {
+		super(subscribedEvents, publishedEvents);
 		log.debug("Member Filter Controller constructor.");
 	}
 
@@ -116,6 +124,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		super.configure(mainController);
 		modelMgr = mainController.getModelManager();
 		configureLibraryChoice();
+		eventPublisherNode = memberFilter;
 	}
 
 	private void configureLibraryChoice() {
@@ -135,7 +144,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		librarySelector.setOnAction(e -> setLibraryFilter());
 	}
 
-	public OtmLibrary getSelectedLibrary() {
+	private OtmLibrary getSelectedLibrary() {
 		String key = librarySelector.getSelectionModel().getSelectedItem();
 		return libraryMap.get(key);
 	}
@@ -183,7 +192,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		memberFilter.fireEvent(new DexLibrarySelectionEvent(libraryMap.get(selection)));
 	}
 
-	public void setLibraryFilter(OtmLibrary lib) {
+	private void setLibraryFilter(OtmLibrary lib) {
 		ignoreClear = true;
 		libraryFilter = lib.getName();
 		librarySelector.getSelectionModel().select(lib.getName());
@@ -192,11 +201,28 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		ignoreClear = false;
 	}
 
-	public void setTypeFilter(Event e) {
+	@Override
+	public void handleEvent(Event event) {
+		if (event instanceof DexLibrarySelectionEvent)
+			librarySelectionHandler((DexLibrarySelectionEvent) event);
+	}
+
+	public void librarySelectionHandler(DexLibrarySelectionEvent event) {
+		if (event != null && event.getLibrary() != null) {
+			libraryFilter = event.getLibrary().getName();
+			ignoreClear = true;
+			librarySelector.getSelectionModel().select(event.getLibrary().getName());
+			refreshMembers();
+			log.debug("Set Library Filter to: " + libraryFilter);
+			ignoreClear = false;
+		}
+	}
+
+	private void setTypeFilter(Event e) {
 		log.debug("Set Type Filter: " + e.toString());
 	}
 
-	public void setEditableOnly() {
+	private void setEditableOnly() {
 		log.debug("Editable set to: " + editableButton.isSelected());
 		editableOnly = editableButton.isSelected();
 		refreshMembers();
@@ -212,21 +238,13 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		ignoreClear = false;
 	}
 
-	public void setChangeEventHandler(EventHandler<DexFilterChangeEvent> eventHandler) {
-		memberFilter.addEventHandler(DexFilterChangeEvent.FILTER_CHANGED, eventHandler);
-	}
-
-	public void setLibrarySelectedEventHandler(EventHandler<DexLibrarySelectionEvent> eventHandler) {
-		memberFilter.addEventHandler(DexLibrarySelectionEvent.LIBRARY_SELECTED, eventHandler);
-	}
-
-	public void setLatestOnly() {
+	private void setLatestOnly() {
 		log.debug("Latest only set to: " + latestButton.isSelected());
 		latestVersionOnly = latestButton.isSelected();
 		refreshMembers();
 	}
 
-	public void setStateFilter(Event e) {
+	private void setStateFilter(Event e) {
 		log.debug("Set Type Filter: " + e.toString());
 		CheckMenuItem mi = null;
 		if (e.getTarget() instanceof CheckMenuItem)
@@ -245,7 +263,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	/**
 	 * Filter on any case of the text in the memberNameFilter
 	 */
-	public void applyTextFilter() {
+	private void applyTextFilter() {
 		ignoreClear = true; // Set just in case event handler does a clear
 		textFilterValue = memberNameFilter.getText().toLowerCase();
 		memberFilter.fireEvent(new DexFilterChangeEvent(this, memberNameFilter));
@@ -257,7 +275,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	public void clear() {
 		// When posting updated filter results, do not clear the filters.
 		if (!ignoreClear) {
-			modelMgr = parentController.getModelManager();
+			modelMgr = mainController.getModelManager();
 			configureLibraryChoice();
 			libraryFilter = null;
 
@@ -267,15 +285,9 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	}
 
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<?>> getSelectable() {
-		return null;
-	}
-
-	@Override
 	public void refresh() {
 		OtmLibrary prevLib = getSelectedLibrary();
 		configureLibraryChoice();
 		setLibraryFilter(prevLib);
 	}
-
 }

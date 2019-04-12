@@ -33,14 +33,6 @@ public interface DexMainController extends DexController {
 	 */
 	void addIncludedController(DexIncludedController<?> controller);
 
-	// /**
-	// * Deprecated - use the static init instead.
-	// *
-	// * @return
-	// */
-	// @Deprecated
-	// public DialogBoxContoller getDialogBoxController();
-
 	/**
 	 * @return the image manager used by this controller
 	 */

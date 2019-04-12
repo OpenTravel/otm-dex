@@ -10,6 +10,9 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
+import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.events.DexRepositoryNamespaceSelectionEvent;
+import org.opentravel.dex.events.DexRepositorySelectionEvent;
 import org.opentravel.dex.repository.tasks.ListSubnamespacesTask;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -17,6 +20,8 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -41,8 +46,12 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 	private RepositorySearchController filterController = null;
 	private Map<String, RepositoryItem> currentFilter = null;
 
+	// All event types listened to by this controller's handlers
+	private static final EventType[] publishedEvents = { DexRepositoryNamespaceSelectionEvent.REPOSITORY_NS_SELECTED };
+	private static final EventType[] subscribedEvents = { DexRepositorySelectionEvent.REPOSITORY_SELECTED };
+
 	public RepositoryNamespacesTreeController() {
-		super();
+		super(subscribedEvents, publishedEvents);
 	}
 
 	@Override
@@ -52,11 +61,18 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 	}
 
 	@Override
-	public void checkNodes() {
+	public void configure(DexMainController main) {
+		super.configure(main);
+		eventPublisherNode = tree;
 	}
 
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
+	public void checkNodes() {
+		if (!(repositoryNamespacesTree instanceof TreeView))
+			throw new IllegalStateException("Repository namespace tree not injected by FXML.");
+	}
+
+	private ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
 		return tree.getSelectionModel().selectedItemProperty();
 	}
 
@@ -74,6 +90,35 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		tree.setRoot(root);
 		tree.setShowRoot(false);
 		tree.setEditable(true);
+
+		getSelectable().addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
+
+	}
+
+	private void namespaceSelectionListener(TreeItem<NamespacesDAO> item) {
+		if (item == null)
+			return;
+		log.debug("Namespace selected: " + item.getValue());
+		tree.fireEvent(new DexRepositoryNamespaceSelectionEvent(this, item.getValue()));
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		log.debug("event handler");
+		if (event instanceof DexRepositorySelectionEvent)
+			handleEvent((DexRepositorySelectionEvent) event);
+	}
+
+	private void handleEvent(DexRepositorySelectionEvent event) {
+		event.getRepository();
+		log.debug("Repository selection changed handler");
+		clear();
+		try {
+			post(event.getRepository());
+		} catch (Exception e) {
+			log.warn("Error posting repository: " + e.getLocalizedMessage());
+			mainController.postError(e, "Error displaying repository.");
+		}
 	}
 
 	/**
@@ -90,7 +135,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 		}
 		super.post(repository); // clear view and hold onto repo
 
-		parentController.postStatus("Loading root namespaces");
+		mainController.postStatus("Loading root namespaces");
 		// currentFilter = parentController.getRepositorySearchFilter();
 
 		// Get the root namespaces in real time
@@ -102,11 +147,11 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 				namespaceMap.put(rootNS, item);
 				// Get sub-namespaces in background thread
 				new ListSubnamespacesTask(item.getValue(), this::handleTaskComplete,
-						parentController.getStatusController()).go();
+						mainController.getStatusController()).go();
 			}
 		} catch (RepositoryException e) {
 			log.debug("Error: " + e.getLocalizedMessage());
-			parentController.postError(e, "Error listing namespaces.");
+			mainController.postError(e, "Error listing namespaces.");
 		}
 	}
 
@@ -127,7 +172,7 @@ public class RepositoryNamespacesTreeController extends DexIncludedControllerBas
 				return;
 			}
 			if (task.getErrorException() != null) {
-				parentController.postError(task.getErrorException(), "Error listing namespaces.");
+				mainController.postError(task.getErrorException(), "Error listing namespaces.");
 				return;
 			}
 			Map<String, NamespacesDAO> map = ((ListSubnamespacesTask) event.getTarget()).getMap();

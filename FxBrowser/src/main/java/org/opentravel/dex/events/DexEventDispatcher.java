@@ -33,7 +33,7 @@ public class DexEventDispatcher implements EventDispatcher {
 	@Override
 	public Event dispatchEvent(Event event, EventDispatchChain tail) {
 		if (event instanceof DexEvent) {
-			log.debug("Using my dispatcher on my event");
+			log.debug("Using my dispatcher on my event: " + event.getClass().getSimpleName());
 			// Add code here if the event is to be handled outside of the dispatch chain
 			// event.consume();
 			// some event filter and business logic ...

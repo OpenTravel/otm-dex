@@ -9,14 +9,15 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.dialogbox.RepositoryLoginDialogContoller;
 import org.opentravel.dex.controllers.dialogbox.RepositoryLoginDialogContoller.Results;
+import org.opentravel.dex.events.DexRepositorySelectionEvent;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -45,7 +46,14 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 
 	private RepositoryManager repositoryManager;
 
+	// All event types fired by this controller.
+	private static final EventType[] publishedEvents = { DexRepositorySelectionEvent.REPOSITORY_SELECTED };
+
+	// All event types listened to by this controller's handlers
+	private static final EventType[] subscribedEvents = {};
+
 	public RepositorySelectionController() {
+		super(null, publishedEvents);
 		log.debug("Starting constructor.");
 	}
 
@@ -103,10 +111,11 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		return repositoryManager;
 	}
 
-	@Override
-	public ReadOnlyObjectProperty<String> getSelectable() {
-		return repositoryChoice.getSelectionModel().selectedItemProperty();
-	}
+	// @Override
+	// public ReadOnlyObjectProperty<String> getSelectable() {
+	// return repositoryChoice.getSelectionModel().selectedItemProperty();
+	// }
+	// FIXME - use Events
 
 	/**
 	 * @throws RepositoryException
@@ -156,6 +165,7 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		log.debug("Selected new repository");
 		try {
 			postUser(getSelectedRepository());
+			repositoryChoice.fireEvent(new DexRepositorySelectionEvent(getSelectedRepository()));
 		} catch (Exception e) {
 			log.warn("Error posting repository: " + e.getLocalizedMessage());
 		}
@@ -165,7 +175,8 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 	 */
 	@Override
 	public void configure(DexMainController parent) {
-		checkNodes(); // Verify FXML loaded correctly
+		super.configure(parent);
+		eventPublisherNode = repositoryChoice;
 
 		repositoryManager = getRepoMgr();
 		configureRepositoryChoice();

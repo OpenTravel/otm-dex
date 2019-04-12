@@ -26,6 +26,7 @@ import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLPropertyType;
 
 /**
  * Abstract OTM Node for attribute properties.
@@ -100,6 +101,11 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 	@Override
 	public void setManditory(boolean value) {
 		getTL().setMandatory(value);
+	}
+
+	@Override
+	public TLPropertyType getAssignedTLType() {
+		return getTL().getType();
 	}
 
 }

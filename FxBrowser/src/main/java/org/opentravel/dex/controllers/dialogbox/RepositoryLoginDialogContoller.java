@@ -16,7 +16,6 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryUtils;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -252,10 +251,10 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		return result;
 	}
 
-	@Override
-	public ReadOnlyObjectProperty<?> getSelectable() {
-		return null;
-	}
+	// @Override
+	// public ReadOnlyObjectProperty<?> getSelectable() {
+	// return null;
+	// }
 
 	/**
 	 * Is run when the associated .fxml file is loaded.

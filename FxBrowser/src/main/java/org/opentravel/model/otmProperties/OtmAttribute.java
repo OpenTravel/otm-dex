@@ -24,6 +24,7 @@ import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,4 +109,10 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	public Icons getIconType() {
 		return ImageManager.Icons.ATTRIBUTE;
 	}
+
+	@Override
+	public TLPropertyType getAssignedTLType() {
+		return getTL().getType();
+	}
+
 }

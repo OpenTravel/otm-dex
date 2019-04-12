@@ -3,18 +3,13 @@
  */
 package org.opentravel.dex.controllers.library;
 
-import java.awt.IllegalComponentStateException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.controllers.DexMainControllerBase;
-import org.opentravel.dex.events.DexLibrarySelectionEvent;
+import org.opentravel.dex.controllers.DexTabController;
 import org.opentravel.model.OtmModelManager;
 
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.stage.Stage;
 
 /**
  * Manage the Libraries tab.
@@ -22,7 +17,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class LibrariesTabController extends DexMainControllerBase {
+public class LibrariesTabController implements DexTabController {
 	private static Log log = LogFactory.getLog(LibrariesTabController.class);
 
 	/**
@@ -31,44 +26,27 @@ public class LibrariesTabController extends DexMainControllerBase {
 	@FXML
 	private LibrariesTreeTableController librariesTreeTableController;
 
-	// private DexIncludedController<?> filter;
-
 	public LibrariesTabController() {
-		log.debug("Repository Tab Controller constructed.");
+		log.debug("Library Tab Controller constructed.");
+	}
+
+	@Override
+	@FXML
+	public void initialize() {
+		log.debug("Library Tab Controller constructed.");
+		// do nothing
 	}
 
 	/**
-	 * @param primaryStage
 	 */
 	@Override
-	public void setStage(Stage primaryStage, DexMainController parent) {
-		super.setStage(primaryStage, parent);
-
-		// Set up the repository selection
-		addIncludedController(librariesTreeTableController);
-		// repositorySelectionController.getSelectable().addListener((v, old, newV) ->
-		// repositorySelectionChanged(newV));
-
-		log.debug("Properties Tab Stage set.");
+	public void configure(DexMainController parent) {
+		// Add included controllers to parent.
+		parent.addIncludedController(librariesTreeTableController);
+		log.debug("Library Tab configured.");
 	}
 
-	public void setLibrarySelectionEventHandler(EventHandler<DexLibrarySelectionEvent> handler) {
-		librariesTreeTableController.setLibrarySelectionEventHandler(handler);
-	}
-
-	// public MemberFilterController getMemberFilterController() {
-	// return parentController.getMemberFilterController();
-	// }
-
-	@Override
-	public void checkNodes() {
-		// Not needed - will be checked by addIncluded
-		if (!(librariesTreeTableController instanceof LibrariesTreeTableController))
-			throw new IllegalComponentStateException("Library tree table Controller not injected by FXML.");
-
-		log.debug("FXML Nodes checked OK.");
-	}
-
+	@Deprecated
 	public void post(OtmModelManager modelMgr) {
 		librariesTreeTableController.post(modelMgr);
 	}

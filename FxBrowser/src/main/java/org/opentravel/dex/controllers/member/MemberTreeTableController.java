@@ -8,13 +8,15 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexController;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.events.DexFilterChangeEvent;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.event.EventHandler;
+import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -42,15 +44,6 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private static final String VERSIONCOLUMNLABEL = "Version";
 	private static final String LIBRARYLABEL = "Library";
 
-	// /**
-	// * TreeTableRow is an IndexedCell, but rarely needs to be used by developers creating TreeTableView instances. The
-	// * only time TreeTableRow is likely to be encountered at all by a developer is if they wish to create a custom
-	// * rowFactory that replaces an entire row of a TreeTableView.
-	// *
-	// * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TreeTableRow.html
-	// */
-	//// private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
-
 	/*
 	 * FXML injected
 	 */
@@ -64,23 +57,22 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	TreeTableColumn<MemberDAO, String> nameColumn; // an editable column
 
-	// ImageManager imageMgr;
-	// private DexMainController parentController;
 	OtmModelManager currentModelMgr; // this is postedData
 	MemberFilterController filter = null;
 
-	public MemberTreeTableController(DexMainController parent, TreeTableView<MemberDAO> navTreeTableView,
-			OtmModelManager model) {
+	private boolean ignoreEvents = false;
 
-	}
+	// All event types listened to by this controller's handlers
+	private static final EventType[] subscribedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
+			DexMemberSelectionEvent.MEMBER_SELECTED };
+	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
 
 	public MemberTreeTableController() {
-		super();
+		super(subscribedEvents, publishedEvents);
 	}
 
 	@Override
 	public void checkNodes() {
-		// TODO Auto-generated method stub
 		if (memberTree == null)
 			throw new IllegalStateException("Tree table view is null.");
 
@@ -90,6 +82,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	public void configure(DexMainController parent) {
 		super.configure(parent);
 		log.debug("Configuring Member Tree Table.");
+		eventPublisherNode = memberTreeController;
 
 		// Set the hidden root item
 		root = new TreeItem<>();
@@ -107,9 +100,20 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		memberTree.getSelectionModel().select(0);
 	}
 
-	private void filterChangedHandler() {
-		log.debug("Filter change event received.");
-		refresh();
+	@Override
+	public void handleEvent(Event event) {
+		log.debug(event.getEventType() + " event received.");
+		if (!ignoreEvents) {
+			if (event instanceof DexMemberSelectionEvent)
+				handleEvent((DexMemberSelectionEvent) event);
+			else
+				refresh();
+		}
+	}
+
+	private void handleEvent(DexMemberSelectionEvent event) {
+		if (!ignoreEvents)
+			select(event.getMember());
 	}
 
 	private void buildColumns() {
@@ -217,32 +221,12 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		return filter;
 	}
 
-	// public ImageManager getImageManager() {
-	// if (imageMgr == null)
-	// throw new IllegalStateException("Image manger is null.");
-	// return imageMgr;
-	// }
-
-	// public OtmModelManager getModelManager() {
-	// return currentModelMgr;
-	// }
-	//
 	public TreeItem<MemberDAO> getRoot() {
 		return root;
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return the member tree selected item property.
-	 */
-	@Override
-	public ReadOnlyObjectProperty<TreeItem<MemberDAO>> getSelectable() {
-		return memberTree.getSelectionModel().selectedItemProperty();
-	}
-
-	/**
-	 * Listener for selected library members.
+	 * Listener for selected library members in the tree table.
 	 * 
 	 * @param item
 	 */
@@ -255,7 +239,9 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		if (item.getValue() != null)
 			editable = item.getValue().isEditable();
 		nameColumn.setEditable(editable);
-		memberTreeController.fireEvent(new DexMemberSelectionEvent(this, item));
+		ignoreEvents = true;
+		eventPublisherNode.fireEvent(new DexMemberSelectionEvent(this, item));
+		ignoreEvents = false;
 	}
 
 	/**
@@ -273,24 +259,25 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	}
 
 	public void select(OtmLibraryMember<?> otm) {
-		if (otm != null)
-			select(otm.getName());
-	}
-
-	// Used by property table to jump to new member
-	public void select(String name) {
-		log.debug("Selecting member: " + name);
-		// Find the row to select
-		// TODO - how to strip prefix that can be in the name
-		for (TreeItem<MemberDAO> item : memberTree.getRoot().getChildren()) {
-			String testName = item.getValue().getValue().getName();
-			if (item.getValue().getValue().getName().equals(name)) {
-				memberTree.getSelectionModel().select(item);
-				memberTree.scrollTo(memberTree.getRow(item));
-				return;
+		if (otm != null) {
+			for (TreeItem<MemberDAO> item : memberTree.getRoot().getChildren()) {
+				if (item.getValue().getValue() == otm) {
+					int row = memberTree.getRow(item);
+					// This may not highlight the row if the event comes from or goes to a different controller.
+					Platform.runLater(() -> {
+						ignoreEvents = true;
+						memberTree.requestFocus();
+						memberTree.getSelectionModel().clearAndSelect(row);
+						memberTree.scrollTo(row);
+						memberTree.getFocusModel().focus(row);
+						ignoreEvents = false;
+					});
+					log.debug("Selected " + otm.getName() + " in member tree.");
+					return;
+				}
 			}
+			log.debug(otm.getName() + " not found in member tree.");
 		}
-		log.debug(name + " not found.");
 	}
 
 	@Override
@@ -310,32 +297,5 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	public void setFilter(MemberFilterController filter) {
 		this.filter = filter;
-
-		// Get Events from the filter
-		filter.setChangeEventHandler(e -> filterChangedHandler());
 	}
-
-	/**
-	 * Set up for broadcasting member selection events.
-	 * 
-	 * @param eventHandler
-	 */
-	public void setChangeEventHandler(EventHandler<DexMemberSelectionEvent> eventHandler) {
-		memberTreeController.addEventHandler(DexMemberSelectionEvent.MEMBER_SELECTED, eventHandler);
-	}
-
-	// public void postStatus(String string) {
-	// parentController.postStatus(string);
-	// }
-
-	// public void postProgress(double percentDone) {
-	// parentController.postProgress(percentDone);
-	// }
-
-	// @Override
-	// public void initialize() {
-	// // TODO Auto-generated method stub
-	//
-	// }
-
 }

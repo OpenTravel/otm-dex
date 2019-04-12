@@ -24,6 +24,7 @@ import java.util.List;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
@@ -44,33 +45,38 @@ import javafx.scene.image.Image;
 public abstract class OtmModelElement<TL extends TLModelElement> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmModelElement.class);
 
+	private static final String NONAMESPACE = "no-namespace-for-for-this-object";
+
+	private static final String NONAME = "no-name-for-for-this-object";
+
+	public static OtmModelElement<TLModelElement> get(TLModelElement tlObject) {
+		if (tlObject != null)
+			for (ModelElementListener l : tlObject.getListeners())
+				if (l instanceof OtmModelElementListener)
+					return ((OtmModelElementListener) l).get();
+		return null;
+	}
+
 	protected TL tlObject;
 
 	// leave empty if object can have children but does not or has not been modeled yet.
 	// leave null if the element can not have children.
 	protected List<OtmModelElement<?>> children = new ArrayList<>();
 
-	private static final String NONAMESPACE = "no-namespace-for-for-this-object";
-	private static final String NONAME = "no-name-for-for-this-object";
-
-	public Image getIcon() {
-		return new ImageManager().get(this.getIconType());
-	}
-
 	/**
 	 * @param
 	 */
+	@SuppressWarnings("unchecked")
 	public OtmModelElement(TL tl) {
 		tlObject = tl;
+		tl.addListener(new OtmModelElementListener((OtmModelElement<TLModelElement>) this));
+		checkListener();
 	}
 
-	public String getDescription() {
-		if (getTL() instanceof TLDocumentationOwner) {
-			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
-			if (doc != null)
-				return doc.getDescription();
-		}
-		return "";
+	private void checkListener() {
+		for (ModelElementListener l : tlObject.getListeners())
+			if (l instanceof OtmModelElementListener)
+				assert this == ((OtmModelElementListener) l).get();
 	}
 
 	public String getDeprecation() {
@@ -78,6 +84,15 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
 			if (doc != null && doc.getDeprecations() != null && !doc.getDeprecations().isEmpty())
 				return doc.getDeprecations().get(0).getText();
+		}
+		return "";
+	}
+
+	public String getDescription() {
+		if (getTL() instanceof TLDocumentationOwner) {
+			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
+			if (doc != null)
+				return doc.getDescription();
 		}
 		return "";
 	}
@@ -91,12 +106,20 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return "";
 	}
 
+	public Image getIcon() {
+		return new ImageManager().get(this.getIconType());
+	}
+
 	public abstract ImageManager.Icons getIconType();
 
-	public String getNamespace() {
-		if (tlObject instanceof NamedEntity)
-			return ((NamedEntity) tlObject).getNamespace();
-		return NONAMESPACE;
+	/**
+	 * @return this library, owning library or null
+	 */
+	public OtmLibrary getLibrary() {
+		// if (this instanceof OtmLibraryMember<?>) return getLibrary();
+		if (getOwningMember() != null)
+			return getOwningMember().getLibrary();
+		return null;
 	}
 
 	public String getName() {
@@ -105,20 +128,20 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return NONAME;
 	}
 
-	/**
-	 * Set the name if possible.
-	 * 
-	 * @param name
-	 * @return the actual name after assignment attempted
-	 */
-	public String setName(String name) {
-		return getName();
+	public String getNamespace() {
+		if (tlObject instanceof NamedEntity)
+			return ((NamedEntity) tlObject).getNamespace();
+		return NONAMESPACE;
 	}
 
-	public abstract TL getTL();
+	public abstract OtmLibraryMember<?> getOwningMember();
 
-	public boolean isEditable() {
-		return getOwningMember() != null ? getOwningMember().isEditable() : false;
+	/**
+	 * 
+	 */
+	public String getPrefix() {
+		return getOwningMember() != null && getOwningMember().getLibrary() != null
+				? getOwningMember().getLibrary().getPrefix() : "---";
 	}
 
 	// /**
@@ -141,11 +164,6 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 	// // Override if the element has children
 	// }
 
-	@Override
-	public String toString() {
-		return getName();
-	}
-
 	/**
 	 * @return
 	 */
@@ -153,23 +171,24 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return getClass().getSimpleName();
 	}
 
-	public abstract OtmLibraryMember<?> getOwningMember();
+	public abstract TL getTL();
 
-	/**
-	 * 
-	 */
-	public String getPrefix() {
-		return getOwningMember() != null && getOwningMember().getLibrary() != null
-				? getOwningMember().getLibrary().getPrefix() : "---";
+	public boolean isEditable() {
+		return getOwningMember() != null ? getOwningMember().isEditable() : false;
 	}
 
 	/**
-	 * @return this library, owning library or null
+	 * Set the name if possible.
+	 * 
+	 * @param name
+	 * @return the actual name after assignment attempted
 	 */
-	public OtmLibrary getLibrary() {
-		// if (this instanceof OtmLibraryMember<?>) return getLibrary();
-		if (getOwningMember() != null)
-			return getOwningMember().getLibrary();
-		return null;
+	public String setName(String name) {
+		return getName();
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 }

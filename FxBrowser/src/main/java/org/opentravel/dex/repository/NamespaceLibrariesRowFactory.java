@@ -45,7 +45,7 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 
 	public NamespaceLibrariesRowFactory(NamespaceLibrariesTreeTableController controller) {
 		this.controller = controller;
-		mainController = controller.getParentController();
+		mainController = controller.getMainController();
 
 		// Create Context menu
 		lockLibrary = new MenuItem("Lock");

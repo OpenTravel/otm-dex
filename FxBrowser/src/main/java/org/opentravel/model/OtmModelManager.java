@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.ProjectManager;
@@ -47,6 +48,7 @@ public class OtmModelManager {
 	private Map<String, VersionChain<TLLibrary>> baseNSMap = new HashMap<>();
 	// Open libraries - Abstract Libraries are built-in and user
 	private Map<AbstractLibrary, OtmLibrary> libraries = new HashMap<>();
+
 	// All members - Library Members are TLLibraryMembers and contextual facets
 	private Map<LibraryMember, OtmLibraryMember<?>> members = new HashMap<>();
 
@@ -74,6 +76,16 @@ public class OtmModelManager {
 	 */
 	public OtmLibrary get(TLLibrary tlLibrary) {
 		return libraries.get(tlLibrary);
+	}
+
+	public OtmLibraryMember<?> getMember(TLModelElement tlMember) {
+		if (!(tlMember instanceof LibraryMember)) {
+			// TODO - Get a LibraryMember from the tlMember
+		}
+
+		if (tlMember instanceof LibraryMember)
+			return members.get((tlMember));
+		return null;
 	}
 
 	/**

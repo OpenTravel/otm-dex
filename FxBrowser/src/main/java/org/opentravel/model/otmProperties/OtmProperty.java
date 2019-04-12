@@ -37,7 +37,8 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 	private OtmPropertyOwner parent;
 
 	/**
-	 * @param tlBusinessObject
+	 * @param tl
+	 *            property owner
 	 */
 	public OtmProperty(TL tl, OtmPropertyOwner parent) {
 		super(tl);

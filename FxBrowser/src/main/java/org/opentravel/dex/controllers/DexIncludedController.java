@@ -3,6 +3,14 @@
  */
 package org.opentravel.dex.controllers;
 
+import java.util.List;
+
+import org.opentravel.dex.events.DexEvent;
+
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+
 /**
  * Abstract interface for all included OTM-DE FX view controllers. These controllers must be able to "Post" a view of
  * the object type declared as the generic variable.
@@ -35,11 +43,39 @@ public interface DexIncludedController<T> extends DexController {
 	public void configure(DexMainController parent);
 
 	/**
+	 * @return
+	 */
+	public List<EventType> getPublishedEventTypes();
+
+	/**
+	 * @return
+	 */
+	public List<EventType> getSubscribedEventTypes();
+
+	/**
 	 * Get the parent main controller.
 	 * 
 	 * @return
 	 */
-	public DexMainController getParentController();
+	public DexMainController getMainController();
+
+	/**
+	 * Method that receives events.
+	 * <p>
+	 * <b>NOTE</b> because the handler is set before the actual event is fired and its type is known, implementations
+	 * may <b>NOT</b> use a sub-type of Event. They must perform instance of tests and either handle directly or call
+	 * appropriate method. It is encouraged to have additional handleEvent methods that have specific sub-types.
+	 * <p>
+	 * <b>Note</b> handlers must guard against firing events when setting controls in their controller. For example, if
+	 * a controller both publishes and subscribes to a library selection event, it must take care to not fire a library
+	 * selection event when handling a library selection event.
+	 * 
+	 * @param event
+	 */
+	public void handleEvent(Event event);
+
+	// May do nothing if this controller does not publish the event type
+	public void setEventHandler(EventType<? extends DexEvent> type, EventHandler<DexEvent> handler);
 
 	/**
 	 * Initialize is called by the FXML loader when the FXML file is loaded. These methods must make the controller
@@ -64,6 +100,22 @@ public interface DexIncludedController<T> extends DexController {
 	 *             if business logic throws exceptions or parent controller is needed and not set.
 	 */
 	public void post(T businessData) throws Exception;
+
+	/**
+	 * Attempt to select a member of the collection using the passed object.
+	 * 
+	 * @param selector
+	 *            is the data to attempt to match to a valid selection
+	 */
+	void select(Object selector);
+
+	/**
+	 * Fire an event from this controllers eventPublisherNode. Only event types advertised as being published by this
+	 * controller are fired, other requests are silently ignored.
+	 * 
+	 * @param event
+	 */
+	void fireEvent(DexEvent event);
 
 	/**
 	 * 

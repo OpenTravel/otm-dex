@@ -6,16 +6,19 @@ package org.opentravel.dex.repository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
+import org.opentravel.dex.events.DexRepositoryItemSelectionEvent;
+import org.opentravel.dex.events.DexRepositoryNamespaceSelectionEvent;
+import org.opentravel.dex.events.DexRepositorySelectionEvent;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
 import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
@@ -27,59 +30,18 @@ import javafx.scene.control.cell.PropertyValueFactory;
 public class RepositoryItemCommitHistoriesController extends DexIncludedControllerBase<RepoItemDAO> {
 	private static Log log = LogFactory.getLog(RepositoryItemCommitHistoriesController.class);
 
+	private static final EventType[] subscribedEvents = { DexRepositoryItemSelectionEvent.REPOSITORY_ITEM_SELECTED,
+			DexRepositoryNamespaceSelectionEvent.REPOSITORY_NS_SELECTED,
+			DexRepositorySelectionEvent.REPOSITORY_SELECTED };
+
 	@FXML
 	public TableView<RepoItemCommitDAO> commitHistoriesTable;
-
 	private TableView<RepoItemCommitDAO> historyTable;
+
 	private ObservableList<RepoItemCommitDAO> commitList = FXCollections.observableArrayList();
 
-	@Override
-	public void initialize() {
-		log.debug("Initializing repository library table view.");
-
-		this.historyTable = commitHistoriesTable;
-		if (historyTable == null)
-			throw new IllegalStateException("Library History Table view is null.");
-
-		// Initialize and build columns for library tree table
-		buildColumns(historyTable);
-
-		// Have table listen to observable list.
-		historyTable.setItems(commitList);
-	}
-
-	@Override
-	public void clear() {
-		historyTable.getItems().clear();
-	}
-
-	@Override
-	public void checkNodes() {
-	}
-
-	@Override
-	public void post(RepoItemDAO repoItem) throws Exception {
-		super.post(repoItem);
-
-		if (repoItem == null)
-			throw new IllegalArgumentException("Missing repo item.");
-		RepositoryItemHistory history = repoItem.getHistory();
-		if (history == null) {
-			log.debug("OOPS - need to wait for history to be retrieved.");
-			return; // FIXME
-		}
-		for (RepositoryItemCommit cItem : history.getCommitHistory()) {
-			commitList.add(new RepoItemCommitDAO(cItem));
-		}
-	}
-
-	@Override
-	public void refresh() {
-		try {
-			post(postedData);
-		} catch (Exception e) {
-			log.error("Unhandled error refreshing repository item commit history: " + e.getLocalizedMessage());
-		}
+	public RepositoryItemCommitHistoriesController() {
+		super(subscribedEvents);
 	}
 
 	/**
@@ -103,23 +65,74 @@ public class RepositoryItemCommitHistoriesController extends DexIncludedControll
 		setColumnProps(remarksCol, true, false, true, 0);
 
 		table.getColumns().setAll(numCol, dateCol, userCol, remarksCol);
-
-		// // Give all left over space to the last column
-		// double width = numCol.widthProperty().get();
-		// width += dateCol.widthProperty().get();
-		// width += userCol.widthProperty().get();
-		// remarksCol.prefWidthProperty().bind(table.widthProperty().subtract(width));
-		//
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return null
-	 */
 	@Override
-	public ReadOnlyObjectProperty<TreeItem<RepoItemCommitDAO>> getSelectable() {
-		return null;
+	public void checkNodes() {
+		if (!(commitHistoriesTable instanceof TableView))
+			throw new IllegalStateException("Commit histories table not injected by FXML.");
 	}
 
+	@Override
+	public void clear() {
+		historyTable.getItems().clear();
+	}
+
+	public void eventHandler(DexRepositoryItemSelectionEvent event) {
+		try {
+			post(event.getValue());
+		} catch (Exception e) {
+			mainController.postError(e, "Error displaying repository item history");
+		}
+	}
+
+	@Override
+	public void handleEvent(Event e) {
+		if (e instanceof DexRepositoryItemSelectionEvent)
+			eventHandler((DexRepositoryItemSelectionEvent) e);
+		else if (e instanceof DexRepositoryNamespaceSelectionEvent)
+			clear();
+		else if (e instanceof DexRepositorySelectionEvent)
+			clear();
+	}
+
+	@Override
+	public void initialize() {
+		log.debug("Initializing repository library table view.");
+
+		this.historyTable = commitHistoriesTable;
+		if (historyTable == null)
+			throw new IllegalStateException("Library History Table view is null.");
+
+		// Initialize and build columns for library tree table
+		buildColumns(historyTable);
+
+		// Have table listen to observable list.
+		historyTable.setItems(commitList);
+	}
+
+	@Override
+	public void post(RepoItemDAO repoItem) throws Exception {
+		super.post(repoItem);
+
+		if (repoItem == null)
+			throw new IllegalArgumentException("Missing repo item.");
+		RepositoryItemHistory history = repoItem.getHistory();
+		if (history == null) {
+			mainController.postError(null, "History could not be retrieved.");
+			return;
+		}
+		for (RepositoryItemCommit cItem : history.getCommitHistory()) {
+			commitList.add(new RepoItemCommitDAO(cItem));
+		}
+	}
+
+	@Override
+	public void refresh() {
+		try {
+			post(postedData);
+		} catch (Exception e) {
+			log.error("Unhandled error refreshing repository item commit history: " + e.getLocalizedMessage());
+		}
+	}
 }

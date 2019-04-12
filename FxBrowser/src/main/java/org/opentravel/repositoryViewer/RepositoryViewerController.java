@@ -106,18 +106,22 @@ public class RepositoryViewerController extends DexMainControllerBase implements
 
 		// Set up the repository selection
 		addIncludedController(repositorySelectionController);
-		repositorySelectionController.getSelectable().addListener((v, old, newValue) -> repositorySelectionChanged());
+		// FIXME - use Events
+		// repositorySelectionController.getSelectable().addListener((v, old, newValue) ->
+		// repositorySelectionChanged());
 
 		// Inject this controller into sub-controllers
 		addIncludedController(repositoryNamespacesTreeController);
-		repositoryNamespacesTreeController.getSelectable()
-				.addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
+		// FIXME - use Events
+		// repositoryNamespacesTreeController.getSelectable()
+		// .addListener((v, old, newValue) -> namespaceSelectionListener(newValue));
 		// repositoryNamespacesTreeController.setFilter(repositorySearchController);
 
 		// Set up the libraries in a namespace table
 		addIncludedController(namespaceLibrariesTreeTableController);
-		namespaceLibrariesTreeTableController.getSelectable()
-				.addListener((v, old, newValue) -> librarySelectionListener(newValue));
+		// FIXME - use events
+		// namespaceLibrariesTreeTableController.getSelectable()
+		// .addListener((v, old, newValue) -> librarySelectionListener(newValue));
 
 		addIncludedController(dexStatusController);
 		statusController = dexStatusController; // make available to base class

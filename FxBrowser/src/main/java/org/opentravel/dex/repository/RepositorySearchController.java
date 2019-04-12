@@ -14,7 +14,6 @@ import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -99,7 +98,7 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 
 	private void runSearch(ActionEvent event) {
 		RepositorySearchCriteria criteria = new RepositorySearchCriteria(currentRepository, searchTerm.getText());
-		parentController.postStatus("Searching for: " + criteria.getQuery());
+		mainController.postStatus("Searching for: " + criteria.getQuery());
 		if (currentRepository != null)
 			new SearchRepositoryTask(criteria, this::handleTaskComplete, null, null).go();
 	}
@@ -129,8 +128,8 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 
 	private void refreshParent() {
 		// FIXME - proper command/control structure/delegation
-		parentController.postStatus("Done.");
-		parentController.clear();
+		mainController.postStatus("Done.");
+		mainController.clear();
 		// try {
 		// parentController.getRepositoryNamespacesController().post(currentRepository);
 		// } catch (Exception e) {
@@ -179,9 +178,9 @@ public class RepositorySearchController extends DexIncludedControllerBase<Reposi
 		// does nothing
 	}
 
-	@Override
-	public ReadOnlyObjectProperty<String> getSelectable() {
-		return null;
-	}
+	// @Override
+	// public ReadOnlyObjectProperty<String> getSelectable() {
+	// return null;
+	// }
 
 }

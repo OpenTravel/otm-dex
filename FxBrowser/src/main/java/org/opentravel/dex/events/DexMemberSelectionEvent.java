@@ -6,6 +6,7 @@ package org.opentravel.dex.events;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.EventType;
@@ -58,6 +59,17 @@ public class DexMemberSelectionEvent extends DexEvent {
 				member = target.getValue().getValue().getOwningMember();
 		else
 			member = null;
+	}
+
+	/**
+	 * @param otm
+	 */
+	public DexMemberSelectionEvent(OtmModelElement<?> otm) {
+		super(MEMBER_SELECTED);
+		log.debug("DexEvent OtmModelElement constructor ran.");
+		if (!(otm instanceof OtmLibraryMember))
+			otm = otm.getOwningMember();
+		member = (OtmLibraryMember<?>) otm;
 	}
 
 }

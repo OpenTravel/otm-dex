@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -160,10 +159,10 @@ public class DialogBoxContoller implements DexPopupController {
 		dialogTitle.getChildren().clear();
 	}
 
-	@Override
-	public ReadOnlyObjectProperty<?> getSelectable() {
-		return null;
-	}
+	// @Override
+	// public ReadOnlyObjectProperty<?> getSelectable() {
+	// return null;
+	// }
 
 	@Override
 	public void refresh() {

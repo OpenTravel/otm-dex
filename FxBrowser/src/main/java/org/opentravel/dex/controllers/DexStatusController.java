@@ -8,16 +8,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.repository.NamespacesDAO;
 import org.opentravel.dex.repository.tasks.DexTaskBase;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 
 /**
@@ -27,7 +24,6 @@ import javafx.stage.Stage;
  *
  */
 public class DexStatusController extends DexIncludedControllerBase<String> {
-	// public class DexStatusController implements DexIncludedController<String> {
 	private static Log log = LogFactory.getLog(DexStatusController.class);
 
 	List<DexTaskBase<?>> runningTasks;
@@ -81,10 +77,6 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 	public void postProgress(double percent) {
 		if (statusProgress != null)
 			updateProgress(percent);
-		// if (Platform.isFxApplicationThread())
-		// statusProgress.setProgress(percent);
-		// else
-		// Platform.runLater(() -> postProgress(percent));
 	}
 
 	public void postStatus(String status) {
@@ -144,9 +136,9 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 
 	}
 
-	@Override
-	public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
-		return null;
-	}
+	// @Override
+	// public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
+	// return null;
+	// }
 
 }

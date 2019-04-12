@@ -22,12 +22,12 @@ public final class LibraryRowFactory extends TreeTableRow<LibraryDAO> {
 
 	private final ContextMenu addMenu = new ContextMenu();
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
-	private LibrariesTreeTableController controller;
+	// private LibrariesTreeTableController controller;
 
 	// controller injected from FXML
 	public LibraryRowFactory(LibrariesTreeTableController controller) {
 		this();
-		this.controller = controller;
+		// this.controller = controller;
 	}
 
 	public LibraryRowFactory() {

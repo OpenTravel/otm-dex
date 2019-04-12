@@ -9,7 +9,6 @@ import org.opentravel.common.DialogBox;
 import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
 import org.opentravel.dex.events.DexEventDispatcher;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -107,13 +106,6 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 		// This is only run if the handler is not set.
 		log.debug("File Open selected.");
 		DialogBoxContoller.init().show("Open", "Not implemented");
-	}
-
-	@Deprecated
-	@Override
-	public ReadOnlyObjectProperty<String> getSelectable() {
-		return projectCombo.getSelectionModel().selectedItemProperty();
-		// return null;
 	}
 
 	public void setComboLabel(String text) {

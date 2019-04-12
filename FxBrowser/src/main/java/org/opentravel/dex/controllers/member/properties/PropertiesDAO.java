@@ -5,9 +5,9 @@ package org.opentravel.dex.controllers.member.properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.DialogBox;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
+import org.opentravel.dex.controllers.DexIncludedController;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
@@ -45,7 +45,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	static final String STRING = "xsd:String (future)";
 
 	protected OtmModelElement<?> element;
-	protected MemberPropertiesTreeTableController controller;
+	protected DexIncludedController<?> controller;
 
 	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
@@ -76,48 +76,21 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	/**
-	 * @return an observable list of values for the assigned type actions
+	 * If the property is a type user, create a simple string property with listener. Otherwise, create a read-only
+	 * property.
+	 * 
+	 * @return
 	 */
-	public static ObservableList<String> getAssignedTypeList() {
-		ObservableList<String> list = FXCollections.observableArrayList();
-		list.add(GOTO);
-		list.add(CHANGE);
-		list.add(REMOVE);
-		list.add(STRING);
-		return list;
-	}
-
 	public StringProperty assignedTypeProperty() {
 		SimpleStringProperty ssp;
 		if (element instanceof OtmTypeUser) {
 			ssp = new SimpleStringProperty(((OtmTypeUser) element).getAssignedTypeName());
-			ssp.addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
-				log.debug("TODO: Set " + element + " type to " + newValue);
-
-				if (newValue.equals(CHANGE))
-					DialogBox.display("Set Assigned Type", "TODO - view to select type.");
-				else if (newValue.equals(GOTO)) {
-					if (element instanceof OtmTypeUser)
-						controller.select(((OtmTypeUser) element).getAssignedTypeLocalName());
-					// controller.select((OtmModelElement<?>) ((OtmTypeUser) element).getAssignedType());
-				} else
-					DialogBox.notify("Set Assigned Type", newValue + " is not implemented yet.");
-				// How to set value without firing the listener?
-			});
-		}
-
-		else
+			ssp.addListener((v, o, n) -> new AssignedTypesMenuHandler().handle(n, this));
+		} else
 			return new ReadOnlyStringWrapper("--");
-		// TODO - add listener and change wizard
 		return ssp;
 	}
 
-	// TODO
-	// 1. Where does the combo behavior belong?
-	// 2. Who is responsible for finding the assigned type
-	// 3. How to inform consumers without event loop
-	// 4. Where does editing action behavior belong
-	//
 	public StringProperty deprecationProperty() {
 		String value = element.getDeprecation();
 
@@ -182,6 +155,10 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	@Override
 	public OtmModelElement<?> getValue() {
 		return element;
+	}
+
+	public DexIncludedController<?> getController() {
+		return controller;
 	}
 
 	public boolean isEditable() {

@@ -13,9 +13,9 @@ import org.opentravel.dex.events.DexLibrarySelectionEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -52,15 +52,19 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 
 	private TreeItem<LibraryDAO> root; // Root of the tree.
 
+	// All event types fired by this controller.
+	private static final EventType[] publishedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED };
+
+	// All event types listened to by this controller's handlers
+	private static final EventType[] subscribedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED };
+
 	// Editable Columns
 	// None
 
 	private OtmModelManager modelMgr;
-	// private ImageManager imageMgr;
-	// private DexMainController parentController;
 
 	public LibrariesTreeTableController() {
-		super();
+		super(subscribedEvents, publishedEvents);
 	}
 
 	@Override
@@ -72,6 +76,7 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 	@Override
 	public void configure(DexMainController parent) {
 		super.configure(parent);
+		eventPublisherNode = libraries;
 
 		modelMgr = parent.getModelManager();
 		if (modelMgr == null)
@@ -89,10 +94,6 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 		// add a listener for tree selections
 		librariesTreeTable.getSelectionModel().selectedItemProperty()
 				.addListener((v, o, n) -> librarySelectionListener(n));
-
-		// // TODO
-		// MemberFilterController filter = parentController.getMemberFilterController();
-		// filter.setLibrarySelectedEventHandler(this::librarySelectionListener);
 
 		// Set up the TreeTable
 		buildColumns();
@@ -144,8 +145,27 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 		}
 	}
 
-	private void librarySelectionListener(DexLibrarySelectionEvent event) {
-		log.debug("Library selection Listener: " + event.getLibrary().getName());
+	private boolean ignore = false;
+
+	@Override
+	public void handleEvent(Event event) {
+		if (event instanceof DexLibrarySelectionEvent)
+			eventHandler(((DexLibrarySelectionEvent) event));
+	}
+
+	public void eventHandler(DexLibrarySelectionEvent event) {
+		OtmLibrary selectedLib = event.getLibrary();
+		if (selectedLib != null) {
+			log.debug("Library selection Listener: " + selectedLib.getName());
+			for (TreeItem<LibraryDAO> item : librariesTreeTable.getRoot().getChildren())
+				if (item.getValue().getValue() == selectedLib) {
+					ignore = true;
+					librariesTreeTable.getSelectionModel().select(item);
+					ignore = false;
+				}
+		} else {
+			librariesTreeTable.getSelectionModel().clearSelection();
+		}
 	}
 
 	/**
@@ -157,17 +177,10 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
 			return;
 
-		log.debug("Selection Listener: " + item.getValue().getValue());
+		log.debug("Selection Listener: " + item.getValue().getValue().getName());
 
-		libraries.fireEvent(new DexLibrarySelectionEvent(libraries, item));
-
-		// if (parentController instanceof ObjectEditorController)
-		// if (item.getValue().getValue() instanceof OtmLibrary)
-		// ((ObjectEditorController) parentController).handleLibrarySelectionEvent(item.getValue().getValue());
-	}
-
-	public void setLibrarySelectionEventHandler(EventHandler<DexLibrarySelectionEvent> handler) {
-		libraries.addEventHandler(DexLibrarySelectionEvent.LIBRARY_SELECTED, handler);
+		if (!ignore)
+			libraries.fireEvent(new DexLibrarySelectionEvent(libraries, item));
 	}
 
 	//
@@ -242,18 +255,6 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 	@Override
 	public void clear() {
 		librariesTreeTable.getRoot().getChildren().clear();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @return the member tree selected item property.
-	 */
-	@Deprecated
-	@Override
-	public ReadOnlyObjectProperty<TreeItem<LibraryDAO>> getSelectable() {
-		return null;
-		// return libraryTree.getSelectionModel().selectedItemProperty();
 	}
 
 }
