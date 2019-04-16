@@ -43,6 +43,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	private Map<EventType<?>, List<DexIncludedController<?>>> eventSubscribers = new HashMap<>();
 
 	protected DexStatusController statusController;
+	protected MenuBarWithProjectController menuBarController;
 	protected DialogBoxContoller dialogBoxController;
 
 	protected Stage stage;
@@ -248,6 +249,12 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	protected void setStatusMessage(String message, StatusType statusType, boolean disableControls) {
 		if (getStatusController() != null)
 			getStatusController().postStatus(message);
+	}
+
+	@Override
+	public void updateActionQueueSize(int size) {
+		if (menuBarController != null)
+			menuBarController.updateActionQueueSize(size);
 	}
 
 	@Override

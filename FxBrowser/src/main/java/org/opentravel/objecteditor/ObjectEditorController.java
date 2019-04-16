@@ -111,6 +111,9 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 		menuBarWithProjectController.showCombo(true);
 		menuBarWithProjectController.setdoCloseHandler(this::handleCloseMenu);
 		menuBarWithProjectController.setFileOpenHandler(this::handleOpenMenu);
+		menuBarWithProjectController.setUndoAction(this::undoAction);
+		menuBarController = menuBarWithProjectController; // Make available to base class
+
 		// Setup status controller
 		addIncludedController(dexStatusController);
 		statusController = dexStatusController; // Make available to base class
@@ -164,6 +167,10 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 			memberTreeTableController.post(modelMgr);
 			librariesTabController.post(modelMgr);
 		}
+	}
+
+	public void undoAction(ActionEvent event) {
+		actionMgr.undo();
 	}
 
 	public void handleOpenMenu(ActionEvent event) {

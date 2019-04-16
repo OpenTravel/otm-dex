@@ -29,6 +29,8 @@ public class DexActionManager {
 	DexMainController mainController = null;
 	Deque<DexAction<?>> queue;
 
+	private boolean ignore;
+
 	public enum DexActions {
 		NAMECHANGE, DESCRIPTIONCHANGE
 	};
@@ -40,8 +42,10 @@ public class DexActionManager {
 
 		switch (action) {
 		case NAMECHANGE:
+			// op.addListener((ObservableValue<? extends String> o, String old,
+			// String newVal) -> new NameChangeAction(subject).doIt(o, old, newVal));
 			op.addListener((ObservableValue<? extends String> o, String old,
-					String newVal) -> new NameChangeAction(subject).doIt(o, old, newVal));
+					String newVal) -> doString(new NameChangeAction(subject), o, old, newVal));
 			break;
 		case DESCRIPTIONCHANGE:
 			op.addListener((ObservableValue<? extends String> o, String old,
@@ -49,6 +53,14 @@ public class DexActionManager {
 			break;
 		}
 		return false;
+	}
+
+	public void doString(DexStringAction action, ObservableValue<? extends String> o, String oldName, String name) {
+		if (!ignore) {
+			ignore = true;
+			action.doIt(o, oldName, name);
+			ignore = false;
+		}
 	}
 
 	public DexStringAction stringActionFactory(DexActions action, OtmModelElement<?> subject) {
@@ -86,6 +98,7 @@ public class DexActionManager {
 			action.undo();
 		} else {
 			queue.push(action);
+			mainController.updateActionQueueSize(getQueueSize());
 			log.debug("Put action on queue: " + action.getClass().getSimpleName());
 		}
 	}
@@ -93,5 +106,24 @@ public class DexActionManager {
 	public void postWarning(String warning) {
 		mainController.postError(null, warning);
 
+	}
+
+	public int getQueueSize() {
+		return queue.size();
+	}
+
+	public String getLastActionName() {
+		return queue.peek() != null ? queue.peek().getClass().getSimpleName() : "";
+	}
+
+	public void undo() {
+		ignore = true;
+		log.debug("TODO undo action");
+		if (!queue.isEmpty()) {
+			DexAction<?> action = queue.pop();
+			action.undo();
+			mainController.updateActionQueueSize(getQueueSize());
+		}
+		ignore = false;
 	}
 }

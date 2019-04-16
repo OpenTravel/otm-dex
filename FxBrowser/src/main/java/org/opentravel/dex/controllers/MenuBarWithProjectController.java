@@ -14,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -41,6 +42,10 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 
 	@FXML
 	public MenuItem fileOpenItem;
+	@FXML
+	private Label actionCount;
+	@FXML
+	private Button undoActionButton;
 
 	public MenuBarWithProjectController() {
 		log.debug("Starting constructor.");
@@ -93,6 +98,20 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	}
 
 	/** *********************************************************** **/
+
+	@FXML
+	public void undoAction(ActionEvent e) {
+		log.debug("Close menu item selected.");
+		DialogBoxContoller.init().show("Undo", "Not Implemented");
+	}
+
+	public void setUndoAction(EventHandler<ActionEvent> handler) {
+		undoActionButton.setOnAction(handler);
+	}
+
+	public void updateActionQueueSize(int size) {
+		actionCount.setText(Integer.toString(size));
+	}
 
 	@FXML
 	public void doClose(ActionEvent e) {

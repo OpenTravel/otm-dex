@@ -82,4 +82,9 @@ public interface DexMainController extends DexController {
 	 */
 	public void postStatus(String string);
 
+	/**
+	 * @param queueSize
+	 */
+	void updateActionQueueSize(int queueSize);
+
 }
