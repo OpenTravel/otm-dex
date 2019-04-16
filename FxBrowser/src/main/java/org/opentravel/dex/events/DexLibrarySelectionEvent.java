@@ -24,7 +24,7 @@ public class DexLibrarySelectionEvent extends DexEvent {
 	public static final EventType<DexLibrarySelectionEvent> LIBRARY_SELECTED = new EventType<>(DEX_ALL,
 			"LIBRARY_SELECTED");
 
-	private final OtmLibrary library;
+	private final transient OtmLibrary library;
 
 	public OtmLibrary getLibrary() {
 		return library;

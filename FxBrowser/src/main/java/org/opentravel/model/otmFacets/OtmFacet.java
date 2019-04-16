@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
@@ -48,22 +49,26 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 
 	private OtmLibraryMember<?> parent;
 
-	/**
-	 * @param TLFacet
-	 *            to model
-	 */
-	@Deprecated
-	public OtmFacet(TL tl) {
-		super(tl);
-		assert false;
-	}
+	// /**
+	// * @param TLFacet
+	// * to model
+	// */
+	// @Deprecated
+	// public OtmFacet(TL tl) {
+	// super(tl);
+	// assert false;
+	// }
 
 	public OtmFacet(TL tl, OtmLibraryMember<?> parent) {
-		super(tl);
+		super(tl, parent.getActionManager());
 		this.parent = parent;
 
 		if (parent == null)
 			throw new IllegalArgumentException("No parent library member set.");
+	}
+
+	public DexActionManager getActionManger() {
+		return parent.getActionManager();
 	}
 
 	/**

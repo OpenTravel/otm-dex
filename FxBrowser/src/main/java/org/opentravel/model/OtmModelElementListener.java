@@ -3,6 +3,8 @@
  */
 package org.opentravel.model;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
@@ -13,6 +15,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
  *
  */
 public class OtmModelElementListener implements ModelElementListener {
+	private static Log log = LogFactory.getLog(OtmModelElementListener.class);
 
 	OtmModelElement<TLModelElement> otm;
 
@@ -26,12 +29,12 @@ public class OtmModelElementListener implements ModelElementListener {
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		// No-op
+		log.debug(otm.getName() + " ownership event: " + event.getType());
 	}
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// No-op
+		log.debug(otm.getName() + " value change event: " + event.getType());
 	}
 
 }

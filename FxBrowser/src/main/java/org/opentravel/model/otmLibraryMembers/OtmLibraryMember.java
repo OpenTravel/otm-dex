@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
@@ -50,10 +51,15 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 	/**
 	 */
 	public OtmLibraryMember(TL tl, OtmModelManager mgr) {
-		super(tl);
+		super(tl, mgr.getActionManager());
 		this.mgr = mgr;
 
 		assert mgr != null;
+	}
+
+	@Override
+	public DexActionManager getActionManager() {
+		return mgr.getActionManager();
 	}
 
 	/**
@@ -149,6 +155,7 @@ public abstract class OtmLibraryMember<TL extends TLLibraryMember> extends OtmMo
 	 * 
 	 * @return this object
 	 */
+	@Deprecated
 	public OtmLibraryMember<?> createTestChildren() {
 		for (OtmModelElement<?> child : getChildren())
 			if (child instanceof OtmFacet)

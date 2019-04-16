@@ -18,12 +18,12 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.model.TLCoreObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OTM Object Node for Core objects.
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmCoreObject.class);
+	private static Log log = LogFactory.getLog(OtmCoreObject.class);
 
 	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
@@ -56,6 +56,7 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	@Override
 	public String setName(String name) {
 		getTL().setName(name);
+		log.debug("Set name to: " + name);
 		return getName();
 	}
 

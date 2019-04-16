@@ -13,12 +13,14 @@ import java.util.Set;
 
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.OpenProjectProgressMonitor;
+import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmContainers.OtmProject;
 import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -53,9 +55,14 @@ public class OtmModelManager {
 	private Map<LibraryMember, OtmLibraryMember<?>> members = new HashMap<>();
 
 	private DexFileHandler fileHandler = new DexFileHandler();
+	private DexActionManager actionMgr;
 
-	public OtmModelManager() {
-		// NO-OP
+	public OtmModelManager(DexActionManager actionManager) {
+		this.actionMgr = actionManager;
+	}
+
+	public DexActionManager getActionManager() {
+		return actionMgr;
 	}
 
 	// /**
@@ -79,9 +86,9 @@ public class OtmModelManager {
 	}
 
 	public OtmLibraryMember<?> getMember(TLModelElement tlMember) {
-		if (!(tlMember instanceof LibraryMember)) {
-			// TODO - Get a LibraryMember from the tlMember
-		}
+		// if (!(tlMember instanceof LibraryMember)) {
+		// // TODO - Get a LibraryMember from the tlMember
+		// }
 
 		if (tlMember instanceof LibraryMember)
 			return members.get((tlMember));
@@ -146,6 +153,9 @@ public class OtmModelManager {
 		System.out.println("            new project has " + pm.getModel().getAllLibraries().size() + " libraries");
 
 		VersionChainFactory versionChainFactory = new VersionChainFactory(pm.getModel());
+		// Tell model to track changes to maintain its type integrity
+		// TODO - where should this be set?
+		pm.getModel().addListener(new ModelIntegrityChecker());
 
 		// Get Libraries
 		//
@@ -171,22 +181,22 @@ public class OtmModelManager {
 		for (AbstractLibrary tlLib : tlModel.getAllLibraries()) {
 			for (LibraryMember tlMember : tlLib.getNamedMembers()) {
 				OtmLibraryMember<?> otmMember = memberFactory(tlMember);
-				if (otmMember != null && tlMember instanceof TLLibraryMember)
-					members.put(tlMember, otmMember);
 			}
 		}
 		System.out.println("Members has " + members.size() + " members.");
 	}
 
-	// TODO - have new objects register themselves
 	public OtmLibraryMember<?> memberFactory(LibraryMember tlMember) {
+		OtmLibraryMember<?> otmMember = null;
 		if (tlMember instanceof TLBusinessObject)
-			return new OtmBusinessObject((TLBusinessObject) tlMember, this);
+			otmMember = new OtmBusinessObject((TLBusinessObject) tlMember, this);
 		if (tlMember instanceof TLChoiceObject)
-			return new OtmChoiceObject((TLChoiceObject) tlMember, this);
+			otmMember = new OtmChoiceObject((TLChoiceObject) tlMember, this);
 		if (tlMember instanceof TLCoreObject)
-			return new OtmCoreObject((TLCoreObject) tlMember, this);
-		return null;
+			otmMember = new OtmCoreObject((TLCoreObject) tlMember, this);
+
+		add(otmMember);
+		return otmMember;
 	}
 
 	/**
@@ -200,7 +210,8 @@ public class OtmModelManager {
 	 * @param member
 	 */
 	public void add(OtmLibraryMember<?> member) {
-		members.put(member.getTL(), member);
+		if (member != null && member.getTL() instanceof TLLibraryMember)
+			members.put(member.getTL(), member);
 	}
 
 	/**

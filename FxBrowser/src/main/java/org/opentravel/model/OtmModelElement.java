@@ -21,7 +21,11 @@ package org.opentravel.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.actions.DexActionManager;
+import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.event.ModelElementListener;
@@ -31,24 +35,35 @@ import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.image.Image;
 
 /**
- * Abstract base for all OTM libraries, objects, facets and properties.
+ * Abstract base for OTM Facade objects which wrap all OTM libraries, objects, facets and properties.
  * 
  * @author Dave Hollander
  * 
  */
-public abstract class OtmModelElement<TL extends TLModelElement> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmModelElement.class);
+public abstract class OtmModelElement<T extends TLModelElement> {
+	private static Log log = LogFactory.getLog(OtmModelElement.class);
 
 	private static final String NONAMESPACE = "no-namespace-for-for-this-object";
 
 	private static final String NONAME = "no-name-for-for-this-object";
 
+	/**
+	 * Utility to <i>get</i> the OTM facade object that wraps the TL Model object. Uses the listener added to all TL
+	 * objects in the facade's constructor.
+	 * 
+	 * @param tlObject
+	 *            the wrapped TLModelElement
+	 * @return otm facade wrapper or null if no listener found.
+	 */
 	public static OtmModelElement<TLModelElement> get(TLModelElement tlObject) {
 		if (tlObject != null)
 			for (ModelElementListener l : tlObject.getListeners())
@@ -57,20 +72,37 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return null;
 	}
 
-	protected TL tlObject;
+	protected T tlObject;
 
 	// leave empty if object can have children but does not or has not been modeled yet.
 	// leave null if the element can not have children.
 	protected List<OtmModelElement<?>> children = new ArrayList<>();
+	private ValidationFindings findings = null;
 
-	/**
-	 * @param
-	 */
-	@SuppressWarnings("unchecked")
-	public OtmModelElement(TL tl) {
+	private SimpleStringProperty nameProperty;
+	private SimpleStringProperty descriptionProperty;
+
+	private DexActionManager actionMgr = null;
+
+	// /**
+	// * @param
+	// */
+	// @SuppressWarnings("unchecked")
+	// public OtmModelElement(T tl) {
+	// tlObject = tl;
+	// tl.addListener(new OtmModelElementListener((OtmModelElement<TLModelElement>) this));
+	// checkListener();
+	// }
+
+	public OtmModelElement(T tl, DexActionManager actionManager) {
 		tlObject = tl;
 		tl.addListener(new OtmModelElementListener((OtmModelElement<TLModelElement>) this));
 		checkListener();
+		this.actionMgr = actionManager;
+	}
+
+	public DexActionManager getActionManager() {
+		return actionMgr;
 	}
 
 	private void checkListener() {
@@ -88,6 +120,19 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return "";
 	}
 
+	public StringProperty descriptionProperty() {
+		if (descriptionProperty == null) {
+			if (isEditable()) {
+				descriptionProperty = new SimpleStringProperty(getDescription());
+				if (actionMgr != null)
+					actionMgr.addAction(DexActions.DESCRIPTIONCHANGE, descriptionProperty(), this);
+			} else {
+				descriptionProperty = new ReadOnlyStringWrapper("" + getName());
+			}
+		}
+		return descriptionProperty;
+	}
+
 	public String getDescription() {
 		if (getTL() instanceof TLDocumentationOwner) {
 			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
@@ -95,6 +140,17 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 				return doc.getDescription();
 		}
 		return "";
+	}
+
+	public void setDescription(String description) {
+		if (getTL() instanceof TLDocumentationOwner) {
+			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
+			if (doc == null) {
+				doc = new TLDocumentation();
+				((TLDocumentationOwner) getTL()).setDocumentation(doc);
+			}
+			doc.setDescription(description);
+		}
 	}
 
 	public String getExample() {
@@ -128,6 +184,19 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return NONAME;
 	}
 
+	public StringProperty nameProperty() {
+		if (nameProperty == null) {
+			if (isEditable()) {
+				nameProperty = new SimpleStringProperty(getName());
+				if (actionMgr != null)
+					actionMgr.addAction(DexActions.NAMECHANGE, nameProperty, this);
+			} else {
+				nameProperty = new ReadOnlyStringWrapper("" + getName());
+			}
+		}
+		return nameProperty;
+	}
+
 	public String getNamespace() {
 		if (tlObject instanceof NamedEntity)
 			return ((NamedEntity) tlObject).getNamespace();
@@ -144,6 +213,26 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 				? getOwningMember().getLibrary().getPrefix() : "---";
 	}
 
+	public boolean isValid() {
+		return isValid(false);
+	}
+
+	public boolean isValid(boolean refresh) {
+		if (findings == null || refresh) {
+			boolean deep = false;
+			try {
+				findings = TLModelCompileValidator.validateModelElement(getTL(), deep);
+			} catch (Exception e) {
+				log.debug("Validation threw error: " + e.getLocalizedMessage());
+			}
+			log.debug(findings != null ? findings.count() + " findings found" : " null" + " findings found.");
+		}
+		return findings == null || findings.isEmpty();
+	}
+
+	public ValidationFindings getFindings() {
+		return findings;
+	}
 	// /**
 	// * Get Children. To allow lazy evaluation, children will be modeled if list is empty.
 	// *
@@ -171,7 +260,7 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 		return getClass().getSimpleName();
 	}
 
-	public abstract TL getTL();
+	public abstract T getTL();
 
 	public boolean isEditable() {
 		return getOwningMember() != null ? getOwningMember().isEditable() : false;
@@ -184,6 +273,7 @@ public abstract class OtmModelElement<TL extends TLModelElement> {
 	 * @return the actual name after assignment attempted
 	 */
 	public String setName(String name) {
+		// NO-OP unless overridden
 		return getName();
 	}
 

@@ -22,7 +22,6 @@ import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.dex.repository.RepositoryTabController;
 import org.opentravel.dex.repository.TaskResultHandlerI;
 import org.opentravel.dex.repository.tasks.OpenProjectFileTask;
-import org.opentravel.model.OtmModelManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -106,9 +105,6 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	public void setStage(Stage stage) {
 		super.setStage(stage);
 		log.debug("Controller - Initializing Object Editor Controller");
-
-		// Initialize managers
-		modelMgr = new OtmModelManager();
 
 		// Set up menu bar and show the project combo
 		addIncludedController(menuBarWithProjectController);

@@ -43,6 +43,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private static final String NAMECOLUMNLABEL = "Member";
 	private static final String VERSIONCOLUMNLABEL = "Version";
 	private static final String LIBRARYLABEL = "Library";
+	private static final String ERRORLABEL = "Errors";
 
 	/*
 	 * FXML injected
@@ -155,8 +156,11 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
 		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
 
+		TreeTableColumn<MemberDAO, String> errColumn = new TreeTableColumn<>(ERRORLABEL);
+		errColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("error"));
+
 		// Add columns to table
-		memberTree.getColumns().addAll(iconColumn, nameColumn, libColumn, versionColumn, prefixColumn);
+		memberTree.getColumns().addAll(iconColumn, nameColumn, libColumn, versionColumn, prefixColumn, errColumn);
 
 		// Define cell content
 		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));

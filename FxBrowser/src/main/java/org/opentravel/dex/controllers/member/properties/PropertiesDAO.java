@@ -13,7 +13,6 @@ import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
-import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLProperty;
 
 import javafx.beans.property.IntegerProperty;
@@ -109,23 +108,24 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty descriptionProperty() {
-		if (!(element.getTL() instanceof TLDocumentationOwner))
-			return new ReadOnlyStringWrapper("");
-
-		String value = element.getDescription();
-		if (!element.isEditable())
-			return new ReadOnlyStringWrapper(value);
-
-		StringProperty desc = new SimpleStringProperty(value);
-		// TODO - move to action handler
-		desc.addListener(
-				(ObservableValue<? extends String> ov, String oldValue, String newValue) -> setDescription(newValue));
-		return desc;
+		return element.descriptionProperty();
+		// if (!(element.getTL() instanceof TLDocumentationOwner))
+		// return new ReadOnlyStringWrapper("");
+		//
+		// String value = element.getDescription();
+		// if (!element.isEditable())
+		// return new ReadOnlyStringWrapper(value);
+		//
+		// StringProperty desc = new SimpleStringProperty(value);
+		// // TODO - move to action handler
+		// desc.addListener(
+		// (ObservableValue<? extends String> ov, String oldValue, String newValue) -> setDescription(newValue));
+		// return desc;
 	}
 
 	public void setDescription(String description) {
-		// element.setDescription(description);
-		log.debug("TODO: setDescription " + description + " on " + element);
+		element.setDescription(description);
+		log.debug("setDescription " + description + " on " + element);
 	}
 
 	public StringProperty exampleProperty() {
@@ -197,18 +197,24 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty nameProperty() {
-		StringProperty nameProperty;
-		if (element.isEditable()) {
-			nameProperty = new SimpleStringProperty(element.getName());
-			// TODO - move to action handler
-			// Adding a change listener with lambda expression
-			nameProperty.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
-				element.setName(newVal);
-			});
-		} else {
-			nameProperty = new ReadOnlyStringWrapper("" + element.getName());
-		}
-		return nameProperty;
+		if (element instanceof OtmProperty)
+			return ((OtmProperty<?>) element).nameProperty();
+		else
+			// TODO - have facet return property
+			return new ReadOnlyStringWrapper("" + element.getName());
+
+		// StringProperty nameProperty;
+		// if (element.isEditable()) {
+		// nameProperty = new SimpleStringProperty(element.getName());
+		// // DONE - move to action handler
+		// // Adding a change listener with lambda expression
+		// nameProperty.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
+		// element.setName(newVal);
+		// });
+		// } else {
+		// nameProperty = new ReadOnlyStringWrapper("" + element.getName());
+		// }
+		// return nameProperty;
 	}
 
 	public StringProperty roleProperty() {

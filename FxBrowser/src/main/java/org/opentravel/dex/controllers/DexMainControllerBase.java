@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
 import org.opentravel.common.ImageManager;
+import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
 import org.opentravel.dex.events.DexEvent;
 import org.opentravel.model.OtmModelManager;
@@ -35,6 +36,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	protected DexMainController mainController;
 	protected ImageManager imageMgr;
 	protected OtmModelManager modelMgr;
+	protected DexActionManager actionMgr;
 
 	private List<DexIncludedController<?>> includedControllers = new ArrayList<>();
 	private Map<EventType<?>, List<DexIncludedController<?>>> eventPublishers = new HashMap<>();
@@ -220,7 +222,12 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		// These may be needed by sub-controllers
 		this.stage = primaryStage;
 		this.mainController = null;
+
+		// Initialize managers
+		actionMgr = new DexActionManager(this);
+		modelMgr = new OtmModelManager(actionMgr);
 		imageMgr = new ImageManager(primaryStage);
+
 		checkNodes();
 	}
 

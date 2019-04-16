@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.dex.controllers.member.properties.MemberPropertiesTreeTableController;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
@@ -35,7 +36,7 @@ import org.opentravel.schemacompiler.model.TLPropertyType;
  * 
  */
 public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> implements OtmTypeUser {
-	private static Log log = LogFactory.getLog(OtmElement.class);
+	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
 	/**
 	 */

@@ -10,7 +10,9 @@ import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.schemacompiler.validate.FindingType;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
@@ -50,6 +52,18 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 		return otmObject.isEditable();
 	}
 
+	public StringProperty errorProperty() {
+		// Move to OtmModelElement
+		otmObject.isValid(true); // consider moving to task
+		String errMsg = "-/-";
+		if (otmObject.getFindings() != null) {
+			int warnings = otmObject.getFindings().count(FindingType.WARNING);
+			int errors = otmObject.getFindings().count(FindingType.ERROR);
+			errMsg = Integer.toString(warnings) + "/" + Integer.toString(errors);
+		}
+		return new ReadOnlyStringWrapper(errMsg);
+	}
+
 	public StringProperty libraryProperty() {
 		String libName = "";
 		if (otmObject instanceof OtmLibraryMember)
@@ -59,9 +73,12 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty nameProperty() {
-		SimpleStringProperty ssp = new SimpleStringProperty(otmObject.getName());
-		ssp.addListener((ov, old, newValue) -> setName(newValue)); // Track changes
-		return ssp;
+		StringProperty p = otmObject.nameProperty();
+		// p.addListener((v, o, n) -> otmObject.nameProperty().set(n));
+		// SimpleStringProperty ssp = new SimpleStringProperty(otmObject.getName());
+		// ssp.addListener((ov, old, newValue) -> setName(newValue)); // Track changes
+		return (otmObject.nameProperty());
+		// return ssp;
 	}
 
 	public void setName(String name) {
