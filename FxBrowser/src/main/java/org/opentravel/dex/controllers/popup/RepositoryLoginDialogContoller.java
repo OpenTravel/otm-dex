@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.dex.controllers.dialogbox;
+package org.opentravel.dex.controllers.popup;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,19 +40,16 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class RepositoryLoginDialogContoller implements DexPopupController {
-	public enum Results {
-		OK, CANCEL;
-	}
-
+public class RepositoryLoginDialogContoller extends DexPopupControllerBase {
 	private static Log log = LogFactory.getLog(RepositoryLoginDialogContoller.class);
 
 	public static final String LAYOUT_FILE = "/RepositoryLoginDialog.fxml";
 
 	// Stage create by FXML loader
-	private static Stage popupStage;
+	protected static Stage dialogStage;
 
-	// private static String helpText = "Login to repository using provided credentials.";
+	private static String helpText = "Login to repository using provided credentials.";
+	private static String dialogTitle = "Login Dialog";
 
 	/**
 	 * Initialize this controller using the passed FXML loader.
@@ -65,28 +62,29 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 	 * @param mainController
 	 * @return dialog box controller or null
 	 */
-	public static RepositoryLoginDialogContoller init(FXMLLoader loader) {
+	public static RepositoryLoginDialogContoller init() {
+		FXMLLoader loader = new FXMLLoader(RepositoryLoginDialogContoller.class.getResource(LAYOUT_FILE));
 		RepositoryLoginDialogContoller controller = null;
 		try {
 			// Load the fxml file initialize controller it declares.
 			Pane pane = loader.load();
 			// Create scene and stage
-			Stage dialogStage = new Stage();
+			dialogStage = new Stage();
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.initModality(Modality.APPLICATION_MODAL);
-			popupStage = dialogStage;
 
 			// get the controller from loader.
 			controller = loader.getController();
 			if (!(controller instanceof RepositoryLoginDialogContoller))
-				log.error("Error creating dialog box controller.");
+				throw new IllegalStateException("Error creating login dialog controller.");
 		} catch (IOException e1) {
-			log.error("Error loading dialog box. " + e1.getLocalizedMessage() + "\n" + e1.getCause().toString());
+			throw new IllegalStateException(
+					"Error loading dialog box. " + e1.getLocalizedMessage() + "\n" + e1.getCause().toString());
 		}
 		return controller;
 	}
 
-	private Results result = Results.OK;
+	// private Results result = Results.OK;
 	@FXML
 	Button dialogButtonOK;
 	@FXML
@@ -131,6 +129,8 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 
 	@Override
 	public void checkNodes() {
+		if (dialogStage == null)
+			throw new IllegalStateException("Missing stage.");
 	}
 
 	private void configureRepositoryCombo() {
@@ -148,18 +148,10 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		repositorySelectionChanged(); // initialize values
 	}
 
+	@Override
 	public void doCancel() {
-		clear();
-		popupStage.close();
-		result = Results.CANCEL;
+		super.doCancel();
 		testResults.setText("");
-	}
-
-	public void doOK() {
-		doTest(); // use test to setup user in repo
-		clear();
-		popupStage.close();
-		result = Results.OK;
 	}
 
 	public void doTest() {
@@ -247,24 +239,6 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		return rMgr;
 	}
 
-	public Results getResult() {
-		return result;
-	}
-
-	// @Override
-	// public ReadOnlyObjectProperty<?> getSelectable() {
-	// return null;
-	// }
-
-	/**
-	 * Is run when the associated .fxml file is loaded.
-	 */
-	@Override
-	@FXML
-	public void initialize() {
-		log.debug("Initialize injection point.");
-	}
-
 	private void postException(Exception e) {
 		postException(e, null);
 	}
@@ -309,14 +283,9 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		return loginRepoID.getText();
 	}
 
-	public void setup(String title, String message) {
-		if (popupStage == null)
-			throw new IllegalAccessError("Must set stage before use.");
-		if (dialogProgress == null || testResults == null || dialogButtonCancel == null || loginUser == null
-				|| loginPassword == null)
-			throw new IllegalStateException("Missing dialog FXML fields.");
-
-		popupStage.setTitle(title);
+	@Override
+	protected void setup(String message) {
+		super.setStage(dialogTitle, dialogStage);
 
 		dialogButtonCancel.setOnAction(e -> doCancel());
 		dialogButtonOK.setOnAction(e -> doOK());
@@ -336,22 +305,4 @@ public class RepositoryLoginDialogContoller implements DexPopupController {
 		anonymousSelectionChanged();
 		dialogButtonAnonymous.setOnAction(e -> anonymousSelectionChanged());
 	}
-
-	@Override
-	public void show(String title, String message) {
-		setup(title, message);
-		popupStage.show();
-	}
-
-	public Results showAndWait(String title, String message) {
-		setup(title, message);
-		popupStage.showAndWait();
-		return result;
-	}
-
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-	}
-
 }

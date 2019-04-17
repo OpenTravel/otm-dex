@@ -11,11 +11,9 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.repository.tasks.DexTaskBase;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.stage.Stage;
 
 /**
  * Manage the status bar containing a label and progress indicator.
@@ -27,7 +25,7 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 	private static Log log = LogFactory.getLog(DexStatusController.class);
 
 	List<DexTaskBase<?>> runningTasks;
-	SimpleDoubleProperty taskProgress = new SimpleDoubleProperty();
+	// SimpleDoubleProperty taskProgress = new SimpleDoubleProperty();
 
 	// FXML inject
 	@FXML
@@ -62,17 +60,20 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 			runningTasks = new ArrayList<>();
 	}
 
-	/**
-	 * @param primaryStage
-	 */
-	@SuppressWarnings("squid:S1172")
-	public void setStage(Stage primaryStage) {
-		checkNodes();
-		// FIXME - should progress be set when there are no tasks?
-		statusProgress.progressProperty().bind(taskProgress);
-		taskProgress.set(1.0);
-		log.debug("Stage set.");
-	}
+	// If it turns out binding to the local taskProgress is needed,
+	// put the binding in an overridden configure method.
+	//
+	// /**
+	// * @param primaryStage
+	// */
+	// // @SuppressWarnings("squid:S1172")
+	// public void setStage(Stage primaryStage) {
+	// checkNodes();
+	// // statusProgress.progressProperty().bind(taskProgress);
+	// // taskProgress.set(1.0);
+	// statusProgress.progressProperty().set(1.0);
+	// log.debug("Stage set.");
+	// }
 
 	public void postProgress(double percent) {
 		if (statusProgress != null)
@@ -130,15 +131,10 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 
 	private void updateProgress(double value) {
 		if (Platform.isFxApplicationThread())
-			taskProgress.set(value);
+			// taskProgress.set(value);
+			statusProgress.progressProperty().set(value);
 		else
 			Platform.runLater(() -> updateProgress(value));
 
 	}
-
-	// @Override
-	// public ReadOnlyObjectProperty<TreeItem<NamespacesDAO>> getSelectable() {
-	// return null;
-	// }
-
 }

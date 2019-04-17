@@ -6,7 +6,7 @@ package org.opentravel.dex.repository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.controllers.dialogbox.UnlockLibraryDialogContoller;
+import org.opentravel.dex.controllers.popup.UnlockLibraryDialogContoller;
 import org.opentravel.dex.repository.tasks.LockItemTask;
 import org.opentravel.dex.repository.tasks.UnlockItemTask;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -84,7 +84,7 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 	private void unlockLibraryEventHandler() {
 		log.debug("Unlock in Row Factory.");
 		UnlockLibraryDialogContoller uldc = UnlockLibraryDialogContoller.init();
-		uldc.showAndWait("Unlock Library", "");
+		uldc.showAndWait("");
 		boolean commitWIP = uldc.getCommitState();
 		String remarks = uldc.getCommitRemarks();
 

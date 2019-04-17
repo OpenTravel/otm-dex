@@ -12,7 +12,6 @@ import org.opentravel.common.DexFileHandler;
 import org.opentravel.dex.controllers.DexMainControllerBase;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.controllers.MenuBarWithProjectController;
-import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
 import org.opentravel.dex.controllers.library.LibrariesTabController;
 import org.opentravel.dex.controllers.library.LibraryDAO;
 import org.opentravel.dex.controllers.member.MemberFilterController;
@@ -111,7 +110,7 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 		menuBarWithProjectController.showCombo(true);
 		menuBarWithProjectController.setdoCloseHandler(this::handleCloseMenu);
 		menuBarWithProjectController.setFileOpenHandler(this::handleOpenMenu);
-		menuBarWithProjectController.setUndoAction(this::undoAction);
+		menuBarWithProjectController.setUndoAction(e -> undoAction());
 		menuBarController = menuBarWithProjectController; // Make available to base class
 
 		// Setup status controller
@@ -142,13 +141,14 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	public void initialize() {
 		log.debug("Object Editor Controller - Initialize w/params is now loading!");
 		checkNodes();
-		dialogBoxController = DialogBoxContoller.init();
+		// Is lazy evaluated by getDialogBoxController()
+		// dialogBoxController = DialogBoxContoller.init();
 	}
 
 	public void openFile(File selectedFile) {
 		if (selectedFile == null)
 			return;
-		dialogBoxController.show("Loading Project", "Please wait");
+		getDialogBoxController().show("Loading Project", "Please wait");
 
 		clear();
 		// memberTreeTableController.clear(); // prevent concurrent modification
@@ -161,7 +161,7 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	@Override
 	public void handleTaskComplete(WorkerStateEvent event) {
 		if (event.getTarget() instanceof OpenProjectFileTask) {
-			dialogBoxController.close();
+			getDialogBoxController().close();
 			// TODO - use event not direct control
 			// TODO - pass to tab not table controller
 			memberTreeTableController.post(modelMgr);
@@ -169,8 +169,9 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 		}
 	}
 
-	public void undoAction(ActionEvent event) {
+	public void undoAction() {
 		actionMgr.undo();
+		refresh();
 	}
 
 	public void handleOpenMenu(ActionEvent event) {

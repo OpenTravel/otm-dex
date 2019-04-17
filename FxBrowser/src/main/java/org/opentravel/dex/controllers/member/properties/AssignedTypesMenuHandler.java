@@ -4,6 +4,7 @@
 package org.opentravel.dex.controllers.member.properties;
 
 import org.opentravel.common.DialogBox;
+import org.opentravel.dex.controllers.popup.TypeSelectionContoller;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeUser;
@@ -39,8 +40,11 @@ public class AssignedTypesMenuHandler {
 	}
 
 	public void handle(String selection, PropertiesDAO prop) {
-		if (selection.equals(CHANGE))
+		if (selection.equals(CHANGE)) {
+			TypeSelectionContoller controller = TypeSelectionContoller.init();
+			controller.showAndWait("MSG");
 			DialogBox.display("Set Assigned Type", "TODO - view to select type.");
+		}
 		// TODO
 		// . Migrate fx:properties into OtmModelElement<?>
 		// . Create pop-up

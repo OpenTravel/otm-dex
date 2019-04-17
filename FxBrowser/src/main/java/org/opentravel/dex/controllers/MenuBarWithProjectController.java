@@ -6,7 +6,7 @@ package org.opentravel.dex.controllers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DialogBox;
-import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
+import org.opentravel.dex.controllers.popup.DialogBoxContoller;
 import org.opentravel.dex.events.DexEventDispatcher;
 
 import javafx.collections.ObservableList;

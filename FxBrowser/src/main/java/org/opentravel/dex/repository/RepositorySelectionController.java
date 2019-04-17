@@ -7,8 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.controllers.dialogbox.RepositoryLoginDialogContoller;
-import org.opentravel.dex.controllers.dialogbox.RepositoryLoginDialogContoller.Results;
+import org.opentravel.dex.controllers.popup.DexPopupControllerBase.Results;
+import org.opentravel.dex.controllers.popup.RepositoryLoginDialogContoller;
 import org.opentravel.dex.events.DexRepositorySelectionEvent;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -19,7 +19,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -58,7 +57,7 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 	}
 
 	private void addRepository() {
-		if (loginDialogController.showAndWait("", "") == Results.OK) {
+		if (loginDialogController.showAndWait("") == Results.OK) {
 			repositorySelectionChanged(); // update user field
 			// repositoryChoice.getSelectionModel().select(loginDialogController.getLoginRepoID());
 		}
@@ -182,12 +181,10 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 		configureRepositoryChoice();
 
 		// initialize login Dialog Box using a new dynamic loader
-		FXMLLoader loader = new FXMLLoader(getClass().getResource(RepositoryLoginDialogContoller.LAYOUT_FILE));
-		loginDialogController = RepositoryLoginDialogContoller.init(loader);
+		loginDialogController = RepositoryLoginDialogContoller.init();
+		// FXMLLoader loader = new FXMLLoader(getClass().getResource(RepositoryLoginDialogContoller.LAYOUT_FILE));
+		// loginDialogController = RepositoryLoginDialogContoller.init(loader);
 		addRepository.setOnAction(e -> addRepository());
-
-		if (loginDialogController == null)
-			throw new IllegalStateException("Could not load unlock dialog controller.");
 
 		log.debug("Repository Selection Stage set.");
 	}

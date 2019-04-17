@@ -3,6 +3,8 @@
  */
 package org.opentravel.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.schemacompiler.loader.LoaderProgressMonitor;
 
@@ -11,6 +13,7 @@ import org.opentravel.schemacompiler.loader.LoaderProgressMonitor;
  *
  */
 public class OpenProjectProgressMonitor implements LoaderProgressMonitor {
+	private static Log log = LogFactory.getLog(OpenProjectProgressMonitor.class);
 
 	private DexStatusController controller;
 	private double percentDone = 0;
@@ -20,8 +23,8 @@ public class OpenProjectProgressMonitor implements LoaderProgressMonitor {
 	 * @param objectEditorController
 	 * 
 	 */
-	public OpenProjectProgressMonitor(DexStatusController objectEditorController) {
-		controller = objectEditorController;
+	public OpenProjectProgressMonitor(DexStatusController statusController) {
+		controller = statusController;
 		increment = 0.90F;
 	}
 
@@ -29,25 +32,25 @@ public class OpenProjectProgressMonitor implements LoaderProgressMonitor {
 	public void beginLoad(int libraryCount) {
 		// Library count is not always accurate due to includes
 		increment = increment / libraryCount * 0.7F;
-		// System.out.println("Progress: begin with " + libraryCount + " increment = " + increment);
+		log.debug("Progress: begin with " + libraryCount + " increment = " + increment);
 	}
 
 	@Override
 	public void loadingLibrary(String libraryFilename) {
-		// System.out.println("Progress: loading " + libraryFilename);
+		log.debug("Progress: loading " + libraryFilename);
 		controller.postStatus("Loading " + libraryFilename);
 	}
 
 	@Override
 	public void libraryLoaded() {
-		// System.out.println("Progress: loaded done. ");
+		log.debug("Progress: library loaded. Percent done = " + percentDone);
 		percentDone += increment;
 		controller.postProgress(percentDone);
 	}
 
 	@Override
 	public void done() {
-		// System.out.println("Progress: done");
+		log.debug("Progress: done");
 		controller.postStatus("Done");
 	}
 

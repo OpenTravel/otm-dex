@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.dex.controllers.dialogbox;
+package org.opentravel.dex.controllers.popup;
 
 import java.io.IOException;
 
@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,7 +17,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -31,14 +29,14 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class UnlockLibraryDialogContoller implements DexPopupController {
+public class UnlockLibraryDialogContoller extends DexPopupControllerBase {
 	private static Log log = LogFactory.getLog(UnlockLibraryDialogContoller.class);
 
 	public static final String LAYOUT_FILE = "/UnlockLibraryDialog.fxml";
 
-	public enum Results {
-		OK, CANCEL;
-	}
+	// public enum Results {
+	// OK, CANCEL;
+	// }
 
 	private Results result = Results.OK;
 
@@ -57,35 +55,30 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	@FXML
 	Button dialogButtonOK;
 
-	private static Stage popupStage;
-
-	Parent root;
-	Scene scene;
+	protected static Stage dialogStage;
+	// private Parent root;
+	// private Scene scene;
 
 	private static String helpText = "Unlock in the repository using the current credentials. "
 			+ "If the 'commit' is selected, the Work-In-Process will be "
 			+ "committed with the remarks to the remote repository before the existing lock is released. "
 			+ "If not selected, any changes in the library's Work-In-Progress will be discarded.";
+	private static String dialogTitle = "Unlock Dialog";
 
-	/**
-	 * Is run when the associated .fxml file is loaded.
-	 */
-	@Override
-	@FXML
-	public void initialize() {
-		log.debug("Initialize injection point.");
-	}
+	// /**
+	// * Is run when the associated .fxml file is loaded.
+	// */
+	// @Override
+	// @FXML
+	// public void initialize() {
+	// log.debug("Initialize injection point.");
+	// }
 
 	@Override
 	public void checkNodes() {
 		if (dialogBox == null || dialogTitleLabel == null || dialogHelp == null || dialogText == null
 				|| ulCommitButton == null || dialogButtonCancel == null || dialogButtonOK == null)
 			throw new IllegalStateException("Missing injected field.");
-	}
-
-	public static UnlockLibraryDialogContoller init() {
-		FXMLLoader loader = new FXMLLoader(UnlockLibraryDialogContoller.class.getResource(LAYOUT_FILE));
-		return UnlockLibraryDialogContoller.init(loader);
 	}
 
 	/**
@@ -99,57 +92,55 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	 * @param mainController
 	 * @return dialog box controller or null
 	 */
-	public static UnlockLibraryDialogContoller init(FXMLLoader loader) {
+	public static UnlockLibraryDialogContoller init() {
+		FXMLLoader loader = new FXMLLoader(UnlockLibraryDialogContoller.class.getResource(LAYOUT_FILE));
 		UnlockLibraryDialogContoller controller = null;
 		try {
 			// Load the fxml file initialize controller it declares.
 			Pane pane = loader.load();
 			// Create scene and stage
-			Stage dialogStage = new Stage();
+			dialogStage = new Stage();
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.initModality(Modality.APPLICATION_MODAL);
-			popupStage = dialogStage;
 
 			// get the controller from it.
 			controller = loader.getController();
 			if (!(controller instanceof UnlockLibraryDialogContoller))
-				log.error("Error creating dialog box controller.");
+				throw new IllegalStateException("Error creating unlock dialog controller.");
 		} catch (IOException e1) {
-			log.error("Error loading dialog box. " + e1.getLocalizedMessage());
+			throw new IllegalStateException(
+					"Error loading dialog box. " + e1.getLocalizedMessage() + "\n" + e1.getCause().toString());
+
 		}
 		return controller;
 	}
 
-	public void setup(String title, String message) {
-		if (popupStage == null)
-			throw new IllegalAccessError("Must set stage before use.");
-
-		if (dialogButtonCancel == null || dialogHelp == null || dialogText == null)
-			throw new IllegalStateException("Missing dialog FXML fields.");
-
-		popupStage.setTitle(title);
+	@Override
+	protected void setup(String message) {
+		super.setStage(dialogTitle, dialogStage);
+		checkNodes();
 
 		dialogButtonCancel.setOnAction(e -> doCancel());
 		dialogButtonOK.setOnAction(e -> doOK());
 		ulCommitButton.setOnAction(e -> doCommitButton());
 
-		dialogHelp.getChildren().add(new Text(helpText));
+		postHelp(helpText, dialogHelp);
 
 		dialogText.setText(message);
 		// dialogText.getChildren().add(new Text(message));
 
 	}
 
-	@Override
-	public void show(String title, String message) {
-		setup(title, message);
-		popupStage.show();
-	}
+	// @Override
+	// public void show(String title, String message) {
+	// setup(title, message);
+	// popupStage.show();
+	// }
 
-	public void showAndWait(String title, String message) {
-		setup(title, message);
-		popupStage.showAndWait();
-	}
+	// public void showAndWait(String title, String message) {
+	// setup(title, message);
+	// popupStage.showAndWait();
+	// }
 
 	/**
 	 * Add the message to the displayed text
@@ -162,11 +153,11 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 		// dialogText.getChildren().add(new Text(message));
 	}
 
-	public void doOK() {
-		clear();
-		popupStage.close();
-		result = Results.OK;
-	}
+	// public void doOK() {
+	// clear();
+	// popupStage.close();
+	// result = Results.OK;
+	// }
 
 	public void doCommitButton() {
 		// Hide the text if not selected
@@ -181,15 +172,16 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 		return dialogText.getText();
 	}
 
+	@Override
 	public Results getResult() {
 		return result;
 	}
 
-	public void doCancel() {
-		clear();
-		popupStage.close();
-		result = Results.CANCEL;
-	}
+	// public void doCancel() {
+	// clear();
+	// popupStage.close();
+	// result = Results.CANCEL;
+	// }
 
 	@Override
 	public void clear() {
@@ -202,9 +194,9 @@ public class UnlockLibraryDialogContoller implements DexPopupController {
 	// return null;
 	// }
 
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-	}
+	// @Override
+	// public void refresh() {
+	// // TODO Auto-generated method stub
+	// }
 
 }

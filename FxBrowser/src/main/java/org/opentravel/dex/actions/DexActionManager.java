@@ -95,7 +95,9 @@ public class DexActionManager {
 			ValidationFindings findings = action.getVetoFindings();
 			String msg = "Can not make change.\n" + ValidationUtils.getMessagesAsString(findings);
 			mainController.postError(null, msg);
+			ignore = true;
 			action.undo();
+			ignore = false;
 		} else {
 			queue.push(action);
 			mainController.updateActionQueueSize(getQueueSize());
@@ -116,6 +118,9 @@ public class DexActionManager {
 		return queue.peek() != null ? queue.peek().getClass().getSimpleName() : "";
 	}
 
+	/**
+	 * Pop an action from the queue and then undo it.
+	 */
 	public void undo() {
 		ignore = true;
 		log.debug("TODO undo action");

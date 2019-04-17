@@ -15,7 +15,7 @@ import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.actions.DexActionManager;
-import org.opentravel.dex.controllers.dialogbox.DialogBoxContoller;
+import org.opentravel.dex.controllers.popup.DialogBoxContoller;
 import org.opentravel.dex.events.DexEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -38,7 +38,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	protected OtmModelManager modelMgr;
 	protected DexActionManager actionMgr;
 
-	private List<DexIncludedController<?>> includedControllers = new ArrayList<>();
+	protected List<DexIncludedController<?>> includedControllers = new ArrayList<>();
 	private Map<EventType<?>, List<DexIncludedController<?>>> eventPublishers = new HashMap<>();
 	private Map<EventType<?>, List<DexIncludedController<?>>> eventSubscribers = new HashMap<>();
 

@@ -21,18 +21,6 @@ public interface DexController {
 	 */
 	public void clear();
 
-	// /**
-	// * Get the observable property so that others can register a listener.
-	// * <p>
-	// * Example usage: nsTreeController.getSelectable().addListener((v, old, newValue) ->
-	// * treeSelectionListener(newValue));
-	// *
-	// * @return a property or NULL if no fxNodes are of interest outside of this controller
-	// */
-	// // TODO - move to DexIncludedController after controllers are refactored.
-	// @Deprecated
-	// public ReadOnlyObjectProperty<?> getSelectable();
-
 	/**
 	 * Used by FXML when controller is loaded.
 	 */

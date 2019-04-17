@@ -38,6 +38,6 @@ public class MemberPropertiesTabController implements DexTabController {
 	@Override
 	public void configure(DexMainController parent) {
 		parent.addIncludedController(memberPropertiesTreeTableController);
-
 	}
+
 }

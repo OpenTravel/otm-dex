@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.dex.controllers.dialogbox;
+package org.opentravel.dex.controllers.popup;
 
 import java.io.IOException;
 
@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -32,7 +31,7 @@ import javafx.stage.Stage;
  * @author dmh
  *
  */
-public class DialogBoxContoller implements DexPopupController {
+public class DialogBoxContoller extends DexPopupControllerBase {
 	private static Log log = LogFactory.getLog(DialogBoxContoller.class);
 
 	public static final String LAYOUT_FILE = "/DialogBox.fxml";
@@ -50,10 +49,7 @@ public class DialogBoxContoller implements DexPopupController {
 	@FXML
 	Label dialogTitleLabel;
 
-	private static Stage popupStage;
-
-	Parent root;
-	Scene scene;
+	private static Stage dialogStage;
 
 	/**
 	 * Is run when the associated .fxml file is loaded.
@@ -66,6 +62,16 @@ public class DialogBoxContoller implements DexPopupController {
 
 	@Override
 	public void checkNodes() {
+		if (dialogStage == null)
+			throw new IllegalStateException("Missing stage.");
+		if (dialogButtonClose == null)
+			throw new IllegalStateException("Missing close.");
+		// if (dialogButtonOK == null)
+		// throw new IllegalStateException("Missing ok.");
+		if (dialogTitle == null)
+			throw new IllegalStateException("Missing title.");
+		if (dialogText == null)
+			throw new IllegalStateException("Missing dialog text.");
 	}
 
 	/**
@@ -81,21 +87,14 @@ public class DialogBoxContoller implements DexPopupController {
 	 */
 	public static DialogBoxContoller init() {
 		FXMLLoader loader = new FXMLLoader(DialogBoxContoller.class.getResource(LAYOUT_FILE));
-		return init(loader);
-	}
-
-	// Use init() instead
-	@Deprecated
-	public static DialogBoxContoller init(FXMLLoader loader) {
 		DialogBoxContoller controller = null;
 		try {
 			// Load the fxml file initialize controller it declares.
 			Pane pane = loader.load();
 			// Create scene and stage
-			Stage dialogStage = new Stage();
+			dialogStage = new Stage();
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.initModality(Modality.APPLICATION_MODAL);
-			popupStage = dialogStage;
 
 			// get the controller from it.
 			controller = loader.getController();
@@ -109,33 +108,36 @@ public class DialogBoxContoller implements DexPopupController {
 		return controller;
 	}
 
+	@Override
+	protected void setup(String message) {
+		super.setStage(getTitle(), dialogStage);
+	}
+
 	/**
 	 * Show the title and message in a pop-up dialog window.
 	 * 
 	 * @param title
 	 * @param message
 	 */
-	@Override
 	public void show(String title, String message) {
-		if (popupStage == null)
-			throw new IllegalAccessError("Must set stage before use.");
+		setTitle(title);
+		show(message);
+	}
 
-		if (dialogButtonClose != null)
-			dialogButtonClose.setOnAction(e -> close());
+	@Override
+	public void show(String message) {
+		super.show(message);
+
+		dialogButtonClose.setOnAction(e -> close());
+
 		// TODO - how to know if/when to show OK or not?
 		if (dialogButtonOK != null)
-			// dialogButtonOK.setOnAction(e -> close());
 			dialogButtonOK.setVisible(false);
 
-		if (dialogTitle != null) {
-			dialogTitle.getChildren().clear();
-			dialogTitle.getChildren().add(new Text(title));
-			popupStage.setTitle(dialogTitleLabel.getText());
-		}
-		if (dialogText != null)
-			dialogText.setText(message);
+		dialogTitle.getChildren().clear();
+		dialogTitle.getChildren().add(new Text(title));
 
-		popupStage.show();
+		dialogText.setText(message);
 	}
 
 	/**
@@ -150,23 +152,12 @@ public class DialogBoxContoller implements DexPopupController {
 
 	public void close() {
 		clear();
-		popupStage.close();
+		dialogStage.close();
 	}
 
 	@Override
 	public void clear() {
-		// dialogText.getChildren().clear();
 		dialogTitle.getChildren().clear();
-	}
-
-	// @Override
-	// public ReadOnlyObjectProperty<?> getSelectable() {
-	// return null;
-	// }
-
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
 	}
 
 }

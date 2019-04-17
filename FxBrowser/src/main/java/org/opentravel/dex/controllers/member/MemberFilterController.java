@@ -194,9 +194,11 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	private void setLibraryFilter(OtmLibrary lib) {
 		ignoreClear = true;
-		libraryFilter = lib.getName();
-		librarySelector.getSelectionModel().select(lib.getName());
-		refreshMembers();
+		if (lib != null) {
+			libraryFilter = lib.getName();
+			librarySelector.getSelectionModel().select(lib.getName());
+			refreshMembers();
+		}
 		// log.debug("Set Library Filter to: " + libraryFilter);
 		ignoreClear = false;
 	}

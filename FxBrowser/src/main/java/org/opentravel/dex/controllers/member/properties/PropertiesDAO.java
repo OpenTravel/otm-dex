@@ -38,10 +38,10 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	static final String REQUIRED = "Required";
 	static final String OPTIONAL = "Optional";
 
-	static final String CHANGE = "Change (future)";
-	static final String GOTO = "Go To (Experimental)";
-	static final String REMOVE = "Remove (future)";
-	static final String STRING = "xsd:String (future)";
+	// static final String CHANGE = "Change (future)";
+	// static final String GOTO = "Go To (Experimental)";
+	// static final String REMOVE = "Remove (future)";
+	// static final String STRING = "xsd:String (future)";
 
 	protected OtmModelElement<?> element;
 	protected DexIncludedController<?> controller;
