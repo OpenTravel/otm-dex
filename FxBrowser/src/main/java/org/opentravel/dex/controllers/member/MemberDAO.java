@@ -40,7 +40,7 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 
 	@Override
 	public ImageView getIcon(ImageManager imageMgr) {
-		return imageMgr.getView(otmObject.getIconType());
+		return imageMgr != null ? imageMgr.getView(otmObject.getIconType()) : null;
 	}
 
 	@Override

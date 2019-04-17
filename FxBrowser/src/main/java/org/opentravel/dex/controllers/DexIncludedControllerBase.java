@@ -106,7 +106,7 @@ public abstract class DexIncludedControllerBase<C> implements DexIncludedControl
 		checkNodes();
 		this.mainController = parent;
 		imageMgr = parent.getImageManager();
-		log.debug("Parent controller set.");
+		log.debug("Main controller set.");
 	}
 
 	@Override

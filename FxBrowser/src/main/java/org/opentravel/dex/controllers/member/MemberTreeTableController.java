@@ -16,6 +16,7 @@ import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.application.Platform;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
@@ -26,6 +27,8 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 /**
@@ -63,6 +66,9 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	private boolean ignoreEvents = false;
 
+	// By default, the tree is editable. Setting this to false will prevent edits.
+	private boolean treeEditingEnabled = true;
+
 	// All event types listened to by this controller's handlers
 	private static final EventType[] subscribedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
 			DexMemberSelectionEvent.MEMBER_SELECTED };
@@ -84,6 +90,19 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		super.configure(parent);
 		log.debug("Configuring Member Tree Table.");
 		eventPublisherNode = memberTreeController;
+		configure(parent.getModelManager(), treeEditingEnabled);
+	}
+
+	/**
+	 * 
+	 * @param modelMgr
+	 * @param editable
+	 *            sets tree editing enables
+	 */
+	public void configure(OtmModelManager modelMgr, boolean editable) {
+		if (modelMgr == null)
+			throw new IllegalArgumentException("Model manager is null. Must configure member tree with model manager.");
+		this.treeEditingEnabled = editable;
 
 		// Set the hidden root item
 		root = new TreeItem<>();
@@ -93,12 +112,33 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		buildColumns();
 
 		// create cells for members
-		currentModelMgr = parent.getModelManager();
+		currentModelMgr = modelMgr;
 		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
 			createTreeItem(member, root);
 		}
 
 		memberTree.getSelectionModel().select(0);
+		memberTree.setOnMouseClicked(this::mouseClick);
+		// add a listener class with three parameters that invokes selection listener
+		memberTree.getSelectionModel().selectedItemProperty()
+				.addListener((v, old, newValue) -> memberSelectionListener(newValue));
+
+	}
+
+	public void setOnMouseClicked(EventHandler<? super MouseEvent> handler) {
+		memberTree.setOnMouseClicked(handler);
+	}
+
+	public void mouseClick(MouseEvent event) {
+		// this fires after the member selection listener
+		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2)
+			log.debug("Double click selection: "
+					+ memberTree.getSelectionModel().getSelectedItem().getValue().nameProperty().toString());
+	}
+
+	public MemberDAO getSelected() {
+		return memberTree.getSelectionModel().getSelectedItem() != null
+				? memberTree.getSelectionModel().getSelectedItem().getValue() : null;
 	}
 
 	@Override
@@ -126,10 +166,6 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 		// Enable context menus at the row level and add change listener for for applying style
 		memberTree.setRowFactory((TreeTableView<MemberDAO> p) -> new MemberRowFactory(this));
-
-		// add a listener class with three parameters that invokes selection listener
-		memberTree.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
 		//
 		// Create columns
@@ -240,11 +276,12 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		log.debug("Selection Listener: " + item.getValue());
 		assert item != null;
 		boolean editable = false;
-		if (item.getValue() != null)
+		if (treeEditingEnabled && item.getValue() != null)
 			editable = item.getValue().isEditable();
 		nameColumn.setEditable(editable);
 		ignoreEvents = true;
-		eventPublisherNode.fireEvent(new DexMemberSelectionEvent(this, item));
+		if (eventPublisherNode != null)
+			eventPublisherNode.fireEvent(new DexMemberSelectionEvent(this, item));
 		ignoreEvents = false;
 	}
 
@@ -286,16 +323,18 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	@Override
 	public void refresh() {
-		// create cells for members
-		memberTree.getRoot().getChildren().clear();
-		for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
-			createTreeItem(member, root);
-		}
-		try {
-			memberTree.sort();
-		} catch (Exception e) {
-			// FIXME - why does first sort always throw exception?
-			log.debug("Exception sorting: " + e.getLocalizedMessage());
+		if (memberTree != null) {
+			// create cells for members
+			memberTree.getRoot().getChildren().clear();
+			for (OtmLibraryMember<?> member : currentModelMgr.getMembers()) {
+				createTreeItem(member, root);
+			}
+			try {
+				memberTree.sort();
+			} catch (Exception e) {
+				// FIXME - why does first sort always throw exception?
+				log.debug("Exception sorting: " + e.getLocalizedMessage());
+			}
 		}
 	}
 

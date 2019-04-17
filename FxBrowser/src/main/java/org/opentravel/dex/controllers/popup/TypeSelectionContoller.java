@@ -7,12 +7,18 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberTreeTableController;
+import org.opentravel.model.OtmModelManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -55,15 +61,22 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 			if (!(controller instanceof TypeSelectionContoller))
 				throw new IllegalStateException("Error creating type selection dialog controller.");
 		} catch (IOException e1) {
-			log.error("Error loading dialog box. " + e1.getLocalizedMessage() + "\n" + e1.getCause().toString());
+			throw new IllegalStateException(
+					"Error loading dialog box. " + e1.getLocalizedMessage() + "\n" + e1.getCause().toString());
 		}
 		return controller;
 	}
 
 	@FXML
-	Button cancelButton;
+	private Button cancelButton;
 	@FXML
-	Button selectButton;
+	private Button selectButton;
+	@FXML
+	private TextFlow dialogHelp;
+	@FXML
+	private MemberTreeTableController memberTreeTableController;
+
+	private OtmModelManager modelManager;
 
 	@Override
 	public void checkNodes() {
@@ -79,12 +92,32 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 		// Handle selection
 	}
 
+	public void setModelManager(OtmModelManager manager) {
+		this.modelManager = manager;
+	}
+
+	public MemberDAO getSelected() {
+		return memberTreeTableController.getSelected();
+	}
+
 	@Override
 	protected void setup(String message) {
 		super.setStage(dialogTitle, dialogStage);
-
+		postHelp(helpText, dialogHelp);
 		cancelButton.setOnAction(e -> doCancel());
 		selectButton.setOnAction(e -> doOK());
+
+		memberTreeTableController.configure(modelManager, false);
+		memberTreeTableController.post(modelManager);
+		memberTreeTableController.setOnMouseClicked(this::mouseClick);
+	}
+
+	public void mouseClick(MouseEvent event) {
+		// this fires after the member selection listener
+		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+			log.debug("Double click selection: " + getSelected().nameProperty().toString());
+			doOK();
+		}
 	}
 
 }

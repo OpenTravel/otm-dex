@@ -24,7 +24,8 @@
                   <Insets left="20.0" />
                </VBox.margin>
             </TextFlow>
-            <Label fx:id="dialogTitleLabel2" style="-fx-alignment: center;" styleClass="bold-label" stylesheets="@DavesViper.css" text="" />
+            <!-- Label fx:id="dialogTitleLabel2" style="-fx-alignment: center;" styleClass="bold-label" stylesheets="@DavesViper.css" text="" / -->
+		    <fx:include fx:id="memberTreeTable" source="MemberTreeTable.fxml" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
    </top>
