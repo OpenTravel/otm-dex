@@ -11,9 +11,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.actions.DexActionManager;
+import org.opentravel.dex.controllers.DexStatusController;
+import org.opentravel.dex.tasks.TaskResultHandlerI;
+import org.opentravel.dex.tasks.model.ValidateModelManagerItemsTask;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmContainers.OtmProject;
 import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
@@ -36,13 +41,16 @@ import org.opentravel.schemacompiler.repository.ProjectManager;
 import org.opentravel.schemacompiler.version.VersionChain;
 import org.opentravel.schemacompiler.version.VersionChainFactory;
 
+import javafx.concurrent.WorkerStateEvent;
+
 /**
  * Manage access to all objects in scope.
  * 
  * @author dmh
  *
  */
-public class OtmModelManager {
+public class OtmModelManager implements TaskResultHandlerI {
+	private static Log log = LogFactory.getLog(OtmModelManager.class);
 
 	// Open projects
 	private Map<String, OtmProject> projects = new HashMap<>();
@@ -56,9 +64,18 @@ public class OtmModelManager {
 
 	private DexFileHandler fileHandler = new DexFileHandler();
 	private DexActionManager actionMgr;
+	private DexStatusController statusController;
 
-	public OtmModelManager(DexActionManager actionManager) {
+	/**
+	 * Create a model manager.
+	 * 
+	 * @param controller
+	 * @param actionManager
+	 *            action manager to assign to all members
+	 */
+	public OtmModelManager(DexStatusController statusController, DexActionManager actionManager) {
 		this.actionMgr = actionManager;
+		this.statusController = statusController;
 	}
 
 	public DexActionManager getActionManager() {
@@ -138,7 +155,7 @@ public class OtmModelManager {
 			if (libraries.get(tlLib) != null)
 				libs.add(libraries.get(tlLib));
 			else
-				System.out.println("OOPS - library in chain is null.");
+				log.debug("OOPS - library in chain is null.");
 		return libs;
 	}
 
@@ -149,8 +166,8 @@ public class OtmModelManager {
 	}
 
 	public void add(ProjectManager pm) {
-		System.out.println("Oh la la -- a new project to consume!");
-		System.out.println("            new project has " + pm.getModel().getAllLibraries().size() + " libraries");
+		log.debug("Oh la la -- a new project to consume!");
+		log.debug("            new project has " + pm.getModel().getAllLibraries().size() + " libraries");
 
 		VersionChainFactory versionChainFactory = new VersionChainFactory(pm.getModel());
 		// Tell model to track changes to maintain its type integrity
@@ -183,7 +200,15 @@ public class OtmModelManager {
 				OtmLibraryMember<?> otmMember = memberFactory(tlMember);
 			}
 		}
-		System.out.println("Members has " + members.size() + " members.");
+
+		new ValidateModelManagerItemsTask(this, this, statusController).go();
+
+		log.debug("Members has " + members.size() + " members.");
+	}
+
+	@Override
+	public void handleTaskComplete(WorkerStateEvent event) {
+		// NO-OP
 	}
 
 	public OtmLibraryMember<?> memberFactory(LibraryMember tlMember) {

@@ -1,12 +1,11 @@
 /**
  * 
  */
-package org.opentravel.dex.repository.tasks;
+package org.opentravel.dex.tasks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexStatusController;
-import org.opentravel.dex.repository.TaskResultHandlerI;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
@@ -77,7 +76,9 @@ public abstract class DexTaskBase<T> extends Task<String> {
 	 * 
 	 * @param taskData
 	 * @param handler
+	 *            can be null
 	 * @param statusController
+	 *            can be null
 	 */
 	public DexTaskBase(T taskData, TaskResultHandlerI handler, DexStatusController statusController) {
 		this(taskData);

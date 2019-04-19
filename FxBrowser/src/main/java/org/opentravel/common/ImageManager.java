@@ -28,7 +28,11 @@ public class ImageManager {
 		ATTRIBUTE("/icons/Attribute.jpg"),
 		INDICATOR("/icons/Indicator.gif"),
 		INDICATORELEMENT("/icons/IndicatorElement.gif"),
-		ELEMENTREF("/icons/ElementRef.gif");
+		ELEMENTREF("/icons/ElementRef.gif"),
+		RUN("/icons/run.gif"),
+		V_OK("/icons/checkmark.png"),
+		V_ERROR("/icons/error_st_obj.gif"),
+		V_WARN("/icons/warning_st_obj.gif");
 		private String label; // User displayed value
 
 		Icons(String label) {

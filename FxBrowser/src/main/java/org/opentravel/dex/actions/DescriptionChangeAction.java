@@ -5,7 +5,6 @@ package org.opentravel.dex.actions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
@@ -14,12 +13,17 @@ import javafx.beans.value.ObservableValue;
 
 public class DescriptionChangeAction extends DexStringAction {
 	private static Log log = LogFactory.getLog(DescriptionChangeAction.class);
+
 	private OtmModelElement<?> otm;
 	private boolean outcome = false;
-	private DexMainController controller;
+	private String oldDescription;
+	private String newDescription;
 
 	public DescriptionChangeAction(OtmModelElement<?> otm) {
 		this.otm = otm;
+		this.oldDescription = otm.getDescription();
+		if (oldDescription == null)
+			oldDescription = "";
 	}
 
 	@Override
@@ -27,24 +31,27 @@ public class DescriptionChangeAction extends DexStringAction {
 		if (description == null)
 			return "";
 
+		newDescription = description;
+
 		// Set value into model
 		otm.setDescription(description);
+		// TODO - DOCUMENTATION_MODIFIED in listener
 		if (o instanceof SimpleStringProperty)
 			((SimpleStringProperty) o).set(description);
 
 		if (otm.getActionManager() != null) {
-			otm.getActionManager().postWarning("Set description to " + description);
 			otm.getActionManager().push(this);
 		}
 
-		log.debug("Set description to " + description + "  success: " + outcome);
+		log.debug("Set description to: " + description);
 		return otm.getName();
 	}
 
 	@Override
 	public String undo() {
-		// TODO
-		return otm.getName();
+		otm.setDescription(oldDescription);
+		log.debug("Undo - restored description to " + oldDescription);
+		return oldDescription;
 	}
 
 	@Override
@@ -61,26 +68,17 @@ public class DescriptionChangeAction extends DexStringAction {
 
 	@Override
 	public boolean isValid() {
-		// validation does not catch:
-		// incorrect case
-		// elements assigned to type provider
 		return otm.isValid(true);
-
-		// DONE - move isValid to OtmModelElement
-		// names applied to elements assigned the type
-		// boolean deep = false;
-		// ValidationFindings findings = null;
-		// try {
-		// findings = TLModelCompileValidator.validateModelElement(otm.getTL(), deep);
-		// } catch (Exception e) {
-		// // LOGGER.debug("Validation threw error: " + e.getLocalizedMessage());
-		// }
-		// log.debug(findings != null ? findings.count() : " null" + " findings found.");
-		// return findings == null || findings.isEmpty();
 	}
 
 	@Override
 	public ValidationFindings getVetoFindings() {
 		return null;
 	}
+
+	@Override
+	public String toString() {
+		return "Changed description to " + newDescription;
+	}
+
 }

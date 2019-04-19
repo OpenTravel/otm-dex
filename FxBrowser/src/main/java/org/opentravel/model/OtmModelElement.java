@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.common.ValidationUtils;
 import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.model.otmContainers.OtmLibrary;
@@ -35,13 +36,17 @@ import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  * Abstract base for OTM Facade objects which wrap all OTM libraries, objects, facets and properties.
@@ -55,6 +60,16 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	private static final String NONAMESPACE = "no-namespace-for-for-this-object";
 
 	private static final String NONAME = "no-name-for-for-this-object";
+
+	// Fixme if needed
+	// private static String getTypeName(TLModelElement tlObj) {
+	// QName qn = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) getAssignedTLObject(), true);
+	// if (qn == null)
+	// tlObj.setName("Missing");
+	// else {
+	// tlObj.setName(qn.getLocalPart());
+	// }
+	// }
 
 	/**
 	 * Utility to <i>get</i> the OTM facade object that wraps the TL Model object. Uses the listener added to all TL
@@ -81,44 +96,28 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 
 	private SimpleStringProperty nameProperty;
 	private SimpleStringProperty descriptionProperty;
+	private SimpleStringProperty validationProperty;
+	private ObjectProperty<ImageView> validationImageProperty;
 
 	private DexActionManager actionMgr = null;
-
-	// /**
-	// * @param
-	// */
-	// @SuppressWarnings("unchecked")
-	// public OtmModelElement(T tl) {
-	// tlObject = tl;
-	// tl.addListener(new OtmModelElementListener((OtmModelElement<TLModelElement>) this));
-	// checkListener();
-	// }
+	private ImageManager imgMgr = null;
 
 	public OtmModelElement(T tl, DexActionManager actionManager) {
+		if (tl == null)
+			throw new IllegalArgumentException("Must have a tl element to create facade.");
 		tlObject = tl;
 		tl.addListener(new OtmModelElementListener((OtmModelElement<TLModelElement>) this));
-		checkListener();
+		// checkListener();
+
 		this.actionMgr = actionManager;
+		imgMgr = actionMgr.getMainController().getImageManager();
 	}
 
-	public DexActionManager getActionManager() {
-		return actionMgr;
-	}
-
-	private void checkListener() {
-		for (ModelElementListener l : tlObject.getListeners())
-			if (l instanceof OtmModelElementListener)
-				assert this == ((OtmModelElementListener) l).get();
-	}
-
-	public String getDeprecation() {
-		if (getTL() instanceof TLDocumentationOwner) {
-			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
-			if (doc != null && doc.getDeprecations() != null && !doc.getDeprecations().isEmpty())
-				return doc.getDeprecations().get(0).getText();
-		}
-		return "";
-	}
+	// private void checkListener() {
+	// for (ModelElementListener l : tlObject.getListeners())
+	// if (l instanceof OtmModelElementListener)
+	// assert this == ((OtmModelElementListener) l).get();
+	// }
 
 	public StringProperty descriptionProperty() {
 		if (descriptionProperty == null) {
@@ -133,6 +132,19 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return descriptionProperty;
 	}
 
+	public DexActionManager getActionManager() {
+		return actionMgr;
+	}
+
+	public String getDeprecation() {
+		if (getTL() instanceof TLDocumentationOwner) {
+			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
+			if (doc != null && doc.getDeprecations() != null && !doc.getDeprecations().isEmpty())
+				return doc.getDeprecations().get(0).getText();
+		}
+		return "";
+	}
+
 	public String getDescription() {
 		if (getTL() instanceof TLDocumentationOwner) {
 			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
@@ -140,17 +152,6 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 				return doc.getDescription();
 		}
 		return "";
-	}
-
-	public void setDescription(String description) {
-		if (getTL() instanceof TLDocumentationOwner) {
-			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
-			if (doc == null) {
-				doc = new TLDocumentation();
-				((TLDocumentationOwner) getTL()).setDocumentation(doc);
-			}
-			doc.setDescription(description);
-		}
 	}
 
 	public String getExample() {
@@ -161,6 +162,22 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		}
 		return "";
 	}
+
+	public ValidationFindings getFindings() {
+		return findings;
+	}
+	// /**
+	// * Get Children. To allow lazy evaluation, children will be modeled if list is empty.
+	// *
+	// * @return the live list of children for this library member.
+	// */
+	// public List<OtmModelElement<?>> getChildren() {
+	// // Create OtmNodes for all the children of this member
+	// if (children != null && children.isEmpty())
+	// modelChildren();
+	//
+	// return children;
+	// }
 
 	public Image getIcon() {
 		return new ImageManager().get(this.getIconType());
@@ -184,19 +201,6 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return NONAME;
 	}
 
-	public StringProperty nameProperty() {
-		if (nameProperty == null) {
-			if (isEditable()) {
-				nameProperty = new SimpleStringProperty(getName());
-				if (actionMgr != null)
-					actionMgr.addAction(DexActions.NAMECHANGE, nameProperty, this);
-			} else {
-				nameProperty = new ReadOnlyStringWrapper("" + getName());
-			}
-		}
-		return nameProperty;
-	}
-
 	public String getNamespace() {
 		if (tlObject instanceof NamedEntity)
 			return ((NamedEntity) tlObject).getNamespace();
@@ -213,46 +217,6 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 				? getOwningMember().getLibrary().getPrefix() : "---";
 	}
 
-	public boolean isValid() {
-		return isValid(false);
-	}
-
-	public boolean isValid(boolean refresh) {
-		if (findings == null || refresh) {
-			boolean deep = false;
-			try {
-				findings = TLModelCompileValidator.validateModelElement(getTL(), deep);
-			} catch (Exception e) {
-				log.debug("Validation threw error: " + e.getLocalizedMessage());
-			}
-			log.debug(findings != null ? findings.count() + " findings found" : " null" + " findings found.");
-		}
-		return findings == null || findings.isEmpty();
-	}
-
-	public ValidationFindings getFindings() {
-		return findings;
-	}
-	// /**
-	// * Get Children. To allow lazy evaluation, children will be modeled if list is empty.
-	// *
-	// * @return the live list of children for this library member.
-	// */
-	// public List<OtmModelElement<?>> getChildren() {
-	// // Create OtmNodes for all the children of this member
-	// if (children != null && children.isEmpty())
-	// modelChildren();
-	//
-	// return children;
-	// }
-
-	// /**
-	// * Model the children of this object from its' tlObject.
-	// */
-	// public void modelChildren() {
-	// // Override if the element has children
-	// }
-
 	/**
 	 * @return
 	 */
@@ -266,6 +230,69 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return getOwningMember() != null ? getOwningMember().isEditable() : false;
 	}
 
+	public boolean isValid() {
+		return isValid(false);
+	}
+
+	// /**
+	// * Model the children of this object from its' tlObject.
+	// */
+	// public void modelChildren() {
+	// // Override if the element has children
+	// }
+
+	public boolean isValid(boolean refresh) {
+		if (findings == null || refresh) {
+			boolean deep = false;
+			try {
+				// Get new findings
+				findings = TLModelCompileValidator.validateModelElement(getTL(), deep);
+				// Update the validation property
+				if (validationImageProperty() != null)
+					validationImageProperty().setValue(validationImage());
+				if (validationProperty != null)
+					validationProperty.setValue(ValidationUtils.getCountsString(findings));
+			} catch (Exception e) {
+				log.debug("Validation threw error: " + e.getLocalizedMessage());
+			}
+
+			// log.debug(findings != null ? findings.count() + " findings found" : " null" + " findings found.");
+		}
+		return findings == null || findings.isEmpty();
+	}
+
+	/**
+	 * FX observable property for this name. The nameProperty will be updated by the {@link OtmModelElementListener}
+	 * when the value changes.
+	 * 
+	 * @return
+	 */
+	public StringProperty nameProperty() {
+		if (nameProperty == null) {
+			if (isEditable()) {
+				nameProperty = new SimpleStringProperty(getName());
+				if (actionMgr != null)
+					actionMgr.addAction(DexActions.NAMECHANGE, nameProperty, this);
+			} else {
+				nameProperty = new ReadOnlyStringWrapper("" + getName());
+			}
+		}
+		return nameProperty;
+	}
+
+	public void setDescription(String description) {
+		if (getTL() instanceof TLDocumentationOwner) {
+			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
+			if (doc == null) {
+				doc = new TLDocumentation();
+				((TLDocumentationOwner) getTL()).setDocumentation(doc);
+			}
+			doc.setDescription(description);
+		}
+		// ModelEvents are only thrown when the documentation element changes.
+		descriptionProperty.setValue(description);
+	}
+
 	/**
 	 * Set the name if possible.
 	 * 
@@ -274,11 +301,38 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	 */
 	public String setName(String name) {
 		// NO-OP unless overridden
+		// isValid(true);
 		return getName();
 	}
 
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	public ObjectProperty<ImageView> validationImageProperty() {
+		if (validationImageProperty == null)
+
+			validationImageProperty = new SimpleObjectProperty<>(validationImage());
+		return validationImageProperty;
+	}
+
+	public ImageView validationImage() {
+		if (imgMgr == null)
+			return null;
+		if (findings != null) {
+			if (findings.hasFinding(FindingType.ERROR))
+				return imgMgr.getView(ImageManager.Icons.V_ERROR);
+			if (findings.hasFinding(FindingType.WARNING))
+				return imgMgr.getView(ImageManager.Icons.V_WARN);
+			return imgMgr.getView(ImageManager.Icons.V_OK);
+		}
+		return imgMgr.getView(ImageManager.Icons.RUN);
+	}
+
+	public StringProperty validationProperty() {
+		if (validationProperty == null)
+			validationProperty = new ReadOnlyStringWrapper(ValidationUtils.getCountsString(getFindings()));
+		return validationProperty;
 	}
 }

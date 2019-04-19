@@ -226,7 +226,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 
 		// Initialize managers
 		actionMgr = new DexActionManager(this);
-		modelMgr = new OtmModelManager(actionMgr);
+		modelMgr = new OtmModelManager(this.getStatusController(), actionMgr);
 		imageMgr = new ImageManager(primaryStage);
 
 		checkNodes();

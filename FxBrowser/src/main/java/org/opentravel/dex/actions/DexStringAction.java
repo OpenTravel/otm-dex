@@ -21,7 +21,6 @@ import javafx.beans.value.ObservableValue;
 public abstract class DexStringAction implements DexAction<String> {
 	private static Log log = LogFactory.getLog(DexStringAction.class);
 
-	@Override
 	public abstract String doIt(ObservableValue<? extends String> observable, String oldValue, String newValue);
 
 	//

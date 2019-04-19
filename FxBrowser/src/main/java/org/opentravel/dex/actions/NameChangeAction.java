@@ -20,6 +20,7 @@ public class NameChangeAction extends DexStringAction {
 
 	private ObservableValue<? extends String> observable;
 	private String oldName;
+	private String modifiedName;
 	// private String name;
 	private boolean ignore;
 
@@ -38,41 +39,31 @@ public class NameChangeAction extends DexStringAction {
 				+ ignore);
 		if (ignore)
 			return "";
-
+		if (otm.getActionManager() == null)
+			return "";
 		// TODO - should we allow empty name?
 		if (name == null || name.isEmpty())
 			return "";
 
 		this.observable = o;
 		this.oldName = oldName;
-		String modified = name;
+		this.modifiedName = name;
 		// Force upper case
 		if (otm instanceof OtmLibraryMember)
-			modified = name.substring(0, 1).toUpperCase() + name.substring(1);
+			modifiedName = name.substring(0, 1).toUpperCase() + name.substring(1);
 
 		// Set value into model and GUI
-		otm.setName(modified);
-		ignore = true;
-		if (o instanceof SimpleStringProperty)
-			((SimpleStringProperty) o).set(modified);
-		ignore = false;
+		otm.setName(modifiedName);
 
 		// Validate results. Note: TL will not veto (prevent) change.
-		if (otm.getActionManager() != null) {
-			if (isValid())
-				outcome = true;
-			// Check valid here because errors and warnings may not be relevant to this property.
-			if (!isValid())
-				// TODO - create validation findings controller and post it
-				// TODO - allow undo option in dialog.
-				otm.getActionManager().postWarning("Invalid action");
+		if (isValid())
+			outcome = true;
 
-			if (!name.equals(modified))
-				otm.getActionManager().postWarning("Changed name from " + name + " to " + modified);
+		if (!name.equals(modifiedName))
+			otm.getActionManager().postWarning("Changed name from " + name + " to " + modifiedName);
 
-			// Record action to allow undo
-			otm.getActionManager().push(this);
-		}
+		// Record action to allow undo
+		otm.getActionManager().push(this);
 
 		log.debug("Set name to " + name + "  success: " + outcome);
 		return otm.getName();
@@ -119,6 +110,11 @@ public class NameChangeAction extends DexStringAction {
 		// incorrect case
 		// elements assigned to type provider
 		return otm.isValid(true) ? true : ValidationUtils.getRelevantFindings(VETOKEYS, otm.getFindings()).isEmpty();
+	}
+
+	@Override
+	public String toString() {
+		return "Changed name from " + oldName + " to " + modifiedName;
 	}
 
 }

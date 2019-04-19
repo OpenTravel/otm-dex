@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.dex.repository;
+package org.opentravel.dex.tasks;
 
 import javafx.concurrent.WorkerStateEvent;
 

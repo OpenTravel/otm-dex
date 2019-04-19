@@ -3,6 +3,8 @@
  */
 package org.opentravel.model.otmProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLIndicator;
@@ -16,6 +18,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
  *
  */
 public class OtmPropertyFactory {
+	private static Log log = LogFactory.getLog(OtmPropertyFactory.class);
 
 	private OtmPropertyFactory() {
 		// NO-OP - only static methods
@@ -57,6 +60,8 @@ public class OtmPropertyFactory {
 			return OtmPropertyFactory.create((TLProperty) tl, parent);
 		else if (tl instanceof TLAttribute)
 			return OtmPropertyFactory.create((TLAttribute) tl, parent);
+		else
+			log.debug("unknown/not-implemented property type.");
 		return null;
 	}
 }

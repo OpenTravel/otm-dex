@@ -5,8 +5,6 @@ package org.opentravel.dex.actions;
 
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
-import javafx.beans.value.ObservableValue;
-
 /**
  * Actions are invoked by the view controllers to perform <i>actions</i> on the model.
  * <p>
@@ -18,12 +16,22 @@ import javafx.beans.value.ObservableValue;
  *
  */
 public interface DexAction<T> {
-	public T doIt(ObservableValue<? extends T> observable, T oldValue, T newValue);
 
+	// All implementations must implement, but the signatures will be different.
+	// public T doIt(ObservableValue<? extends T> observable, T oldValue, T newValue);
+
+	/**
+	 * Use the stored values to redo the change.
+	 * 
+	 * @return
+	 */
+	// public T redo();
 	public T undo();
 
 	// VETOable event??
 	/**
+	 * Is the action enabled for this subject?
+	 * 
 	 * @return true if change is enabled for this application and user.
 	 */
 	public boolean isEnabled();

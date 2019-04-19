@@ -39,7 +39,8 @@ public abstract class DexIncludedControllerBase<C> implements DexIncludedControl
 
 	protected List<EventType> publishedEventTypes = null;
 	protected List<EventType> subscribedEventTypes = null;
-	protected Node eventPublisherNode; // source FX Node for events fired from this controller
+	// source FX Node for events fired from this controller. None fired if null.
+	protected Node eventPublisherNode = null;
 
 	public DexIncludedControllerBase() {
 		log.debug("Constructing included controller.");

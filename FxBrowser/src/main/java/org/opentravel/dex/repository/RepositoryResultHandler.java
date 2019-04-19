@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.popup.DialogBoxContoller;
+import org.opentravel.dex.tasks.TaskResultHandlerI;
 
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;

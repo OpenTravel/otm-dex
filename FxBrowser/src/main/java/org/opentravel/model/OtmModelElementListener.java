@@ -35,6 +35,17 @@ public class OtmModelElementListener implements ModelElementListener {
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		log.debug(otm.getName() + " value change event: " + event.getType());
+		switch (event.getType()) {
+		case NAME_MODIFIED:
+			if (event.getNewValue() instanceof String && otm.nameProperty() != null)
+				otm.nameProperty().setValue((String) event.getNewValue());
+			break;
+		case DOCUMENTATION_MODIFIED:
+			// Only happens when the documentation container is changed, not it's contents.
+			// Description and other documentation types must update their own observable properties in setters.
+			break;
+		default:
+		}
 	}
 
 }

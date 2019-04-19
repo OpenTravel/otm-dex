@@ -22,6 +22,26 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 public class ValidationUtils {
 	private static Log log = LogFactory.getLog(ValidationUtils.class);
 
+	private ValidationUtils() {
+		// NO-OP - static methods only. Do not instantiate this class.
+	}
+
+	/**
+	 * Get a string with warningCount/errorCount format.
+	 * 
+	 * @param findings
+	 * @return
+	 */
+	public static String getCountsString(ValidationFindings findings) {
+		String errMsg = "-/-";
+		if (findings != null) {
+			int warnings = findings.count(FindingType.WARNING);
+			int errors = findings.count(FindingType.ERROR);
+			errMsg = Integer.toString(warnings) + "/" + Integer.toString(errors);
+		}
+		return errMsg;
+	}
+
 	public static String getMessagesAsString(ValidationFindings findings) {
 		log.debug("formatting " + findings.count() + " findings.");
 		StringBuilder messages = new StringBuilder();

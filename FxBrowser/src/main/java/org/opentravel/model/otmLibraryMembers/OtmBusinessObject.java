@@ -46,6 +46,7 @@ public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 	@Override
 	public String setName(String name) {
 		getTL().setName(name);
+		isValid(true);
 		return getName();
 	}
 
@@ -58,6 +59,11 @@ public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 	public Icons getIconType() {
 		return ImageManager.Icons.BUSINESS;
 	}
+
+	@Override
+	public boolean isNameControlled() {
+		return true;
+	};
 
 	// /**
 	// * {@inheritDoc}

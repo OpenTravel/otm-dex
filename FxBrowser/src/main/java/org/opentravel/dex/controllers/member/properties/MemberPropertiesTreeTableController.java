@@ -21,7 +21,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.ChoiceBoxTreeTableCell;
-import javafx.scene.control.cell.ComboBoxTreeTableCell;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -80,7 +79,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 				.addListener((v, old, newValue) -> propertySelectionListener(newValue));
 
 		// Layout the table
-		root = initializeTable(propertiesTable);
+		initializeTable(propertiesTable);
 	}
 
 	/**
@@ -114,10 +113,10 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		return item;
 	}
 
-	private TreeItem<PropertiesDAO> initializeTable(TreeTableView<PropertiesDAO> table) {
+	private void initializeTable(TreeTableView<PropertiesDAO> table) {
 		// Set the hidden root item
-		TreeItem<PropertiesDAO> root = new TreeItem<>();
-		root.setExpanded(true); // Startout fully expanded
+		root = new TreeItem<>();
+		root.setExpanded(true); // Start out fully expanded
 		// Set up the TreeTable
 		table.setRoot(root);
 		table.setShowRoot(false);
@@ -130,8 +129,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 		// Define Columns and cell content providers
 		buildColumns(table);
-
-		return root;
 	}
 
 	public void select(OtmModelElement<?> otm) {
@@ -198,8 +195,10 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		// Assigned type column
 		setColumnProps(typeCol, true, true, false, 150);
 		typeCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("assignedType"));
+		// typeCol.setCellFactory(
+		// ComboBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
 		typeCol.setCellFactory(
-				ComboBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
+				ChoiceBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
 
 		// Role Column
 		setColumnProps(roleCol, true, true, false, 100);

@@ -31,17 +31,11 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
-// @SuppressWarnings("restriction")
 public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	private static Log log = LogFactory.getLog(PropertiesDAO.class);
 
 	static final String REQUIRED = "Required";
 	static final String OPTIONAL = "Optional";
-
-	// static final String CHANGE = "Change (future)";
-	// static final String GOTO = "Go To (Experimental)";
-	// static final String REMOVE = "Remove (future)";
-	// static final String STRING = "xsd:String (future)";
 
 	protected OtmModelElement<?> element;
 	protected DexIncludedController<?> controller;
@@ -84,7 +78,10 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		SimpleStringProperty ssp;
 		if (element instanceof OtmTypeUser) {
 			ssp = new SimpleStringProperty(((OtmTypeUser) element).getAssignedTypeName());
-			ssp.addListener((v, o, n) -> new AssignedTypesMenuHandler().handle(n, this));
+			ssp.addListener((v, o, n) -> {
+				new AssignedTypesMenuHandler().handle(n, this);
+				controller.refresh();
+			});
 		} else
 			return new ReadOnlyStringWrapper("--");
 		return ssp;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentravel.dex.repository.tasks;
+package org.opentravel.dex.tasks.repository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +10,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.repository.RepositorySearchCriteria;
-import org.opentravel.dex.repository.TaskResultHandlerI;
+import org.opentravel.dex.tasks.DexTaskBase;
+import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.schemacompiler.repository.LibrarySearchResult;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;

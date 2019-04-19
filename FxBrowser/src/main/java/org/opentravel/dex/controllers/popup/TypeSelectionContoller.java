@@ -7,7 +7,9 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberFilterController;
 import org.opentravel.dex.controllers.member.MemberTreeTableController;
 import org.opentravel.model.OtmModelManager;
 
@@ -75,8 +77,12 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 	private TextFlow dialogHelp;
 	@FXML
 	private MemberTreeTableController memberTreeTableController;
+	@FXML
+	private MemberFilterController memberFilterController;
 
 	private OtmModelManager modelManager;
+
+	private ImageManager imageMgr;
 
 	@Override
 	public void checkNodes() {
@@ -86,18 +92,32 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 			throw new IllegalStateException("Null FXML injected node.");
 	}
 
-	@Override
-	public void doOK() {
-		super.doOK();
-		// Handle selection
-	}
-
-	public void setModelManager(OtmModelManager manager) {
-		this.modelManager = manager;
-	}
+	// @Override
+	// public void doOK() {
+	// super.doOK();
+	// // Handle selection
+	// }
 
 	public MemberDAO getSelected() {
 		return memberTreeTableController.getSelected();
+	}
+
+	public void mouseClick(MouseEvent event) {
+		// this fires after the member selection listener
+		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+			log.debug("Double click selection: " + getSelected().nameProperty().toString());
+			doOK();
+		}
+	}
+
+	@Override
+	public void refresh() {
+		memberTreeTableController.refresh();
+	}
+
+	public void setManagers(OtmModelManager model, ImageManager image) {
+		this.modelManager = model;
+		this.imageMgr = image;
 	}
 
 	@Override
@@ -107,17 +127,13 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 		cancelButton.setOnAction(e -> doCancel());
 		selectButton.setOnAction(e -> doOK());
 
-		memberTreeTableController.configure(modelManager, false);
+		memberTreeTableController.configure(modelManager, imageMgr, false);
+		memberFilterController.configure(modelManager, this);
+		memberTreeTableController.setFilter(memberFilterController);
+
 		memberTreeTableController.post(modelManager);
 		memberTreeTableController.setOnMouseClicked(this::mouseClick);
-	}
 
-	public void mouseClick(MouseEvent event) {
-		// this fires after the member selection listener
-		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-			log.debug("Double click selection: " + getSelected().nameProperty().toString());
-			doOK();
-		}
 	}
 
 }

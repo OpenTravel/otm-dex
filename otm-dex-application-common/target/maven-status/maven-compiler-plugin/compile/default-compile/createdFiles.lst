@@ -4,6 +4,7 @@ org\opentravel\application\common\BrowseRepositoryDialogController$RepositoryTre
 org\opentravel\application\common\Images.class
 org\opentravel\application\common\AbstractOTMApplication.class
 org\opentravel\application\common\AbstractMainWindowController.class
+org\opentravel\application\common\RepoBrowseApp.class
 org\opentravel\application\common\AbstractUserSettings.class
 org\opentravel\application\common\AbstractMainWindowController$BackgroundTask.class
 org\opentravel\application\common\BrowseRepositoryDialogController.class

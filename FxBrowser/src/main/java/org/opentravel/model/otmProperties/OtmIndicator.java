@@ -75,6 +75,7 @@ public class OtmIndicator<TL extends TLIndicator> extends OtmProperty<TLIndicato
 	@Override
 	public String setName(String name) {
 		getTL().setName(name);
+		isValid(true);
 		return getName();
 	}
 

@@ -7,8 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.popup.UnlockLibraryDialogContoller;
-import org.opentravel.dex.repository.tasks.LockItemTask;
-import org.opentravel.dex.repository.tasks.UnlockItemTask;
+import org.opentravel.dex.tasks.repository.LockItemTask;
+import org.opentravel.dex.tasks.repository.UnlockItemTask;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.css.PseudoClass;

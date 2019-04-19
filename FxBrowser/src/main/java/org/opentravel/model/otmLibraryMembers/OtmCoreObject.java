@@ -49,6 +49,11 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	}
 
 	@Override
+	public boolean isNameControlled() {
+		return true;
+	};
+
+	@Override
 	public TLCoreObject getTL() {
 		return (TLCoreObject) tlObject;
 	}
@@ -56,7 +61,7 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	@Override
 	public String setName(String name) {
 		getTL().setName(name);
-		log.debug("Set name to: " + name);
+		isValid(true);
 		return getName();
 	}
 

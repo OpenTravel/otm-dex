@@ -49,6 +49,11 @@ public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 	}
 
 	@Override
+	public boolean isNameControlled() {
+		return true;
+	};
+
+	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.CHOICE;
 	}
@@ -56,6 +61,7 @@ public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 	@Override
 	public String setName(String name) {
 		getTL().setName(name);
+		isValid(true);
 		return getName();
 	}
 

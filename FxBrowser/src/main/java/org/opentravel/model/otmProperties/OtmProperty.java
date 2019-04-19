@@ -45,24 +45,21 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 	public OtmProperty(TL tl, OtmPropertyOwner parent) {
 		super(tl, parent.getActionManager());
 		this.parent = parent;
-
-		if (parent == null)
-			throw new IllegalArgumentException("Missing property owner parent.");
 	}
 
 	// Needs to be abstract because getTL() is of type TLModelElement
 	@Override
 	public abstract TLModelElement getTL();
 
-	/**
-	 * Property Factory
-	 * 
-	 * @param tl
-	 * @return OtmFacet<?> based on type or null.
-	 */
-	public static OtmProperty<?> propertyFactory(TLModelElement tl) {
-		return null;
-	}
+	// /**
+	// * Property Factory
+	// *
+	// * @param tl
+	// * @return OtmFacet<?> based on type or null.
+	// */
+	// public static OtmProperty<?> propertyFactory(TLModelElement tl) {
+	// return null;
+	// }
 
 	@Override
 	public OtmLibraryMember<?> getOwningMember() {

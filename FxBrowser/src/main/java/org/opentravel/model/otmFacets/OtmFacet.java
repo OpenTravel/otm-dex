@@ -20,6 +20,8 @@ package org.opentravel.model.otmFacets;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.dex.actions.DexActionManager;
@@ -29,13 +31,12 @@ import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.OtmPropertyFactory;
+import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for Facets.
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFacet>
 		implements OtmPropertyOwner, OtmTypeProvider {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmFacet.class);
+	private static Log log = LogFactory.getLog(OtmFacet.class);
 
 	private OtmLibraryMember<?> parent;
 
@@ -63,13 +64,18 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 		super(tl, parent.getActionManager());
 		this.parent = parent;
 
-		if (parent == null)
-			throw new IllegalArgumentException("No parent library member set.");
+		// if (parent == null)
+		// throw new IllegalArgumentException("No parent library member set.");
 	}
 
 	public DexActionManager getActionManger() {
 		return parent.getActionManager();
 	}
+
+	@Override
+	public boolean isNameControlled() {
+		return true;
+	};
 
 	/**
 	 * Facet Factory
@@ -84,7 +90,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 		case DETAIL:
 			return new OtmDetailFacet(tl, parent);
 		default:
-			LOGGER.debug("Missing Facet Type case: " + tl.getFacetType());
+			log.debug("Missing Facet Type case: " + tl.getFacetType());
 			return null;
 		}
 	}
@@ -142,6 +148,8 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 			getTL().addElement((TLProperty) tl);
 		else if (tl instanceof TLAttribute)
 			getTL().addAttribute((TLAttribute) tl);
+		else
+			log.debug("unknown/not-implemented property type.");
 
 		return OtmPropertyFactory.create(tl, this);
 	}
@@ -159,8 +167,8 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 			addChild(OtmPropertyFactory.create(c, this));
 		for (TLProperty c : getTL().getElements())
 			addChild(OtmPropertyFactory.create(c, this));
-
-		// TODO - getTL().getAliases();
+		for (TLAlias c : getTL().getAliases())
+			log.debug("TODO - make alias");
 	}
 
 	private void addChild(OtmProperty<?> child) {

@@ -36,11 +36,13 @@ import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * OTM Object Node for business objects.
+ * OTM Object for libraries.
  * 
  * @author Dave Hollander
  * 
@@ -51,6 +53,8 @@ public class OtmLibrary {
 	private OtmModelManager mgr;
 	private List<ProjectItem> projectItems = new ArrayList<>();
 	private AbstractLibrary tlLib;
+
+	private ValidationFindings findings;
 
 	public OtmLibrary(ProjectItem pi, OtmModelManager mgr) {
 		this.mgr = mgr;
@@ -168,6 +172,9 @@ public class OtmLibrary {
 		return Collections.emptyList();
 	}
 
+	public void validate() {
+		findings = TLModelCompileValidator.validateModelElement(getTL(), true);
+	}
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {
 

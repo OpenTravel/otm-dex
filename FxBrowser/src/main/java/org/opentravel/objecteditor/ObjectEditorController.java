@@ -19,8 +19,8 @@ import org.opentravel.dex.controllers.member.MemberTreeTableController;
 import org.opentravel.dex.controllers.member.properties.MemberPropertiesTabController;
 import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.dex.repository.RepositoryTabController;
-import org.opentravel.dex.repository.TaskResultHandlerI;
-import org.opentravel.dex.repository.tasks.OpenProjectFileTask;
+import org.opentravel.dex.tasks.TaskResultHandlerI;
+import org.opentravel.dex.tasks.repository.OpenProjectFileTask;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

@@ -111,6 +111,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 
 	public void updateActionQueueSize(int size) {
 		actionCount.setText(Integer.toString(size));
+		undoActionButton.setDisable(size <= 0);
 	}
 
 	@FXML
@@ -149,4 +150,5 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 		projectCombo.setVisible(value);
 		projectLabel.setVisible(value);
 	}
+
 }

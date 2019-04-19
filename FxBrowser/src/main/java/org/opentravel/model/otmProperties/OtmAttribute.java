@@ -18,15 +18,17 @@
  */
 package org.opentravel.model.otmProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for attribute properties.
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribute> implements OtmTypeUser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmAttribute.class);
+	private static Log log = LogFactory.getLog(OtmAttribute.class);
 
 	/**
 	 * @param tlBusinessObject
@@ -66,9 +68,8 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 
 	@Override
 	public OtmTypeProvider getAssignedType() {
-		// FIXME
-		System.out.println("FIXME - how to get assigned type?");
-		return null;
+		OtmModelElement<TLModelElement> tp = OtmModelElement.get((TLModelElement) getTL().getType());
+		return tp instanceof OtmTypeProvider ? (OtmTypeProvider) tp : null;
 	}
 
 	@Override
@@ -97,7 +98,13 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	@Override
 	public String setName(String name) {
 		getTL().setName(name);
+		isValid(true);
 		return getName();
+	}
+
+	@Override
+	public void setTLTypeName(String typeName) {
+		getTL().setTypeName(typeName);
 	}
 
 	@Override
@@ -113,6 +120,24 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	@Override
 	public TLPropertyType getAssignedTLType() {
 		return getTL().getType();
+	}
+
+	/**
+	 * Useful for types that are not in the model manager.
+	 */
+	@Override
+	public TLPropertyType setAssignedTLType(TLPropertyType type) {
+		getTL().setType(type);
+		return getTL().getType();
+	}
+
+	@Override
+	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
+		@SuppressWarnings("unchecked")
+		TLModelElement tlType = ((OtmModelElement<TLModelElement>) type).getTL();
+		if (tlType instanceof TLPropertyType)
+			getTL().setType((TLPropertyType) tlType);
+		return getAssignedType() == type ? type : null;
 	}
 
 }

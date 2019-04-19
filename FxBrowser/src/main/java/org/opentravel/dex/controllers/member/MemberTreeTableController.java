@@ -5,6 +5,7 @@ package org.opentravel.dex.controllers.member;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexController;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
@@ -90,7 +91,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		super.configure(parent);
 		log.debug("Configuring Member Tree Table.");
 		eventPublisherNode = memberTreeController;
-		configure(parent.getModelManager(), treeEditingEnabled);
+		configure(parent.getModelManager(), parent.getImageManager(), treeEditingEnabled);
 	}
 
 	/**
@@ -99,9 +100,10 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	 * @param editable
 	 *            sets tree editing enables
 	 */
-	public void configure(OtmModelManager modelMgr, boolean editable) {
+	public void configure(OtmModelManager modelMgr, ImageManager imageMgr, boolean editable) {
 		if (modelMgr == null)
 			throw new IllegalArgumentException("Model manager is null. Must configure member tree with model manager.");
+		this.imageMgr = imageMgr;
 		this.treeEditingEnabled = editable;
 
 		// Set the hidden root item
@@ -147,9 +149,16 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
+			if (event instanceof DexFilterChangeEvent)
+				handleEvent((DexFilterChangeEvent) event);
 			else
 				refresh();
 		}
+	}
+
+	private void handleEvent(DexFilterChangeEvent event) {
+		if (!ignoreEvents)
+			refresh();
 	}
 
 	private void handleEvent(DexMemberSelectionEvent event) {
@@ -192,11 +201,18 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
 		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
 
-		TreeTableColumn<MemberDAO, String> errColumn = new TreeTableColumn<>(ERRORLABEL);
-		errColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("error"));
+		TreeTableColumn<MemberDAO, String> errTextColumn = new TreeTableColumn<>(ERRORLABEL);
+		errTextColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("error"));
+
+		TreeTableColumn<MemberDAO, ImageView> errColumn = new TreeTableColumn<>("");
+		errColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, ImageView>("errorImage"));
+		errColumn.setPrefWidth(25);
+		errColumn.setEditable(false);
+		errColumn.setSortable(false);
 
 		// Add columns to table
-		memberTree.getColumns().addAll(iconColumn, nameColumn, libColumn, versionColumn, prefixColumn, errColumn);
+		memberTree.getColumns().addAll(iconColumn, errColumn, nameColumn, libColumn, versionColumn, prefixColumn,
+				errTextColumn);
 
 		// Define cell content
 		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
