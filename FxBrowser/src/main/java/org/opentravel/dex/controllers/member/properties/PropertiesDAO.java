@@ -16,6 +16,7 @@ import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
 import org.opentravel.schemacompiler.model.TLProperty;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -226,6 +227,11 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 
 	public void setMax(String newValue) {
 		log.debug("TODO: Set max to: " + newValue);
+	}
+
+	public ObjectProperty<ImageView> validationImageProperty() {
+		element.isValid(); // create findings if none existed
+		return element.validationImageProperty();
 	}
 
 	@Override

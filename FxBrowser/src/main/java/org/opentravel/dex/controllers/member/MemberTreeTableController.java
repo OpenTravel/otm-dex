@@ -16,11 +16,15 @@ import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellDataFeatures;
 import javafx.scene.control.TreeTableColumn.SortType;
@@ -31,6 +35,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 /**
  * Manage the library member navigation tree.
@@ -205,10 +210,40 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		errTextColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("error"));
 
 		TreeTableColumn<MemberDAO, ImageView> errColumn = new TreeTableColumn<>("");
-		errColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, ImageView>("errorImage"));
+		// errColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, ImageView>("errorImage"));
 		errColumn.setPrefWidth(25);
 		errColumn.setEditable(false);
 		errColumn.setSortable(false);
+
+		errColumn.setCellFactory(c -> {
+			return new TreeTableCell<MemberDAO, ImageView>() {
+				@Override
+				protected void updateItem(ImageView item, boolean empty) {
+					super.updateItem(item, empty);
+					// Provide imageView directly - does not update automatically as the property would
+					// Provide tooltip showing validation results
+					String name = "";
+					if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
+						setGraphic(getTreeTableRow().getItem().getValue().validationImage());
+						name = getTreeTableRow().getItem().getValue().getValidationFindingsAsString();
+						if (!name.isEmpty())
+							setTooltip(new Tooltip(name));
+					} else {
+						setGraphic(null);
+						setTooltip(null);
+					}
+				}
+			};
+		});
+		// Does NOT work - provides image but not tool tip. Ignored when cell factory is set.
+		errColumn.setCellValueFactory(
+				new Callback<CellDataFeatures<MemberDAO, ImageView>, ObservableValue<ImageView>>() {
+					@Override
+					public ObservableValue<ImageView> call(CellDataFeatures<MemberDAO, ImageView> p) {
+						ObjectProperty<ImageView> iv = p.getValue().getValue().getValue().validationImageProperty();
+						return iv;
+					}
+				});
 
 		// Add columns to table
 		memberTree.getColumns().addAll(iconColumn, errColumn, nameColumn, libColumn, versionColumn, prefixColumn,
@@ -217,7 +252,9 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		// Define cell content
 		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
 
-		iconColumn.setCellValueFactory((CellDataFeatures<MemberDAO, ImageView> p) -> {
+		iconColumn.setCellValueFactory((
+
+				CellDataFeatures<MemberDAO, ImageView> p) -> {
 			if (p.getValue() != null)
 				p.getValue().setGraphic(p.getValue().getValue().getIcon(imageMgr));
 			return null;

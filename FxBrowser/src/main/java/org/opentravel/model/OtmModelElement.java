@@ -164,6 +164,8 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	}
 
 	public ValidationFindings getFindings() {
+		if (findings == null)
+			isValid(true);
 		return findings;
 	}
 	// /**
@@ -247,11 +249,11 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 			try {
 				// Get new findings
 				findings = TLModelCompileValidator.validateModelElement(getTL(), deep);
-				// Update the validation property
-				if (validationImageProperty() != null)
-					validationImageProperty().setValue(validationImage());
+				// Update the validation properties
 				if (validationProperty != null)
 					validationProperty.setValue(ValidationUtils.getCountsString(findings));
+				if (validationImageProperty() != null)
+					validationImageProperty().setValue(validationImage());
 			} catch (Exception e) {
 				log.debug("Validation threw error: " + e.getLocalizedMessage());
 			}
@@ -312,9 +314,18 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 
 	public ObjectProperty<ImageView> validationImageProperty() {
 		if (validationImageProperty == null)
-
 			validationImageProperty = new SimpleObjectProperty<>(validationImage());
 		return validationImageProperty;
+	}
+
+	public String getValidationFindingsAsString() {
+		String msg = "Validation Findings: \n";
+		String f = ValidationUtils.getMessagesAsString(getFindings());
+		if (!f.isEmpty())
+			msg += f;
+		else
+			msg += "No warnings or errors.";
+		return msg;
 	}
 
 	public ImageView validationImage() {

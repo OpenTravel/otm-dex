@@ -23,6 +23,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.ChoiceBoxTreeTableCell;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 /**
@@ -165,6 +166,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	/**
 	 * Create Columns and set cell values
 	 */
+	@SuppressWarnings("unchecked")
 	private void buildColumns(TreeTableView<PropertiesDAO> table) {
 		nameCol = new TreeTableColumn<>("Name");
 		// iconCol = new TreeTableColumn<>("");
@@ -185,9 +187,15 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		maxCol = new TreeTableColumn<>("max");
 		constraintCol.getColumns().addAll(minCol, maxCol);
 
+		TreeTableColumn<PropertiesDAO, ImageView> valCol = new TreeTableColumn<>("");
+		valCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, ImageView>("validationImage"));
+		valCol.setPrefWidth(25);
+		valCol.setEditable(false);
+		valCol.setSortable(false);
+
 		exampleCol = new TreeTableColumn<>("Example");
 		setColumnProps(exampleCol, false, false, false, 0);
-		table.getColumns().addAll(nameCol, roleCol, typeCol, constraintCol, exampleCol, documentationCol);
+		table.getColumns().addAll(nameCol, valCol, roleCol, typeCol, constraintCol, exampleCol, documentationCol);
 
 		// Name Column
 		setColumnProps(nameCol, true, true, false, 200, "name");
