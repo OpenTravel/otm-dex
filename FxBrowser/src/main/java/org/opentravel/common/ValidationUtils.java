@@ -11,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
-import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
@@ -43,7 +42,7 @@ public class ValidationUtils {
 	}
 
 	public static String getMessagesAsString(ValidationFindings findings) {
-		log.debug("formatting " + findings.count() + " findings.");
+		// log.debug("formatting " + findings.count() + " findings.");
 		StringBuilder messages = new StringBuilder();
 		findings.getAllFindingsAsList()
 				.forEach(f -> messages.append(f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT) + "\n"));
@@ -60,9 +59,8 @@ public class ValidationUtils {
 		return key.substring(key.lastIndexOf('.'), key.length());
 	}
 
-	// TODO - move to validation utils
-	public static ValidationFindings getRelevantFindings(String[] KEYS, ValidationFindings findings) {
-		List<String> longKeys = new ArrayList<>(Arrays.asList(KEYS));
+	public static ValidationFindings getRelevantFindings(String[] keyArray, ValidationFindings findings) {
+		List<String> longKeys = new ArrayList<>(Arrays.asList(keyArray));
 		List<String> keys = new ArrayList<>();
 		longKeys.forEach(k -> keys.add(trim(k)));
 
@@ -74,11 +72,11 @@ public class ValidationUtils {
 					relevant.addFinding(f);
 				else
 					log.debug("Unrelevant Finding: " + key);
-				String msg = f.getFormattedMessage(FindingMessageFormat.IDENTIFIED_FORMAT);
-				String msg2 = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
-				FindingType type = f.getType();
-				Validatable source = f.getSource();
-				log.debug("Finding: " + msg2);
+				// String msg = f.getFormattedMessage(FindingMessageFormat.IDENTIFIED_FORMAT);
+				// String msg2 = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
+				// FindingType type = f.getType();
+				// Validatable source = f.getSource();
+				// log.debug("Finding: " + msg2);
 			}
 		return relevant;
 	}

@@ -22,13 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
-import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
-import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLInclude;
 import org.opentravel.schemacompiler.model.TLLibrary;
@@ -38,8 +36,6 @@ import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OTM Object for libraries.
@@ -48,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmLibrary {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmLibrary.class);
+	private static Log log = LogFactory.getLog(OtmLibrary.class);
 
 	private OtmModelManager mgr;
 	private List<ProjectItem> projectItems = new ArrayList<>();
@@ -73,17 +69,17 @@ public class OtmLibrary {
 		this(new TLLibrary(), mgr);
 	}
 
-	@Deprecated
-	public List<OtmLibraryMember<?>> createTestChildren(OtmModelManager model) {
-		List<OtmLibraryMember<?>> members = new ArrayList<>();
-		members.add(new OtmBusinessObject("Fred", mgr).createTestChildren());
-		members.add(new OtmChoiceObject("Wilma", mgr).createTestChildren());
-		members.add(new OtmCoreObject("Barney", mgr).createTestChildren());
-		for (OtmLibraryMember<?> member : members)
-			model.add(member);
-		LOGGER.debug("Created 3 members.");
-		return members;
-	}
+	// @Deprecated
+	// public List<OtmComplexObject<?>> createTestChildren(OtmModelManager model) {
+	// List<OtmComplexObject<?>> members = new ArrayList<>();
+	// members.add(new OtmBusinessObject("Fred", mgr).createTestChildren());
+	// members.add(new OtmChoiceObject("Wilma", mgr).createTestChildren());
+	// members.add(new OtmCoreObject("Barney", mgr).createTestChildren());
+	// for (OtmComplexObject<?> member : members)
+	// model.add(member);
+	// LOGGER.debug("Created 3 members.");
+	// return members;
+	// }
 
 	public void add(ProjectItem pi) {
 		if (pi.getContent() != tlLib)
@@ -177,6 +173,13 @@ public class OtmLibrary {
 	}
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {
+
+	/**
+	 * @return
+	 */
+	public String getVersion() {
+		return getTL().getVersion();
+	}
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	// private ExtensionHandler extensionHandler = null;

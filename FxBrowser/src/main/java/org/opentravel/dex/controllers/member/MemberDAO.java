@@ -9,7 +9,9 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -24,17 +26,17 @@ import javafx.scene.image.ImageView;
  * @param <T>
  *
  */
-public class MemberDAO implements DexDAO<OtmModelElement<?>> {
+public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 	private static Log log = LogFactory.getLog(MemberDAO.class);
 
-	protected OtmModelElement<?> otmObject;
+	protected OtmModelElement<TLModelElement> otmObject;
 
-	public MemberDAO(OtmLibraryMember<?> member) {
-		this.otmObject = member;
+	public MemberDAO(OtmLibraryMember member) {
+		this.otmObject = (OtmModelElement<TLModelElement>) member;
 	}
 
 	public MemberDAO(OtmTypeProvider provider) {
-		this.otmObject = (OtmModelElement<?>) provider;
+		this.otmObject = (OtmModelElement<TLModelElement>) provider;
 	}
 
 	@Override
@@ -43,7 +45,7 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	@Override
-	public OtmModelElement<?> getValue() {
+	public OtmModelElement<TLModelElement> getValue() {
 		return otmObject;
 	}
 
@@ -61,9 +63,9 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 
 	public StringProperty libraryProperty() {
 		String libName = "";
-		if (otmObject instanceof OtmLibraryMember)
-			if (((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary() != null)
-				libName = ((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary().getName();
+		if (otmObject instanceof OtmComplexObject)
+			if (otmObject.getLibrary() != null)
+				libName = otmObject.getLibrary().getName();
 		return new SimpleStringProperty(libName);
 	}
 
@@ -72,8 +74,8 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public void setName(String name) {
-		if (otmObject instanceof OtmLibraryMember<?>)
-			((OtmLibraryMember<?>) otmObject).setName(name);
+		if (otmObject instanceof OtmLibraryMember)
+			otmObject.setName(name);
 	}
 
 	@Override
@@ -83,9 +85,8 @@ public class MemberDAO implements DexDAO<OtmModelElement<?>> {
 
 	public StringProperty versionProperty() {
 		String v = "";
-		if (otmObject instanceof OtmLibraryMember)
-			if (((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary() != null)
-				v = ((OtmLibraryMember<?>) otmObject).getTL().getOwningLibrary().getVersion();
+		if (otmObject instanceof OtmLibraryMember && otmObject.getLibrary() != null)
+			v = otmObject.getLibrary().getVersion();
 		return new SimpleStringProperty(v);
 	}
 

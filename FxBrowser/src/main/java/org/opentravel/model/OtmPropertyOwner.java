@@ -20,7 +20,7 @@ public interface OtmPropertyOwner extends OtmChildrenOwner {
 	 * 
 	 * @return the library member that owns this property owner
 	 */
-	public OtmLibraryMember<?> getOwningMember();
+	public OtmLibraryMember getOwningMember();
 
 	/**
 	 * Add the passed TL property/attribute/indicator then create OtmProperty

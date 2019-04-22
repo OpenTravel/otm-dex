@@ -48,6 +48,8 @@ public class DexFileHandler extends AbstractMainWindowController {
 			e.printStackTrace();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 		return manager;
 	}

@@ -18,11 +18,12 @@
  */
 package org.opentravel.model.otmFacets;
 
-import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
-import org.opentravel.schemacompiler.model.TLFacet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for Facets.
@@ -30,23 +31,23 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmSummaryFacet extends OtmFacet<TLFacet> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmSummaryFacet.class);
+public class OtmUpdateFacet extends OtmContextualFacet {
+	private static Log log = LogFactory.getLog(OtmUpdateFacet.class);
 
 	/**
-	 * @param tlBusinessObject
 	 */
-	public OtmSummaryFacet(TLFacet tl, OtmComplexObject parent) {
-		super(tl, parent);
+	public OtmUpdateFacet(TLContextualFacet tl, OtmModelManager manager) {
+		super(tl, manager);
 
-		if (tl.getFacetType() != TLFacetType.SUMMARY)
+		if (tl.getFacetType() != TLFacetType.UPDATE)
 			throw new IllegalArgumentException(
-					"Tried to create summary facet from wrong facet type: " + tl.getFacetType());
+					"Tried to create detail facet from wrong facet type: " + tl.getFacetType());
 	}
 
 	@Override
-	public TLFacet getTL() {
-		return tlObject;
+	public String setName(String text) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

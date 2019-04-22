@@ -6,7 +6,7 @@ package OTM_FX.FxBrowser;
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmFacets.OtmFacet;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public class PropertiesTableManager {
 		buildColumns(table);
 	}
 
-	public PropertiesTableManager(OtmLibraryMember<?> member, TableView<PropertyNode> table, Stage stage) {
+	public PropertiesTableManager(OtmComplexObject<?> member, TableView<PropertyNode> table, Stage stage) {
 		System.out.println("Initializing property table for " + member + "member.");
 
 		if (table == null)

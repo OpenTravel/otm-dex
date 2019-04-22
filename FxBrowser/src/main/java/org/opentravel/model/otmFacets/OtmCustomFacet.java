@@ -20,8 +20,9 @@ package org.opentravel.model.otmFacets;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
-import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
@@ -30,22 +31,29 @@ import org.opentravel.schemacompiler.model.TLFacetType;
  * @author Dave Hollander
  * 
  */
-public class OtmSharedFacet extends OtmFacet<TLFacet> {
-	private static Log log = LogFactory.getLog(OtmSharedFacet.class);
+public class OtmCustomFacet extends OtmContextualFacet {
+	private static Log log = LogFactory.getLog(OtmCustomFacet.class);
 
 	/**
+	 * @param tlBusinessObject
 	 */
-	public OtmSharedFacet(TLFacet tl, OtmComplexObject<?> parent) {
-		super(tl, parent);
+	// public OtmCustomFacet(TLContextualFacet tl, OtmLibraryMember<?> parent) {
+	public OtmCustomFacet(TLContextualFacet tl, OtmModelManager manager) {
+		super(tl, manager);
 
-		if (tl.getFacetType() != TLFacetType.SHARED)
+		if (tl.getFacetType() != TLFacetType.CUSTOM)
 			throw new IllegalArgumentException(
-					"Tried to create shared facet from wrong facet type: " + tl.getFacetType());
+					"Tried to create detail facet from wrong facet type: " + tl.getFacetType());
 	}
+
+	// @Override
+	// public String getPrefix() {
+	// return getTL().getOwningLibrary() != null ? getTL().getOwningLibrary().getPrefix() : "";
+	// }
 
 	@Override
-	public TLFacet getTL() {
-		return tlObject;
+	public String setName(String text) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-
 }

@@ -200,19 +200,6 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 		else
 			// TODO - have facet return property
 			return new ReadOnlyStringWrapper("" + element.getName());
-
-		// StringProperty nameProperty;
-		// if (element.isEditable()) {
-		// nameProperty = new SimpleStringProperty(element.getName());
-		// // DONE - move to action handler
-		// // Adding a change listener with lambda expression
-		// nameProperty.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
-		// element.setName(newVal);
-		// });
-		// } else {
-		// nameProperty = new ReadOnlyStringWrapper("" + element.getName());
-		// }
-		// return nameProperty;
 	}
 
 	public StringProperty roleProperty() {

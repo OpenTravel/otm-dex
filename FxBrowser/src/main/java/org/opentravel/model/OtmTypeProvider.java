@@ -18,4 +18,5 @@ public interface OtmTypeProvider {
 	 * @return
 	 */
 	boolean isNameControlled();
+
 }

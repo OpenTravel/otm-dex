@@ -43,7 +43,7 @@ public class AssignedTypesMenuHandler {
 		if (selection.equals(CHANGE)) {
 			prop.getValue().getActionManager().addAction(DexActions.TYPECHANGE, prop);
 		} else if (selection.equals(GOTO)) {
-			OtmLibraryMember<?> otm = findAssignedType(prop);
+			OtmLibraryMember otm = findAssignedType(prop);
 			if (otm != null)
 				prop.getController().fireEvent(new DexMemberSelectionEvent(otm));
 			else
@@ -53,14 +53,14 @@ public class AssignedTypesMenuHandler {
 		}
 	}
 
-	public OtmLibraryMember<?> findAssignedType(PropertiesDAO prop) {
+	public OtmLibraryMember findAssignedType(PropertiesDAO prop) {
 		if (prop.getValue() instanceof OtmTypeUser) {
 			OtmTypeUser user = (OtmTypeUser) prop.getValue();
 			TLPropertyType propertyType = user.getAssignedTLType();
 			OtmModelElement<?> otm = OtmModelElement.get((TLModelElement) propertyType);
 			if (otm != null && !(otm instanceof OtmLibraryMember))
-				otm = otm.getOwningMember();
-			return (OtmLibraryMember<?>) otm;
+				otm = (OtmModelElement<?>) otm.getOwningMember();
+			return (OtmLibraryMember) otm;
 		}
 		return null;
 	}

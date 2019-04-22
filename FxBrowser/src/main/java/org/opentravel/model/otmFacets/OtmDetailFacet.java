@@ -18,11 +18,11 @@
  */
 package org.opentravel.model.otmFacets;
 
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for Detail Facets.
@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmDetailFacet extends OtmFacet<TLFacet> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmDetailFacet.class);
+	private static Log log = LogFactory.getLog(OtmDetailFacet.class);
 
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmDetailFacet(TLFacet tl, OtmLibraryMember<?> parent) {
+	public OtmDetailFacet(TLFacet tl, OtmComplexObject<?> parent) {
 		super(tl, parent);
 
 		if (tl.getFacetType() != TLFacetType.DETAIL)

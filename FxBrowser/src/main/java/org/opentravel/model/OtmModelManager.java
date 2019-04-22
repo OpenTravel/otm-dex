@@ -21,18 +21,12 @@ import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.dex.tasks.model.ValidateModelManagerItemsTask;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmContainers.OtmProject;
-import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
-import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
-import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMemberFactory;
 import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.repository.Project;
@@ -60,7 +54,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 	private Map<AbstractLibrary, OtmLibrary> libraries = new HashMap<>();
 
 	// All members - Library Members are TLLibraryMembers and contextual facets
-	private Map<LibraryMember, OtmLibraryMember<?>> members = new HashMap<>();
+	private Map<LibraryMember, OtmLibraryMember> members = new HashMap<>();
 
 	private DexFileHandler fileHandler = new DexFileHandler();
 	private DexActionManager actionMgr;
@@ -102,7 +96,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 		return libraries.get(tlLibrary);
 	}
 
-	public OtmLibraryMember<?> getMember(TLModelElement tlMember) {
+	public OtmLibraryMember getMember(TLModelElement tlMember) {
 		// if (!(tlMember instanceof LibraryMember)) {
 		// // TODO - Get a LibraryMember from the tlMember
 		// }
@@ -159,11 +153,11 @@ public class OtmModelManager implements TaskResultHandlerI {
 		return libs;
 	}
 
-	public void createTestLibrary() {
-		OtmLibrary lib = new OtmLibrary(this);
-		libraries.put(lib.getTL(), lib);
-		lib.createTestChildren(this);
-	}
+	// public void createTestLibrary() {
+	// OtmLibrary lib = new OtmLibrary(this);
+	// libraries.put(lib.getTL(), lib);
+	// lib.createTestChildren(this);
+	// }
 
 	public void add(ProjectManager pm) {
 		log.debug("Oh la la -- a new project to consume!");
@@ -197,7 +191,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 		TLModel tlModel = pm.getModel();
 		for (AbstractLibrary tlLib : tlModel.getAllLibraries()) {
 			for (LibraryMember tlMember : tlLib.getNamedMembers()) {
-				OtmLibraryMember<?> otmMember = memberFactory(tlMember);
+				OtmLibraryMemberFactory.memberFactory(tlMember, this); // creates and adds
 			}
 		}
 
@@ -211,32 +205,32 @@ public class OtmModelManager implements TaskResultHandlerI {
 		// NO-OP
 	}
 
-	public OtmLibraryMember<?> memberFactory(LibraryMember tlMember) {
-		OtmLibraryMember<?> otmMember = null;
-		if (tlMember instanceof TLBusinessObject)
-			otmMember = new OtmBusinessObject((TLBusinessObject) tlMember, this);
-		if (tlMember instanceof TLChoiceObject)
-			otmMember = new OtmChoiceObject((TLChoiceObject) tlMember, this);
-		if (tlMember instanceof TLCoreObject)
-			otmMember = new OtmCoreObject((TLCoreObject) tlMember, this);
-
-		add(otmMember);
-		return otmMember;
-	}
+	// public OtmLibraryMember memberFactory(LibraryMember tlMember) {
+	// OtmLibraryMember otmMember = null;
+	// if (tlMember instanceof TLBusinessObject)
+	// otmMember = new OtmBusinessObject((TLBusinessObject) tlMember, this);
+	// if (tlMember instanceof TLChoiceObject)
+	// otmMember = new OtmChoiceObject((TLChoiceObject) tlMember, this);
+	// if (tlMember instanceof TLCoreObject)
+	// otmMember = new OtmCoreObject((TLCoreObject) tlMember, this);
+	//
+	// add(otmMember);
+	// return otmMember;
+	// }
 
 	/**
 	 * @return
 	 */
-	public Collection<OtmLibraryMember<?>> getMembers() {
+	public Collection<OtmLibraryMember> getMembers() {
 		return Collections.unmodifiableCollection(members.values());
 	}
 
 	/**
 	 * @param member
 	 */
-	public void add(OtmLibraryMember<?> member) {
-		if (member != null && member.getTL() instanceof TLLibraryMember)
-			members.put(member.getTL(), member);
+	public void add(OtmLibraryMember member) {
+		if (member != null && member.getTL() instanceof LibraryMember)
+			members.put(member.getLM(), member);
 	}
 
 	/**

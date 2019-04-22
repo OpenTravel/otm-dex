@@ -18,12 +18,12 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OTM Object Node for business objects.
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmChoiceObject.class);
+public class OtmChoiceObject extends OtmComplexObject<TLChoiceObject> {
+	private static Log log = LogFactory.getLog(OtmChoiceObject.class);
 
 	public OtmChoiceObject(TLChoiceObject tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
@@ -79,7 +79,7 @@ public class OtmChoiceObject extends OtmLibraryMember<TLChoiceObject> {
 	 * @return this
 	 */
 	@Override
-	public OtmLibraryMember<?> getOwningMember() {
+	public OtmComplexObject<?> getOwningMember() {
 		return this;
 	}
 

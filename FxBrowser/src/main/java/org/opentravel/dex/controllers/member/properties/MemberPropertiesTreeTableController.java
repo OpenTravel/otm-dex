@@ -3,6 +3,8 @@
  */
 package org.opentravel.dex.controllers.member.properties;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexIntegerStringConverter;
@@ -11,13 +13,16 @@ import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.member.MemberDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.ChoiceBoxTreeTableCell;
@@ -88,16 +93,23 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	 * 
 	 * @param member
 	 */
-	private void createTreeItems(OtmLibraryMember<?> member) {
+	private void createTreeItems(OtmLibraryMember member) {
 		// create cells for member's facets and properties
 		if (member != null)
 			for (OtmModelElement<?> element : member.getChildren()) {
 				TreeItem<PropertiesDAO> item = createTreeItem(element, root);
 				item.setExpanded(true);
-				if (element instanceof OtmFacet) {
-					for (OtmModelElement<?> child : ((OtmFacet<?>) element).getChildren())
+				List<OtmModelElement<?>> kids = null;
+				if (element instanceof OtmContributedFacet)
+					kids = ((OtmContributedFacet) element).getContributor().getChildren();
+				else if (element instanceof OtmFacet)
+					kids = ((OtmFacet) element).getChildren();
+
+				if (kids != null)
+					for (OtmModelElement<?> child : kids) {
+						// for (OtmModelElement<?> child : ((OtmFacet<?>) element).getChildren())
 						createTreeItem(child, item);
-				}
+					}
 			}
 	}
 
@@ -132,14 +144,14 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		buildColumns(table);
 	}
 
-	public void select(OtmModelElement<?> otm) {
-		log.debug("TODO - select " + otm);
-		if (otm != null) {
-			if (!(otm instanceof OtmLibraryMember))
-				otm = otm.getOwningMember();
-			select(otm.getName());
-		}
-	}
+	// public void select(OtmModelElement<?> otm) {
+	// log.debug("TODO - select " + otm);
+	// if (otm != null) {
+	// if (!(otm instanceof OtmComplexObject))
+	// otm = otm.getOwningMember();
+	// select(otm.getName());
+	// }
+	// }
 
 	/**
 	 * Select a property with the given name
@@ -188,10 +200,30 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		constraintCol.getColumns().addAll(minCol, maxCol);
 
 		TreeTableColumn<PropertiesDAO, ImageView> valCol = new TreeTableColumn<>("");
-		valCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, ImageView>("validationImage"));
 		valCol.setPrefWidth(25);
 		valCol.setEditable(false);
 		valCol.setSortable(false);
+
+		valCol.setCellFactory(c -> {
+			return new TreeTableCell<PropertiesDAO, ImageView>() {
+				@Override
+				protected void updateItem(ImageView item, boolean empty) {
+					super.updateItem(item, empty);
+					// Provide imageView directly - does not update automatically as the observable property would
+					// Provide tooltip showing validation results
+					String name = "";
+					if (!empty && getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
+						setGraphic(getTreeTableRow().getItem().getValue().validationImage());
+						name = getTreeTableRow().getItem().getValue().getValidationFindingsAsString();
+						if (!name.isEmpty())
+							setTooltip(new Tooltip(name));
+					} else {
+						setGraphic(null);
+						setTooltip(null);
+					}
+				}
+			};
+		});
 
 		exampleCol = new TreeTableColumn<>("Example");
 		setColumnProps(exampleCol, false, false, false, 0);

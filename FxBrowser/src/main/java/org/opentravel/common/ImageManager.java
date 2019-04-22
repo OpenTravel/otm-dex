@@ -24,6 +24,8 @@ public class ImageManager {
 		CORE("/icons/CoreObject.gif"),
 		CHOICE("/icons/Choice.gif"),
 		FACET("/icons/Facet.gif"),
+		FACET_CONTEXTUAL("/icons/Facet-contextual.gif"),
+		FACET_CONTRIBUTED("/icons/Facet-c2.gif"),
 		ELEMENT("/icons/Element.gif"),
 		ATTRIBUTE("/icons/Attribute.jpg"),
 		INDICATOR("/icons/Indicator.gif"),
@@ -58,7 +60,7 @@ public class ImageManager {
 	}
 
 	public Image get(Icons icon) {
-		return new Image(getClass().getResourceAsStream(icon.label));
+		return icon != null ? new Image(getClass().getResourceAsStream(icon.label)) : null;
 	}
 
 	/**

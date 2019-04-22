@@ -130,7 +130,7 @@ public abstract class DexTaskBase<T> extends Task<String> {
 				updateMessage("Done.");
 			} catch (Exception e) {
 				errorException = e;
-				errorBuilder = new StringBuilder("Error: ");
+				errorBuilder = new StringBuilder(getClass().getSimpleName() + " Error: ");
 				errorBuilder.append(e.getLocalizedMessage());
 				result = errorBuilder.toString(); // Signal business error via result
 				failed();

@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ValidationUtils;
 import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -49,7 +49,7 @@ public class NameChangeAction extends DexStringAction {
 		this.oldName = oldName;
 		this.modifiedName = name;
 		// Force upper case
-		if (otm instanceof OtmLibraryMember)
+		if (otm instanceof OtmComplexObject)
 			modifiedName = name.substring(0, 1).toUpperCase() + name.substring(1);
 
 		// Set value into model and GUI

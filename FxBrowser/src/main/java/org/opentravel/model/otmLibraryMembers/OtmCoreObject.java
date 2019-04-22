@@ -31,7 +31,7 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
  * @author Dave Hollander
  * 
  */
-public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
+public class OtmCoreObject extends OtmComplexObject<TLCoreObject> {
 	private static Log log = LogFactory.getLog(OtmCoreObject.class);
 
 	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
@@ -69,7 +69,7 @@ public class OtmCoreObject extends OtmLibraryMember<TLCoreObject> {
 	 * @return this
 	 */
 	@Override
-	public OtmLibraryMember<?> getOwningMember() {
+	public OtmComplexObject<?> getOwningMember() {
 		return this;
 	}
 

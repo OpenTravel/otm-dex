@@ -62,7 +62,7 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 	// }
 
 	@Override
-	public OtmLibraryMember<?> getOwningMember() {
+	public OtmLibraryMember getOwningMember() {
 		return parent.getOwningMember();
 	}
 

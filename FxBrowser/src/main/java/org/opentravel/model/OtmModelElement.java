@@ -28,6 +28,7 @@ import org.opentravel.common.ValidationUtils;
 import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -61,16 +62,6 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 
 	private static final String NONAME = "no-name-for-for-this-object";
 
-	// Fixme if needed
-	// private static String getTypeName(TLModelElement tlObj) {
-	// QName qn = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) getAssignedTLObject(), true);
-	// if (qn == null)
-	// tlObj.setName("Missing");
-	// else {
-	// tlObj.setName(qn.getLocalPart());
-	// }
-	// }
-
 	/**
 	 * Utility to <i>get</i> the OTM facade object that wraps the TL Model object. Uses the listener added to all TL
 	 * objects in the facade's constructor.
@@ -82,8 +73,13 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	public static OtmModelElement<TLModelElement> get(TLModelElement tlObject) {
 		if (tlObject != null)
 			for (ModelElementListener l : tlObject.getListeners())
-				if (l instanceof OtmModelElementListener)
+				if (l instanceof OtmModelElementListener) {
+					OtmModelElement<?> o = ((OtmModelElementListener) l).get();
+					// Contextual facets will have two listeners
+					if (o instanceof OtmContributedFacet)
+						continue;
 					return ((OtmModelElementListener) l).get();
+				}
 		return null;
 	}
 
@@ -209,7 +205,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return NONAMESPACE;
 	}
 
-	public abstract OtmLibraryMember<?> getOwningMember();
+	public abstract OtmLibraryMember getOwningMember();
 
 	/**
 	 * 
@@ -331,14 +327,15 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	public ImageView validationImage() {
 		if (imgMgr == null)
 			return null;
-		if (findings != null) {
-			if (findings.hasFinding(FindingType.ERROR))
-				return imgMgr.getView(ImageManager.Icons.V_ERROR);
-			if (findings.hasFinding(FindingType.WARNING))
-				return imgMgr.getView(ImageManager.Icons.V_WARN);
-			return imgMgr.getView(ImageManager.Icons.V_OK);
-		}
-		return imgMgr.getView(ImageManager.Icons.RUN);
+		isValid();
+		// if (findings != null) {
+		if (findings.hasFinding(FindingType.ERROR))
+			return imgMgr.getView(ImageManager.Icons.V_ERROR);
+		if (findings.hasFinding(FindingType.WARNING))
+			return imgMgr.getView(ImageManager.Icons.V_WARN);
+		return imgMgr.getView(ImageManager.Icons.V_OK);
+		// }
+		// return imgMgr.getView(ImageManager.Icons.RUN);
 	}
 
 	public StringProperty validationProperty() {

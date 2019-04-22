@@ -48,7 +48,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 		implements OtmPropertyOwner, OtmTypeProvider {
 	private static Log log = LogFactory.getLog(OtmFacet.class);
 
-	private OtmLibraryMember<?> parent;
+	private OtmLibraryMember parent;
 
 	// /**
 	// * @param TLFacet
@@ -60,7 +60,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	// assert false;
 	// }
 
-	public OtmFacet(TL tl, OtmLibraryMember<?> parent) {
+	public OtmFacet(TL tl, OtmLibraryMember parent) {
 		super(tl, parent.getActionManager());
 		this.parent = parent;
 
@@ -77,23 +77,23 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 		return true;
 	};
 
-	/**
-	 * Facet Factory
-	 * 
-	 * @param tl
-	 * @return OtmFacet<?> based on facet type or null.
-	 */
-	public static OtmFacet<?> facetFactory(TLFacet tl, OtmLibraryMember<?> parent) {
-		switch (tl.getFacetType()) {
-		case SUMMARY:
-			return new OtmSummaryFacet(tl, parent);
-		case DETAIL:
-			return new OtmDetailFacet(tl, parent);
-		default:
-			log.debug("Missing Facet Type case: " + tl.getFacetType());
-			return null;
-		}
-	}
+	// /**
+	// * Facet Factory
+	// *
+	// * @param tl
+	// * @return OtmFacet<?> based on facet type or null.
+	// */
+	// public static OtmFacet<?> facetFactory(TLFacet tl, OtmComplexObject<?> parent) {
+	// switch (tl.getFacetType()) {
+	// case SUMMARY:
+	// return new OtmSummaryFacet(tl, parent);
+	// case DETAIL:
+	// return new OtmDetailFacet(tl, parent);
+	// default:
+	// log.debug("Missing Facet Type case: " + tl.getFacetType());
+	// return null;
+	// }
+	// }
 
 	@Override
 	public String getNamespace() {
@@ -136,7 +136,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	}
 
 	@Override
-	public OtmLibraryMember<?> getOwningMember() {
+	public OtmLibraryMember getOwningMember() {
 		return parent;
 	}
 

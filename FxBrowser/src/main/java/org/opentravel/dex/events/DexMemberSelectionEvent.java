@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.member.MemberDAO;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.EventType;
@@ -25,9 +26,9 @@ public class DexMemberSelectionEvent extends DexEvent {
 	public static final EventType<DexMemberSelectionEvent> MEMBER_SELECTED = new EventType<>(DEX_ALL,
 			"MEMBER_SELECTED");
 
-	private final OtmLibraryMember<?> member;
+	private final OtmLibraryMember member;
 
-	public OtmLibraryMember<?> getMember() {
+	public OtmLibraryMember getMember() {
 		return member;
 	}
 
@@ -50,26 +51,26 @@ public class DexMemberSelectionEvent extends DexEvent {
 	public DexMemberSelectionEvent(Object source, TreeItem<MemberDAO> target) {
 		super(source, target, MEMBER_SELECTED);
 		log.debug("DexEvent source/target constructor ran.");
-
 		// If there is data, extract it from target
+		OtmModelElement<?> m = null;
 		if (target != null && target.getValue() != null && target.getValue().getValue() != null)
-			if (target.getValue().getValue() instanceof OtmLibraryMember<?>)
-				member = (OtmLibraryMember<?>) target.getValue().getValue();
-			else
-				member = target.getValue().getValue().getOwningMember();
-		else
-			member = null;
+			m = target.getValue().getValue();
+		if (m instanceof OtmContributedFacet)
+			m = ((OtmContributedFacet) m).getContributor();
+		if (m != null && !(m instanceof OtmLibraryMember))
+			m = (OtmModelElement<?>) m.getOwningMember();
+		member = (OtmLibraryMember) m;
 	}
 
 	/**
 	 * @param otm
 	 */
-	public DexMemberSelectionEvent(OtmModelElement<?> otm) {
+	public DexMemberSelectionEvent(OtmLibraryMember otm) {
 		super(MEMBER_SELECTED);
 		log.debug("DexEvent OtmModelElement constructor ran.");
-		if (!(otm instanceof OtmLibraryMember))
-			otm = otm.getOwningMember();
-		member = (OtmLibraryMember<?>) otm;
+		if (otm instanceof OtmContributedFacet)
+			otm = ((OtmContributedFacet) otm).getContributor();
+		member = otm;
 	}
 
 }

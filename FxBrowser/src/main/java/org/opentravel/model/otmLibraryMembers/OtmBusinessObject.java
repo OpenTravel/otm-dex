@@ -18,12 +18,12 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OTM Object Node for business objects.
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmBusinessObject.class);
+public class OtmBusinessObject extends OtmComplexObject<TLBusinessObject> {
+	private static Log log = LogFactory.getLog(OtmBusinessObject.class);
 
 	public OtmBusinessObject(TLBusinessObject tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
@@ -78,13 +78,13 @@ public class OtmBusinessObject extends OtmLibraryMember<TLBusinessObject> {
 	// children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
 	// }
 
-	/**
-	 * @return this
-	 */
-	@Override
-	public OtmLibraryMember<?> getOwningMember() {
-		return this;
-	}
+	// /**
+	// * @return this
+	// */
+	// @Override
+	// public OtmLibraryMember<?> getOwningMember() {
+	// return this;
+	// }
 
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {

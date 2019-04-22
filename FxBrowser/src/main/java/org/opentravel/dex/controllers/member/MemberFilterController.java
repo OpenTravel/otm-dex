@@ -12,12 +12,12 @@ import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.popup.DexPopupController;
 import org.opentravel.dex.events.DexFilterChangeEvent;
 import org.opentravel.dex.events.DexLibrarySelectionEvent;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -185,23 +185,23 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	/**
 	 * 
-	 * @param object
+	 * @param member
 	 *            to test
 	 * @return true if the object passes the selection filters (should be displayed)
 	 */
-	public boolean isSelected(OtmModelElement<?> object) {
+	public boolean isSelected(OtmLibraryMember member) {
 		// log.debug("Is " + object.getName() + " selected?");
-		if (object.getOwningMember() == null || object.getOwningMember().getLibrary() == null)
+		if (member == null || member.getLibrary() == null)
 			return true;
-		if (libraryFilter != null && !object.getLibrary().getName().startsWith(libraryFilter))
+		if (libraryFilter != null && !member.getLibrary().getName().startsWith(libraryFilter))
 			return false;
-		if (textFilterValue != null && !object.getName().toLowerCase().startsWith(textFilterValue))
+		if (textFilterValue != null && !member.getName().toLowerCase().startsWith(textFilterValue))
 			return false;
-		if (latestVersionOnly && !object.getOwningMember().getLibrary().isLatestVersion())
+		if (latestVersionOnly && !member.getLibrary().isLatestVersion())
 			return false;
-		if (editableOnly && !object.isEditable())
+		if (editableOnly && !member.isEditable())
 			return false;
-		if (classNameFilter != null && !object.getClass().getSimpleName().startsWith(classNameFilter))
+		if (classNameFilter != null && !member.getClass().getSimpleName().startsWith(classNameFilter))
 			return false;
 
 		// NO filters applied OR passed all filters
