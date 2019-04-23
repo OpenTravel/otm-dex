@@ -9,7 +9,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
@@ -63,7 +63,7 @@ public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 
 	public StringProperty libraryProperty() {
 		String libName = "";
-		if (otmObject instanceof OtmComplexObject)
+		if (otmObject instanceof OtmComplexObjects)
 			if (otmObject.getLibrary() != null)
 				libName = otmObject.getLibrary().getName();
 		return new SimpleStringProperty(libName);

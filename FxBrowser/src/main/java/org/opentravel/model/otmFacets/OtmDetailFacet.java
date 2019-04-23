@@ -20,7 +20,7 @@ package org.opentravel.model.otmFacets;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 
@@ -36,7 +36,7 @@ public class OtmDetailFacet extends OtmFacet<TLFacet> {
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmDetailFacet(TLFacet tl, OtmComplexObject<?> parent) {
+	public OtmDetailFacet(TLFacet tl, OtmComplexObjects<?> parent) {
 		super(tl, parent);
 
 		if (tl.getFacetType() != TLFacetType.DETAIL)

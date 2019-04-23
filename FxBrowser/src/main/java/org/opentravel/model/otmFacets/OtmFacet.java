@@ -18,6 +18,8 @@
  */
 package org.opentravel.model.otmFacets;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -75,7 +77,12 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	@Override
 	public boolean isNameControlled() {
 		return true;
-	};
+	}
+
+	@Override
+	public Collection<OtmTypeProvider> getChildren_TypeProviders() {
+		return Collections.emptyList();
+	}
 
 	// /**
 	// * Facet Factory

@@ -23,39 +23,35 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
- * OTM Object Node for business objects.
+ * OTM Object Node for Simple objects.
  * 
  * @author Dave Hollander
+ * @param <T>
  * 
  */
-public class OtmChoiceObject extends OtmComplexObjects<TLChoiceObject> {
-	private static Log log = LogFactory.getLog(OtmChoiceObject.class);
+public class OtmSimpleObject extends OtmSimpleObjects<TLSimple> {
+	private static Log log = LogFactory.getLog(OtmSimpleObject.class);
 
-	public OtmChoiceObject(TLChoiceObject tlo, OtmModelManager mgr) {
+	public OtmSimpleObject(TLSimple tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
 
-	public OtmChoiceObject(String name, OtmModelManager mgr) {
-		super(new TLChoiceObject(), mgr);
+	public OtmSimpleObject(String name, OtmModelManager mgr) {
+		super(new TLSimple(), mgr);
 		setName(name);
 	}
 
 	@Override
-	public TLChoiceObject getTL() {
-		return (TLChoiceObject) tlObject;
+	public Icons getIconType() {
+		return ImageManager.Icons.SIMPLE;
 	}
 
-	// @Override
-	// public boolean isNameControlled() {
-	// return true;
-	// };
-
 	@Override
-	public Icons getIconType() {
-		return ImageManager.Icons.CHOICE;
+	public TLSimple getTL() {
+		return (TLSimple) tlObject;
 	}
 
 	@Override
@@ -65,23 +61,13 @@ public class OtmChoiceObject extends OtmComplexObjects<TLChoiceObject> {
 		return getName();
 	}
 
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Creates facets to represent facets in the TL choice object.
-	// */
-	// @Override
-	// public void modelChildren() {
-	// // getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
-	// }
-
-	// /**
-	// * @return this
-	// */
-	// @Override
-	// public OtmComplexObject<?> getOwningMember() {
-	// return this;
-	// }
+	/**
+	 * @return this
+	 */
+	@Override
+	public OtmSimpleObject getOwningMember() {
+		return this;
+	}
 
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {

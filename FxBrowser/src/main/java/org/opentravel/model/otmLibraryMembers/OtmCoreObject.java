@@ -31,7 +31,7 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
  * @author Dave Hollander
  * 
  */
-public class OtmCoreObject extends OtmComplexObject<TLCoreObject> {
+public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> {
 	private static Log log = LogFactory.getLog(OtmCoreObject.class);
 
 	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
@@ -48,10 +48,10 @@ public class OtmCoreObject extends OtmComplexObject<TLCoreObject> {
 		return ImageManager.Icons.CORE;
 	}
 
-	@Override
-	public boolean isNameControlled() {
-		return true;
-	};
+	// @Override
+	// public boolean isNameControlled() {
+	// return true;
+	// };
 
 	@Override
 	public TLCoreObject getTL() {
@@ -69,7 +69,7 @@ public class OtmCoreObject extends OtmComplexObject<TLCoreObject> {
 	 * @return this
 	 */
 	@Override
-	public OtmComplexObject<?> getOwningMember() {
+	public OtmComplexObjects<?> getOwningMember() {
 		return this;
 	}
 

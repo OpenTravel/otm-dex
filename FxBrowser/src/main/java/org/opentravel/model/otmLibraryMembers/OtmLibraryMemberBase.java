@@ -20,6 +20,7 @@ package org.opentravel.model.otmLibraryMembers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -44,7 +45,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
  * 
  */
 public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends OtmModelElement<TLModelElement>
-		implements OtmLibraryMember, OtmTypeProvider, OtmChildrenOwner {
+		implements OtmLibraryMember, OtmTypeProvider {
 	private static Log log = LogFactory.getLog(OtmLibraryMemberBase.class);
 
 	protected OtmModelManager mgr = null;
@@ -69,23 +70,30 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 	/**
 	 * @return immediate children who implement OtmTypeProvider or empty list.
 	 */
-	@Override
+	// Implemented here since most (not all) library members are children owners
 	public Collection<OtmTypeProvider> getChildren_TypeProviders() {
-		List<OtmTypeProvider> providers = new ArrayList<>();
-		for (OtmModelElement<?> child : getChildren())
-			if (child instanceof OtmTypeProvider)
-				providers.add((OtmTypeProvider) child);
-		return providers;
+		if (this instanceof OtmChildrenOwner) {
+			List<OtmTypeProvider> providers = new ArrayList<>();
+			for (OtmModelElement<?> child : getChildren())
+				if (child instanceof OtmTypeProvider)
+					providers.add((OtmTypeProvider) child);
+			return providers;
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	@Override
+	// Implemented here since most (not all) library members are children owners
 	public List<OtmModelElement<?>> getChildren() {
-		if (children != null && children.isEmpty())
-			modelChildren();
-		return children;
+		if (this instanceof OtmChildrenOwner) {
+			if (children != null && children.isEmpty())
+				modelChildren();
+			return children;
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 	// @Override
@@ -105,12 +113,12 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 	// }
 
 	@Override
-	public LibraryMember getLM() {
+	public LibraryMember getTlLM() {
 		return (LibraryMember) getTL();
 	}
 
-	@Override
-	public abstract String getLibraryName();
+	// @Override
+	// public abstract String getLibraryName();
 	// public String getLibraryName() {
 	// String libName = "";
 	// if (getTL().getOwningLibrary() != null)
@@ -127,10 +135,10 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 	// // return tlObject.getOwningLibrary() != null;
 	// }
 
-	@Override
-	public String toString() {
-		return getName();
-	}
+	// @Override
+	// public String toString() {
+	// return getName();
+	// }
 
 	// @Override
 	// public String getPrefix() {
@@ -138,11 +146,9 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 	// }
 
 	/**
-	 * {@inheritDoc}
-	 * <p>
 	 * Creates facets to represent facets in the TL object.
 	 */
-	@Override
+	// Implemented here since most (not all) library members are children owners
 	public void modelChildren() {
 		if (getTL() instanceof TLFacetOwner)
 			for (TLFacet tlFacet : ((TLFacetOwner) getTL()).getAllFacets()) {
@@ -153,11 +159,11 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 			}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public abstract String setName(String text);
+	// /**
+	// * {@inheritDoc}
+	// */
+	// @Override
+	// public abstract String setName(String text);
 	// TODO - update children
 
 	// /**

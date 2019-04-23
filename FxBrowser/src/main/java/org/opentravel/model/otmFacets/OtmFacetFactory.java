@@ -6,7 +6,7 @@ package org.opentravel.model.otmFacets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
 import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
@@ -66,20 +66,20 @@ public class OtmFacetFactory {
 		OtmFacet<?> facet = null;
 		switch (tlFacet.getFacetType()) {
 		case SUMMARY:
-			if (parent instanceof OtmComplexObject)
-				facet = new OtmSummaryFacet(tlFacet, (OtmComplexObject) parent);
+			if (parent instanceof OtmComplexObjects)
+				facet = new OtmSummaryFacet(tlFacet, (OtmComplexObjects) parent);
 			break;
 		case DETAIL:
-			if (parent instanceof OtmComplexObject)
-				facet = new OtmDetailFacet(tlFacet, (OtmComplexObject) parent);
+			if (parent instanceof OtmComplexObjects)
+				facet = new OtmDetailFacet(tlFacet, (OtmComplexObjects) parent);
 			break;
 		case SHARED:
-			if (parent instanceof OtmComplexObject)
-				facet = new OtmSharedFacet(tlFacet, (OtmComplexObject) parent);
+			if (parent instanceof OtmComplexObjects)
+				facet = new OtmSharedFacet(tlFacet, (OtmComplexObjects) parent);
 			break;
 		case ID:
-			if (parent instanceof OtmComplexObject)
-				facet = new OtmIdFacet(tlFacet, (OtmComplexObject) parent);
+			if (parent instanceof OtmComplexObjects)
+				facet = new OtmIdFacet(tlFacet, (OtmComplexObjects) parent);
 			break;
 		case CHOICE:
 		case CUSTOM:

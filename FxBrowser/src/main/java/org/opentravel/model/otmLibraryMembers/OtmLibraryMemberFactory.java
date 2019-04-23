@@ -12,6 +12,7 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
  * @author dmh
@@ -35,6 +36,8 @@ public class OtmLibraryMemberFactory {
 			otmMember = new OtmChoiceObject((TLChoiceObject) tlMember, manager);
 		else if (tlMember instanceof TLCoreObject)
 			otmMember = new OtmCoreObject((TLCoreObject) tlMember, manager);
+		else if (tlMember instanceof TLSimple)
+			otmMember = new OtmSimpleObject((TLSimple) tlMember, manager);
 		else if (tlMember instanceof TLContextualFacet)
 			otmMember = OtmFacetFactory.create((TLContextualFacet) tlMember, manager);
 

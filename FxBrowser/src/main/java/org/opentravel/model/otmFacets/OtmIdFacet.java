@@ -18,7 +18,7 @@
  */
 package org.opentravel.model.otmFacets;
 
-import org.opentravel.model.otmLibraryMembers.OtmComplexObject;
+import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class OtmIdFacet extends OtmFacet<TLFacet> {
 
 	/**
 	 */
-	public OtmIdFacet(TLFacet tl, OtmComplexObject<?> parent) {
+	public OtmIdFacet(TLFacet tl, OtmComplexObjects<?> parent) {
 		super(tl, parent);
 
 		if (tl.getFacetType() != TLFacetType.ID)

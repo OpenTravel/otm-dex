@@ -18,6 +18,7 @@ import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmSimpleObject;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -294,7 +295,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 			else if (value.startsWith(CORE))
 				classNameFilter = OtmCoreObject.class.getSimpleName();
 			else if (value.startsWith(SIMPLE))
-				classNameFilter = null;
+				classNameFilter = OtmSimpleObject.class.getSimpleName();
 
 		}
 		log.debug("Set Type Filter: " + classNameFilter);

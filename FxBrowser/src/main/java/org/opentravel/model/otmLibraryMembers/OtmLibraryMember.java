@@ -3,13 +3,8 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.dex.actions.DexActionManager;
-import org.opentravel.model.OtmModelElement;
-import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -26,16 +21,19 @@ public interface OtmLibraryMember {
 
 	public DexActionManager getActionManager();
 
-	public Collection<OtmTypeProvider> getChildren_TypeProviders();
+	// public Collection<OtmTypeProvider> getChildren_TypeProviders();
 
-	public List<OtmModelElement<?>> getChildren();
+	// public List<OtmModelElement<?>> getChildren();
 
 	/**
 	 * TLContextualFacet or TLLibraryMember
+	 * <p>
+	 * Not all library members implement the TLLibraryMember class. This method makes it easy to get a LibraryMember
+	 * regardless of which type hierarchy it belongs.
 	 * 
 	 * @return
 	 */
-	public LibraryMember getLM();
+	public LibraryMember getTlLM();
 
 	public TLModelElement getTL();
 
@@ -53,7 +51,7 @@ public interface OtmLibraryMember {
 
 	public String getPrefix();
 
-	public void modelChildren();
+	// public void modelChildren();
 
 	public String setName(String text);
 

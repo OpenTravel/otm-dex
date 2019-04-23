@@ -230,7 +230,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 */
 	public void add(OtmLibraryMember member) {
 		if (member != null && member.getTL() instanceof LibraryMember)
-			members.put(member.getLM(), member);
+			members.put(member.getTlLM(), member);
 	}
 
 	/**

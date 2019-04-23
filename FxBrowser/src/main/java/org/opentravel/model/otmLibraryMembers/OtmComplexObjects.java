@@ -24,6 +24,7 @@ import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 
 /**
@@ -32,29 +33,19 @@ import org.opentravel.schemacompiler.model.TLLibraryMember;
  * @author Dave Hollander
  * 
  */
-public abstract class OtmComplexObject<T extends TLLibraryMember> extends OtmLibraryMemberBase<TLLibraryMember>
+public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends OtmLibraryMemberBase<TLLibraryMember>
 		implements OtmLibraryMember, OtmTypeProvider, OtmChildrenOwner {
-	private static Log log = LogFactory.getLog(OtmComplexObject.class);
+	private static Log log = LogFactory.getLog(OtmComplexObjects.class);
 
 	// private OtmModelManager mgr = null;
 	// LibraryMember lm;
 
 	/**
 	 */
-	public OtmComplexObject(T tl, OtmModelManager mgr) {
-		// super(tl, mgr.getActionManager());
+	public OtmComplexObjects(T tl, OtmModelManager mgr) {
 		super(tl, mgr);
-		// this.mgr = mgr;
-		//
-		// assert mgr != null;
 	}
 
-	// @Override
-	// public DexActionManager getActionManager() {
-	// return mgr.getActionManager();
-	// }
-	//
-	//
 	// /**
 	// * @return immediate children who implement OtmTypeProvider or empty list.
 	// */
@@ -145,15 +136,20 @@ public abstract class OtmComplexObject<T extends TLLibraryMember> extends OtmLib
 	 * @return this
 	 */
 	@Override
-	public OtmComplexObject<?> getOwningMember() {
+	public OtmComplexObjects<?> getOwningMember() {
 		return this;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public abstract String setName(String text);
+	public boolean isNameControlled() {
+		return true;
+	};
+
+	// /**
+	// * {@inheritDoc}
+	// */
+	// @Override
+	// public abstract String setName(String text);
 	// TODO - update children
 
 	// /**

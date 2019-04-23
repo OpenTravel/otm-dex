@@ -31,7 +31,7 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
  * @author Dave Hollander
  * 
  */
-public class OtmBusinessObject extends OtmComplexObject<TLBusinessObject> {
+public class OtmBusinessObject extends OtmComplexObjects<TLBusinessObject> {
 	private static Log log = LogFactory.getLog(OtmBusinessObject.class);
 
 	public OtmBusinessObject(TLBusinessObject tlo, OtmModelManager mgr) {
@@ -60,10 +60,10 @@ public class OtmBusinessObject extends OtmComplexObject<TLBusinessObject> {
 		return ImageManager.Icons.BUSINESS;
 	}
 
-	@Override
-	public boolean isNameControlled() {
-		return true;
-	};
+	// @Override
+	// public boolean isNameControlled() {
+	// return true;
+	// };
 
 	// /**
 	// * {@inheritDoc}

@@ -11,6 +11,7 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.events.DexFilterChangeEvent;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
@@ -19,6 +20,7 @@ import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -28,9 +30,12 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.SortType;
+import javafx.scene.control.TreeTablePosition;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -124,6 +129,20 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		refresh();
 
 		memberTree.getSelectionModel().select(0);
+		memberTree.setOnKeyReleased(this::keyPressed);
+		// memberTree.setOnKeyPressed(e -> {
+		// if (e.getCode() == KeyCode.RIGHT)
+		// memberTree.getSelectionModel().getSelectedItem().setExpanded(true);
+		// else if (e.getCode() == KeyCode.LEFT)
+		// memberTree.getSelectionModel().getSelectedItem().setExpanded(false);
+		// });
+		// memberTree.setOnKeyPressed(new EventHandler<KeyEvent>() {
+		// @Override
+		// public void handle(KeyEvent event) {
+		// if (event.getCode() == KeyCode.RIGHT)
+		// log.debug("Right pressed.");
+		// }
+		// });
 		memberTree.setOnMouseClicked(this::mouseClick);
 		// add a listener class with three parameters that invokes selection listener
 		memberTree.getSelectionModel().selectedItemProperty()
@@ -133,6 +152,25 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	public void setOnMouseClicked(EventHandler<? super MouseEvent> handler) {
 		memberTree.setOnMouseClicked(handler);
+	}
+
+	public void keyPressed(KeyEvent event) {
+		TreeItem<MemberDAO> item = memberTree.getSelectionModel().getSelectedItem();
+		ObservableList<TreeTablePosition<MemberDAO, ?>> cells = memberTree.getSelectionModel().getSelectedCells();
+		int row = memberTree.getSelectionModel().getSelectedIndex();
+		log.debug("Selection row = " + row);
+		if (event.getCode() == KeyCode.RIGHT) {
+			memberTree.getSelectionModel().getSelectedItem().setExpanded(true);
+			memberTree.getSelectionModel().select(row);
+			// memberTree.getSelectionModel().focus(row);
+			// Not sure how to: memberTree.getSelectionModel().requestFocus();
+			// event.consume();
+		} else if (event.getCode() == KeyCode.LEFT) {
+			memberTree.getSelectionModel().getSelectedItem().setExpanded(false);
+			memberTree.getSelectionModel().select(row);
+			// memberTree.getSelectionModel().focus(row);
+			// event.consume();
+		}
 	}
 
 	public void mouseClick(MouseEvent event) {
@@ -282,23 +320,27 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		// Apply Filter
 		if (filter != null && !filter.isSelected(member))
 			return null;
+
+		// Create item for the library member
 		TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(member));
 		item.setExpanded(false);
 		item.setGraphic(imageMgr.getView((OtmModelElement<?>) member));
 
-		// Skip over contextual facets that have been injected into an object
+		// Add item to tree parent skipping over contextual facets that have been injected into an object
 		if ((!(member instanceof OtmContextualFacet) || ((OtmContextualFacet) member).getWhereContributed() == null)) {
-			// Create item for the library member
 			parent.getChildren().add(item);
 		}
 		// Create items for the type provider children of this member
-		for (OtmTypeProvider ele : member.getChildren_TypeProviders()) {
-			TreeItem<MemberDAO> innerItem = createTreeItem(ele, item);
-			if (ele instanceof OtmContributedFacet && ((OtmContributedFacet) ele).getContributor() != null) {
-				for (OtmTypeProvider child : ((OtmContributedFacet) ele).getContributor().getChildren_TypeProviders())
-					createTreeItem(child, innerItem);
+		if (member instanceof OtmChildrenOwner)
+			for (OtmTypeProvider ele : ((OtmChildrenOwner) member).getChildren_TypeProviders()) {
+				TreeItem<MemberDAO> innerItem = createTreeItem(ele, item);
+				// Create items for injected contextual facet
+				if (ele instanceof OtmContributedFacet && ((OtmContributedFacet) ele).getContributor() != null) {
+					for (OtmTypeProvider child : ((OtmContributedFacet) ele).getContributor()
+							.getChildren_TypeProviders())
+						createTreeItem(child, innerItem);
+				}
 			}
-		}
 
 		return item;
 	}

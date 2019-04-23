@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
@@ -55,8 +56,8 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 			OtmModelElement<?> o = OtmModelElement.get((TLModelElement) getTL().getOwningEntity());
 			if (o instanceof OtmContributedFacet)
 				o = ((OtmContributedFacet) o).getContributor();
-			if (o instanceof OtmLibraryMember)
-				for (OtmModelElement<?> c : ((OtmLibraryMember) o).getChildren())
+			if (o instanceof OtmChildrenOwner)
+				for (OtmModelElement<?> c : ((OtmChildrenOwner) o).getChildren())
 					if (c instanceof OtmContributedFacet && c.getName().equals(this.getName()))
 						whereContributed = (OtmContributedFacet) c;
 		}
@@ -131,7 +132,7 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 	}
 
 	@Override
-	public OtmComplexObject<?> getOwningMember() {
+	public OtmComplexObjects<?> getOwningMember() {
 		return null;
 	}
 

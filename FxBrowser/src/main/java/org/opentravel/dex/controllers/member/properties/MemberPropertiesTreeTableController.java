@@ -12,6 +12,7 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.member.MemberDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmFacets.OtmFacet;
@@ -95,8 +96,8 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	 */
 	private void createTreeItems(OtmLibraryMember member) {
 		// create cells for member's facets and properties
-		if (member != null)
-			for (OtmModelElement<?> element : member.getChildren()) {
+		if (member instanceof OtmChildrenOwner)
+			for (OtmModelElement<?> element : ((OtmChildrenOwner) member).getChildren()) {
 				TreeItem<PropertiesDAO> item = createTreeItem(element, root);
 				item.setExpanded(true);
 				List<OtmModelElement<?>> kids = null;

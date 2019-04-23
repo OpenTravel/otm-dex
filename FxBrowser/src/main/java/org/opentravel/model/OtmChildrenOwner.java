@@ -3,6 +3,7 @@
  */
 package org.opentravel.model;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -20,6 +21,8 @@ public interface OtmChildrenOwner {
 	 * @return list of children or empty list.
 	 */
 	public List<OtmModelElement<?>> getChildren();
+
+	public Collection<OtmTypeProvider> getChildren_TypeProviders();
 
 	/**
 	 * Model the children of this object from its' tlObject(s).
