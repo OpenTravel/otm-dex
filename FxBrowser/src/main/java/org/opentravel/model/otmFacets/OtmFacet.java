@@ -52,16 +52,6 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 
 	private OtmLibraryMember parent;
 
-	// /**
-	// * @param TLFacet
-	// * to model
-	// */
-	// @Deprecated
-	// public OtmFacet(TL tl) {
-	// super(tl);
-	// assert false;
-	// }
-
 	public OtmFacet(TL tl, OtmLibraryMember parent) {
 		super(tl, parent.getActionManager());
 		this.parent = parent;
@@ -83,24 +73,6 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	public Collection<OtmTypeProvider> getChildren_TypeProviders() {
 		return Collections.emptyList();
 	}
-
-	// /**
-	// * Facet Factory
-	// *
-	// * @param tl
-	// * @return OtmFacet<?> based on facet type or null.
-	// */
-	// public static OtmFacet<?> facetFactory(TLFacet tl, OtmComplexObject<?> parent) {
-	// switch (tl.getFacetType()) {
-	// case SUMMARY:
-	// return new OtmSummaryFacet(tl, parent);
-	// case DETAIL:
-	// return new OtmDetailFacet(tl, parent);
-	// default:
-	// log.debug("Missing Facet Type case: " + tl.getFacetType());
-	// return null;
-	// }
-	// }
 
 	@Override
 	public String getNamespace() {

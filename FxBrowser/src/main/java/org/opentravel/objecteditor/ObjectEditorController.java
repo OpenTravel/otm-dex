@@ -151,8 +151,6 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 		getDialogBoxController().show("Loading Project", "Please wait");
 
 		clear();
-		// memberTreeTableController.clear(); // prevent concurrent modification
-		// memberPropertiesTabController.clear();
 		modelMgr.clear();
 
 		new OpenProjectFileTask(selectedFile, modelMgr, this::handleTaskComplete, statusController).go();

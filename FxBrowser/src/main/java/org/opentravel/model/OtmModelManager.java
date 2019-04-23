@@ -197,7 +197,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 
 		new ValidateModelManagerItemsTask(this, this, statusController).go();
 
-		log.debug("Members has " + members.size() + " members.");
+		log.debug("Model has " + members.size() + " members.");
 	}
 
 	@Override

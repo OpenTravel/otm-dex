@@ -18,12 +18,12 @@
  */
 package org.opentravel.model.otmProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.schemacompiler.model.TLIndicator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for indicator attribute properties.
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmIndicator<TL extends TLIndicator> extends OtmProperty<TLIndicator> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmIndicator.class);
+	private static Log log = LogFactory.getLog(OtmIndicator.class);
 
 	/**
 	 * @param tlBusinessObject

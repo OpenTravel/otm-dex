@@ -132,8 +132,8 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 	}
 
 	@Override
-	public OtmComplexObjects<?> getOwningMember() {
-		return null;
+	public OtmContextualFacet getOwningMember() {
+		return this;
 	}
 
 }

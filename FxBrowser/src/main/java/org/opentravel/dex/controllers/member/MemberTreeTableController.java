@@ -317,6 +317,11 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	 * @return
 	 */
 	TreeItem<MemberDAO> createTreeItem(OtmLibraryMember member, TreeItem<MemberDAO> parent) {
+		log.debug("Creating member tree item for: " + member + "  of type " + member.getClass().getSimpleName());
+		// if (member.getName().equals("J5ch1v502"))
+		// if (member.getName().equals("J3c1"))
+		// log.debug("touble");
+
 		// Apply Filter
 		if (filter != null && !filter.isSelected(member))
 			return null;

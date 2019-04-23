@@ -93,5 +93,4 @@ public abstract class OtmSimpleObjects<T extends TLLibraryMember> extends OtmLib
 	public boolean isNameControlled() {
 		return false;
 	};
-
 }

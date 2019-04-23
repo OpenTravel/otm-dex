@@ -23,65 +23,50 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 
 /**
- * OTM Object Node for Core objects.
+ * OTM Object Node for Simple objects.
  * 
  * @author Dave Hollander
+ * @param <T>
  * 
  */
-public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> {
-	private static Log log = LogFactory.getLog(OtmCoreObject.class);
+public class OtmEnumerationOpenObject extends OtmEnumeration<TLOpenEnumeration> {
+	private static Log log = LogFactory.getLog(OtmEnumerationOpenObject.class);
 
-	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
+	public OtmEnumerationOpenObject(TLOpenEnumeration tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
 
-	public OtmCoreObject(String name, OtmModelManager mgr) {
-		super(new TLCoreObject(), mgr);
+	public OtmEnumerationOpenObject(String name, OtmModelManager mgr) {
+		super(new TLOpenEnumeration(), mgr);
 		setName(name);
 	}
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.CORE;
+		return ImageManager.Icons.ENUMERATION_OPEN;
 	}
 
 	// @Override
-	// public boolean isNameControlled() {
-	// return true;
-	// };
+	// public TLOpenEnumeration getTL() {
+	// return (TLOpenEnumeration) tlObject;
+	// }
 
-	@Override
-	public TLCoreObject getTL() {
-		return (TLCoreObject) tlObject;
-	}
-
-	@Override
-	public String setName(String name) {
-		getTL().setName(name);
-		isValid(true);
-		return getName();
-	}
+	// @Override
+	// public String setName(String name) {
+	// getTL().setName(name);
+	// isValid(true);
+	// return getName();
+	// }
 
 	// /**
 	// * @return this
 	// */
 	// @Override
-	// public OtmCoreObject getOwningMember() {
+	// public OtmEnumerationOpenObject getOwningMember() {
 	// return this;
-	// }
-
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Creates facets to represent facets in the TL core object.
-	// */
-	// @Override
-	// public void modelChildren() {
-	// children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
-	// children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
 	// }
 
 	// extends FacetOwners

@@ -19,6 +19,9 @@ public class ImageManager {
 	public enum Icons {
 		APPLICATION("/icons/alt_window_16.gif"),
 		BUSINESS("/icons/BusinessObject.png"),
+		ENUMERATION_OPEN("/icons/EnumerationOpen.gif"),
+		ENUMERATION_CLOSED("/icons/EnumerationClosed.gif"),
+		ENUMERATION_VALUE("/icons/EnumerationValue.jpg"),
 		Error("/icons/error.gif"),
 		LIBRARY("/icons/library.png"),
 		CORE("/icons/CoreObject.gif"),

@@ -17,6 +17,7 @@ import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmBusinessObject;
 import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
+import org.opentravel.model.otmLibraryMembers.OtmEnumeration;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmLibraryMembers.OtmSimpleObject;
 
@@ -118,6 +119,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private static final String CHOICE = "Choice";
 	private static final String CORE = "Core";
 	private static final String SIMPLE = "Simple";
+	private static final String ENUMERATION = "Enumeration";
 
 	@Override
 	public void initialize() {
@@ -125,7 +127,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		checkNodes();
 
 		// Would work for combo
-		ObservableList<String> data = FXCollections.observableArrayList(ALL, BUSINESS, CHOICE, CORE, SIMPLE);
+		ObservableList<String> data = FXCollections.observableArrayList(ALL, BUSINESS, CHOICE, CORE, SIMPLE,
+				ENUMERATION);
 		memberTypeCombo.setPromptText("Object Type");
 		memberTypeCombo.setOnAction(this::setTypeFilter);
 		memberTypeCombo.setItems(data);
@@ -296,6 +299,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 				classNameFilter = OtmCoreObject.class.getSimpleName();
 			else if (value.startsWith(SIMPLE))
 				classNameFilter = OtmSimpleObject.class.getSimpleName();
+			else if (value.startsWith(ENUMERATION))
+				classNameFilter = OtmEnumeration.class.getSimpleName();
 
 		}
 		log.debug("Set Type Filter: " + classNameFilter);

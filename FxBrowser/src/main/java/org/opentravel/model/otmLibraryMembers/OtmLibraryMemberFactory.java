@@ -10,8 +10,10 @@ import org.opentravel.model.otmFacets.OtmFacetFactory;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
@@ -28,6 +30,8 @@ public class OtmLibraryMemberFactory {
 	public static OtmLibraryMember memberFactory(LibraryMember tlMember, OtmModelManager manager) {
 		if (manager == null)
 			throw new IllegalArgumentException("Member factory must be passed a non-null manager.");
+		log.debug("Ready to create member for: " + tlMember.getLocalName() + " of type "
+				+ tlMember.getClass().getSimpleName());
 
 		OtmLibraryMember otmMember = null;
 		if (tlMember instanceof TLBusinessObject)
@@ -38,6 +42,10 @@ public class OtmLibraryMemberFactory {
 			otmMember = new OtmCoreObject((TLCoreObject) tlMember, manager);
 		else if (tlMember instanceof TLSimple)
 			otmMember = new OtmSimpleObject((TLSimple) tlMember, manager);
+		else if (tlMember instanceof TLOpenEnumeration)
+			otmMember = new OtmEnumerationOpenObject((TLOpenEnumeration) tlMember, manager);
+		else if (tlMember instanceof TLClosedEnumeration)
+			otmMember = new OtmEnumerationClosedObject((TLClosedEnumeration) tlMember, manager);
 		else if (tlMember instanceof TLContextualFacet)
 			otmMember = OtmFacetFactory.create((TLContextualFacet) tlMember, manager);
 

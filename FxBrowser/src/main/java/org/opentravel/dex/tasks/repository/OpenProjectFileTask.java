@@ -42,7 +42,7 @@ public class OpenProjectFileTask extends DexTaskBase<File> {
 		this.status = status;
 
 		// Replace start message from super-type.
-		msgBuilder = new StringBuilder("Opening Project: ");
+		msgBuilder = new StringBuilder("Retrieving Libraries in Project: ");
 		msgBuilder.append(taskData.getName());
 		updateMessage(msgBuilder.toString());
 	}

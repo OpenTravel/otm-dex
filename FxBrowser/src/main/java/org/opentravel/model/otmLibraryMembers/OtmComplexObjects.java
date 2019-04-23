@@ -68,9 +68,13 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 	// return children;
 	// }
 
+	// @Override
+	// public TLLibraryMember getTL() {
+	// return (TLLibraryMember) tlObject;
+	// }
 	@Override
-	public TLLibraryMember getTL() {
-		return (TLLibraryMember) tlObject;
+	public T getTL() {
+		return (T) tlObject;
 	}
 
 	@Override
@@ -136,7 +140,7 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 	 * @return this
 	 */
 	@Override
-	public OtmComplexObjects<?> getOwningMember() {
+	public OtmComplexObjects<T> getOwningMember() {
 		return this;
 	}
 

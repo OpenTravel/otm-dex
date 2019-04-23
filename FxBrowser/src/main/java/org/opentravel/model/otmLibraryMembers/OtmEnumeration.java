@@ -20,42 +20,32 @@ package org.opentravel.model.otmLibraryMembers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.ImageManager;
-import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.model.otmProperties.OtmEnumerationValue;
+import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
+import org.opentravel.schemacompiler.model.TLEnumValue;
 
 /**
- * OTM Object Node for Core objects.
+ * OTM Object Node for Simple objects.
  * 
  * @author Dave Hollander
+ * @param <T>
  * 
  */
-public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> {
-	private static Log log = LogFactory.getLog(OtmCoreObject.class);
+// NOTE - member filter depends on sub-types starting with this class name!
+public abstract class OtmEnumeration<E extends TLAbstractEnumeration>
+		extends OtmLibraryMemberBase<TLAbstractEnumeration> implements OtmLibraryMember, OtmChildrenOwner {
+	private static Log log = LogFactory.getLog(OtmEnumeration.class);
 
-	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
+	public OtmEnumeration(E tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
 
-	public OtmCoreObject(String name, OtmModelManager mgr) {
-		super(new TLCoreObject(), mgr);
-		setName(name);
-	}
-
 	@Override
-	public Icons getIconType() {
-		return ImageManager.Icons.CORE;
-	}
-
-	// @Override
-	// public boolean isNameControlled() {
-	// return true;
-	// };
-
-	@Override
-	public TLCoreObject getTL() {
-		return (TLCoreObject) tlObject;
+	public E getTL() {
+		return (E) tlObject;
 	}
 
 	@Override
@@ -65,24 +55,52 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> {
 		return getName();
 	}
 
-	// /**
-	// * @return this
-	// */
-	// @Override
-	// public OtmCoreObject getOwningMember() {
-	// return this;
-	// }
+	@Override
+	public OtmLibrary getLibrary() {
+		return mgr.get(getTL().getOwningLibrary());
+	}
 
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Creates facets to represent facets in the TL core object.
-	// */
-	// @Override
-	// public void modelChildren() {
-	// children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
-	// children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
-	// }
+	@Override
+	public OtmEnumeration<E> getOwningMember() {
+		return this;
+	}
+
+	@Override
+	public String getLibraryName() {
+		String libName = "";
+		if (getTL().getOwningLibrary() != null)
+			libName = getTL().getOwningLibrary().getName();
+		return libName;
+	}
+
+	@Override
+	public boolean isEditable() {
+		OtmLibrary ol = null;
+		if (mgr != null || getTL() != null)
+			ol = mgr.get(getTL().getOwningLibrary());
+		return ol != null && ol.isEditable();
+	}
+
+	@Override
+	public boolean isNameControlled() {
+		return false;
+	}
+
+	/**
+	 * Does NOT add to backing TL Enumeration
+	 * 
+	 * @param child
+	 */
+	private void add(OtmEnumerationValue child) {
+		if (child != null)
+			children.add(child);
+	}
+
+	@Override
+	public void modelChildren() {
+		for (TLEnumValue ev : getTL().getValues())
+			add(new OtmEnumerationValue(ev, (OtmEnumeration<TLAbstractEnumeration>) this));
+	}
 
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {

@@ -225,7 +225,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	public abstract T getTL();
 
 	public boolean isEditable() {
-		return getOwningMember() != null ? getOwningMember().isEditable() : false;
+		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
 	public boolean isValid() {

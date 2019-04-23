@@ -195,8 +195,10 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty nameProperty() {
-		if (element instanceof OtmProperty)
-			return ((OtmProperty<?>) element).nameProperty();
+		if (element.nameProperty() != null)
+			return element.nameProperty();
+		// if (element instanceof OtmProperty)
+		// return ((OtmProperty<?>) element).nameProperty();
 		else
 			// TODO - have facet return property
 			return new ReadOnlyStringWrapper("" + element.getName());
