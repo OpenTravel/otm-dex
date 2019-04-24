@@ -20,6 +20,7 @@ import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmEnumeration;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmLibraryMembers.OtmSimpleObject;
+import org.opentravel.model.otmLibraryMembers.OtmValueWithAttributes;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -120,6 +121,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private static final String CORE = "Core";
 	private static final String SIMPLE = "Simple";
 	private static final String ENUMERATION = "Enumeration";
+	private static final String VWA = "Value With Attributes";
 
 	@Override
 	public void initialize() {
@@ -128,7 +130,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 		// Would work for combo
 		ObservableList<String> data = FXCollections.observableArrayList(ALL, BUSINESS, CHOICE, CORE, SIMPLE,
-				ENUMERATION);
+				ENUMERATION, VWA);
 		memberTypeCombo.setPromptText("Object Type");
 		memberTypeCombo.setOnAction(this::setTypeFilter);
 		memberTypeCombo.setItems(data);
@@ -301,6 +303,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 				classNameFilter = OtmSimpleObject.class.getSimpleName();
 			else if (value.startsWith(ENUMERATION))
 				classNameFilter = OtmEnumeration.class.getSimpleName();
+			else if (value.startsWith(VWA))
+				classNameFilter = OtmValueWithAttributes.class.getSimpleName();
 
 		}
 		log.debug("Set Type Filter: " + classNameFilter);

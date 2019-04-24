@@ -9,13 +9,11 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
 
@@ -63,15 +61,15 @@ public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 	}
 
 	public StringProperty libraryProperty() {
-		String libName = "";
-		if (otmObject instanceof OtmComplexObjects)
-			if (otmObject.getLibrary() != null)
-				libName = otmObject.getLibrary().getName();
-		return new SimpleStringProperty(libName);
+		if (otmObject instanceof OtmLibraryMember)
+			return ((OtmLibraryMember) otmObject).libraryProperty();
+		return new ReadOnlyStringWrapper(otmObject.getLibrary().getName());
 	}
 
 	public StringProperty prefixProperty() {
-		return new ReadOnlyStringWrapper("");
+		if (otmObject instanceof OtmLibraryMember)
+			return ((OtmLibraryMember) otmObject).prefixProperty();
+		return new ReadOnlyStringWrapper(otmObject.getPrefix());
 	}
 
 	public StringProperty nameProperty() {
@@ -89,10 +87,9 @@ public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 	}
 
 	public StringProperty versionProperty() {
-		String v = "";
-		if (otmObject instanceof OtmLibraryMember && otmObject.getLibrary() != null)
-			v = otmObject.getLibrary().getVersion();
-		return new SimpleStringProperty(v);
+		if (otmObject instanceof OtmLibraryMember)
+			return ((OtmLibraryMember) otmObject).versionProperty();
+		return new ReadOnlyStringWrapper("");
 	}
 
 }

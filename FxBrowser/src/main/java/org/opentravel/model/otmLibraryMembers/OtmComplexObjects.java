@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 
@@ -77,64 +76,21 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 		return (T) tlObject;
 	}
 
-	@Override
-	public OtmLibrary getLibrary() {
-		return mgr.get(getTL().getOwningLibrary());
-	}
+	// @Override
+	// public OtmLibrary getLibrary() {
+	// return mgr.get(getTL().getOwningLibrary());
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTL().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTL().getNamespace();
+	// }
 
 	@Override
 	public String getName() {
 		return getTL().getLocalName();
 		// return this.getClass().getSimpleName();
 	}
-
-	@Override
-	public String getLibraryName() {
-		String libName = "";
-		if (getTL().getOwningLibrary() != null)
-			libName = getTL().getOwningLibrary().getName();
-		return libName;
-	}
-
-	@Override
-	public boolean isEditable() {
-		OtmLibrary ol = null;
-		if (mgr != null || getTL() != null)
-			ol = mgr.get(getTL().getOwningLibrary());
-		return ol != null && ol.isEditable();
-		// return tlObject.getOwningLibrary() != null;
-	}
-
-	// @Override
-	// public String toString() {
-	// return getName();
-	// }
-
-	@Override
-	public String getPrefix() {
-		return getTL().getOwningLibrary() != null ? getTL().getOwningLibrary().getPrefix() : "";
-	}
-
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Creates facets to represent facets in the TL object.
-	// */
-	// @Override
-	// public void modelChildren() {
-	// if (getTL() instanceof TLFacetOwner)
-	// for (TLFacet tlFacet : ((TLFacetOwner) getTL()).getAllFacets()) {
-	// OtmFacet<?> facet = OtmFacetFactory.create(tlFacet, this);
-	// if (facet != null) {
-	// children.add(facet);
-	// }
-	// }
-	// }
 
 	/**
 	 * @return this

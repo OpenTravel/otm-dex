@@ -28,7 +28,6 @@ import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -91,15 +90,15 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 		return (TLContextualFacet) tlObject;
 	}
 
-	@Override
-	public OtmLibrary getLibrary() {
-		return mgr.get(getTL().getOwningLibrary());
-	}
+	// @Override
+	// public OtmLibrary getLibrary() {
+	// return mgr.get(getTL().getOwningLibrary());
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTL().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTL().getNamespace();
+	// }
 
 	@Override
 	public String getName() {
@@ -112,26 +111,26 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 		return true;
 	}
 
-	@Override
-	public String getLibraryName() {
-		String libName = "";
-		if (getTL().getOwningLibrary() != null)
-			libName = getTL().getOwningLibrary().getName();
-		return libName;
-	}
+	// @Override
+	// public String getLibraryName() {
+	// String libName = "";
+	// if (getTL().getOwningLibrary() != null)
+	// libName = getTL().getOwningLibrary().getName();
+	// return libName;
+	// }
 
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.FACET_CONTEXTUAL;
 	}
 
-	@Override
-	public boolean isEditable() {
-		OtmLibrary ol = null;
-		if (mgr != null || getTL() != null)
-			ol = mgr.get(getTL().getOwningLibrary());
-		return ol != null && ol.isEditable();
-	}
+	// @Override
+	// public boolean isEditable() {
+	// OtmLibrary ol = null;
+	// if (mgr != null || getTL() != null)
+	// ol = mgr.get(getTL().getOwningLibrary());
+	// return ol != null && ol.isEditable();
+	// }
 
 	@Override
 	public OtmContextualFacet getOwningMember() {

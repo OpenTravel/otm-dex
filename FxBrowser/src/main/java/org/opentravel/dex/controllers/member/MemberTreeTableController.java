@@ -96,7 +96,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 		TreeTableColumn<MemberDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
 		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
-		setColumnProps(prefixColumn, false, false, true, 100);
+		setColumnProps(prefixColumn, true, false, true, 100);
 		prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
 
 		nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
@@ -342,8 +342,8 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	public void mouseClick(MouseEvent event) {
 		// this fires after the member selection listener
 		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2)
-			log.debug("Double click selection: "
-					+ memberTree.getSelectionModel().getSelectedItem().getValue().nameProperty().toString());
+			log.debug("Double click selection: ");
+		// + memberTree.getSelectionModel().getSelectedItem().getValue().nameProperty().toString());
 	}
 
 	/**

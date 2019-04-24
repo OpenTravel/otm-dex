@@ -240,6 +240,9 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	// }
 
 	public boolean isValid(boolean refresh) {
+		if (getTL() == null)
+			throw new IllegalStateException("Tried to validation with null TL object.");
+
 		if (findings == null || refresh) {
 			boolean deep = false;
 			try {

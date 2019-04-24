@@ -30,12 +30,17 @@ import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmFacets.OtmFacetFactory;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
+
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  * Abstract OTM Library Member base class.
@@ -95,10 +100,56 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 		}
 	}
 
-	// @Override
-	// public OtmLibrary getLibrary() {
-	// return mgr.get(getTL().getOwningLibrary());
-	// }
+	@Override
+	public boolean isEditable() {
+		return getLibrary() != null && getLibrary().isEditable();
+	}
+
+	@Override
+	public OtmLibrary getLibrary() {
+		return mgr.get(getTlLM().getOwningLibrary());
+	}
+
+	@Override
+	public String getLibraryName() {
+		// String libName = "";
+		return getTlLM().getOwningLibrary() != null ? getTlLM().getOwningLibrary().getName() : "";
+		// return libName;
+	}
+
+	@Override
+	public StringProperty libraryProperty() {
+		if (isEditable())
+			return new SimpleStringProperty(getLibraryName());
+		else
+			return new ReadOnlyStringWrapper(getLibraryName());
+	}
+
+	@Override
+	public StringProperty prefixProperty() {
+		return new ReadOnlyStringWrapper(getPrefix());
+	}
+
+	@Override
+	public StringProperty versionProperty() {
+		return getLibrary() != null ? new SimpleStringProperty(getLibrary().getVersion())
+				: new ReadOnlyStringWrapper("");
+	}
+
+	@Override
+	public String getNamespace() {
+		return getTlLM().getNamespace();
+	}
+
+	@Override
+	public String getPrefix() {
+		return getTlLM().getOwningLibrary() != null ? getTlLM().getOwningLibrary().getPrefix() : "";
+	}
+
+	@Override
+	public LibraryMember getTlLM() {
+		return (LibraryMember) getTL();
+	}
 
 	// @Override
 	// public String getNamespace() {
@@ -110,11 +161,6 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	// return tlObject.getLocalName();
 	// // return this.getClass().getSimpleName();
 	// }
-
-	@Override
-	public LibraryMember getTlLM() {
-		return (LibraryMember) getTL();
-	}
 
 	// @Override
 	// public abstract String getLibraryName();

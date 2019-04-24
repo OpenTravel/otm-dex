@@ -15,6 +15,7 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * @author dmh
@@ -48,6 +49,10 @@ public class OtmLibraryMemberFactory {
 			otmMember = new OtmEnumerationClosedObject((TLClosedEnumeration) tlMember, manager);
 		else if (tlMember instanceof TLContextualFacet)
 			otmMember = OtmFacetFactory.create((TLContextualFacet) tlMember, manager);
+		else if (tlMember instanceof TLValueWithAttributes)
+			otmMember = new OtmValueWithAttributes((TLValueWithAttributes) tlMember, manager);
+		else
+			log.debug("TODO - model " + tlMember.getClass().getSimpleName());
 
 		manager.add(otmMember);
 		return otmMember;

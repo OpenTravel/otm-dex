@@ -9,6 +9,7 @@ import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 
 /**
@@ -78,4 +79,17 @@ public interface OtmLibraryMember {
 	 * @return
 	 */
 	public String getValidationFindingsAsString();
+
+	/**
+	 * @return fx property for library name
+	 */
+	public StringProperty libraryProperty();
+
+	/**
+	 * @return fx property for library prefix
+	 */
+	public StringProperty prefixProperty();
+
+	public StringProperty versionProperty();
+
 }
