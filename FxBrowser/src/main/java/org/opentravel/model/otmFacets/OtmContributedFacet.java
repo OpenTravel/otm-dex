@@ -61,4 +61,11 @@ public class OtmContributedFacet extends OtmFacet<TLContextualFacet> {
 		return (TLContextualFacet) tlObject;
 	}
 
+	/**
+	 * @param otmContextualFacet
+	 */
+	public void setContributor(OtmContextualFacet contextualFacet) {
+		contributor = contextualFacet;
+	}
+
 }

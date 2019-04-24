@@ -123,7 +123,8 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element, this));
 		item.setExpanded(false);
 		parent.getChildren().add(item);
-		item.setGraphic(imageMgr.getView(element));
+		if (imageMgr != null)
+			item.setGraphic(imageMgr.getView(element));
 		return item;
 	}
 

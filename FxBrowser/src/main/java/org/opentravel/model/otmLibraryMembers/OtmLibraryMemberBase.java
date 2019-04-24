@@ -38,13 +38,12 @@ import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
- * Abstract OTM Library Member base class. Two concrete extensions: 1. OtmLibraryMember - for BO, Choice, Core etc. 2.
- * OtmContextualMember - for contextual facets
+ * Abstract OTM Library Member base class.
  * 
  * @author Dave Hollander
  * 
  */
-public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends OtmModelElement<TLModelElement>
+public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends OtmModelElement<TLModelElement>
 		implements OtmLibraryMember, OtmTypeProvider {
 	private static Log log = LogFactory.getLog(OtmLibraryMemberBase.class);
 
@@ -53,7 +52,7 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 
 	/**
 	 */
-	public OtmLibraryMemberBase(TL tl, OtmModelManager mgr) {
+	public OtmLibraryMemberBase(T tl, OtmModelManager mgr) {
 		super(tl, mgr.getActionManager());
 		this.mgr = mgr;
 
@@ -165,20 +164,5 @@ public abstract class OtmLibraryMemberBase<TL extends TLModelElement> extends Ot
 	// @Override
 	// public abstract String setName(String text);
 	// TODO - update children
-
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Add properties to the facets
-	// *
-	// * @return this object
-	// */
-	// @Deprecated
-	// public OtmLibraryMemberBase<?> createTestChildren() {
-	// for (OtmModelElement<?> child : getChildren())
-	// if (child instanceof OtmFacet)
-	// ((OtmFacet<?>) child).createTestChildren();
-	// return this;
-	// }
 
 }

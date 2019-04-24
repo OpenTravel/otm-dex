@@ -40,7 +40,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
  * 
  */
 public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextualFacet>
-		implements OtmLibraryMember, OtmTypeProvider {
+		implements OtmLibraryMember, OtmTypeProvider, OtmChildrenOwner {
 	private static Log log = LogFactory.getLog(OtmContextualFacet.class);
 
 	// The contributed facet that is child of a library member.
@@ -58,8 +58,10 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 				o = ((OtmContributedFacet) o).getContributor();
 			if (o instanceof OtmChildrenOwner)
 				for (OtmModelElement<?> c : ((OtmChildrenOwner) o).getChildren())
-					if (c instanceof OtmContributedFacet && c.getName().equals(this.getName()))
+					if (c instanceof OtmContributedFacet && c.getName().equals(this.getName())) {
 						whereContributed = (OtmContributedFacet) c;
+						((OtmContributedFacet) c).setContributor(this);
+					}
 		}
 		return whereContributed;
 	}
