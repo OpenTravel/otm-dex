@@ -3,8 +3,6 @@
  */
 package org.opentravel.dex.controllers.member.properties;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexIntegerStringConverter;
@@ -15,8 +13,6 @@ import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
-import org.opentravel.model.otmFacets.OtmFacet;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -41,13 +37,15 @@ import javafx.scene.layout.VBox;
 public class MemberPropertiesTreeTableController extends DexIncludedControllerBase<MemberDAO> {
 	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
+	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
+	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
+
 	@FXML
 	protected TreeTableView<PropertiesDAO> propertiesTable;
+
 	@FXML
 	private VBox memberProperties;
-
 	protected TreeItem<PropertiesDAO> root;
-
 	// Table Columns
 	protected TreeTableColumn<PropertiesDAO, String> nameCol;
 	// protected TreeTableColumn<PropertyNode, ImageView> iconCol;
@@ -57,11 +55,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	protected TreeTableColumn<PropertiesDAO, Integer> maxCol;
 	protected TreeTableColumn<PropertiesDAO, String> exampleCol;
 	protected TreeTableColumn<PropertiesDAO, String> descCol;
+
 	protected TreeTableColumn<PropertiesDAO, String> deprecatedCol;
 	protected TreeTableColumn<PropertiesDAO, String> otherDocCol;
-
-	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
-	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
 
 	/**
 	 * Create a facet and property treeTable with manager.
@@ -69,112 +65,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	 */
 	public MemberPropertiesTreeTableController() {
 		super(subscribedEvents, publishedEvents);
-	}
-
-	@Override
-	public void checkNodes() {
-		if (propertiesTable == null)
-			throw new IllegalStateException("Property table not injected by FXML");
-	}
-
-	@Override
-	public void configure(DexMainController parent) {
-		super.configure(parent);
-		eventPublisherNode = propertiesTable;
-
-		propertiesTable.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> propertySelectionListener(newValue));
-
-		// Layout the table
-		initializeTable(propertiesTable);
-	}
-
-	/**
-	 * Add tree items to ROOT for each child and grandchild of the member.
-	 * 
-	 * @param member
-	 */
-	private void createTreeItems(OtmLibraryMember member) {
-		// create cells for member's facets and properties
-		if (member instanceof OtmChildrenOwner)
-			for (OtmModelElement<?> element : ((OtmChildrenOwner) member).getChildren()) {
-				TreeItem<PropertiesDAO> item = createTreeItem(element, root);
-				item.setExpanded(true);
-				List<OtmModelElement<?>> kids = null;
-				if (element instanceof OtmContributedFacet)
-					kids = ((OtmContributedFacet) element).getContributor().getChildren();
-				else if (element instanceof OtmFacet)
-					kids = ((OtmFacet) element).getChildren();
-
-				if (kids != null)
-					for (OtmModelElement<?> child : kids) {
-						// for (OtmModelElement<?> child : ((OtmFacet<?>) element).getChildren())
-						createTreeItem(child, item);
-					}
-			}
-	}
-
-	@Override
-	public void refresh() {
-		propertiesTable.refresh();
-	}
-
-	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
-		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element, this));
-		item.setExpanded(false);
-		parent.getChildren().add(item);
-		if (imageMgr != null)
-			item.setGraphic(imageMgr.getView(element));
-		return item;
-	}
-
-	private void initializeTable(TreeTableView<PropertiesDAO> table) {
-		// Set the hidden root item
-		root = new TreeItem<>();
-		root.setExpanded(true); // Start out fully expanded
-		// Set up the TreeTable
-		table.setRoot(root);
-		table.setShowRoot(false);
-		table.setEditable(true);
-		table.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
-		table.setTableMenuButtonVisible(true); // allow users to select columns
-
-		// Enable context menus at the row level and add change listener for for applying style
-		table.setRowFactory((TreeTableView<PropertiesDAO> p) -> new MemberPropertiesRowFactory(this));
-
-		// Define Columns and cell content providers
-		buildColumns(table);
-	}
-
-	// public void select(OtmModelElement<?> otm) {
-	// log.debug("TODO - select " + otm);
-	// if (otm != null) {
-	// if (!(otm instanceof OtmComplexObject))
-	// otm = otm.getOwningMember();
-	// select(otm.getName());
-	// }
-	// }
-
-	/**
-	 * Select a property with the given name
-	 * 
-	 * @param name
-	 */
-	public void select(String name) {
-		log.debug("TODO - select " + name);
-		for (TreeItem<PropertiesDAO> item : propertiesTable.getRoot().getChildren())
-			if (item.getValue().getValue().getName().equals(name))
-				propertiesTable.getSelectionModel().select(item);
-		// FIXME - pass the action request : MemberSelection(string)
-		// ((ObjectEditorController) parentController).select(name);
-	}
-
-	/**
-	 * Remove all items from the table
-	 */
-	@Override
-	public void clear() {
-		propertiesTable.getRoot().getChildren().clear();
 	}
 
 	/**
@@ -265,27 +155,76 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		setColumnProps(exampleCol, true, true, false, 0, "example");
 	}
 
-	/**
-	 * Set String column properties and set value to named field.
-	 */
-	private void setColumnProps(TreeTableColumn<PropertiesDAO, String> c, boolean visable, boolean editable,
-			boolean sortable, int width, String field) {
-		setColumnProps(c, visable, editable, sortable, width);
-		c.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>(field));
-		c.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn());
+	@Override
+	public void checkNodes() {
+		if (propertiesTable == null)
+			throw new IllegalStateException("Property table not injected by FXML");
 	}
 
 	/**
-	 * Set String column properties and set value to named field.
+	 * Remove all items from the table
 	 */
 	@Override
-	protected void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
-			int width) {
-		c.setVisible(visable);
-		c.setEditable(editable);
-		c.setSortable(sortable);
-		if (width > 0)
-			c.setPrefWidth(width);
+	public void clear() {
+		propertiesTable.getRoot().getChildren().clear();
+	}
+
+	@Override
+	public void configure(DexMainController parent) {
+		super.configure(parent);
+		eventPublisherNode = propertiesTable;
+
+		propertiesTable.getSelectionModel().selectedItemProperty()
+				.addListener((v, old, newValue) -> propertySelectionListener(newValue));
+
+		// Layout the table
+		initializeTable(propertiesTable);
+	}
+
+	/**
+	 * Create a tree item and add to parent. No business logic.
+	 * 
+	 * @param element
+	 *            to create item for
+	 * @param parent
+	 *            to add item as child
+	 * @return
+	 */
+	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
+		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element, this));
+		item.setExpanded(false);
+		if (parent != null)
+			parent.getChildren().add(item);
+		if (imageMgr != null)
+			item.setGraphic(imageMgr.getView(element));
+		return item;
+	}
+
+	/**
+	 * Add tree items to ROOT for each child and grandchild of the member.
+	 * 
+	 * @param member
+	 */
+	private void createTreeItems(OtmChildrenOwner member, TreeItem<PropertiesDAO> parent) {
+		// create cells for member's facets and properties
+		for (OtmModelElement<?> element : member.getChildren()) {
+			// Create item and add to tree at parent
+			TreeItem<PropertiesDAO> item = createTreeItem(element, parent);
+			item.setExpanded(true);
+
+			// Contributor children list does not contain other contextual facets
+			if (element instanceof OtmContributedFacet && ((OtmContributedFacet) element).getContributor() != null)
+				element = ((OtmContributedFacet) element).getContributor();
+
+			// Create tree items for children if any
+			if (element instanceof OtmChildrenOwner)
+				((OtmChildrenOwner) element).getChildren().forEach(c -> {
+					TreeItem<PropertiesDAO> cfItem = createTreeItem(c, item);
+					// Recurse to model nested contextual facets
+					if (c instanceof OtmChildrenOwner)
+						createTreeItems((OtmChildrenOwner) c, cfItem);
+				});
+		}
 	}
 
 	@Override
@@ -295,10 +234,38 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 			memberSelectionHandler((DexMemberSelectionEvent) e);
 	}
 
+	public void handleMaxEdit(TreeTableColumn.CellEditEvent<PropertiesDAO, String> event) {
+		if (event != null && event.getTreeTablePosition() != null) {
+			TreeItem<PropertiesDAO> currentItem = event.getRowValue();
+			if (currentItem != null)
+				currentItem.getValue().setMax(event.getNewValue());
+		} else
+			log.debug("ERROR - cell max edit handler has null.");
+	}
+
+	private void initializeTable(TreeTableView<PropertiesDAO> table) {
+		// Set the hidden root item
+		root = new TreeItem<>();
+		root.setExpanded(true); // Start out fully expanded
+		// Set up the TreeTable
+		table.setRoot(root);
+		table.setShowRoot(false);
+		table.setEditable(true);
+		table.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
+		table.setTableMenuButtonVisible(true); // allow users to select columns
+
+		// Enable context menus at the row level and add change listener for for applying style
+		table.setRowFactory((TreeTableView<PropertiesDAO> p) -> new MemberPropertiesRowFactory(this));
+
+		// Define Columns and cell content providers
+		buildColumns(table);
+	}
+
 	public void memberSelectionHandler(DexMemberSelectionEvent event) {
 		log.debug("Dex member selection event received.");
 		clear();
-		createTreeItems(event.getMember());
+		if (event.getMember() instanceof OtmChildrenOwner)
+			createTreeItems((OtmChildrenOwner) event.getMember(), root);
 	}
 
 	/**
@@ -326,13 +293,46 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		deprecatedCol.setEditable(item.getValue().isEditable());
 	}
 
-	public void handleMaxEdit(TreeTableColumn.CellEditEvent<PropertiesDAO, String> event) {
-		if (event != null && event.getTreeTablePosition() != null) {
-			TreeItem<PropertiesDAO> currentItem = event.getRowValue();
-			if (currentItem != null)
-				currentItem.getValue().setMax(event.getNewValue());
-		} else
-			log.debug("ERROR - cell max edit handler has null.");
+	@Override
+	public void refresh() {
+		propertiesTable.refresh();
+	}
+
+	// /**
+	// * Select a property with the given name
+	// *
+	// * @param name
+	// */
+	// public void select(String name) {
+	// log.debug("TODO - select " + name);
+	// for (TreeItem<PropertiesDAO> item : propertiesTable.getRoot().getChildren())
+	// if (item.getValue().getValue().getName().equals(name))
+	// propertiesTable.getSelectionModel().select(item);
+	// // FIXME - pass the action request : MemberSelection(string)
+	// // ((ObjectEditorController) parentController).select(name);
+	// }
+
+	// /**
+	// * Set String column properties and set value to named field.
+	// */
+	// @Override
+	// protected void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
+	// int width) {
+	// c.setVisible(visable);
+	// c.setEditable(editable);
+	// c.setSortable(sortable);
+	// if (width > 0)
+	// c.setPrefWidth(width);
+	// }
+
+	/**
+	 * Set String column properties and set value to named field.
+	 */
+	private void setColumnProps(TreeTableColumn<PropertiesDAO, String> c, boolean visable, boolean editable,
+			boolean sortable, int width, String field) {
+		setColumnProps(c, visable, editable, sortable, width);
+		c.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>(field));
+		c.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn());
 	}
 
 }

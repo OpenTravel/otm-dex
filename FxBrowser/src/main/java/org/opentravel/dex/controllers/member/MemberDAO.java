@@ -14,6 +14,7 @@ import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
@@ -67,6 +68,10 @@ public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 			if (otmObject.getLibrary() != null)
 				libName = otmObject.getLibrary().getName();
 		return new SimpleStringProperty(libName);
+	}
+
+	public StringProperty prefixProperty() {
+		return new ReadOnlyStringWrapper("");
 	}
 
 	public StringProperty nameProperty() {

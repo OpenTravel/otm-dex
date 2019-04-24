@@ -96,7 +96,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 		TreeTableColumn<MemberDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
 		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
-		setColumnProps(prefixColumn, true, false, true, 100);
+		setColumnProps(prefixColumn, false, false, true, 100);
 		prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
 
 		nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
