@@ -18,12 +18,18 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmFacets.OtmIdFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * OTM Object Node for business objects.
@@ -58,6 +64,16 @@ public class OtmBusinessObject extends OtmComplexObjects<TLBusinessObject> {
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.BUSINESS;
+	}
+
+	@Override
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> ch = new ArrayList<>();
+		children.forEach(c -> {
+			if (c instanceof OtmIdFacet)
+				ch.add((OtmModelElement<TLModelElement>) c);
+		});
+		return ch;
 	}
 
 	// @Override

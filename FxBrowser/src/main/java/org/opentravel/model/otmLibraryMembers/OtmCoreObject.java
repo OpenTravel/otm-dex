@@ -18,14 +18,20 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 
 /**
@@ -66,6 +72,18 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 		getTL().setName(name);
 		isValid(true);
 		return getName();
+	}
+
+	@Override
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> ch = new ArrayList<>();
+		children.forEach(c -> {
+			if (c instanceof OtmSummaryFacet)
+				ch.add((OtmModelElement<TLModelElement>) c);
+		});
+		// TODO - roles
+		// TODO - lists
+		return ch;
 	}
 
 	/*

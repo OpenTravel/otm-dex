@@ -66,6 +66,13 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 		// assert mgr != null;
 	}
 
+	// Here for convince - part of OtmChildOwner interface
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> hierarchy = new ArrayList<>();
+		children.forEach(c -> hierarchy.add((OtmModelElement<TLModelElement>) c));
+		return hierarchy;
+	}
+
 	@Override
 	public DexActionManager getActionManager() {
 		return mgr.getActionManager();

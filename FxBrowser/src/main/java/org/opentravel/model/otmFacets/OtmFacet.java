@@ -18,6 +18,7 @@
  */
 package org.opentravel.model.otmFacets;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -60,8 +61,19 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 		// throw new IllegalArgumentException("No parent library member set.");
 	}
 
+	@Override
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> hierarchy = new ArrayList<>();
+		children.forEach(c -> hierarchy.add((OtmModelElement<TLModelElement>) c));
+		return hierarchy;
+	}
+
 	public DexActionManager getActionManger() {
 		return parent.getActionManager();
+	}
+
+	public OtmLibraryMember getParent() {
+		return parent;
 	}
 
 	@Override

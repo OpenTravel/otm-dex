@@ -190,9 +190,10 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	 *            to add item as child
 	 * @return
 	 */
-	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent) {
+	protected TreeItem<PropertiesDAO> createTreeItem(OtmModelElement<?> element, TreeItem<PropertiesDAO> parent,
+			boolean expanded) {
 		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element, this));
-		item.setExpanded(false);
+		item.setExpanded(expanded);
 		if (parent != null)
 			parent.getChildren().add(item);
 		if (imageMgr != null)
@@ -208,10 +209,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	 */
 	private void createTreeItems(OtmChildrenOwner member, TreeItem<PropertiesDAO> parent) {
 		// create cells for member's facets and properties
-		for (OtmModelElement<?> element : member.getChildren()) {
+		for (OtmModelElement<?> element : member.getChildrenHierarchy()) {
 			// Create item and add to tree at parent
-			TreeItem<PropertiesDAO> item = createTreeItem(element, parent);
-			item.setExpanded(true);
+			TreeItem<PropertiesDAO> item = createTreeItem(element, parent, true);
 
 			// Contributor children list does not contain other contextual facets
 			if (element instanceof OtmContributedFacet && ((OtmContributedFacet) element).getContributor() != null)
@@ -219,8 +219,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 			// Create tree items for children if any
 			if (element instanceof OtmChildrenOwner)
-				((OtmChildrenOwner) element).getChildren().forEach(c -> {
-					TreeItem<PropertiesDAO> cfItem = createTreeItem(c, item);
+				((OtmChildrenOwner) element).getChildrenHierarchy().forEach(c -> {
+					TreeItem<PropertiesDAO> cfItem = createTreeItem(c, item, true);
+
 					// Recurse to model nested contextual facets
 					if (c instanceof OtmChildrenOwner)
 						createTreeItems((OtmChildrenOwner) c, cfItem);

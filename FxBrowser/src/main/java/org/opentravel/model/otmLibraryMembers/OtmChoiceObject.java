@@ -18,12 +18,18 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmFacets.OtmSharedFacet;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * OTM Object Node for business objects.
@@ -63,6 +69,16 @@ public class OtmChoiceObject extends OtmComplexObjects<TLChoiceObject> {
 		getTL().setName(name);
 		isValid(true);
 		return getName();
+	}
+
+	@Override
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> ch = new ArrayList<>();
+		children.forEach(c -> {
+			if (c instanceof OtmSharedFacet)
+				ch.add((OtmModelElement<TLModelElement>) c);
+		});
+		return ch;
 	}
 
 	// /**

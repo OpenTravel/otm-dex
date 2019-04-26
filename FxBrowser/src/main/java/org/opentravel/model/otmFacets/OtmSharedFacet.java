@@ -18,11 +18,18 @@
  */
 package org.opentravel.model.otmFacets;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.model.OtmChildrenOwner;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
+import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * Abstract OTM Node for Detail Facets.
@@ -46,6 +53,27 @@ public class OtmSharedFacet extends OtmFacet<TLFacet> {
 	@Override
 	public TLFacet getTL() {
 		return tlObject;
+	}
+
+	@Override
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> hierarchy = new ArrayList<>();
+		// TODO - add inherited properties
+		children.forEach(c -> {
+			if (c instanceof OtmProperty)
+				hierarchy.add((OtmModelElement<TLModelElement>) c);
+		});
+		if (getParent() instanceof OtmChildrenOwner)
+			((OtmChildrenOwner) getParent()).getChildren().forEach(c -> {
+				if (c instanceof OtmChoiceFacet)
+					hierarchy.add((OtmModelElement<TLModelElement>) c);
+				if (c instanceof OtmContributedFacet) {
+					c = ((OtmContributedFacet) c).getContributor();
+					if (c != null)
+						hierarchy.add((OtmModelElement<TLModelElement>) c);
+				}
+			});
+		return hierarchy;
 	}
 
 }

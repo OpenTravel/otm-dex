@@ -93,7 +93,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 				newTL.setName("New");
 				OtmProperty newP = owner.add(newTL);
 				if (newP != null) {
-					controller.createTreeItem(newP, getTreeItem().getParent());
+					controller.createTreeItem(newP, getTreeItem().getParent(), true);
 					controller.refresh();
 					// Post this row
 				}

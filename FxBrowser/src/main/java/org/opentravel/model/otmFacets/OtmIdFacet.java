@@ -18,9 +18,16 @@
  */
 package org.opentravel.model.otmFacets;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.opentravel.model.OtmChildrenOwner;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
+import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +50,22 @@ public class OtmIdFacet extends OtmFacet<TLFacet> {
 	@Override
 	public TLFacet getTL() {
 		return tlObject;
+	}
+
+	@Override
+	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
+		Collection<OtmModelElement<TLModelElement>> hierarchy = new ArrayList<>();
+		// TODO - add inherited properties
+		children.forEach(c -> {
+			if (c instanceof OtmProperty)
+				hierarchy.add((OtmModelElement<TLModelElement>) c);
+		});
+		if (getParent() instanceof OtmChildrenOwner)
+			((OtmChildrenOwner) getParent()).getChildren().forEach(c -> {
+				if (c instanceof OtmSummaryFacet)
+					hierarchy.add((OtmModelElement<TLModelElement>) c);
+			});
+		return hierarchy;
 	}
 
 }
