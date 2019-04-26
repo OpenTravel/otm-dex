@@ -13,13 +13,14 @@
      <content>
         <VBox fx:id="facetTabVbox">
            <children>
-              <fx:include fx:id="memberPropertiesTreeTable" source="MemberPropertiesTreeTable.fxml" VBox.vgrow="ALWAYS" />
-              <ToolBar>
+              <!-- ToolBar fx:id="memberPropertiesToolBar">
                 <items>
+                    <TextField fx:id="propertyName"  promptText="Name" />
                     <Button layoutX="86.0" layoutY="10.0" mnemonicParsing="false" prefWidth="55.0" styleClass="button-red" text="Delete" />
-                    <TextField fx:id="propertyName"  promptText="Parent" />
                 </items>
-              </ToolBar>
+              </ToolBar -->
+              <fx:include fx:id="memberDetails" source="MemberDetails.fxml" />
+              <fx:include fx:id="memberPropertiesTreeTable" source="MemberPropertiesTreeTable.fxml" VBox.vgrow="ALWAYS" />
            </children>
         </VBox>
      </content>

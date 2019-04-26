@@ -200,8 +200,8 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 		// Add listeners and event handlers
 		memberTree.getSelectionModel().select(0);
-		memberTree.setOnKeyReleased(this::keyReleased);
-		memberTree.setOnMouseClicked(this::mouseClick);
+		// memberTree.setOnKeyReleased(this::keyReleased);
+		// memberTree.setOnMouseClicked(this::mouseClick);
 		memberTree.getSelectionModel().selectedItemProperty()
 				.addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
@@ -289,7 +289,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug(event.getEventType() + " event received.");
+		log.debug(event.getEventType() + " event received.  Ignore? " + ignoreEvents);
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
@@ -372,6 +372,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	@Override
 	public void refresh() {
 		post(currentModelMgr);
+		ignoreEvents = false;
 	}
 
 	public void select(OtmLibraryMember otm) {
@@ -381,12 +382,12 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 					int row = memberTree.getRow(item);
 					// This may not highlight the row if the event comes from or goes to a different controller.
 					Platform.runLater(() -> {
-						ignoreEvents = true;
+						// ignoreEvents = true;
 						memberTree.requestFocus();
 						memberTree.getSelectionModel().clearAndSelect(row);
 						memberTree.scrollTo(row);
 						memberTree.getFocusModel().focus(row);
-						ignoreEvents = false;
+						// ignoreEvents = false;
 					});
 					log.debug("Selected " + otm.getName() + " in member tree.");
 					return;

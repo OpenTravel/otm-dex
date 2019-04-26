@@ -201,9 +201,10 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	}
 
 	/**
-	 * Add tree items to ROOT for each child and grandchild of the member.
+	 * Add tree items to parent for each descendant of the member.
 	 * 
 	 * @param member
+	 *            a child owning library member
 	 */
 	private void createTreeItems(OtmChildrenOwner member, TreeItem<PropertiesDAO> parent) {
 		// create cells for member's facets and properties

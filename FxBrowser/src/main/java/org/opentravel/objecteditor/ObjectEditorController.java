@@ -160,10 +160,9 @@ public class ObjectEditorController extends DexMainControllerBase implements Tas
 	public void handleTaskComplete(WorkerStateEvent event) {
 		if (event.getTarget() instanceof OpenProjectFileTask) {
 			getDialogBoxController().close();
-			// TODO - use event not direct control
-			// TODO - pass to tab not table controller
 			memberTreeTableController.post(modelMgr);
 			librariesTabController.post(modelMgr);
+			refresh();
 		}
 	}
 

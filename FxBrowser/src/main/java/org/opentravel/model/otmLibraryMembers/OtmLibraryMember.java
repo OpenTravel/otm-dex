@@ -81,6 +81,11 @@ public interface OtmLibraryMember {
 	public String getValidationFindingsAsString();
 
 	/**
+	 * @return fx property for description
+	 */
+	public StringProperty descriptionProperty();
+
+	/**
 	 * @return fx property for library name
 	 */
 	public StringProperty libraryProperty();
@@ -91,5 +96,10 @@ public interface OtmLibraryMember {
 	public StringProperty prefixProperty();
 
 	public StringProperty versionProperty();
+
+	/**
+	 * @return
+	 */
+	public StringProperty nameProperty();
 
 }

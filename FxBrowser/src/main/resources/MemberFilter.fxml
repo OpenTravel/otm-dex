@@ -19,18 +19,6 @@
                <children>
                   <ChoiceBox fx:id="librarySelector" accessibleRole="CHECK_BOX" minWidth="100.0" prefWidth="150.0" />
 				  <ComboBox fx:id="memberTypeCombo" prefWidth="150.0" />
-
-                  <!-- MenuButton fx:id="memberTypeMenu" minWidth="100.0" mnemonicParsing="false" prefWidth="150.0" text="Type (future)">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="ALL" />
-                      <MenuItem mnemonicParsing="false" text="Business Objects" />
-                      <MenuItem mnemonicParsing="false" text="Choice Objects" />
-                      <MenuItem mnemonicParsing="false" text="Core Objects" />
-                        <MenuItem mnemonicParsing="false" text="Resources" />
-                        <MenuItem mnemonicParsing="false" text="Contextual Facets" />
-                        <MenuItem mnemonicParsing="false" text="Services" />
-                    </items>
-                  </MenuButton -->
                </children>
                <padding>
                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />

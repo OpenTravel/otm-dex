@@ -39,28 +39,10 @@ public abstract class OtmSimpleObjects<T extends TLLibraryMember> extends OtmLib
 		super(tl, mgr);
 	}
 
-	// @Override
-	// public OtmLibrary getLibrary() {
-	// return mgr.get(getTL().getOwningLibrary());
-	// }
-
-	// @Override
-	// public String getLibraryName() {
-	// String libName = "";
-	// if (getTL().getOwningLibrary() != null)
-	// libName = getTL().getOwningLibrary().getName();
-	// return libName;
-	// }
-
 	@Override
 	public String getName() {
 		return getTL().getLocalName();
 	}
-
-	// @Override
-	// public String getNamespace() {
-	// return getTL().getNamespace();
-	// }
 
 	/**
 	 * @return this
@@ -70,23 +52,10 @@ public abstract class OtmSimpleObjects<T extends TLLibraryMember> extends OtmLib
 		return this;
 	}
 
-	// @Override
-	// public String getPrefix() {
-	// return getTL().getOwningLibrary() != null ? getTL().getOwningLibrary().getPrefix() : "";
-	// }
-
 	@Override
 	public TLLibraryMember getTL() {
 		return (TLLibraryMember) tlObject;
 	}
-
-	// @Override
-	// public boolean isEditable() {
-	// OtmLibrary ol = null;
-	// if (mgr != null || getTL() != null)
-	// ol = mgr.get(getTL().getOwningLibrary());
-	// return ol != null && ol.isEditable();
-	// }
 
 	@Override
 	public boolean isNameControlled() {

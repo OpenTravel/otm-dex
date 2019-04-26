@@ -69,7 +69,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	// Class specific data
 	//
-	private static final String ALLLIBS = "All";
+	private static final String ALLLIBS = "All Libraries";
 
 	private String textFilterValue = null;
 	private OtmModelManager modelMgr;
@@ -84,6 +84,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	// Possible alternate target for change events
 	private DexPopupController popupController = null;
+	private boolean errorsOnly = false;
 
 	// All event types fired by this controller.
 	private static final EventType[] publishedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
@@ -115,7 +116,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 			throw new IllegalStateException("errorsButton not injected by FXML.");
 	}
 
-	private static final String ALL = "All";
+	private static final String ALL = "All Objects";
 	private static final String BUSINESS = "Business";
 	private static final String CHOICE = "Choice";
 	private static final String CORE = "Core";
@@ -134,6 +135,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		memberTypeCombo.setPromptText("Object Type");
 		memberTypeCombo.setOnAction(this::setTypeFilter);
 		memberTypeCombo.setItems(data);
+		// errorsButton.setVisible(false); // hide for now
+		errorsButton.setOnAction(e -> setErrorsOnly());
 
 		memberNameFilter.textProperty().addListener((v, o, n) -> applyTextFilter());
 		// memberNameFilter.setOnKeyTyped(e -> applyTextFilter(e)); // Key event happens before the textField is updated
@@ -142,7 +145,6 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		editableButton.setOnAction(e -> setEditableOnly());
 		latestButton.setOnAction(e -> setLatestOnly());
 
-		errorsButton.setVisible(false); // hide for now
 	}
 
 	@Override
@@ -180,8 +182,10 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 		ObservableList<String> libList = FXCollections.observableArrayList(libraryMap.keySet());
 		libList.sort(null);
+		librarySelector.getSelectionModel().select(ALLLIBS);
 		librarySelector.setItems(libList);
 		librarySelector.setOnAction(e -> setLibraryFilter());
+		log.debug("Configured library selection combo control.");
 	}
 
 	private OtmLibrary getSelectedLibrary() {
@@ -208,6 +212,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		if (editableOnly && !member.isEditable())
 			return false;
 		if (classNameFilter != null && !member.getClass().getSimpleName().startsWith(classNameFilter))
+			return false;
+		if (errorsOnly && member.isValid(false))
 			return false;
 
 		// NO filters applied OR passed all filters
@@ -265,6 +271,11 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private void setEditableOnly() {
 		log.debug("Editable set to: " + editableButton.isSelected());
 		editableOnly = editableButton.isSelected();
+		fireFilterChangeEvent();
+	}
+
+	private void setErrorsOnly() {
+		errorsOnly = errorsButton.isSelected();
 		fireFilterChangeEvent();
 	}
 
@@ -335,6 +346,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	@Override
 	public void refresh() {
+		if (mainController != null)
+			modelMgr = mainController.getModelManager();
 		OtmLibrary prevLib = getSelectedLibrary();
 		configureLibraryChoice();
 		setLibraryFilter(prevLib);

@@ -23,7 +23,10 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLPropertyType;
 
 /**
  * OTM Object Node for Core objects.
@@ -31,7 +34,7 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
  * @author Dave Hollander
  * 
  */
-public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> {
+public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements OtmTypeUser {
 	private static Log log = LogFactory.getLog(OtmCoreObject.class);
 
 	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
@@ -63,6 +66,83 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> {
 		getTL().setName(name);
 		isValid(true);
 		return getName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#getAssignedType()
+	 */
+	@Override
+	public OtmTypeProvider getAssignedType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#setAssignedType(org.opentravel.model.OtmTypeProvider)
+	 */
+	@Override
+	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#getAssignedTypeName()
+	 */
+	@Override
+	public String getAssignedTypeName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#getAssignedTLType()
+	 */
+	@Override
+	public TLPropertyType getAssignedTLType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#setAssignedTLType(org.opentravel.schemacompiler.model.TLPropertyType)
+	 */
+	@Override
+	public TLPropertyType setAssignedTLType(TLPropertyType type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#getAssignedTypeLocalName()
+	 */
+	@Override
+	public String getAssignedTypeLocalName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.model.OtmTypeUser#setTLTypeName(java.lang.String)
+	 */
+	@Override
+	public void setTLTypeName(String oldTLTypeName) {
+		// TODO Auto-generated method stub
+
 	}
 
 	// /**

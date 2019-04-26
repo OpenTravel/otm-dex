@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.DexTabController;
+import org.opentravel.dex.controllers.member.MemberDetailsController;
 
 import javafx.fxml.FXML;
 
@@ -24,6 +25,8 @@ public class MemberPropertiesTabController implements DexTabController {
 	 */
 	@FXML
 	private MemberPropertiesTreeTableController memberPropertiesTreeTableController;
+	@FXML
+	private MemberDetailsController memberDetailsController;
 
 	public MemberPropertiesTabController() {
 		log.debug("Repository Tab Controller constructed.");
@@ -38,6 +41,7 @@ public class MemberPropertiesTabController implements DexTabController {
 	@Override
 	public void configure(DexMainController parent) {
 		parent.addIncludedController(memberPropertiesTreeTableController);
+		parent.addIncludedController(memberDetailsController);
 	}
 
 }
