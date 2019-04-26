@@ -149,6 +149,11 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	}
 
 	@Override
+	public String getObjectTypeName() {
+		return OtmLibraryMemberFactory.getObjectName(this);
+	}
+
+	@Override
 	public String getPrefix() {
 		return getTlLM().getOwningLibrary() != null ? getTlLM().getOwningLibrary().getPrefix() : "";
 	}

@@ -196,9 +196,13 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		item.setExpanded(expanded);
 		if (parent != null)
 			parent.getChildren().add(item);
-		if (imageMgr != null)
-			item.setGraphic(imageMgr.getView(element));
+		if (imageMgr != null) {
+			ImageView graphic = imageMgr.getView(element);
+			item.setGraphic(graphic);
+			Tooltip.install(graphic, new Tooltip(element.getObjectTypeName()));
+		}
 		return item;
+
 	}
 
 	/**

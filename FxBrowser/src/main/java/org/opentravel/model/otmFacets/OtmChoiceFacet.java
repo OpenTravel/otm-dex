@@ -33,6 +33,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
  */
 public class OtmChoiceFacet extends OtmContextualFacet {
 	private static Log log = LogFactory.getLog(OtmChoiceFacet.class);
+	private static final String OBJECTNAME = "Choice Facet";
 
 	/**
 	 */

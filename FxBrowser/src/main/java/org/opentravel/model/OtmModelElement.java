@@ -199,6 +199,11 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return NONAME;
 	}
 
+	// Should be overridden
+	public String getObjectTypeName() {
+		return getClass().getSimpleName();
+	}
+
 	public String getNamespace() {
 		if (tlObject instanceof NamedEntity)
 			return ((NamedEntity) tlObject).getNamespace();

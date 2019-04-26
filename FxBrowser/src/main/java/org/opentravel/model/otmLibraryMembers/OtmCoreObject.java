@@ -30,9 +30,14 @@ import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmSummaryFacet;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
+
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  * OTM Object Node for Core objects.
@@ -42,6 +47,8 @@ import org.opentravel.schemacompiler.model.TLPropertyType;
  */
 public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements OtmTypeUser {
 	private static Log log = LogFactory.getLog(OtmCoreObject.class);
+
+	private StringProperty assignedTypeProperty;
 
 	public OtmCoreObject(TLCoreObject tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
@@ -56,11 +63,6 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 	public Icons getIconType() {
 		return ImageManager.Icons.CORE;
 	}
-
-	// @Override
-	// public boolean isNameControlled() {
-	// return true;
-	// };
 
 	@Override
 	public TLCoreObject getTL() {
@@ -86,15 +88,36 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 		return ch;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedType()
-	 */
 	@Override
 	public OtmTypeProvider getAssignedType() {
-		// TODO Auto-generated method stub
-		return null;
+		OtmModelElement<TLModelElement> type = OtmModelElement.get((TLModelElement) getAssignedTLType());
+		return type instanceof OtmTypeProvider ? (OtmTypeProvider) type : null;
+	}
+
+	@Override
+	public String getAssignedTypeName() {
+		return getAssignedType() != null ? getAssignedType().getName() : "";
+	}
+
+	@Override
+	public StringProperty assignedTypeProperty() {
+		// Prepare the name with prefix if needed
+		String prefix = getTL().getOwningLibrary() != getAssignedTLType().getOwningLibrary()
+				? getAssignedTLType().getOwningLibrary().getPrefix() + ":" : "";
+		String name = getAssignedTLType() != null ? getAssignedTLType().getLocalName() : "";
+		name = prefix + name;
+
+		if (assignedTypeProperty == null && isEditable() && getAssignedTLType() != null)
+			assignedTypeProperty = new SimpleStringProperty(name);
+		else
+			assignedTypeProperty = new ReadOnlyStringWrapper(name);
+		return assignedTypeProperty;
+	}
+
+	@Override
+	public TLPropertyType getAssignedTLType() {
+		NamedEntity tlType = getTL().getSimpleFacet().getSimpleType();
+		return tlType instanceof TLPropertyType ? (TLPropertyType) tlType : null;
 	}
 
 	/*
@@ -104,28 +127,6 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 	 */
 	@Override
 	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedTypeName()
-	 */
-	@Override
-	public String getAssignedTypeName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedTLType()
-	 */
-	@Override
-	public TLPropertyType getAssignedTLType() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -35,6 +35,10 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * OTM Object Node for Core objects.
  * 
@@ -45,6 +49,8 @@ public class OtmValueWithAttributes extends OtmLibraryMemberBase<TLValueWithAttr
 		implements OtmTypeProvider, OtmChildrenOwner, OtmTypeUser, OtmPropertyOwner {
 	private static Log log = LogFactory.getLog(OtmValueWithAttributes.class);
 
+	private StringProperty assignedTypeProperty;
+
 	public OtmValueWithAttributes(TLValueWithAttributes tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
@@ -52,6 +58,15 @@ public class OtmValueWithAttributes extends OtmLibraryMemberBase<TLValueWithAttr
 	public OtmValueWithAttributes(String name, OtmModelManager mgr) {
 		super(new TLValueWithAttributes(), mgr);
 		setName(name);
+	}
+
+	@Override
+	public StringProperty assignedTypeProperty() {
+		if (assignedTypeProperty == null && isEditable() && !getAssignedTypeName().isEmpty())
+			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
+		else
+			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
+		return assignedTypeProperty;
 	}
 
 	@Override

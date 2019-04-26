@@ -63,7 +63,7 @@
                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
               </padding>
           </TextField>
-            <Label>
+            <Label fx:id="objectLabel">
                <graphic>
                   <ImageView fx:id="objectImageView" fitHeight="25.0" preserveRatio="true" />
                </graphic></Label>

@@ -5,6 +5,8 @@ package org.opentravel.model;
 
 import org.opentravel.schemacompiler.model.TLPropertyType;
 
+import javafx.beans.property.StringProperty;
+
 /**
  * @author dmh
  *
@@ -15,6 +17,8 @@ public interface OtmTypeUser {
 
 	public OtmTypeProvider setAssignedType(OtmTypeProvider type);
 
+	// Use the assignedTypeProperty().get()
+	@Deprecated
 	public String getAssignedTypeName();
 
 	public TLPropertyType getAssignedTLType();
@@ -35,4 +39,11 @@ public interface OtmTypeUser {
 	 * @param oldTLTypeName
 	 */
 	public void setTLTypeName(String oldTLTypeName);
+
+	/**
+	 * FX Property with the type name. Adds prefix if the owner and type are in different libraries.
+	 * 
+	 * @return
+	 */
+	public StringProperty assignedTypeProperty();
 }

@@ -259,8 +259,14 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		item.setExpanded(false);
 		if (parent != null)
 			parent.getChildren().add(item);
-		if (imageMgr != null)
-			item.setGraphic(imageMgr.getView((OtmModelElement<?>) provider));
+		if (imageMgr != null) {
+			ImageView graphic = imageMgr.getView((OtmModelElement<?>) provider);
+			item.setGraphic(graphic);
+			Tooltip.install(graphic, new Tooltip(((OtmModelElement) provider).getObjectTypeName()));
+		}
+
+		// if (imageMgr != null)
+		// item.setGraphic(imageMgr.getView((OtmModelElement<?>) provider));
 		return item;
 	}
 

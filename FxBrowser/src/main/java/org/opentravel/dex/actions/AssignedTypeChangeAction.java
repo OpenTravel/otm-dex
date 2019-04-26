@@ -70,7 +70,7 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 		oldProvider = user.getAssignedType();
 		oldTLType = user.getAssignedTLType();
 		oldName = otm.getName();
-		oldTLTypeName = user.getAssignedTypeName();
+		oldTLTypeName = user.assignedTypeProperty().get();
 
 		// Get the user's selected new provider
 		MemberDAO selected = null;

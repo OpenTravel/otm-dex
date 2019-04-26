@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
@@ -42,6 +43,8 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 	// private ComboBox<String> memberLibrary;
 	@FXML
 	private TextField memberName;
+	@FXML
+	private Label objectLabel;
 	@FXML
 	private ImageView objectImageView;
 	@FXML
@@ -85,6 +88,8 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 	public void checkNodes() {
 		if (!(memberDetails instanceof VBox))
 			throw new IllegalStateException("Member Details not injected by FXML.");
+		if (objectLabel == null)
+			throw new IllegalStateException("Object label not injected by FXML.");
 		if (!(libraryName instanceof TextField))
 			throw new IllegalStateException("Library  not injected by FXML.");
 		if (!(memberName instanceof TextField))
@@ -154,9 +159,11 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 			clear();
 			return;
 		}
+
+		// objectLabel.setTooltip(new Tooltip(member.getClass().getSimpleName()));
+		objectLabel.setTooltip(new Tooltip(member.getObjectTypeName()));
 		if (imageMgr != null)
 			objectImageView.setImage(imageMgr.get(member.getIconType()));
-
 		memberName.setEditable(member.isEditable());
 		memberName.setEditable(member.isEditable());
 		// memberName.textProperty().bind(member.nameProperty());
@@ -178,20 +185,24 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 		final String TYPELABEL = "Assigned Type";
 		final String TYPELABELVWA = "Value Type";
 		final String TYPELABELCORE = "Simple Type";
-
+		// OtmTypeProvider provider = null;
 		typeLabel.setDisable(!(member instanceof OtmTypeUser));
 		typeLabel.setText(TYPELABEL);
 		if (member instanceof OtmCoreObject)
 			typeLabel.setText(TYPELABELCORE);
 		else if (member instanceof OtmValueWithAttributes)
 			typeLabel.setText(TYPELABELVWA);
+		// else if (member instanceof OtmTypeUser)
+		// provider = ((OtmTypeUser) member).getAssignedType();
+
 		changeTypeButton.setDisable(!(member instanceof OtmTypeUser));
 		assignedTypeName.setDisable((!(member instanceof OtmTypeUser)));
 		assignedTypeName.setEditable(false);
+		if (member instanceof OtmTypeUser)
+			assignedTypeName.setText(((OtmTypeUser) member).assignedTypeProperty().get());
+		else
+			assignedTypeName.setText("");
 		assignedTypeName.setOnAction(e -> setAssignedType());
-		if (member instanceof OtmTypeUser) {
-			assignedTypeName.setText(((OtmTypeUser) member).getAssignedTypeName());
-		}
 	}
 
 	private void setAssignedType() {

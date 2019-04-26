@@ -20,11 +20,38 @@ import javafx.scene.Node;
  */
 public interface OtmLibraryMember {
 
+	/**
+	 * @return fx property for description
+	 */
+	public StringProperty descriptionProperty();
+
 	public DexActionManager getActionManager();
 
-	// public Collection<OtmTypeProvider> getChildren_TypeProviders();
+	/**
+	 * @return
+	 */
+	public Icons getIconType();
 
-	// public List<OtmModelElement<?>> getChildren();
+	public OtmLibrary getLibrary();
+
+	public String getLibraryName();
+
+	public String getName();
+
+	public String getNamespace();
+
+	/**
+	 * @return
+	 */
+	public String getObjectTypeName();
+
+	public OtmLibraryMember getOwningMember();
+
+	public String getPrefix();
+
+	// public void modelChildren();
+
+	public TLModelElement getTL();
 
 	/**
 	 * TLContextualFacet or TLLibraryMember
@@ -36,25 +63,12 @@ public interface OtmLibraryMember {
 	 */
 	public LibraryMember getTlLM();
 
-	public TLModelElement getTL();
-
-	public OtmLibrary getLibrary();
-
-	public String getNamespace();
-
-	public OtmLibraryMember getOwningMember();
-
-	public String getName();
-
-	public String getLibraryName();
+	/**
+	 * @return
+	 */
+	public String getValidationFindingsAsString();
 
 	public boolean isEditable();
-
-	public String getPrefix();
-
-	// public void modelChildren();
-
-	public String setName(String text);
 
 	/**
 	 * Are there any warnings or errors in the findings?
@@ -66,40 +80,27 @@ public interface OtmLibraryMember {
 	public boolean isValid(boolean force);
 
 	/**
-	 * @return
-	 */
-	public Icons getIconType();
-
-	/**
-	 * @return
-	 */
-	public Node validationImage();
-
-	/**
-	 * @return
-	 */
-	public String getValidationFindingsAsString();
-
-	/**
-	 * @return fx property for description
-	 */
-	public StringProperty descriptionProperty();
-
-	/**
 	 * @return fx property for library name
 	 */
 	public StringProperty libraryProperty();
+
+	/**
+	 * @return fx property for object name
+	 */
+	public StringProperty nameProperty();
 
 	/**
 	 * @return fx property for library prefix
 	 */
 	public StringProperty prefixProperty();
 
-	public StringProperty versionProperty();
+	public String setName(String text);
 
 	/**
 	 * @return
 	 */
-	public StringProperty nameProperty();
+	public Node validationImage();
+
+	public StringProperty versionProperty();
 
 }

@@ -30,6 +30,10 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * Abstract OTM Node for attribute properties.
  * 
@@ -38,6 +42,8 @@ import org.opentravel.schemacompiler.model.TLPropertyType;
  */
 public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribute> implements OtmTypeUser {
 	private static Log log = LogFactory.getLog(OtmAttribute.class);
+
+	private StringProperty assignedTypeProperty;
 
 	/**
 	 * @param tlBusinessObject
@@ -49,6 +55,15 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 			throw new IllegalArgumentException("OtmAttribute constructor not passed a tl attribute.");
 		// if (tl.isReference())
 		// throw new IllegalArgumentException("OtmAttribute constructor passed a attribute reference.");
+	}
+
+	@Override
+	public StringProperty assignedTypeProperty() {
+		if (assignedTypeProperty == null && isEditable() && !getAssignedTypeName().isEmpty())
+			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
+		else
+			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
+		return assignedTypeProperty;
 	}
 
 	@Override

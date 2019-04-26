@@ -28,6 +28,10 @@ import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  * OTM Object Node for Simple objects.
  * 
@@ -38,6 +42,8 @@ import org.opentravel.schemacompiler.model.TLSimple;
 public class OtmSimpleObject extends OtmSimpleObjects<TLSimple> implements OtmTypeUser {
 	private static Log log = LogFactory.getLog(OtmSimpleObject.class);
 
+	private StringProperty assignedTypeProperty;
+
 	public OtmSimpleObject(TLSimple tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
@@ -45,6 +51,15 @@ public class OtmSimpleObject extends OtmSimpleObjects<TLSimple> implements OtmTy
 	public OtmSimpleObject(String name, OtmModelManager mgr) {
 		super(new TLSimple(), mgr);
 		setName(name);
+	}
+
+	@Override
+	public StringProperty assignedTypeProperty() {
+		if (assignedTypeProperty == null && isEditable() && !getAssignedTypeName().isEmpty())
+			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
+		else
+			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
+		return assignedTypeProperty;
 	}
 
 	@Override

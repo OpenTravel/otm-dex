@@ -76,15 +76,17 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	 * @return
 	 */
 	public StringProperty assignedTypeProperty() {
-		SimpleStringProperty ssp;
+		StringProperty ssp;
 		if (element instanceof OtmTypeUser) {
-			ssp = new SimpleStringProperty(((OtmTypeUser) element).getAssignedTypeName());
-			ssp.addListener((v, o, n) -> {
-				new AssignedTypesMenuHandler().handle(n, this);
-				controller.refresh();
-			});
-		} else
-			return new ReadOnlyStringWrapper("--");
+			ssp = ((OtmTypeUser) element).assignedTypeProperty();
+			if (ssp instanceof SimpleStringProperty)
+				ssp.addListener((v, o, n) -> {
+					new AssignedTypesMenuHandler().handle(n, this);
+					controller.refresh();
+				});
+		} else {
+			ssp = new ReadOnlyStringWrapper("--");
+		}
 		return ssp;
 	}
 
