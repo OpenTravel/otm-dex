@@ -6,6 +6,7 @@ package org.opentravel.dex.controllers.member;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
+import org.opentravel.common.cellfactories.ValidationMemberTreeTableCellFactory;
 import org.opentravel.dex.controllers.DexController;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
@@ -27,7 +28,6 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.SortType;
 import javafx.scene.control.TreeTablePosition;
@@ -56,6 +56,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private static final String VERSIONCOLUMNLABEL = "Version";
 	private static final String LIBRARYLABEL = "Library";
 	private static final String ERRORLABEL = "Errors";
+	private static final String WHEREUSEDLABEL = "Types Used";
 
 	// All event types listened to by this controller's handlers
 	private static final EventType[] subscribedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
@@ -110,34 +111,15 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
 		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
 
-		TreeTableColumn<MemberDAO, String> errTextColumn = new TreeTableColumn<>(ERRORLABEL);
-		errTextColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("error"));
+		TreeTableColumn<MemberDAO, String> usedTypesCol = new TreeTableColumn<>(WHEREUSEDLABEL);
+		usedTypesCol.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("usedTypes"));
 
 		TreeTableColumn<MemberDAO, ImageView> valColumn = new TreeTableColumn<>("");
-		valColumn.setCellFactory(c -> {
-			return new TreeTableCell<MemberDAO, ImageView>() {
-				@Override
-				protected void updateItem(ImageView item, boolean empty) {
-					super.updateItem(item, empty);
-					// Provide imageView directly - does not update automatically as the observable property would
-					// Provide tooltip showing validation results
-					String name = "";
-					if (!empty && getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-						setGraphic(getTreeTableRow().getItem().getValue().validationImage());
-						name = getTreeTableRow().getItem().getValue().getValidationFindingsAsString();
-						if (!name.isEmpty())
-							setTooltip(new Tooltip(name));
-					} else {
-						setGraphic(null);
-						setTooltip(null);
-					}
-				}
-			};
-		});
+		valColumn.setCellFactory(c -> new ValidationMemberTreeTableCellFactory());
 		setColumnProps(valColumn, true, false, false, 25);
 
 		// Add columns to table
-		memberTree.getColumns().addAll(nameColumn, valColumn, libColumn, versionColumn, prefixColumn, errTextColumn);
+		memberTree.getColumns().addAll(nameColumn, valColumn, libColumn, versionColumn, prefixColumn, usedTypesCol);
 		memberTree.getSortOrder().add(nameColumn);
 	}
 
@@ -234,14 +216,14 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 		// Create and add items for children
 		if (member instanceof OtmChildrenOwner)
-			createChildrenItems((OtmChildrenOwner) member, item);
+			createChildrenItems(member, item);
 	}
 
 	/**
 	 * Create tree items for the type provider children of this child owning member
 	 */
 	private void createChildrenItems(OtmChildrenOwner member, TreeItem<MemberDAO> parentItem) {
-		member.getChildren_TypeProviders().forEach(p -> {
+		member.getChildrenTypeProviders().forEach(p -> {
 			TreeItem<MemberDAO> cfItem = createTreeItem(p, parentItem);
 			// Recurse for the contextual facet contributor which may have children that are also contextual facets
 			if (p instanceof OtmContributedFacet && ((OtmContributedFacet) p).getContributor() != null)

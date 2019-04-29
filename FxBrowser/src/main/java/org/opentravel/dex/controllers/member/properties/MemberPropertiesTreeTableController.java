@@ -6,6 +6,8 @@ package org.opentravel.dex.controllers.member.properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexIntegerStringConverter;
+import org.opentravel.common.cellfactories.AssignedTypePropertiesTreeTableCellFactory;
+import org.opentravel.common.cellfactories.ValidationPropertiesTreeTableCellFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.member.MemberDAO;
@@ -19,7 +21,6 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.ChoiceBoxTreeTableCell;
@@ -95,31 +96,12 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		valCol.setPrefWidth(25);
 		valCol.setEditable(false);
 		valCol.setSortable(false);
-
-		valCol.setCellFactory(c -> {
-			return new TreeTableCell<PropertiesDAO, ImageView>() {
-				@Override
-				protected void updateItem(ImageView item, boolean empty) {
-					super.updateItem(item, empty);
-					// Provide imageView directly - does not update automatically as the observable property would
-					// Provide tooltip showing validation results
-					String name = "";
-					if (!empty && getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-						setGraphic(getTreeTableRow().getItem().getValue().validationImage());
-						name = getTreeTableRow().getItem().getValue().getValidationFindingsAsString();
-						if (!name.isEmpty())
-							setTooltip(new Tooltip(name));
-					} else {
-						setGraphic(null);
-						setTooltip(null);
-					}
-				}
-			};
-		});
+		valCol.setCellFactory(c -> new ValidationPropertiesTreeTableCellFactory());
 
 		exampleCol = new TreeTableColumn<>("Example");
 		setColumnProps(exampleCol, false, false, false, 0);
-		table.getColumns().addAll(nameCol, valCol, roleCol, typeCol, constraintCol, exampleCol, documentationCol);
+
+		table.getColumns().addAll(nameCol, valCol, typeCol, roleCol, constraintCol, exampleCol, documentationCol);
 
 		// Name Column
 		setColumnProps(nameCol, true, true, false, 200, "name");
@@ -127,10 +109,22 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		// Assigned type column
 		setColumnProps(typeCol, true, true, false, 150);
 		typeCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("assignedType"));
+		typeCol.setCellFactory(c -> new AssignedTypePropertiesTreeTableCellFactory(this));
+
+		// TODO - get the change action into the row factory
+		// typeCol.setCellValueFactory(new Callback<CellDataFeatures<PropertiesDAO, String>, ObservableValue<String>>()
+		// {
+		// @Override
+		// public ObservableValue<String> call(CellDataFeatures<PropertiesDAO, String> p) {
+		// if (imageMgr != null) {
+		// ImageView graphic = imageMgr.getView(p.getValue().getValue().getValue());
+		// p.getValue().setGraphic(graphic);
+		// }
+		// return p.getValue().getValue().assignedTypeProperty();
+		// }
+		// });
 		// typeCol.setCellFactory(
-		// ComboBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
-		typeCol.setCellFactory(
-				ChoiceBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
+		// ChoiceBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
 
 		// Role Column
 		setColumnProps(roleCol, true, true, false, 100);
@@ -271,7 +265,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		log.debug("Dex member selection event received.");
 		clear();
 		if (event.getMember() instanceof OtmChildrenOwner)
-			createTreeItems((OtmChildrenOwner) event.getMember(), root);
+			createTreeItems(event.getMember(), root);
 	}
 
 	/**

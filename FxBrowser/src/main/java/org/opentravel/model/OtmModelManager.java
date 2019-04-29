@@ -260,4 +260,13 @@ public class OtmModelManager implements TaskResultHandlerI {
 		add(pm);
 	}
 
+	// private void computeUsageRelationships() {
+	// for (OtmLibraryMember member : getMembers()) {
+	// member.getUsedTypes(); // will force computation
+	// }
+	// }
+	//
+	// public Collection<OtmTypeUser> getWhereUsed(OtmLibraryMember member) {
+	// return Collections.emptyList();
+	// }
 }

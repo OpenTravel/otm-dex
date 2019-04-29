@@ -42,6 +42,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 
 		// Create Context menu
 		MenuItem addObject = new MenuItem("Add Property (Demo)");
+		MenuItem changeType = new MenuItem("Change Type (Future)");
 		MenuItem upObject = new MenuItem("Move Up (Future)");
 		MenuItem downObject = new MenuItem("Move Down (Future)");
 		addMenu.getItems().addAll(addObject, upObject, downObject);

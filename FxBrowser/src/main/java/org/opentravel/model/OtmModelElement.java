@@ -122,7 +122,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 				if (actionMgr != null)
 					actionMgr.addAction(DexActions.DESCRIPTIONCHANGE, descriptionProperty(), this);
 			} else {
-				descriptionProperty = new ReadOnlyStringWrapper("");
+				descriptionProperty = new ReadOnlyStringWrapper(getDescription());
 			}
 		}
 		return descriptionProperty;

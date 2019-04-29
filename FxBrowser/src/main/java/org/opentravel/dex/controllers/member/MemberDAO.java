@@ -3,6 +3,8 @@
  */
 package org.opentravel.dex.controllers.member;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
@@ -50,6 +52,16 @@ public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 
 	public boolean isEditable() {
 		return otmObject.isEditable();
+	}
+
+	public StringProperty usedTypesProperty() {
+		String usedTypeCount = "";
+		if (otmObject instanceof OtmLibraryMember) {
+			List<OtmTypeProvider> u = ((OtmLibraryMember) otmObject).getUsedTypes();
+			if (u != null)
+				usedTypeCount = Integer.toString(u.size());
+		}
+		return new ReadOnlyStringWrapper(usedTypeCount);
 	}
 
 	public StringProperty errorProperty() {

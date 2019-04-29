@@ -3,8 +3,12 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.List;
+
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.dex.actions.DexActionManager;
+import org.opentravel.model.OtmChildrenOwner;
+import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -18,7 +22,7 @@ import javafx.scene.Node;
  * @author dmh
  *
  */
-public interface OtmLibraryMember {
+public interface OtmLibraryMember extends OtmChildrenOwner {
 
 	/**
 	 * @return fx property for description
@@ -102,5 +106,10 @@ public interface OtmLibraryMember {
 	public Node validationImage();
 
 	public StringProperty versionProperty();
+
+	/**
+	 * @return list of type providers used by all descendants of this member.
+	 */
+	public List<OtmTypeProvider> getUsedTypes();
 
 }

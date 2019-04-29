@@ -95,7 +95,7 @@ public class ImageManager {
 	 * 
 	 * @return a javafx node for the icon
 	 */
-	@SuppressWarnings("restriction")
+	// @SuppressWarnings("restriction")
 	public ImageView getView(OtmModelElement<?> element) {
 		return new ImageView(element.getIcon());
 	}

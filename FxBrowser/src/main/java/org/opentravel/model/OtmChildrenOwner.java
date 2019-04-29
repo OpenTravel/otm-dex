@@ -34,10 +34,27 @@ public interface OtmChildrenOwner {
 	 */
 	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy();
 
-	public Collection<OtmTypeProvider> getChildren_TypeProviders();
+	/**
+	 * Get a list of children that are type providers.
+	 * 
+	 * @return list of children or empty list.
+	 */
+	public Collection<OtmTypeProvider> getChildrenTypeProviders();
+
+	/**
+	 * Get a list of children and their descendants that are type providers.
+	 * 
+	 * @return list of children or empty list.
+	 */
+	public Collection<OtmTypeProvider> getDescendantsTypeProviders();
 
 	/**
 	 * Model the children of this object from its' tlObject(s).
 	 */
 	public void modelChildren();
+
+	/**
+	 * @return
+	 */
+	Collection<OtmTypeUser> getDescendantsTypeUsers();
 }

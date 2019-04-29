@@ -31,6 +31,7 @@ import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.OtmPropertyFactory;
@@ -82,8 +83,24 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	}
 
 	@Override
-	public Collection<OtmTypeProvider> getChildren_TypeProviders() {
+	public Collection<OtmTypeProvider> getChildrenTypeProviders() {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<OtmTypeProvider> getDescendantsTypeProviders() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<OtmTypeUser> getDescendantsTypeUsers() {
+		Collection<OtmTypeUser> users = new ArrayList<>();
+		if (getChildren() != null)
+			getChildren().forEach(c -> {
+				if (c instanceof OtmTypeUser)
+					users.add((OtmTypeUser) c);
+			});
+		return users;
 	}
 
 	@Override

@@ -159,6 +159,8 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 			clear();
 			return;
 		}
+		// Collection<OtmTypeUser> u = member.getDescendantsTypeUsers();
+		// Collection<OtmTypeProvider> p = member.getDescendantsTypeProviders();
 
 		// objectLabel.setTooltip(new Tooltip(member.getClass().getSimpleName()));
 		objectLabel.setTooltip(new Tooltip(member.getObjectTypeName()));
@@ -178,7 +180,6 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 		// Description
 		memberDescription.setEditable(member.isEditable());
 		memberDescription.setText(member.descriptionProperty().get());
-		memberDescription.setEditable(member.isEditable());
 		memberDescription.setOnAction(e -> member.descriptionProperty().set(memberDescription.getText()));
 
 		// Assigned type

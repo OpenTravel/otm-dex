@@ -18,11 +18,15 @@
  */
 package org.opentravel.model.otmFacets;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
@@ -54,6 +58,11 @@ public class OtmContributedFacet extends OtmFacet<TLContextualFacet> {
 		if (contributor == null)
 			contributor = (OtmContextualFacet) OtmModelElement.get(getTL());
 		return contributor;
+	}
+
+	@Override
+	public Collection<OtmTypeProvider> getDescendantsTypeProviders() {
+		return contributor != null ? contributor.getDescendantsTypeProviders() : Collections.emptyList();
 	}
 
 	@Override
