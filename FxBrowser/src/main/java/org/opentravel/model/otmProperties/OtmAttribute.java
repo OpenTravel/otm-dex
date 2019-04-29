@@ -22,12 +22,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
-import org.opentravel.model.OtmModelElement;
+import org.opentravel.common.OtmTypeUserUtils;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -53,38 +54,32 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 
 		if (!(tl instanceof TLAttribute))
 			throw new IllegalArgumentException("OtmAttribute constructor not passed a tl attribute.");
-		// if (tl.isReference())
-		// throw new IllegalArgumentException("OtmAttribute constructor passed a attribute reference.");
 	}
 
 	@Override
 	public StringProperty assignedTypeProperty() {
-		if (assignedTypeProperty == null && isEditable() && !getAssignedTypeName().isEmpty())
-			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
-		else
-			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
+		if (assignedTypeProperty == null) {
+			if (isEditable())
+				assignedTypeProperty = new SimpleStringProperty(OtmTypeUserUtils.formatAssignedType(this));
+			else
+				assignedTypeProperty = new ReadOnlyStringWrapper(OtmTypeUserUtils.formatAssignedType(this));
+		}
 		return assignedTypeProperty;
 	}
 
 	@Override
-	public TLAttribute getTL() {
-		return (TLAttribute) tlObject;
-	}
-
-	@Override
-	public String getAssignedTypeName() {
-		return getTL().getTypeName();
-	}
-
-	@Override
-	public String getAssignedTypeLocalName() {
-		return getTL().getType().getLocalName();
+	public TLPropertyType getAssignedTLType() {
+		return getTL().getType();
 	}
 
 	@Override
 	public OtmTypeProvider getAssignedType() {
-		OtmModelElement<TLModelElement> tp = OtmModelElement.get((TLModelElement) getTL().getType());
-		return tp instanceof OtmTypeProvider ? (OtmTypeProvider) tp : null;
+		return OtmTypeUserUtils.getAssignedType(this);
+	}
+
+	@Override
+	public Icons getIconType() {
+		return ImageManager.Icons.ATTRIBUTE;
 	}
 
 	@Override
@@ -98,8 +93,38 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	}
 
 	@Override
+	public TLAttribute getTL() {
+		return (TLAttribute) tlObject;
+	}
+
+	@Override
+	public String getTlAssignedTypeName() {
+		return getTL().getTypeName();
+	}
+
+	@Override
 	public boolean isManditory() {
 		return getTL().isMandatory();
+	}
+
+	/**
+	 * Useful for types that are not in the model manager.
+	 */
+	// TESTME - FIXME - how to limit to acceptable attribute types? TLAttributeType MAY be too limiting
+	@Override
+	public TLPropertyType setAssignedTLType(NamedEntity type) {
+		if (type instanceof TLPropertyType)
+			getTL().setType((TLPropertyType) type);
+		assignedTypeProperty = null;
+		log.debug("Set assigned TL type");
+		return getTL().getType();
+	}
+
+	@Override
+	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
+		if (type != null && type.getTL() instanceof TLAttributeType)
+			setAssignedTLType((TLAttributeType) type.getTL());
+		return getAssignedType();
 	}
 
 	@Override
@@ -119,40 +144,13 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 
 	@Override
 	public void setTLTypeName(String typeName) {
+		getTL().setType(null);
 		getTL().setTypeName(typeName);
 	}
 
 	@Override
 	public String toString() {
 		return getName();
-	}
-
-	@Override
-	public Icons getIconType() {
-		return ImageManager.Icons.ATTRIBUTE;
-	}
-
-	@Override
-	public TLPropertyType getAssignedTLType() {
-		return getTL().getType();
-	}
-
-	/**
-	 * Useful for types that are not in the model manager.
-	 */
-	@Override
-	public TLPropertyType setAssignedTLType(TLPropertyType type) {
-		getTL().setType(type);
-		return getTL().getType();
-	}
-
-	@Override
-	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
-		@SuppressWarnings("unchecked")
-		TLModelElement tlType = ((OtmModelElement<TLModelElement>) type).getTL();
-		if (tlType instanceof TLPropertyType)
-			getTL().setType((TLPropertyType) tlType);
-		return getAssignedType() == type ? type : null;
 	}
 
 }

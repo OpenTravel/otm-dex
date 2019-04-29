@@ -105,7 +105,7 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 	public void mouseClick(MouseEvent event) {
 		// this fires after the member selection listener
 		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-			log.debug("Double click selection: " + getSelected().nameProperty().toString());
+			log.debug("Double click selection: " + getSelected().getValue().getName());
 			doOK();
 		}
 	}

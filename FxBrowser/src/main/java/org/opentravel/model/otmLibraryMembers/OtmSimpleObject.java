@@ -22,9 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.common.OtmTypeUserUtils;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
 
@@ -44,40 +47,44 @@ public class OtmSimpleObject extends OtmSimpleObjects<TLSimple> implements OtmTy
 
 	private StringProperty assignedTypeProperty;
 
-	public OtmSimpleObject(TLSimple tlo, OtmModelManager mgr) {
-		super(tlo, mgr);
-	}
-
 	public OtmSimpleObject(String name, OtmModelManager mgr) {
 		super(new TLSimple(), mgr);
 		setName(name);
 	}
 
+	public OtmSimpleObject(TLSimple tlo, OtmModelManager mgr) {
+		super(tlo, mgr);
+	}
+
 	@Override
 	public StringProperty assignedTypeProperty() {
-		if (assignedTypeProperty == null && isEditable() && getAssignedTypeName() != null
-				&& !getAssignedTypeName().isEmpty())
-			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
-		else
-			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
+		if (assignedTypeProperty == null) {
+			if (isEditable())
+				assignedTypeProperty = new SimpleStringProperty(OtmTypeUserUtils.formatAssignedType(this));
+			else
+				assignedTypeProperty = new ReadOnlyStringWrapper(OtmTypeUserUtils.formatAssignedType(this));
+		}
 		return assignedTypeProperty;
+	}
+
+	@Override
+	public TLPropertyType getAssignedTLType() {
+		return getTL().getParentType();
+	}
+
+	@Override
+	public OtmTypeProvider getAssignedType() {
+		return OtmTypeUserUtils.getAssignedType(this);
+	}
+
+	@Override
+	public String getTlAssignedTypeName() {
+		return getTL().getParentTypeName();
 	}
 
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.SIMPLE;
-	}
-
-	@Override
-	public TLSimple getTL() {
-		return (TLSimple) tlObject;
-	}
-
-	@Override
-	public String setName(String name) {
-		getTL().setName(name);
-		isValid(true);
-		return getName();
 	}
 
 	/**
@@ -88,81 +95,38 @@ public class OtmSimpleObject extends OtmSimpleObjects<TLSimple> implements OtmTy
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedType()
-	 */
 	@Override
-	public OtmTypeProvider getAssignedType() {
-		// TODO Auto-generated method stub
-		return null;
+	public TLSimple getTL() {
+		return (TLSimple) tlObject;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#setAssignedType(org.opentravel.model.OtmTypeProvider)
-	 */
+	@Override
+	public TLPropertyType setAssignedTLType(NamedEntity type) {
+		if (type instanceof TLAttributeType)
+			getTL().setParentType((TLAttributeType) type);
+		assignedTypeProperty = null;
+		log.debug("Set assigned TL type");
+		return getAssignedTLType();
+	}
+
 	@Override
 	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
-		// TODO Auto-generated method stub
-		return null;
+		if (type != null && type.getTL() instanceof TLAttributeType)
+			setAssignedTLType((TLAttributeType) type.getTL());
+		return getAssignedType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedTypeName()
-	 */
 	@Override
-	public String getAssignedTypeName() {
-		// TODO Auto-generated method stub
-		return null;
+	public String setName(String name) {
+		getTL().setName(name);
+		isValid(true);
+		return getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedTLType()
-	 */
 	@Override
-	public TLPropertyType getAssignedTLType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#setAssignedTLType(org.opentravel.schemacompiler.model.TLPropertyType)
-	 */
-	@Override
-	public TLPropertyType setAssignedTLType(TLPropertyType type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#getAssignedTypeLocalName()
-	 */
-	@Override
-	public String getAssignedTypeLocalName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.model.OtmTypeUser#setTLTypeName(java.lang.String)
-	 */
-	@Override
-	public void setTLTypeName(String oldTLTypeName) {
-		// TODO Auto-generated method stub
-
+	public void setTLTypeName(String name) {
+		getTL().setParentType(null);
+		getTL().setParentTypeName(name);
 	}
 
 	// extends FacetOwners

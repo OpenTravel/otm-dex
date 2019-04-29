@@ -22,12 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.common.OtmTypeUserUtils;
 import org.opentravel.dex.controllers.member.properties.MemberPropertiesTreeTableController;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 
@@ -59,10 +59,12 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 
 	@Override
 	public StringProperty assignedTypeProperty() {
-		if (assignedTypeProperty == null && isEditable() && !getAssignedTypeName().isEmpty())
-			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
-		else
-			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
+		if (assignedTypeProperty == null) {
+			if (isEditable())
+				assignedTypeProperty = new SimpleStringProperty(OtmTypeUserUtils.formatAssignedType(this));
+			else
+				assignedTypeProperty = new ReadOnlyStringWrapper(OtmTypeUserUtils.formatAssignedType(this));
+		}
 		return assignedTypeProperty;
 	}
 
@@ -71,27 +73,14 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 		return (TLProperty) tlObject;
 	}
 
-	/**
-	 * Get the "typeName" field from the TL object.
-	 */
 	@Override
-	public String getAssignedTypeName() {
+	public String getTlAssignedTypeName() {
 		return getTL().getTypeName();
 	}
 
 	@Override
-	public String getAssignedTypeLocalName() {
-		if (getTL() == null || getTL().getType() == null) {
-			log.warn("Missing TL assigned type.");
-			return "";
-		}
-		return getTL().getType().getLocalName();
-	}
-
-	@Override
 	public OtmTypeProvider getAssignedType() {
-		OtmModelElement<TLModelElement> tp = OtmModelElement.get((TLModelElement) getTL().getType());
-		return tp instanceof OtmTypeProvider ? (OtmTypeProvider) tp : null;
+		return OtmTypeUserUtils.getAssignedType(this);
 	}
 
 	@Override
@@ -136,15 +125,16 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 	}
 
 	/**
-	 * Useful for types that are not in the model manager.
+	 * {@inheritDoc}
+	 * <p>
+	 * Setting TL type does NOT enforce name control
 	 */
 	@Override
-	public TLPropertyType setAssignedTLType(TLPropertyType type) {
-		if (type == null)
-			return null;
-		getTL().setType(type);
-
-		log.debug("Set assigned TL type to: " + type.getLocalName());
+	public TLPropertyType setAssignedTLType(NamedEntity type) {
+		if (type instanceof TLPropertyType)
+			getTL().setType((TLPropertyType) type);
+		assignedTypeProperty = null;
+		log.debug("Set assigned TL type");
 		return getTL().getType();
 	}
 
@@ -152,16 +142,11 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
 		if (type == null)
 			return null; // May not be a modeled type on ondo
-		@SuppressWarnings("unchecked")
-		TLModelElement tlType = ((OtmModelElement<TLModelElement>) type).getTL();
-		if (tlType instanceof TLPropertyType)
-			getTL().setType((TLPropertyType) tlType);
-
+		if (type.getTL() instanceof TLPropertyType)
+			setAssignedTLType((TLPropertyType) type.getTL());
 		if (type.isNameControlled())
 			setName(type.getName());
-
-		log.debug("Set assigned type to: " + type);
-		return getAssignedType() == type ? type : null;
+		return getAssignedType();
 	}
 
 }

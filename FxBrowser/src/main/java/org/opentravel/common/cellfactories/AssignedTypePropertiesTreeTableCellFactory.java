@@ -51,7 +51,7 @@ public class AssignedTypePropertiesTreeTableCellFactory extends TreeTableCell<Pr
 
 			if (assignedType != null) {
 				OtmModelElement<TLModelElement> type = (OtmModelElement<TLModelElement>) assignedType;
-				setTooltip(new Tooltip(type.getObjectTypeName() + " in " + type.getLibrary().getName() + "library.\n"
+				setTooltip(new Tooltip(type.getObjectTypeName() + " in " + type.getLibrary().getName() + " library.\n"
 						+ type.getDescription()));
 				graphic = new ImageManager().getView(type.getIcon());
 				if (graphic != null)
@@ -73,10 +73,12 @@ public class AssignedTypePropertiesTreeTableCellFactory extends TreeTableCell<Pr
 		// this fires after the member selection listener
 		if (assignedType != null)
 			lm = ((OtmModelElement<?>) assignedType).getOwningMember();
-		if (controller != null && lm != null && event.getButton().equals(MouseButton.PRIMARY)
-				&& event.getClickCount() == 2) {
+		if (controller != null && event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
 			log.debug("Double click selection: ");
-			controller.fireEvent(new DexMemberSelectionEvent(lm));
+			if (lm != null)
+				controller.fireEvent(new DexMemberSelectionEvent(lm));
+			else
+				controller.getMainController().postStatus("Assigned type could not be found.");
 		}
 	}
 

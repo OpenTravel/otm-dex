@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.common.OtmTypeUserUtils;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmPropertyOwner;
@@ -29,7 +30,9 @@ import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.OtmPropertyFactory;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
@@ -51,83 +54,13 @@ public class OtmValueWithAttributes extends OtmLibraryMemberBase<TLValueWithAttr
 
 	private StringProperty assignedTypeProperty;
 
-	public OtmValueWithAttributes(TLValueWithAttributes tlo, OtmModelManager mgr) {
-		super(tlo, mgr);
-	}
-
 	public OtmValueWithAttributes(String name, OtmModelManager mgr) {
 		super(new TLValueWithAttributes(), mgr);
 		setName(name);
 	}
 
-	@Override
-	public StringProperty assignedTypeProperty() {
-		if (assignedTypeProperty == null && isEditable() && !getAssignedTypeName().isEmpty())
-			assignedTypeProperty = new SimpleStringProperty(getAssignedTypeName());
-		else
-			assignedTypeProperty = new ReadOnlyStringWrapper(getAssignedTypeName());
-		return assignedTypeProperty;
-	}
-
-	@Override
-	public Icons getIconType() {
-		return ImageManager.Icons.VWA;
-	}
-
-	// @Override
-	// public OtmLibrary getLibrary() {
-	// return mgr.get(getTL().getOwningLibrary());
-	// }
-	//
-	// @Override
-	// public boolean isEditable() {
-	// return getLibrary() != null && getLibrary().isEditable();
-	// }
-
-	@Override
-	public boolean isNameControlled() {
-		return false;
-	}
-
-	@Override
-	public TLValueWithAttributes getTL() {
-		return (TLValueWithAttributes) tlObject;
-	}
-
-	@Override
-	public String setName(String name) {
-		getTL().setName(name);
-		isValid(true);
-		return getName();
-	}
-
-	// @Override
-	// public String getLibraryName() {
-	// String libName = "";
-	// if (getTL().getOwningLibrary() != null)
-	// libName = getTL().getOwningLibrary().getName();
-	// return libName;
-	// }
-
-	@Override
-	public OtmValueWithAttributes getOwningMember() {
-		return this;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Creates properties for children in the TL object.
-	 */
-	@Override
-	public void modelChildren() {
-		getTL().getAttributes().forEach(tla -> addChild(OtmPropertyFactory.create(tla, this)));
-		getTL().getIndicators().forEach(tli -> addChild(OtmPropertyFactory.create(tli, this)));
-	}
-
-	private void addChild(OtmProperty<?> child) {
-		if (child != null)
-			children.add(child);
+	public OtmValueWithAttributes(TLValueWithAttributes tlo, OtmModelManager mgr) {
+		super(tlo, mgr);
 	}
 
 	@Override
@@ -142,46 +75,95 @@ public class OtmValueWithAttributes extends OtmLibraryMemberBase<TLValueWithAttr
 		return OtmPropertyFactory.create(tl, this);
 	}
 
-	@Override
-	public OtmTypeProvider getAssignedType() {
-		// TODO Auto-generated method stub
-		return null;
+	private void addChild(OtmProperty<?> child) {
+		if (child != null)
+			children.add(child);
 	}
 
 	@Override
-	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getAssignedTypeName() {
-		// TODO Auto-generated method stub
-		return null;
+	public StringProperty assignedTypeProperty() {
+		if (assignedTypeProperty == null) {
+			if (isEditable())
+				assignedTypeProperty = new SimpleStringProperty(OtmTypeUserUtils.formatAssignedType(this));
+			else
+				assignedTypeProperty = new ReadOnlyStringWrapper(OtmTypeUserUtils.formatAssignedType(this));
+		}
+		return assignedTypeProperty;
 	}
 
 	@Override
 	public TLPropertyType getAssignedTLType() {
-		// TODO Auto-generated method stub
-		return null;
+		return getTL().getParentType();
 	}
 
 	@Override
-	public TLPropertyType setAssignedTLType(TLPropertyType type) {
-		// TODO Auto-generated method stub
-		return null;
+	public OtmTypeProvider getAssignedType() {
+		return OtmTypeUserUtils.getAssignedType(this);
 	}
 
 	@Override
-	public String getAssignedTypeLocalName() {
-		// TODO Auto-generated method stub
-		return null;
+	public Icons getIconType() {
+		return ImageManager.Icons.VWA;
 	}
 
 	@Override
-	public void setTLTypeName(String oldTLTypeName) {
-		// TODO Auto-generated method stub
+	public OtmValueWithAttributes getOwningMember() {
+		return this;
+	}
 
+	@Override
+	public TLValueWithAttributes getTL() {
+		return (TLValueWithAttributes) tlObject;
+	}
+
+	@Override
+	public String getTlAssignedTypeName() {
+		return getTL().getParentTypeName();
+	}
+
+	@Override
+	public boolean isNameControlled() {
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Creates properties for attributes and indicators in the TL object.
+	 */
+	@Override
+	public void modelChildren() {
+		getTL().getAttributes().forEach(tla -> addChild(OtmPropertyFactory.create(tla, this)));
+		getTL().getIndicators().forEach(tli -> addChild(OtmPropertyFactory.create(tli, this)));
+	}
+
+	@Override
+	public TLPropertyType setAssignedTLType(NamedEntity type) {
+		if (type instanceof TLAttributeType)
+			getTL().setParentType((TLAttributeType) type);
+		assignedTypeProperty = null;
+		log.debug("Set assigned TL type");
+		return getAssignedTLType();
+	}
+
+	@Override
+	public OtmTypeProvider setAssignedType(OtmTypeProvider type) {
+		if (type != null && type.getTL() instanceof TLAttributeType)
+			setAssignedTLType((TLAttributeType) type.getTL());
+		return getAssignedType();
+	}
+
+	@Override
+	public String setName(String name) {
+		getTL().setName(name);
+		isValid(true);
+		return getName();
+	}
+
+	@Override
+	public void setTLTypeName(String name) {
+		getTL().setParentType(null);
+		getTL().setParentTypeName(name);
 	}
 
 }

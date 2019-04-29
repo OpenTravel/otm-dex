@@ -15,6 +15,7 @@ import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -38,9 +39,6 @@ import javafx.scene.layout.VBox;
 public class MemberPropertiesTreeTableController extends DexIncludedControllerBase<MemberDAO> {
 	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
-	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
-	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
-
 	@FXML
 	protected TreeTableView<PropertiesDAO> propertiesTable;
 
@@ -59,6 +57,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 	protected TreeTableColumn<PropertiesDAO, String> deprecatedCol;
 	protected TreeTableColumn<PropertiesDAO, String> otherDocCol;
+
+	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
+	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
 
 	/**
 	 * Create a facet and property treeTable with manager.
@@ -263,9 +264,12 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 	public void memberSelectionHandler(DexMemberSelectionEvent event) {
 		log.debug("Dex member selection event received.");
+		post(event.getMember());
+	}
+
+	public void post(OtmLibraryMember member) {
 		clear();
-		if (event.getMember() instanceof OtmChildrenOwner)
-			createTreeItems(event.getMember(), root);
+		createTreeItems(member, root);
 	}
 
 	/**

@@ -10,7 +10,6 @@ import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLPropertyType;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +20,8 @@ import javafx.collections.ObservableList;
  * @author dmh
  *
  */
+@Deprecated
+// -technique is OK,no longer needed.
 public class AssignedTypesMenuHandler {
 	static final String CHANGE = "Change";
 	static final String GOTO = "Go To";
@@ -56,8 +57,7 @@ public class AssignedTypesMenuHandler {
 	public OtmLibraryMember findAssignedType(PropertiesDAO prop) {
 		if (prop.getValue() instanceof OtmTypeUser) {
 			OtmTypeUser user = (OtmTypeUser) prop.getValue();
-			TLPropertyType propertyType = user.getAssignedTLType();
-			OtmModelElement<?> otm = OtmModelElement.get((TLModelElement) propertyType);
+			OtmModelElement<?> otm = OtmModelElement.get((TLModelElement) user.getAssignedTLType());
 			if (otm != null && !(otm instanceof OtmLibraryMember))
 				otm = (OtmModelElement<?>) otm.getOwningMember();
 			return (OtmLibraryMember) otm;

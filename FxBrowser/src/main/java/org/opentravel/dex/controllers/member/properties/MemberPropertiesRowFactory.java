@@ -5,6 +5,7 @@ package org.opentravel.dex.controllers.member.properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.otmFacets.OtmFacet;
@@ -15,6 +16,7 @@ import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableRow;
 
@@ -37,25 +39,22 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 	private final ContextMenu addMenu = new ContextMenu();
 	private MemberPropertiesTreeTableController controller;
 
+	// Constructor does not have access to content, just the empty row
 	public MemberPropertiesRowFactory(MemberPropertiesTreeTableController controller) {
 		this.controller = controller;
 
 		// Create Context menu
 		MenuItem addObject = new MenuItem("Add Property (Demo)");
-		MenuItem changeType = new MenuItem("Change Type (Future)");
+		MenuItem changeType = new MenuItem("Change Assigned Type");
 		MenuItem upObject = new MenuItem("Move Up (Future)");
 		MenuItem downObject = new MenuItem("Move Down (Future)");
-		addMenu.getItems().addAll(addObject, upObject, downObject);
+		SeparatorMenuItem separator = new SeparatorMenuItem();
+		addMenu.getItems().addAll(addObject, changeType, separator, upObject, downObject);
 		setContextMenu(addMenu);
-
-		// The item behind this row - NOT Available!
-		// TreeItem<PropertiesDAO> x = this.getTreeItem();
-		// PropertiesDAO y = getItem();
-		// OtmModelElement<?> otm = getItem().getValue();
-		// this.setUserData(otm);
 
 		// Create action for addObject event
 		addObject.setOnAction(this::addMemberEvent);
+		changeType.setOnAction(e -> changeAssignedType());
 
 		// // Set editable style listener (css class)
 		treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> setCSSClass(this, newTreeItem));
@@ -103,6 +102,16 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 
 	}
 
+	private void changeAssignedType() {
+		TreeItem<PropertiesDAO> treeItem = getTreeItem();
+		if (treeItem != null && treeItem.getValue() != null) {
+			OtmModelElement<?> otm = treeItem.getValue().getValue();
+			if (otm != null)
+				otm.getActionManager().addAction(DexActions.TYPECHANGE, treeItem.getValue());
+		}
+		controller.refresh();
+	}
+
 	/**
 	 * @param tc
 	 * @param newTreeItem
@@ -111,6 +120,9 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 	// TODO - use style class for warning and error
 	private void setCSSClass(TreeTableRow<PropertiesDAO> tc, TreeItem<PropertiesDAO> newTreeItem) {
 		if (newTreeItem != null) {
+			// Disable context menu items
+			getContextMenu().getItems().forEach(i -> i.setDisable(!newTreeItem.getValue().isEditable()));
+
 			if (newTreeItem.getValue().getValue() instanceof OtmFacet) {
 				// Make facets dividers
 				tc.pseudoClassStateChanged(DIVIDER, true);

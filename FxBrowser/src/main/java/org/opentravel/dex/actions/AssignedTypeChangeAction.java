@@ -15,7 +15,7 @@ import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
@@ -27,7 +27,7 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 
 	private PropertiesDAO propertiesDAO;
 	private OtmTypeProvider oldProvider;
-	private TLPropertyType oldTLType;
+	private NamedEntity oldTLType;
 	private String oldName;
 	private OtmTypeProvider newProvider;
 	private boolean ignore;
@@ -88,7 +88,11 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 		if (selected != null && selected.getValue() instanceof OtmTypeProvider) {
 			newProvider = (OtmTypeProvider) selected.getValue();
 			// Set value into model
-			user.setAssignedType(newProvider);
+			OtmTypeProvider p = user.setAssignedType(newProvider);
+
+			if (p != newProvider)
+				outcome = false; // there was an error
+			// TODO - how to process the error? Veto does not look at this.
 
 			// Validate results. Note: TL will not veto (prevent) change.
 			if (isValid())
@@ -143,6 +147,7 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 
 	@Override
 	public ValidationFindings getVetoFindings() {
+		// TODO create a finding if the outcome is false
 		return ValidationUtils.getRelevantFindings(VETOKEYS, otm.getFindings());
 	}
 
