@@ -29,6 +29,7 @@ import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmContainers.OtmLibrary;
@@ -57,7 +58,8 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 
 	protected OtmModelManager mgr = null;
 	LibraryMember lm;
-	public List<OtmTypeProvider> providers = null;
+	protected List<OtmTypeProvider> providers = null;
+	protected List<OtmTypeUser> users = new ArrayList<>();
 
 	/**
 	 */
@@ -70,11 +72,10 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 		// assert mgr != null;
 	}
 
-	// Here for convince - part of OtmChildOwner interface
 	@Override
-	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
-		Collection<OtmModelElement<TLModelElement>> hierarchy = new ArrayList<>();
-		children.forEach(c -> hierarchy.add((OtmModelElement<TLModelElement>) c));
+	public Collection<OtmObject> getChildrenHierarchy() {
+		Collection<OtmObject> hierarchy = new ArrayList<>();
+		children.forEach(c -> hierarchy.add(c));
 		return hierarchy;
 	}
 
@@ -84,27 +85,24 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	}
 
 	/**
-	 * @return immediate children who implement OtmTypeProvider or empty list.
 	 */
 	@Override
 	public Collection<OtmTypeProvider> getChildrenTypeProviders() {
 		if (getChildren() != null) {
-			List<OtmTypeProvider> providers = new ArrayList<>();
+			List<OtmTypeProvider> pChildren = new ArrayList<>();
 			for (OtmModelElement<?> child : getChildren())
 				if (child instanceof OtmTypeProvider)
-					providers.add((OtmTypeProvider) child);
-			return providers;
+					pChildren.add((OtmTypeProvider) child);
+			return pChildren;
 		} else {
 			return Collections.emptyList();
 		}
 	}
 
 	/**
-	 * @return descendants who implement OtmTypeProvider or empty list.
 	 */
 	@Override
 	public Collection<OtmTypeProvider> getDescendantsTypeProviders() {
-		List<OtmTypeProvider> providers = Collections.emptyList();
 		if (getChildrenTypeProviders() != null) {
 			providers = new ArrayList<>();
 			for (OtmTypeProvider p : getChildrenTypeProviders()) {
@@ -117,23 +115,27 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 		return providers;
 	}
 
-	/**
-	 * @return descendants who implement OtmTypeUser or empty list.
-	 */
+	@Override
+	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners() {
+		List<OtmChildrenOwner> owners = new ArrayList<>();
+		for (OtmModelElement<?> child : getChildren()) {
+			if (child instanceof OtmChildrenOwner) {
+				owners.add((OtmChildrenOwner) child);
+				// Recurse
+				owners.addAll(((OtmChildrenOwner) child).getDescendantsChildrenOwners());
+			}
+		}
+		return owners;
+	}
+
 	@Override
 	public Collection<OtmTypeUser> getDescendantsTypeUsers() {
-		List<OtmTypeUser> users = new ArrayList<>();
 		for (OtmModelElement<?> child : getChildren()) {
 			if (child instanceof OtmTypeUser)
 				users.add((OtmTypeUser) child);
 		}
 		// Recurse
-		if (getDescendantsTypeProviders() != null) {
-			getDescendantsTypeProviders().forEach(d -> {
-				if (d instanceof OtmChildrenOwner)
-					users.addAll(((OtmChildrenOwner) d).getDescendantsTypeUsers());
-			});
-		}
+		getDescendantsChildrenOwners().forEach(d -> users.addAll(d.getDescendantsTypeUsers()));
 		return users;
 	}
 
@@ -149,6 +151,13 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	@Override
 	public boolean isEditable() {
 		return getLibrary() != null && getLibrary().isEditable();
+	}
+
+	@Override
+	public boolean isValid(boolean force) {
+		if (force)
+			getDescendantsChildrenOwners().forEach(c -> c.isValid(force));
+		return super.isValid(force);
 	}
 
 	@Override

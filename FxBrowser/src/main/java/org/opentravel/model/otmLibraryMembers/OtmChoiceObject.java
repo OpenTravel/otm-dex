@@ -25,11 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmFacets.OtmSharedFacet;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * OTM Object Node for business objects.
@@ -72,32 +71,14 @@ public class OtmChoiceObject extends OtmComplexObjects<TLChoiceObject> {
 	}
 
 	@Override
-	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
-		Collection<OtmModelElement<TLModelElement>> ch = new ArrayList<>();
+	public Collection<OtmObject> getChildrenHierarchy() {
+		Collection<OtmObject> ch = new ArrayList<>();
 		children.forEach(c -> {
 			if (c instanceof OtmSharedFacet)
-				ch.add((OtmModelElement<TLModelElement>) c);
+				ch.add(c);
 		});
 		return ch;
 	}
-
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Creates facets to represent facets in the TL choice object.
-	// */
-	// @Override
-	// public void modelChildren() {
-	// // getChildren().add(new OtmSummaryFacet(getTL().getSharedFacet()));
-	// }
-
-	// /**
-	// * @return this
-	// */
-	// @Override
-	// public OtmComplexObject<?> getOwningMember() {
-	// return this;
-	// }
 
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {

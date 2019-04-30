@@ -6,15 +6,13 @@ package org.opentravel.model;
 import java.util.Collection;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.TLModelElement;
-
 /**
  * All owners of children must implement this interface.
  * 
  * @author dmh
  *
  */
-public interface OtmChildrenOwner {
+public interface OtmChildrenOwner extends OtmObject {
 
 	/**
 	 * Get a list of all the children of this object. To allow lazy evaluation, implementations are expected to attempt
@@ -32,12 +30,12 @@ public interface OtmChildrenOwner {
 	 * 
 	 * @return list of children or empty list.
 	 */
-	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy();
+	public Collection<OtmObject> getChildrenHierarchy();
 
 	/**
 	 * Get a list of children that are type providers.
 	 * 
-	 * @return list of children or empty list.
+	 * @return new list of children or empty list.
 	 */
 	public Collection<OtmTypeProvider> getChildrenTypeProviders();
 
@@ -56,5 +54,10 @@ public interface OtmChildrenOwner {
 	/**
 	 * @return
 	 */
-	Collection<OtmTypeUser> getDescendantsTypeUsers();
+	public Collection<OtmTypeUser> getDescendantsTypeUsers();
+
+	/**
+	 * @return new list of all descendants that are children owners or empty list, never null
+	 */
+	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners();
 }

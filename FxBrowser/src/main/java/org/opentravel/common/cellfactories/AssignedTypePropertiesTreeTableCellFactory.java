@@ -10,10 +10,10 @@ import org.opentravel.dex.controllers.member.properties.MemberPropertiesTreeTabl
 import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.schemacompiler.model.TLModelElement;
 
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
@@ -39,7 +39,7 @@ public class AssignedTypePropertiesTreeTableCellFactory extends TreeTableCell<Pr
 	protected void updateItem(String item, boolean empty) {
 		super.updateItem(item, empty);
 		if (!empty && getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-			OtmModelElement<?> element = getTreeTableRow().getItem().getValue();
+			OtmObject element = getTreeTableRow().getItem().getValue();
 			ImageView graphic = null;
 
 			setText(getTreeTableRow().getItem().assignedTypeProperty().get());
@@ -50,10 +50,9 @@ public class AssignedTypePropertiesTreeTableCellFactory extends TreeTableCell<Pr
 				assignedType = null;
 
 			if (assignedType != null) {
-				OtmModelElement<TLModelElement> type = (OtmModelElement<TLModelElement>) assignedType;
-				setTooltip(new Tooltip(type.getObjectTypeName() + " in " + type.getLibrary().getName() + " library.\n"
-						+ type.getDescription()));
-				graphic = new ImageManager().getView(type.getIcon());
+				setTooltip(new Tooltip(assignedType.getObjectTypeName() + " in " + assignedType.getLibrary().getName()
+						+ " library.\n" + assignedType.getDescription()));
+				graphic = new ImageManager().getView(assignedType.getIcon());
 				if (graphic != null)
 					setGraphic(graphic);
 				setOnMouseClicked(this::mouseClick);

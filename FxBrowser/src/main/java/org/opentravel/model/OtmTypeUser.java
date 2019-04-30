@@ -3,7 +3,6 @@
  */
 package org.opentravel.model;
 
-import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 
 import javafx.beans.property.StringProperty;
@@ -15,7 +14,7 @@ import javafx.beans.property.StringProperty;
  * @author dmh
  *
  */
-public interface OtmTypeUser {
+public interface OtmTypeUser extends OtmObject {
 
 	/**
 	 * FX Property with the type name. Adds prefix if the owner and type are in different libraries.
@@ -32,19 +31,6 @@ public interface OtmTypeUser {
 	 * @return
 	 */
 	public OtmTypeProvider getAssignedType();
-
-	/**
-	 * Facade for OtmModelElement method.
-	 * 
-	 * @return
-	 */
-	public OtmLibrary getLibrary();
-
-	// /**
-	// * @return the local name of the assigned type (no prefix)
-	// */
-	// @Deprecated
-	// public String getAssignedTypeLocalName();
 
 	/**
 	 * Get the "typeName" field from the TL object. Should only be used as last resort if Otm and TL objects are not

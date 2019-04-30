@@ -25,11 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmFacets.OtmIdFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * OTM Object Node for business objects.
@@ -67,40 +66,14 @@ public class OtmBusinessObject extends OtmComplexObjects<TLBusinessObject> {
 	}
 
 	@Override
-	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
-		Collection<OtmModelElement<TLModelElement>> ch = new ArrayList<>();
+	public Collection<OtmObject> getChildrenHierarchy() {
+		Collection<OtmObject> ch = new ArrayList<>();
 		children.forEach(c -> {
 			if (c instanceof OtmIdFacet)
-				ch.add((OtmModelElement<TLModelElement>) c);
+				ch.add(c);
 		});
 		return ch;
 	}
-
-	// @Override
-	// public boolean isNameControlled() {
-	// return true;
-	// };
-
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Creates facets to represent facets in the TL business object.
-	// */
-	// @Override
-	// public void modelChildren() {
-	// if (getTL() instanceof TLFacetOwner)
-	// ((TLFacetOwner) getTL()).getAllFacets();
-	// children.add(new OtmSummaryFacet(getTL().getSummaryFacet(), this));
-	// children.add(new OtmDetailFacet(getTL().getDetailFacet(), this));
-	// }
-
-	// /**
-	// * @return this
-	// */
-	// @Override
-	// public OtmLibraryMember<?> getOwningMember() {
-	// return this;
-	// }
 
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {

@@ -3,7 +3,7 @@
  */
 package org.opentravel.common;
 
-import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -72,7 +72,6 @@ public class ImageManager {
 	 * @param icon
 	 * @return a javafx node for the icon
 	 */
-	@SuppressWarnings("restriction")
 	public ImageView getView(Icons icon) {
 		// Image i = get(icon);
 		// ImageView iv = new ImageView(i);
@@ -85,7 +84,6 @@ public class ImageManager {
 	 * 
 	 * @return a javafx node for the icon
 	 */
-	@SuppressWarnings("restriction")
 	public ImageView getView(Image icon) {
 		return new ImageView(icon);
 	}
@@ -96,7 +94,7 @@ public class ImageManager {
 	 * @return a javafx node for the icon
 	 */
 	// @SuppressWarnings("restriction")
-	public ImageView getView(OtmModelElement<?> element) {
+	public ImageView getView(OtmObject element) {
 		return new ImageView(element.getIcon());
 	}
 

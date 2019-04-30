@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ValidationUtils;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
@@ -31,6 +32,11 @@ public class NameChangeAction extends DexStringAction {
 
 	public NameChangeAction(OtmModelElement<?> otm) {
 		this.otm = otm;
+	}
+
+	@Override
+	public OtmObject getSubject() {
+		return otm;
 	}
 
 	@Override

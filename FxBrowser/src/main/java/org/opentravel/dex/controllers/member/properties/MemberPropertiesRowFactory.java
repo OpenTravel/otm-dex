@@ -6,8 +6,9 @@ package org.opentravel.dex.controllers.member.properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
-import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmPropertyOwner;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.schemacompiler.model.TLProperty;
@@ -77,7 +78,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 
 		TreeItem<PropertiesDAO> treeItem = getTreeItem();
 		if (treeItem != null) {
-			OtmModelElement<?> otm = treeItem.getValue().getValue();
+			OtmObject otm = treeItem.getValue().getValue();
 
 			// TODO - move to action handler
 			//
@@ -104,12 +105,11 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 
 	private void changeAssignedType() {
 		TreeItem<PropertiesDAO> treeItem = getTreeItem();
-		if (treeItem != null && treeItem.getValue() != null) {
-			OtmModelElement<?> otm = treeItem.getValue().getValue();
-			if (otm != null)
-				otm.getActionManager().addAction(DexActions.TYPECHANGE, treeItem.getValue());
+		if (treeItem != null && treeItem.getValue() != null && treeItem.getValue().getValue() instanceof OtmTypeUser) {
+			OtmTypeUser user = (OtmTypeUser) treeItem.getValue().getValue();
+			user.getActionManager().addAction(DexActions.TYPECHANGE, user);
 		}
-		controller.refresh();
+		controller.getMainController().refresh();
 	}
 
 	/**

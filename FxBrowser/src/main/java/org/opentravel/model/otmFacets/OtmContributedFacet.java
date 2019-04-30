@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
@@ -58,6 +59,11 @@ public class OtmContributedFacet extends OtmFacet<TLContextualFacet> {
 		if (contributor == null)
 			contributor = (OtmContextualFacet) OtmModelElement.get(getTL());
 		return contributor;
+	}
+
+	@Override
+	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners() {
+		return contributor != null ? contributor.getDescendantsChildrenOwners() : Collections.emptyList();
 	}
 
 	@Override

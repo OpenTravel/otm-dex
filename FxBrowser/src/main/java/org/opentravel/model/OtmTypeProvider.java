@@ -3,17 +3,11 @@
  */
 package org.opentravel.model;
 
-import org.opentravel.schemacompiler.model.TLModelElement;
-
 /**
  * @author dmh
  *
  */
-public interface OtmTypeProvider {
-
-	public String getName();
-
-	public TLModelElement getTL();
+public interface OtmTypeProvider extends OtmObject {
 
 	/**
 	 * Providers that are name controlled require that all element names assigned to this provider be set based on the

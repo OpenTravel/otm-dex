@@ -27,6 +27,7 @@ import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
@@ -52,7 +53,7 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 
 	public OtmContributedFacet getWhereContributed() {
 		if (whereContributed == null) {
-			OtmModelElement<?> o = OtmModelElement.get((TLModelElement) getTL().getOwningEntity());
+			OtmObject o = OtmModelElement.get((TLModelElement) getTL().getOwningEntity());
 			if (o instanceof OtmContributedFacet)
 				o = ((OtmContributedFacet) o).getContributor();
 			if (o instanceof OtmChildrenOwner)

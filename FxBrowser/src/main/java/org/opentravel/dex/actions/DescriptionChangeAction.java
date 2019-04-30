@@ -5,7 +5,7 @@ package org.opentravel.dex.actions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -14,16 +14,21 @@ import javafx.beans.value.ObservableValue;
 public class DescriptionChangeAction extends DexStringAction {
 	private static Log log = LogFactory.getLog(DescriptionChangeAction.class);
 
-	private OtmModelElement<?> otm;
+	private OtmObject otm;
 	private boolean outcome = false;
 	private String oldDescription;
 	private String newDescription;
 
-	public DescriptionChangeAction(OtmModelElement<?> otm) {
+	public DescriptionChangeAction(OtmObject otm) {
 		this.otm = otm;
 		this.oldDescription = otm.getDescription();
 		if (oldDescription == null)
 			oldDescription = "";
+	}
+
+	@Override
+	public OtmObject getSubject() {
+		return otm;
 	}
 
 	@Override

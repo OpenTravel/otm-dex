@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * @author dmh
@@ -17,13 +16,13 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 public class OtmModelElementListener implements ModelElementListener {
 	private static Log log = LogFactory.getLog(OtmModelElementListener.class);
 
-	OtmModelElement<TLModelElement> otm;
+	OtmObject otm;
 
-	public OtmModelElementListener(OtmModelElement<TLModelElement> otmModelElement) {
+	public OtmModelElementListener(OtmObject otmModelElement) {
 		otm = otmModelElement;
 	}
 
-	public OtmModelElement<TLModelElement> get() {
+	public OtmObject get() {
 		return otm;
 	}
 

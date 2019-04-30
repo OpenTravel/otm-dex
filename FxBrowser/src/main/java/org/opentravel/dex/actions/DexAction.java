@@ -3,6 +3,7 @@
  */
 package org.opentravel.dex.actions;
 
+import org.opentravel.model.OtmObject;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 /**
@@ -50,6 +51,11 @@ public interface DexAction<T> {
 	 * @return
 	 */
 	ValidationFindings getVetoFindings();
+
+	/**
+	 * @return
+	 */
+	public OtmObject getSubject();
 
 	// /**
 	// * @return true if change is valid for this object for this application and user.

@@ -9,10 +9,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
-import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.schemacompiler.model.TLModelElement;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -27,17 +26,17 @@ import javafx.scene.image.ImageView;
  * @param <T>
  *
  */
-public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
+public class MemberDAO implements DexDAO<OtmObject> {
 	private static Log log = LogFactory.getLog(MemberDAO.class);
 
-	protected OtmModelElement<TLModelElement> otmObject;
+	protected OtmObject otmObject;
 
 	public MemberDAO(OtmLibraryMember member) {
-		this.otmObject = (OtmModelElement<TLModelElement>) member;
+		this.otmObject = member;
 	}
 
 	public MemberDAO(OtmTypeProvider provider) {
-		this.otmObject = (OtmModelElement<TLModelElement>) provider;
+		this.otmObject = provider;
 	}
 
 	@Override
@@ -46,7 +45,7 @@ public class MemberDAO implements DexDAO<OtmModelElement<TLModelElement>> {
 	}
 
 	@Override
-	public OtmModelElement<TLModelElement> getValue() {
+	public OtmObject getValue() {
 		return otmObject;
 	}
 

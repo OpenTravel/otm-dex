@@ -4,9 +4,8 @@
 package org.opentravel.dex.controllers.member.properties;
 
 import org.opentravel.common.DialogBox;
-import org.opentravel.dex.actions.DexActionManager.DexActions;
-import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -41,25 +40,25 @@ public class AssignedTypesMenuHandler {
 	}
 
 	public void handle(String selection, PropertiesDAO prop) {
-		if (selection.equals(CHANGE)) {
-			prop.getValue().getActionManager().addAction(DexActions.TYPECHANGE, prop);
-		} else if (selection.equals(GOTO)) {
-			OtmLibraryMember otm = findAssignedType(prop);
-			if (otm != null)
-				prop.getController().fireEvent(new DexMemberSelectionEvent(otm));
-			else
-				prop.getController().getMainController().postError(null, "The type assigned could not be found.");
-		} else {
-			DialogBox.notify("Assigned Type Menu", selection + " is not implemented yet.");
-		}
+		// if (selection.equals(CHANGE)) {
+		// prop.getValue().getActionManager().addAction(DexActions.TYPECHANGE, prop);
+		// } else if (selection.equals(GOTO)) {
+		// OtmLibraryMember otm = findAssignedType(prop);
+		// if (otm != null)
+		// prop.getController().fireEvent(new DexMemberSelectionEvent(otm));
+		// else
+		// prop.getController().getMainController().postError(null, "The type assigned could not be found.");
+		// } else {
+		DialogBox.notify("Assigned Type Menu", selection + " is not implemented yet.");
+		// }
 	}
 
 	public OtmLibraryMember findAssignedType(PropertiesDAO prop) {
 		if (prop.getValue() instanceof OtmTypeUser) {
 			OtmTypeUser user = (OtmTypeUser) prop.getValue();
-			OtmModelElement<?> otm = OtmModelElement.get((TLModelElement) user.getAssignedTLType());
+			OtmObject otm = OtmModelElement.get((TLModelElement) user.getAssignedTLType());
 			if (otm != null && !(otm instanceof OtmLibraryMember))
-				otm = (OtmModelElement<?>) otm.getOwningMember();
+				otm = otm.getOwningMember();
 			return (OtmLibraryMember) otm;
 		}
 		return null;

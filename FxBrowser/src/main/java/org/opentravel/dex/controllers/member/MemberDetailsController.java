@@ -5,6 +5,7 @@ package org.opentravel.dex.controllers.member;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.popup.DialogBoxContoller;
@@ -159,10 +160,10 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 			clear();
 			return;
 		}
+		selectedMember = member;
 		// Collection<OtmTypeUser> u = member.getDescendantsTypeUsers();
 		// Collection<OtmTypeProvider> p = member.getDescendantsTypeProviders();
 
-		// objectLabel.setTooltip(new Tooltip(member.getClass().getSimpleName()));
 		objectLabel.setTooltip(new Tooltip(member.getObjectTypeName()));
 		if (imageMgr != null)
 			objectImageView.setImage(imageMgr.get(member.getIconType()));
@@ -176,11 +177,15 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 		libraryName.setEditable(false);
 		libraryName.setText(member.libraryProperty().get());
 		changeLibraryButton.setDisable(!member.isEditable());
+		changeLibraryButton.setDisable(true); // TEMP
 
 		// Description
 		memberDescription.setEditable(member.isEditable());
 		memberDescription.setText(member.descriptionProperty().get());
 		memberDescription.setOnAction(e -> member.descriptionProperty().set(memberDescription.getText()));
+
+		// Base type
+		changeBaseButton.setDisable(true); // TEMP
 
 		// Assigned type
 		final String TYPELABEL = "Assigned Type";
@@ -196,33 +201,45 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 		// else if (member instanceof OtmTypeUser)
 		// provider = ((OtmTypeUser) member).getAssignedType();
 
-		changeTypeButton.setDisable(!(member instanceof OtmTypeUser));
+		// icon?
+		if (member.getActionManager().isEnabled(DexActions.TYPECHANGE, member)) {
+			changeTypeButton.setDisable(false);
+			changeTypeButton.setOnAction(e -> setAssignedType());
+		} else {
+			changeTypeButton.setDisable(true);
+			changeTypeButton.setOnAction(null);
+		}
 		assignedTypeName.setDisable((!(member instanceof OtmTypeUser)));
 		assignedTypeName.setEditable(false);
-		if (member instanceof OtmTypeUser)
+		if (member instanceof OtmTypeUser && ((OtmTypeUser) member).getAssignedType() != null) {
+			assignedTypeName.setTooltip(new Tooltip(((OtmTypeUser) member).getAssignedType().getDescription()));
 			assignedTypeName.setText(((OtmTypeUser) member).assignedTypeProperty().get());
-		else
+		} else {
+			assignedTypeName.setTooltip(null);
 			assignedTypeName.setText("");
-		assignedTypeName.setOnAction(e -> setAssignedType());
+		}
 	}
 
 	private void setAssignedType() {
-
+		log.debug("Set assigned type event.");
+		if (selectedMember instanceof OtmTypeUser)
+			selectedMember.getActionManager().addAction(DexActions.TYPECHANGE, selectedMember);
+		refresh();
 	}
 
-	/**
-	 * Make and fire a filter event. Set ignore clear in case event handler tries to clear() this controller.
-	 */
-	private void fireFilterChangeEvent() {
-		// if (eventPublisherNode != null) {
-		// ignoreClear = true; // Set just in case event handler does a clear
-		// log.debug("Ready to fire controller level Filter Change event.");
-		// eventPublisherNode.fireEvent(new DexFilterChangeEvent(this, memberDetails));
-		// ignoreClear = false;
-		// } else if (popupController != null) {
-		// popupController.refresh();
-		// }
-	}
+	// /**
+	// * Make and fire a filter event. Set ignore clear in case event handler tries to clear() this controller.
+	// */
+	// private void fireFilterChangeEvent() {
+	// if (eventPublisherNode != null) {
+	// ignoreClear = true; // Set just in case event handler does a clear
+	// log.debug("Ready to fire controller level Filter Change event.");
+	// eventPublisherNode.fireEvent(new DexFilterChangeEvent(this, memberDetails));
+	// ignoreClear = false;
+	// } else if (popupController != null) {
+	// popupController.refresh();
+	// }
+	// }
 
 	@Override
 	public void clear() {

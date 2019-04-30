@@ -26,8 +26,6 @@ import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract OTM Node for attribute properties.
@@ -36,7 +34,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class OtmElementReference<TL extends TLProperty> extends OtmElement<TLProperty> implements OtmTypeUser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmElementReference.class);
 
 	/**
 	 */

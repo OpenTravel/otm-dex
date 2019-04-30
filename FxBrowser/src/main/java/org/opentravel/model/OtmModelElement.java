@@ -55,7 +55,7 @@ import javafx.scene.image.ImageView;
  * @author Dave Hollander
  * 
  */
-public abstract class OtmModelElement<T extends TLModelElement> {
+public abstract class OtmModelElement<T extends TLModelElement> implements OtmObject {
 	private static Log log = LogFactory.getLog(OtmModelElement.class);
 
 	private static final String NONAMESPACE = "no-namespace-for-for-this-object";
@@ -70,11 +70,11 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	 *            the wrapped TLModelElement
 	 * @return otm facade wrapper or null if no listener found.
 	 */
-	public static OtmModelElement<TLModelElement> get(TLModelElement tlObject) {
+	public static OtmObject get(TLModelElement tlObject) {
 		if (tlObject != null)
 			for (ModelElementListener l : tlObject.getListeners())
 				if (l instanceof OtmModelElementListener) {
-					OtmModelElement<?> o = ((OtmModelElementListener) l).get();
+					OtmObject o = ((OtmModelElementListener) l).get();
 					// Contextual facets will have two listeners
 					if (o instanceof OtmContributedFacet)
 						continue;
@@ -102,7 +102,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		if (tl == null)
 			throw new IllegalArgumentException("Must have a tl element to create facade.");
 		tlObject = tl;
-		tl.addListener(new OtmModelElementListener((OtmModelElement<TLModelElement>) this));
+		tl.addListener(new OtmModelElementListener(this));
 		// checkListener();
 
 		this.actionMgr = actionManager;
@@ -115,6 +115,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	// assert this == ((OtmModelElementListener) l).get();
 	// }
 
+	@Override
 	public StringProperty descriptionProperty() {
 		if (descriptionProperty == null) {
 			if (isEditable()) {
@@ -128,10 +129,12 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return descriptionProperty;
 	}
 
+	@Override
 	public DexActionManager getActionManager() {
 		return actionMgr;
 	}
 
+	@Override
 	public String getDeprecation() {
 		if (getTL() instanceof TLDocumentationOwner) {
 			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
@@ -141,6 +144,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return "";
 	}
 
+	@Override
 	public String getDescription() {
 		if (getTL() instanceof TLDocumentationOwner) {
 			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
@@ -150,6 +154,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return "";
 	}
 
+	@Override
 	public String getExample() {
 		if (getTL() instanceof TLExampleOwner) {
 			List<TLExample> exs = ((TLExampleOwner) getTL()).getExamples();
@@ -159,6 +164,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return "";
 	}
 
+	@Override
 	public ValidationFindings getFindings() {
 		if (findings == null)
 			isValid(true);
@@ -177,15 +183,18 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	// return children;
 	// }
 
+	@Override
 	public Image getIcon() {
 		return new ImageManager().get(this.getIconType());
 	}
 
+	@Override
 	public abstract ImageManager.Icons getIconType();
 
 	/**
 	 * @return this library, owning library or null
 	 */
+	@Override
 	public OtmLibrary getLibrary() {
 		// if (this instanceof OtmLibraryMember<?>) return getLibrary();
 		if (getOwningMember() != null)
@@ -193,6 +202,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		if (tlObject instanceof NamedEntity)
 			return ((NamedEntity) tlObject).getLocalName();
@@ -200,39 +210,47 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	}
 
 	// Should be overridden
+	@Override
 	public String getObjectTypeName() {
 		return getClass().getSimpleName();
 	}
 
+	@Override
 	public String getNamespace() {
 		if (tlObject instanceof NamedEntity)
 			return ((NamedEntity) tlObject).getNamespace();
 		return NONAMESPACE;
 	}
 
+	@Override
 	public abstract OtmLibraryMember getOwningMember();
 
 	/**
 	 * 
 	 */
+	@Override
 	public String getPrefix() {
 		return getOwningMember() != null && getOwningMember().getLibrary() != null
 				? getOwningMember().getLibrary().getPrefix() : "---";
 	}
 
-	/**
-	 * @return
-	 */
-	public String getRole() {
-		return getClass().getSimpleName();
-	}
+	// @Override
+	// public abstract T getTL();
 
-	public abstract T getTL();
-
+	@Override
 	public boolean isEditable() {
 		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
+	/**
+	 * @return
+	 */
+	// FIXME
+	public String getRole() {
+		return getClass().getSimpleName();
+	}
+
+	@Override
 	public boolean isValid() {
 		return isValid(false);
 	}
@@ -244,6 +262,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	// // Override if the element has children
 	// }
 
+	@Override
 	public boolean isValid(boolean refresh) {
 		if (getTL() == null)
 			throw new IllegalStateException("Tried to validation with null TL object.");
@@ -273,6 +292,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	 * 
 	 * @return
 	 */
+	@Override
 	public StringProperty nameProperty() {
 		if (nameProperty == null) {
 			if (isEditable()) {
@@ -286,6 +306,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return nameProperty;
 	}
 
+	@Override
 	public void setDescription(String description) {
 		if (getTL() instanceof TLDocumentationOwner) {
 			TLDocumentation doc = ((TLDocumentationOwner) getTL()).getDocumentation();
@@ -305,6 +326,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 	 * @param name
 	 * @return the actual name after assignment attempted
 	 */
+	@Override
 	public String setName(String name) {
 		// NO-OP unless overridden
 		// isValid(true);
@@ -316,12 +338,14 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return getName();
 	}
 
+	@Override
 	public ObjectProperty<ImageView> validationImageProperty() {
 		if (validationImageProperty == null)
 			validationImageProperty = new SimpleObjectProperty<>(validationImage());
 		return validationImageProperty;
 	}
 
+	@Override
 	public String getValidationFindingsAsString() {
 		String msg = "Validation Findings: \n";
 		String f = ValidationUtils.getMessagesAsString(getFindings());
@@ -332,6 +356,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		return msg;
 	}
 
+	@Override
 	public ImageView validationImage() {
 		if (imgMgr == null)
 			return null;
@@ -346,6 +371,7 @@ public abstract class OtmModelElement<T extends TLModelElement> {
 		// return imgMgr.getView(ImageManager.Icons.RUN);
 	}
 
+	@Override
 	public StringProperty validationProperty() {
 		if (validationProperty == null)
 			validationProperty = new ReadOnlyStringWrapper(ValidationUtils.getCountsString(getFindings()));

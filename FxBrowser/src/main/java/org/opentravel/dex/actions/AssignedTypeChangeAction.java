@@ -11,8 +11,8 @@ import org.opentravel.dex.controllers.member.MemberDAO;
 import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.dex.controllers.popup.DexPopupControllerBase.Results;
 import org.opentravel.dex.controllers.popup.TypeSelectionContoller;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -21,18 +21,17 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 	private static Log log = LogFactory.getLog(AssignedTypeChangeAction.class);
 
-	private OtmModelElement<?> otm;
+	private OtmObject otm;
 	private OtmTypeUser user = null;
 	private boolean outcome = false;
 
-	private PropertiesDAO propertiesDAO;
+	// private PropertiesDAO propertiesDAO;
 	private OtmTypeProvider oldProvider;
 	private NamedEntity oldTLType;
 	private String oldName;
 	private OtmTypeProvider newProvider;
 	private boolean ignore;
 
-	private OtmModelManager modelMgr = null;
 	private ImageManager imageMgr = null;
 
 	private String oldTLTypeName;
@@ -42,27 +41,37 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 	private static final String VETO3 = ".ILLEGAL_REFERENCE";
 	private static final String[] VETOKEYS = { VETO1, VETO2, VETO3 };
 
-	public AssignedTypeChangeAction(PropertiesDAO prop) {
-		this.otm = prop.getValue();
-		this.propertiesDAO = prop;
+	public AssignedTypeChangeAction(OtmTypeUser user) {
+		this.user = user;
+		this.otm = user;
+	}
 
-		// TODO - simplify access to model manager
-		// Must have access to model manager
-		if (propertiesDAO.getController() != null && propertiesDAO.getController().getMainController() != null) {
-			this.modelMgr = propertiesDAO.getController().getMainController().getModelManager();
-			this.imageMgr = propertiesDAO.getController().getMainController().getImageManager();
+	public AssignedTypeChangeAction(PropertiesDAO prop) {
+		if (prop != null) {
+			if (prop.getValue() instanceof OtmTypeUser)
+				this.user = (OtmTypeUser) prop.getValue();
+			this.otm = prop.getValue();
 		}
+	}
+
+	@Override
+	public OtmObject getSubject() {
+		return otm;
 	}
 
 	public OtmTypeProvider doIt() {
 		log.debug("Ready to set assigned type to " + otm + " " + ignore);
 		if (ignore)
 			return null;
-		if (modelMgr == null)
-			return null;
 		if (!isEnabled())
 			return null;
+		if (user == null || otm == null)
+			return null;
+
 		if (otm.getActionManager() == null)
+			return null;
+		OtmModelManager modelMgr = otm.getActionManager().getModelManager();
+		if (modelMgr == null)
 			return null;
 
 		// Hold onto old value
@@ -135,6 +144,14 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 		if (!(otm instanceof OtmTypeUser))
 			return false;
 		if (!otm.isEditable())
+			return false;
+		return true;
+	}
+
+	public static boolean isEnabled(OtmObject subject) {
+		if (!(subject instanceof OtmTypeUser))
+			return false;
+		if (!subject.isEditable())
 			return false;
 		return true;
 	}

@@ -28,7 +28,9 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.dex.actions.DexActionManager;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
@@ -63,9 +65,9 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	}
 
 	@Override
-	public Collection<OtmModelElement<TLModelElement>> getChildrenHierarchy() {
-		Collection<OtmModelElement<TLModelElement>> hierarchy = new ArrayList<>();
-		children.forEach(c -> hierarchy.add((OtmModelElement<TLModelElement>) c));
+	public Collection<OtmObject> getChildrenHierarchy() {
+		Collection<OtmObject> hierarchy = new ArrayList<>();
+		children.forEach(c -> hierarchy.add(c));
 		return hierarchy;
 	}
 
@@ -89,6 +91,11 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 
 	@Override
 	public Collection<OtmTypeProvider> getDescendantsTypeProviders() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners() {
 		return Collections.emptyList();
 	}
 
@@ -121,6 +128,11 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	@Override
 	public String getRole() {
 		return getTL().getFacetType().getIdentityName();
+	}
+
+	@Override
+	public TLFacet getTL() {
+		return tlObject;
 	}
 
 	@Override
@@ -176,7 +188,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 		for (TLProperty c : getTL().getElements())
 			addChild(OtmPropertyFactory.create(c, this));
 		for (TLAlias c : getTL().getAliases())
-			log.debug("TODO - make alias");
+			log.debug("TODO - make alias " + c.getLocalName());
 	}
 
 	private void addChild(OtmProperty<?> child) {

@@ -13,7 +13,6 @@ import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.events.DexFilterChangeEvent;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.OtmChildrenOwner;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
@@ -21,7 +20,6 @@ import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -30,7 +28,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.SortType;
-import javafx.scene.control.TreeTablePosition;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
@@ -55,7 +52,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private static final String NAMECOLUMNLABEL = "Member";
 	private static final String VERSIONCOLUMNLABEL = "Version";
 	private static final String LIBRARYLABEL = "Library";
-	private static final String ERRORLABEL = "Errors";
+	// private static final String ERRORLABEL = "Errors";
 	private static final String WHEREUSEDLABEL = "Types Used";
 
 	// All event types listened to by this controller's handlers
@@ -242,13 +239,10 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		if (parent != null)
 			parent.getChildren().add(item);
 		if (imageMgr != null) {
-			ImageView graphic = imageMgr.getView((OtmModelElement<?>) provider);
+			ImageView graphic = imageMgr.getView(provider);
 			item.setGraphic(graphic);
-			Tooltip.install(graphic, new Tooltip(((OtmModelElement) provider).getObjectTypeName()));
+			Tooltip.install(graphic, new Tooltip(provider.getObjectTypeName()));
 		}
-
-		// if (imageMgr != null)
-		// item.setGraphic(imageMgr.getView((OtmModelElement<?>) provider));
 		return item;
 	}
 
@@ -289,8 +283,8 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	}
 
 	public void keyReleased(KeyEvent event) {
-		TreeItem<MemberDAO> item = memberTree.getSelectionModel().getSelectedItem();
-		ObservableList<TreeTablePosition<MemberDAO, ?>> cells = memberTree.getSelectionModel().getSelectedCells();
+		// TreeItem<MemberDAO> item = memberTree.getSelectionModel().getSelectedItem();
+		// ObservableList<TreeTablePosition<MemberDAO, ?>> cells = memberTree.getSelectionModel().getSelectedCells();
 		int row = memberTree.getSelectionModel().getSelectedIndex();
 		log.debug("Selection row = " + row);
 		if (event.getCode() == KeyCode.RIGHT) {

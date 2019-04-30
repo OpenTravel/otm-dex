@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.dex.controllers.DexIncludedController;
-import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
@@ -32,20 +32,20 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
-public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
+public class PropertiesDAO implements DexDAO<OtmObject> {
 	private static Log log = LogFactory.getLog(PropertiesDAO.class);
 
 	static final String REQUIRED = "Required";
 	static final String OPTIONAL = "Optional";
 
-	protected OtmModelElement<?> element;
+	protected OtmObject element;
 	protected DexIncludedController<?> controller;
 
 	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
 	}
 
-	public PropertiesDAO(OtmModelElement<?> element, MemberPropertiesTreeTableController controller) {
+	public PropertiesDAO(OtmObject element, MemberPropertiesTreeTableController controller) {
 		this.element = element;
 		this.controller = controller;
 	}
@@ -153,7 +153,7 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	@Override
-	public OtmModelElement<?> getValue() {
+	public OtmObject getValue() {
 		return element;
 	}
 
@@ -207,12 +207,16 @@ public class PropertiesDAO implements DexDAO<OtmModelElement<?>> {
 	}
 
 	public StringProperty roleProperty() {
-		StringProperty ssp = new SimpleStringProperty(element.getRole());
-		// TODO - move to action handler
-		ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
-			// element.setName(newVal);
-			log.debug("TODO - set role of " + element.getName() + " to " + newVal);
-		});
+		StringProperty ssp;
+		if (element instanceof OtmProperty) {
+			ssp = new SimpleStringProperty(((OtmProperty<?>) element).getRole());
+			// TODO - create action handler
+			ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
+				log.debug("TODO - set role of " + element.getName() + " to " + newVal);
+			});
+		} else {
+			ssp = new ReadOnlyStringWrapper("");
+		}
 		return ssp;
 	}
 

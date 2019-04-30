@@ -6,6 +6,7 @@ package org.opentravel.common;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
@@ -26,12 +27,10 @@ public class OtmTypeUserUtils {
 		// NO-OP - static methods only. Do not instantiate this class.
 	}
 
-	@SuppressWarnings("unchecked")
 	public static String formatAssignedType(OtmTypeUser user) {
 		assert user != null;
 		assert user.getLibrary() != null;
 
-		OtmModelElement<TLModelElement> otm = (OtmModelElement<TLModelElement>) user;
 		String name = "";
 
 		NamedEntity tlType = user.getAssignedTLType();
@@ -40,7 +39,7 @@ public class OtmTypeUserUtils {
 			name = user.getTlAssignedTypeName();
 		else {
 			// If the libraries are different add the prefix of the provider library.
-			AbstractLibrary userLib = otm.getLibrary().getTL();
+			AbstractLibrary userLib = user.getLibrary().getTL();
 			AbstractLibrary typeLib = tlType.getOwningLibrary();
 			name = assignedTypeWithPrefix(tlType.getLocalName(), userLib, typeLib);
 		}
@@ -48,7 +47,7 @@ public class OtmTypeUserUtils {
 	}
 
 	public static OtmTypeProvider getAssignedType(OtmTypeUser user) {
-		OtmModelElement<TLModelElement> type = OtmModelElement.get((TLModelElement) user.getAssignedTLType());
+		OtmObject type = OtmModelElement.get((TLModelElement) user.getAssignedTLType());
 		return type instanceof OtmTypeProvider ? (OtmTypeProvider) type : null;
 	}
 

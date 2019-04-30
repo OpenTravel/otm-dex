@@ -70,6 +70,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 	public OtmModelManager(DexStatusController statusController, DexActionManager actionManager) {
 		this.actionMgr = actionManager;
 		this.statusController = statusController;
+		actionManager.setModelManager(this);
 	}
 
 	public DexActionManager getActionManager() {

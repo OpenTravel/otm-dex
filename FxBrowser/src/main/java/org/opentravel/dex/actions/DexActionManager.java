@@ -10,8 +10,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ValidationUtils;
 import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.model.OtmModelElement;
+import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 import javafx.beans.value.ObservableValue;
@@ -26,33 +28,22 @@ import javafx.beans.value.ObservableValue;
  *
  */
 public class DexActionManager {
-	private static Log log = LogFactory.getLog(DexActionManager.class);
-
-	// Controller for accessing GUI controls
-	DexMainController mainController = null;
-	Deque<DexAction<?>> queue;
-
-	private boolean ignore;
-
 	public enum DexActions {
 		NAMECHANGE, DESCRIPTIONCHANGE, TYPECHANGE
 	}
 
-	/**
-	 * Actions available for OTM Properties wrapped by PropertiesDAO.
-	 * 
-	 * @param action
-	 * @param subject
-	 */
-	public void addAction(DexActions action, PropertiesDAO subject) {
-		switch (action) {
-		case TYPECHANGE:
-			ignore = true; // may fire a name change
-			new AssignedTypeChangeAction(subject).doIt();
-			ignore = false;
-			break;
-		default:
-		}
+	private static Log log = LogFactory.getLog(DexActionManager.class);
+	// Controller for accessing GUI controls
+	DexMainController mainController = null;
+	Deque<DexAction<?>> queue;
+
+	private OtmModelManager modelManager = null;
+
+	private boolean ignore;
+
+	public DexActionManager(DexMainController mainController) {
+		this.mainController = mainController;
+		queue = new ArrayDeque<>();
 	}
 
 	/**
@@ -83,6 +74,34 @@ public class DexActionManager {
 		return true;
 	}
 
+	/**
+	 * Actions available for OTM Properties wrapped by PropertiesDAO.
+	 * 
+	 * @param action
+	 * @param subject
+	 */
+	public void addAction(DexActions action, OtmObject subject) {
+		switch (action) {
+		case TYPECHANGE:
+			if (AssignedTypeChangeAction.isEnabled(subject)) {
+				ignore = true; // may fire a name change
+				new AssignedTypeChangeAction((OtmTypeUser) subject).doIt();
+				ignore = false;
+			}
+			break;
+		default:
+		}
+	}
+
+	public boolean isEnabled(DexActions action, OtmObject subject) {
+		switch (action) {
+		case TYPECHANGE:
+			return AssignedTypeChangeAction.isEnabled(subject);
+		default:
+		}
+		return false;
+	}
+
 	public void doString(DexStringAction action, ObservableValue<? extends String> o, String oldName, String name) {
 		if (!ignore) {
 			ignore = true;
@@ -91,32 +110,25 @@ public class DexActionManager {
 		}
 	}
 
-	public DexStringAction stringActionFactory(DexActions action, OtmModelElement<?> subject) {
-		// Make sure the action can register itself and access main controller
-		if (subject.getActionManager() == null)
-			throw new IllegalStateException("Subject of an action must provide access to action manger.");
-
-		DexStringAction a = null;
-		switch (action) {
-		case NAMECHANGE:
-			a = new NameChangeAction(subject);
-			break;
-		case DESCRIPTIONCHANGE:
-			a = new DescriptionChangeAction(subject);
-			break;
-		default:
-			log.debug("Unknown action: " + action.toString());
-		}
-		return a;
-	}
-
-	public DexActionManager(DexMainController mainController) {
-		this.mainController = mainController;
-		queue = new ArrayDeque<>();
+	public String getLastActionName() {
+		return queue.peek() != null ? queue.peek().getClass().getSimpleName() : "";
 	}
 
 	public DexMainController getMainController() {
 		return mainController;
+	}
+
+	public OtmModelManager getModelManager() {
+		return modelManager;
+	}
+
+	public int getQueueSize() {
+		return queue.size();
+	}
+
+	public void postWarning(String warning) {
+		mainController.postError(null, warning);
+
 	}
 
 	/**
@@ -146,19 +158,34 @@ public class DexActionManager {
 			mainController.postStatus("Performed action: " + action.toString());
 			log.debug("Put action on queue: " + action.getClass().getSimpleName());
 		}
-	}
-
-	public void postWarning(String warning) {
-		mainController.postError(null, warning);
+		action.getSubject().getOwningMember().isValid(true); // Force the owner to refresh its findings.
 
 	}
 
-	public int getQueueSize() {
-		return queue.size();
+	/**
+	 * @param otmModelManager
+	 */
+	public void setModelManager(OtmModelManager otmModelManager) {
+		this.modelManager = otmModelManager;
 	}
 
-	public String getLastActionName() {
-		return queue.peek() != null ? queue.peek().getClass().getSimpleName() : "";
+	public DexStringAction stringActionFactory(DexActions action, OtmModelElement<?> subject) {
+		// Make sure the action can register itself and access main controller
+		if (subject.getActionManager() == null)
+			throw new IllegalStateException("Subject of an action must provide access to action manger.");
+
+		DexStringAction a = null;
+		switch (action) {
+		case NAMECHANGE:
+			a = new NameChangeAction(subject);
+			break;
+		case DESCRIPTIONCHANGE:
+			a = new DescriptionChangeAction(subject);
+			break;
+		default:
+			log.debug("Unknown action: " + action.toString());
+		}
+		return a;
 	}
 
 	/**
@@ -175,4 +202,5 @@ public class DexActionManager {
 		}
 		ignore = false;
 	}
+
 }
