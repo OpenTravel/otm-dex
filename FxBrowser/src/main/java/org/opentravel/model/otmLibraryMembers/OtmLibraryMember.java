@@ -8,6 +8,7 @@ import java.util.List;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLAlias;
 
 import javafx.beans.property.StringProperty;
 
@@ -38,6 +39,11 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	public LibraryMember getTlLM();
 
 	/**
+	 * @return list of type providers used by all descendants of this member.
+	 */
+	public List<OtmTypeProvider> getUsedTypes();
+
+	/**
 	 * @return fx property for library name
 	 */
 	public StringProperty libraryProperty();
@@ -50,8 +56,11 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	public StringProperty versionProperty();
 
 	/**
-	 * @return list of type providers used by all descendants of this member.
+	 * Add this facet alias to the appropriate alias
+	 * 
+	 * @param tla
+	 *            must be an alias on a tlFacet
 	 */
-	public List<OtmTypeProvider> getUsedTypes();
+	public void addAlias(TLAlias tla);
 
 }

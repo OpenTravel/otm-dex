@@ -36,55 +36,16 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 		implements OtmLibraryMember, OtmTypeProvider, OtmChildrenOwner {
 	private static Log log = LogFactory.getLog(OtmComplexObjects.class);
 
-	// private OtmModelManager mgr = null;
-	// LibraryMember lm;
-
 	/**
 	 */
 	public OtmComplexObjects(T tl, OtmModelManager mgr) {
 		super(tl, mgr);
 	}
 
-	// /**
-	// * @return immediate children who implement OtmTypeProvider or empty list.
-	// */
-	// @Override
-	// public Collection<OtmTypeProvider> getChildren_TypeProviders() {
-	// List<OtmTypeProvider> providers = new ArrayList<>();
-	// for (OtmModelElement<?> child : getChildren())
-	// if (child instanceof OtmTypeProvider)
-	// providers.add((OtmTypeProvider) child);
-	// return providers;
-	// }
-
-	// /**
-	// * {@inheritDoc}
-	// */
-	// @Override
-	// public List<OtmModelElement<?>> getChildren() {
-	// if (children != null && children.isEmpty())
-	// modelChildren();
-	// return children;
-	// }
-
-	// @Override
-	// public TLLibraryMember getTL() {
-	// return (TLLibraryMember) tlObject;
-	// }
 	@Override
 	public T getTL() {
 		return (T) tlObject;
 	}
-
-	// @Override
-	// public OtmLibrary getLibrary() {
-	// return mgr.get(getTL().getOwningLibrary());
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTL().getNamespace();
-	// }
 
 	@Override
 	public String getName() {
@@ -103,29 +64,5 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 	@Override
 	public boolean isNameControlled() {
 		return true;
-	};
-
-	// /**
-	// * {@inheritDoc}
-	// */
-	// @Override
-	// public abstract String setName(String text);
-	// TODO - update children
-
-	// /**
-	// * {@inheritDoc}
-	// * <p>
-	// * Add properties to the facets
-	// *
-	// * @return this object
-	// */
-	// @Override
-	// @Deprecated
-	// public OtmLibraryMember<?> createTestChildren() {
-	// for (OtmModelElement<?> child : getChildren())
-	// if (child instanceof OtmFacet)
-	// ((OtmFacet<?>) child).createTestChildren();
-	// return this;
-	// }
-
+	}
 }

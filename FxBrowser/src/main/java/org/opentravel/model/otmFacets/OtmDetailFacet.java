@@ -25,7 +25,7 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
- * Abstract OTM Node for Detail Facets.
+ * Abstract OTM Node for Aliases.
  * 
  * @author Dave Hollander
  * 
@@ -44,9 +44,9 @@ public class OtmDetailFacet extends OtmFacet<TLFacet> {
 					"Tried to create detail facet from wrong facet type: " + tl.getFacetType());
 	}
 
-	@Override
-	public TLFacet getTL() {
-		return tlObject;
-	}
+	// @Override
+	// public TLFacet getTL() {
+	// return tlObject;
+	// }
 
 }

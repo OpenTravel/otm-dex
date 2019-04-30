@@ -33,9 +33,12 @@ import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmContainers.OtmLibrary;
+import org.opentravel.model.otmFacets.OtmAlias;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmFacets.OtmFacetFactory;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -57,7 +60,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	private static Log log = LogFactory.getLog(OtmLibraryMemberBase.class);
 
 	protected OtmModelManager mgr = null;
-	LibraryMember lm;
+	// LibraryMember lm;
 	protected List<OtmTypeProvider> providers = null;
 	protected List<OtmTypeUser> users = new ArrayList<>();
 
@@ -69,7 +72,19 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 
 		// if (mgr == null)
 		// throw new IllegalArgumentException();
-		// assert mgr != null;
+	}
+
+	@Override
+	public void addAlias(TLAlias tla) {
+		if (tla.getOwningEntity() instanceof TLFacet) {
+			String baseName = tla.getLocalName().substring(0, tla.getName().lastIndexOf('_'));
+			log.debug("Adding alias " + tla.getName() + " to " + baseName);
+
+			children.forEach(c -> {
+				if (c instanceof OtmAlias && c.getName().equals(baseName))
+					((OtmAlias) c).add(tla);
+			});
+		}
 	}
 
 	@Override
@@ -90,7 +105,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	public Collection<OtmTypeProvider> getChildrenTypeProviders() {
 		if (getChildren() != null) {
 			List<OtmTypeProvider> pChildren = new ArrayList<>();
-			for (OtmModelElement<?> child : getChildren())
+			for (OtmObject child : getChildren())
 				if (child instanceof OtmTypeProvider)
 					pChildren.add((OtmTypeProvider) child);
 			return pChildren;
@@ -118,7 +133,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	@Override
 	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners() {
 		List<OtmChildrenOwner> owners = new ArrayList<>();
-		for (OtmModelElement<?> child : getChildren()) {
+		for (OtmObject child : getChildren()) {
 			if (child instanceof OtmChildrenOwner) {
 				owners.add((OtmChildrenOwner) child);
 				// Recurse
@@ -130,7 +145,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 
 	@Override
 	public Collection<OtmTypeUser> getDescendantsTypeUsers() {
-		for (OtmModelElement<?> child : getChildren()) {
+		for (OtmObject child : getChildren()) {
 			if (child instanceof OtmTypeUser)
 				users.add((OtmTypeUser) child);
 		}
@@ -142,7 +157,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	/**
 	 */
 	@Override
-	public List<OtmModelElement<?>> getChildren() {
+	public List<OtmObject> getChildren() {
 		if (children != null && children.isEmpty())
 			modelChildren();
 		return children;
@@ -235,6 +250,11 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	 */
 	@Override
 	public void modelChildren() {
+		// Must do aliases first so facet aliases will have a parent
+		// Aliases from contextual facets come from the member where injected (contributed)
+		if (!(this instanceof OtmContextualFacet) && getTL() instanceof TLAliasOwner)
+			((TLAliasOwner) getTL()).getAliases().forEach(t -> children.add(new OtmAlias(t, this)));
+
 		if (getTL() instanceof TLFacetOwner)
 			for (TLFacet tlFacet : ((TLFacetOwner) getTL()).getAllFacets()) {
 				OtmFacet<?> facet = OtmFacetFactory.create(tlFacet, this);

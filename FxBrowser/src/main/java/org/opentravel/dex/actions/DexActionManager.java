@@ -197,6 +197,7 @@ public class DexActionManager {
 			DexAction<?> action = queue.pop();
 			log.debug("Undo action: " + action.getClass().getSimpleName());
 			action.undo();
+			action.getSubject().getOwningMember().isValid(true); // Force the owner to refresh its findings.
 			mainController.updateActionQueueSize(getQueueSize());
 			mainController.postStatus("Undid action: " + action.toString());
 		}

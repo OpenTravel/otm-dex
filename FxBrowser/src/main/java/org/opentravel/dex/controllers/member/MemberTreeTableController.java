@@ -222,9 +222,12 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private void createChildrenItems(OtmChildrenOwner member, TreeItem<MemberDAO> parentItem) {
 		member.getChildrenTypeProviders().forEach(p -> {
 			TreeItem<MemberDAO> cfItem = createTreeItem(p, parentItem);
-			// Recurse for the contextual facet contributor which may have children that are also contextual facets
+			// Only user contextual facet for recursing
 			if (p instanceof OtmContributedFacet && ((OtmContributedFacet) p).getContributor() != null)
-				createChildrenItems(((OtmContributedFacet) p).getContributor(), cfItem);
+				p = ((OtmContributedFacet) p).getContributor();
+			// Recurse
+			if (p instanceof OtmChildrenOwner)
+				createChildrenItems((OtmChildrenOwner) p, cfItem);
 		});
 	}
 

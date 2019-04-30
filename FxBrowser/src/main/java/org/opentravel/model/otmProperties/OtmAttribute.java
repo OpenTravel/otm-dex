@@ -41,7 +41,7 @@ import javafx.beans.property.StringProperty;
  * @author Dave Hollander
  * 
  */
-public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribute> implements OtmTypeUser {
+public class OtmAttribute<T extends TLAttribute> extends OtmProperty<TLAttribute> implements OtmTypeUser {
 	private static Log log = LogFactory.getLog(OtmAttribute.class);
 
 	private StringProperty assignedTypeProperty;
@@ -49,8 +49,9 @@ public class OtmAttribute<TL extends TLAttribute> extends OtmProperty<TLAttribut
 	/**
 	 * @param tlBusinessObject
 	 */
-	public OtmAttribute(TL tl, OtmPropertyOwner parent) {
+	public OtmAttribute(T tl, OtmPropertyOwner parent) {
 		super(tl, parent);
+		tlObject = tl;
 
 		if (!(tl instanceof TLAttribute))
 			throw new IllegalArgumentException("OtmAttribute constructor not passed a tl attribute.");

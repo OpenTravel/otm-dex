@@ -29,7 +29,6 @@ import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLDocumentation;
@@ -74,11 +73,11 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 		if (tlObject != null)
 			for (ModelElementListener l : tlObject.getListeners())
 				if (l instanceof OtmModelElementListener) {
-					OtmObject o = ((OtmModelElementListener) l).get();
-					// Contextual facets will have two listeners
-					if (o instanceof OtmContributedFacet)
+					OtmObject otm = ((OtmModelElementListener) l).get();
+					// Contextual facets will have two listeners, return just the contextual facet
+					if (otm instanceof OtmContributedFacet)
 						continue;
-					return ((OtmModelElementListener) l).get();
+					return otm;
 				}
 		return null;
 	}
@@ -87,7 +86,7 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 
 	// leave empty if object can have children but does not or has not been modeled yet.
 	// leave null if the element can not have children.
-	protected List<OtmModelElement<?>> children = new ArrayList<>();
+	protected List<OtmObject> children = new ArrayList<>();
 	private ValidationFindings findings = null;
 
 	private SimpleStringProperty nameProperty;
@@ -170,18 +169,6 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 			isValid(true);
 		return findings;
 	}
-	// /**
-	// * Get Children. To allow lazy evaluation, children will be modeled if list is empty.
-	// *
-	// * @return the live list of children for this library member.
-	// */
-	// public List<OtmModelElement<?>> getChildren() {
-	// // Create OtmNodes for all the children of this member
-	// if (children != null && children.isEmpty())
-	// modelChildren();
-	//
-	// return children;
-	// }
 
 	@Override
 	public Image getIcon() {
@@ -196,17 +183,17 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	 */
 	@Override
 	public OtmLibrary getLibrary() {
-		// if (this instanceof OtmLibraryMember<?>) return getLibrary();
-		if (getOwningMember() != null)
-			return getOwningMember().getLibrary();
-		return null;
+		return getOwningMember() != null ? getOwningMember().getLibrary() : null;
 	}
 
 	@Override
 	public String getName() {
-		if (tlObject instanceof NamedEntity)
-			return ((NamedEntity) tlObject).getLocalName();
-		return NONAME;
+		return tlObject instanceof NamedEntity ? ((NamedEntity) tlObject).getLocalName() : NONAME;
+	}
+
+	@Override
+	public String getNamespace() {
+		return tlObject instanceof NamedEntity ? ((NamedEntity) tlObject).getNamespace() : NONAMESPACE;
 	}
 
 	// Should be overridden
@@ -215,52 +202,49 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 		return getClass().getSimpleName();
 	}
 
-	@Override
-	public String getNamespace() {
-		if (tlObject instanceof NamedEntity)
-			return ((NamedEntity) tlObject).getNamespace();
-		return NONAMESPACE;
-	}
+	// @Override
+	// public abstract OtmLibraryMember getOwningMember();
 
-	@Override
-	public abstract OtmLibraryMember getOwningMember();
-
-	/**
-	 * 
-	 */
 	@Override
 	public String getPrefix() {
 		return getOwningMember() != null && getOwningMember().getLibrary() != null
 				? getOwningMember().getLibrary().getPrefix() : "---";
 	}
 
-	// @Override
-	// public abstract T getTL();
+	/**
+	 * @return
+	 */
+	// FIXME
+	@Override
+	public String getRole() {
+		return getClass().getSimpleName();
+	}
+
+	@Override
+	public T getTL() {
+		return tlObject;
+	}
+
+	@Override
+	public String getValidationFindingsAsString() {
+		String msg = "Validation Findings: \n";
+		String f = ValidationUtils.getMessagesAsString(getFindings());
+		if (!f.isEmpty())
+			msg += f;
+		else
+			msg += "No warnings or errors.";
+		return msg;
+	}
 
 	@Override
 	public boolean isEditable() {
 		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
-	/**
-	 * @return
-	 */
-	// FIXME
-	public String getRole() {
-		return getClass().getSimpleName();
-	}
-
 	@Override
 	public boolean isValid() {
 		return isValid(false);
 	}
-
-	// /**
-	// * Model the children of this object from its' tlObject.
-	// */
-	// public void modelChildren() {
-	// // Override if the element has children
-	// }
 
 	@Override
 	public boolean isValid(boolean refresh) {
@@ -339,24 +323,6 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	}
 
 	@Override
-	public ObjectProperty<ImageView> validationImageProperty() {
-		if (validationImageProperty == null)
-			validationImageProperty = new SimpleObjectProperty<>(validationImage());
-		return validationImageProperty;
-	}
-
-	@Override
-	public String getValidationFindingsAsString() {
-		String msg = "Validation Findings: \n";
-		String f = ValidationUtils.getMessagesAsString(getFindings());
-		if (!f.isEmpty())
-			msg += f;
-		else
-			msg += "No warnings or errors.";
-		return msg;
-	}
-
-	@Override
 	public ImageView validationImage() {
 		if (imgMgr == null)
 			return null;
@@ -369,6 +335,13 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 		return imgMgr.getView(ImageManager.Icons.V_OK);
 		// }
 		// return imgMgr.getView(ImageManager.Icons.RUN);
+	}
+
+	@Override
+	public ObjectProperty<ImageView> validationImageProperty() {
+		if (validationImageProperty == null)
+			validationImageProperty = new SimpleObjectProperty<>(validationImage());
+		return validationImageProperty;
 	}
 
 	@Override

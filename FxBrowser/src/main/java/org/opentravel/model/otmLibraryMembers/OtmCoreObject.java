@@ -30,6 +30,7 @@ import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.model.otmFacets.OtmAlias;
 import org.opentravel.model.otmFacets.OtmSummaryFacet;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLCoreObject;
@@ -80,8 +81,11 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 		Collection<OtmObject> ch = new ArrayList<>();
 		children.forEach(c -> {
 			if (c instanceof OtmSummaryFacet)
-				ch.add((OtmObject) c);
+				ch.add(c);
+			if (c instanceof OtmAlias)
+				ch.add(c);
 		});
+
 		// TODO - roles
 		// TODO - lists
 		return ch;

@@ -41,18 +41,18 @@ import javafx.beans.property.StringProperty;
  * @author Dave Hollander
  * 
  */
-public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> implements OtmTypeUser {
+public class OtmElement<T extends TLProperty> extends OtmProperty<TLProperty> implements OtmTypeUser {
 	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
 	private StringProperty assignedTypeProperty;
 
 	/**
 	 */
-	public OtmElement(TL tl, OtmPropertyOwner parent) {
+	public OtmElement(T tl, OtmPropertyOwner parent) {
 		super(tl, parent);
 
-		if (!(tl instanceof TLProperty))
-			throw new IllegalArgumentException("OtmElement constructor not passed a tl property.");
+		// if (!(tl instanceof TLProperty))
+		// throw new IllegalArgumentException("OtmElement constructor not passed a tl property.");
 		// if (tl.isReference())
 		// throw new IllegalArgumentException("OtmElement constructor passed a property reference.");
 	}
@@ -69,6 +69,26 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 	}
 
 	@Override
+	public TLPropertyType getAssignedTLType() {
+		return getTL().getType();
+	}
+
+	@Override
+	public OtmTypeProvider getAssignedType() {
+		return OtmTypeUserUtils.getAssignedType(this);
+	}
+
+	@Override
+	public Icons getIconType() {
+		return ImageManager.Icons.ELEMENT;
+	}
+
+	@Override
+	public String getName() {
+		return getTL().getName();
+	}
+
+	@Override
 	public TLProperty getTL() {
 		return (TLProperty) tlObject;
 	}
@@ -79,49 +99,8 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 	}
 
 	@Override
-	public OtmTypeProvider getAssignedType() {
-		return OtmTypeUserUtils.getAssignedType(this);
-	}
-
-	@Override
-	public String getName() {
-		return getTL().getName();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String setName(String name) {
-		getTL().setName(name);
-		isValid(true);
-		return getName();
-	}
-
-	@Override
-	public Icons getIconType() {
-		return ImageManager.Icons.ELEMENT;
-	}
-
-	@Override
 	public boolean isManditory() {
 		return getTL().isMandatory();
-	}
-
-	@Override
-	public void setManditory(boolean value) {
-		getTL().setMandatory(value);
-	}
-
-	@Override
-	public TLPropertyType getAssignedTLType() {
-		return getTL().getType();
-	}
-
-	@Override
-	public void setTLTypeName(String typeName) {
-		getTL().setType(null);
-		getTL().setTypeName(typeName);
 	}
 
 	/**
@@ -147,6 +126,24 @@ public class OtmElement<TL extends TLProperty> extends OtmProperty<TLProperty> i
 		if (type.isNameControlled())
 			setName(type.getName());
 		return getAssignedType();
+	}
+
+	@Override
+	public void setManditory(boolean value) {
+		getTL().setMandatory(value);
+	}
+
+	@Override
+	public String setName(String name) {
+		getTL().setName(name);
+		isValid(true);
+		return getName();
+	}
+
+	@Override
+	public void setTLTypeName(String typeName) {
+		getTL().setType(null);
+		getTL().setTypeName(typeName);
 	}
 
 }

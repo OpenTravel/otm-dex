@@ -50,13 +50,13 @@ import org.opentravel.schemacompiler.model.TLProperty;
  * @author Dave Hollander
  * 
  */
-public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFacet>
+public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFacet>
 		implements OtmPropertyOwner, OtmTypeProvider {
 	private static Log log = LogFactory.getLog(OtmFacet.class);
 
 	private OtmLibraryMember parent;
 
-	public OtmFacet(TL tl, OtmLibraryMember parent) {
+	public OtmFacet(T tl, OtmLibraryMember parent) {
 		super(tl, parent.getActionManager());
 		this.parent = parent;
 
@@ -127,12 +127,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 
 	@Override
 	public String getRole() {
-		return getTL().getFacetType().getIdentityName();
-	}
-
-	@Override
-	public TLFacet getTL() {
-		return tlObject;
+		return tlObject.getFacetType().getIdentityName();
 	}
 
 	@Override
@@ -144,7 +139,7 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<OtmModelElement<?>> getChildren() {
+	public List<OtmObject> getChildren() {
 		if (children != null && children.isEmpty())
 			modelChildren();
 		return children;
@@ -157,17 +152,17 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 
 	@Override
 	public OtmLibraryMember getOwningMember() {
-		return parent;
+		return getParent();
 	}
 
 	@Override
 	public OtmProperty<?> add(TLModelElement tl) {
 		if (tl instanceof TLIndicator)
-			getTL().addIndicator((TLIndicator) tl);
+			tlObject.addIndicator((TLIndicator) tl);
 		else if (tl instanceof TLProperty)
-			getTL().addElement((TLProperty) tl);
+			tlObject.addElement((TLProperty) tl);
 		else if (tl instanceof TLAttribute)
-			getTL().addAttribute((TLAttribute) tl);
+			tlObject.addAttribute((TLAttribute) tl);
 		else
 			log.debug("unknown/not-implemented property type.");
 
@@ -181,37 +176,18 @@ public abstract class OtmFacet<TL extends TLFacet> extends OtmModelElement<TLFac
 	 */
 	@Override
 	public void modelChildren() {
-		for (TLIndicator c : getTL().getIndicators())
+		for (TLIndicator c : tlObject.getIndicators())
 			addChild(OtmPropertyFactory.create(c, this));
-		for (TLAttribute c : getTL().getAttributes())
+		for (TLAttribute c : tlObject.getAttributes())
 			addChild(OtmPropertyFactory.create(c, this));
-		for (TLProperty c : getTL().getElements())
+		for (TLProperty c : tlObject.getElements())
 			addChild(OtmPropertyFactory.create(c, this));
-		for (TLAlias c : getTL().getAliases())
-			log.debug("TODO - make alias " + c.getLocalName());
+		for (TLAlias c : tlObject.getAliases())
+			getOwningMember().addAlias(c);
 	}
 
 	private void addChild(OtmProperty<?> child) {
 		if (child != null)
 			children.add(child);
 	}
-
-	@Deprecated
-	public void createTestChildren() {
-		// // TODO - add name, type and constraints
-		// OtmProperty<?> prop;
-		// prop = new OtmAttribute<>(new TLAttribute(), this);
-		// children.add(prop);
-		// prop.setName(getName() + "a1");
-		// prop = new OtmElement<>(new TLProperty(), this);
-		// children.add(prop);
-		// prop.setName(getName() + "e1");
-		// prop = OtmIndicatorFactory.create(new TLIndicator(), this);
-		// children.add(prop);
-		// prop.setName(getName() + "i1");
-		// prop = new OtmIndicatorElement<>(new TLIndicator(), this);
-		// children.add(prop);
-		// prop.setName(getName() + "ie1");
-	}
-
 }

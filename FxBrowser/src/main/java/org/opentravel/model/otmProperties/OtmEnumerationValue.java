@@ -33,7 +33,7 @@ public class OtmEnumerationValue extends OtmModelElement<TLEnumValue> {
 
 	@Override
 	public String setName(String name) {
-		getTL().setLiteral(name);
+		tlObject.setLiteral(name);
 		nameProperty().set(getName()); // may not fire otm name change listener
 		isValid(true);
 		log.debug("Set name to: " + getName());
@@ -47,11 +47,11 @@ public class OtmEnumerationValue extends OtmModelElement<TLEnumValue> {
 
 	@Override
 	public String getName() {
-		return getTL().getLiteral();
+		return tlObject.getLiteral();
 	}
 
-	@Override
-	public TLEnumValue getTL() {
-		return tlObject;
-	}
+	// @Override
+	// public TLEnumValue getTL() {
+	// return tlObject;
+	// }
 }

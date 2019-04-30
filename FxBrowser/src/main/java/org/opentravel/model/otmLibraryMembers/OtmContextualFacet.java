@@ -57,7 +57,7 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 			if (o instanceof OtmContributedFacet)
 				o = ((OtmContributedFacet) o).getContributor();
 			if (o instanceof OtmChildrenOwner)
-				for (OtmModelElement<?> c : ((OtmChildrenOwner) o).getChildren())
+				for (OtmObject c : ((OtmChildrenOwner) o).getChildren())
 					if (c instanceof OtmContributedFacet && c.getName().equals(this.getName())) {
 						whereContributed = (OtmContributedFacet) c;
 						((OtmContributedFacet) c).setContributor(this);
@@ -67,10 +67,10 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 	}
 
 	@Override
-	public List<OtmModelElement<?>> getChildren() {
-		children.clear();
-		// if (children != null && children.isEmpty())
-		modelChildren();
+	public List<OtmObject> getChildren() {
+		// children.clear();
+		if (children != null && children.isEmpty())
+			modelChildren();
 		// if (getWhereContributed() != null)
 		// children.addAll(getWhereContributed().getChildren());
 		// FIXME - what about children that are other contextual facets?
@@ -91,16 +91,6 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 		return (TLContextualFacet) tlObject;
 	}
 
-	// @Override
-	// public OtmLibrary getLibrary() {
-	// return mgr.get(getTL().getOwningLibrary());
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTL().getNamespace();
-	// }
-
 	@Override
 	public String getName() {
 		return getTL().getLocalName();
@@ -112,26 +102,10 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 		return true;
 	}
 
-	// @Override
-	// public String getLibraryName() {
-	// String libName = "";
-	// if (getTL().getOwningLibrary() != null)
-	// libName = getTL().getOwningLibrary().getName();
-	// return libName;
-	// }
-
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.FACET_CONTEXTUAL;
 	}
-
-	// @Override
-	// public boolean isEditable() {
-	// OtmLibrary ol = null;
-	// if (mgr != null || getTL() != null)
-	// ol = mgr.get(getTL().getOwningLibrary());
-	// return ol != null && ol.isEditable();
-	// }
 
 	@Override
 	public OtmContextualFacet getOwningMember() {

@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
  * @author dmh
  *
  */
+@SuppressWarnings("squid:MaximumInheritanceDepth")
 public class ValidationMemberTreeTableCellFactory extends TreeTableCell<MemberDAO, ImageView> {
 
 	// TreeTableCell<PropertiesDAO, ImageView>() {

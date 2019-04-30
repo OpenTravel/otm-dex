@@ -27,6 +27,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmObject;
+import org.opentravel.model.otmFacets.OtmAlias;
 import org.opentravel.model.otmFacets.OtmSharedFacet;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 
@@ -53,11 +54,6 @@ public class OtmChoiceObject extends OtmComplexObjects<TLChoiceObject> {
 		return (TLChoiceObject) tlObject;
 	}
 
-	// @Override
-	// public boolean isNameControlled() {
-	// return true;
-	// };
-
 	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.CHOICE;
@@ -75,6 +71,8 @@ public class OtmChoiceObject extends OtmComplexObjects<TLChoiceObject> {
 		Collection<OtmObject> ch = new ArrayList<>();
 		children.forEach(c -> {
 			if (c instanceof OtmSharedFacet)
+				ch.add(c);
+			if (c instanceof OtmAlias)
 				ch.add(c);
 		});
 		return ch;

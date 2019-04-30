@@ -212,6 +212,8 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 			// Create item and add to tree at parent
 			TreeItem<PropertiesDAO> item = createTreeItem(element, parent, true);
 
+			// TODO - sort order
+
 			// Contributor children list does not contain other contextual facets
 			if (element instanceof OtmContributedFacet && ((OtmContributedFacet) element).getContributor() != null)
 				element = ((OtmContributedFacet) element).getContributor();
@@ -269,7 +271,8 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 	public void post(OtmLibraryMember member) {
 		clear();
-		createTreeItems(member, root);
+		if (member != null)
+			createTreeItems(member, root);
 	}
 
 	/**

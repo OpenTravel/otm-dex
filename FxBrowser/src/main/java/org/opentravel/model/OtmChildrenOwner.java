@@ -20,7 +20,7 @@ public interface OtmChildrenOwner extends OtmObject {
 	 * 
 	 * @return list of children or empty list.
 	 */
-	public List<OtmModelElement<?>> getChildren();
+	public List<OtmObject> getChildren();
 
 	/**
 	 * Get a list of children organized by inheritance. For example, a business object will only report out the ID facet
@@ -40,6 +40,11 @@ public interface OtmChildrenOwner extends OtmObject {
 	public Collection<OtmTypeProvider> getChildrenTypeProviders();
 
 	/**
+	 * @return new list of all descendants that are children owners or empty list, never null
+	 */
+	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners();
+
+	/**
 	 * Get a list of children and their descendants that are type providers.
 	 * 
 	 * @return list of children or empty list.
@@ -47,17 +52,12 @@ public interface OtmChildrenOwner extends OtmObject {
 	public Collection<OtmTypeProvider> getDescendantsTypeProviders();
 
 	/**
-	 * Model the children of this object from its' tlObject(s).
-	 */
-	public void modelChildren();
-
-	/**
 	 * @return
 	 */
 	public Collection<OtmTypeUser> getDescendantsTypeUsers();
 
 	/**
-	 * @return new list of all descendants that are children owners or empty list, never null
+	 * Model the children of this object from its' tlObject(s).
 	 */
-	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners();
+	public void modelChildren();
 }

@@ -49,10 +49,10 @@ public class OtmSharedFacet extends OtmFacet<TLFacet> {
 					"Tried to create shared facet from wrong facet type: " + tl.getFacetType());
 	}
 
-	@Override
-	public TLFacet getTL() {
-		return tlObject;
-	}
+	// @Override
+	// public TLFacet getTL() {
+	// return tlObject;
+	// }
 
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {

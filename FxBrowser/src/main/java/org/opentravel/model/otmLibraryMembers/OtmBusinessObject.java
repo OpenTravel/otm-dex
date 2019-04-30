@@ -27,6 +27,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmObject;
+import org.opentravel.model.otmFacets.OtmAlias;
 import org.opentravel.model.otmFacets.OtmIdFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 
@@ -70,6 +71,8 @@ public class OtmBusinessObject extends OtmComplexObjects<TLBusinessObject> {
 		Collection<OtmObject> ch = new ArrayList<>();
 		children.forEach(c -> {
 			if (c instanceof OtmIdFacet)
+				ch.add(c);
+			if (c instanceof OtmAlias)
 				ch.add(c);
 		});
 		return ch;

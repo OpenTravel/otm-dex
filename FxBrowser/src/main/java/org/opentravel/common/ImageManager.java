@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 public class ImageManager {
 	public enum Icons {
 		APPLICATION("/icons/alt_window_16.gif"),
+		ALIAS("/icons/alias.gif"),
 		BUSINESS("/icons/BusinessObject.png"),
 		ENUMERATION_OPEN("/icons/EnumerationOpen.gif"),
 		ENUMERATION_CLOSED("/icons/EnumerationClosed.gif"),

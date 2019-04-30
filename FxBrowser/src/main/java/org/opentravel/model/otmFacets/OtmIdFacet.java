@@ -44,10 +44,10 @@ public class OtmIdFacet extends OtmFacet<TLFacet> {
 			throw new IllegalArgumentException("Tried to create id facet from wrong facet type: " + tl.getFacetType());
 	}
 
-	@Override
-	public TLFacet getTL() {
-		return tlObject;
-	}
+	// @Override
+	// public TLFacet getTL() {
+	// return tlObject;
+	// }
 
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {

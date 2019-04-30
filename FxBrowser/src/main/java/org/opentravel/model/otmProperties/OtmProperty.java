@@ -18,13 +18,9 @@
  */
 package org.opentravel.model.otmProperties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.controllers.member.properties.MemberPropertiesTreeTableController;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
@@ -33,8 +29,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
  * @author Dave Hollander
  * 
  */
-public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelElement<TLModelElement> {
-	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
+public abstract class OtmProperty<T extends TLModelElement> extends OtmModelElement<TLModelElement> {
 
 	private OtmPropertyOwner parent;
 
@@ -42,116 +37,31 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 	 * @param tl
 	 *            property owner
 	 */
-	public OtmProperty(TL tl, OtmPropertyOwner parent) {
+	public OtmProperty(T tl, OtmPropertyOwner parent) {
 		super(tl, parent.getActionManager());
 		this.parent = parent;
 	}
 
-	// Needs to be abstract because getTL() is of type TLModelElement
 	@Override
-	public abstract TLModelElement getTL();
-
-	// /**
-	// * Property Factory
-	// *
-	// * @param tl
-	// * @return OtmFacet<?> based on type or null.
-	// */
-	// public static OtmProperty<?> propertyFactory(TLModelElement tl) {
-	// return null;
-	// }
-
-	@Override
-	public OtmLibraryMember getOwningMember() {
-		return parent.getOwningMember();
-	}
+	public abstract String getName();
 
 	@Override
 	public String getNamespace() {
 		return getOwningMember().getNamespace();
 	}
 
-	// @Override
-	// public StringProperty nameProperty() {
-	// StringProperty nameProperty;
-	// if (isEditable()) {
-	// nameProperty = new SimpleStringProperty(getName());
-	// // TODO - move to action handler
-	// // Add a change listener with lambda expression
-	// nameProperty.addListener((ObservableValue<? extends String> ov, String old,
-	// String newVal) -> new NameChangeAction(this).doIt(newVal));
-	//
-	// // nameProperty.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
-	// // setName(newVal);
-	// // });
-	// } else {
-	// nameProperty = new ReadOnlyStringWrapper("" + getName());
-	// }
-	// return nameProperty;
-	// }
-
 	@Override
-	public abstract String getName();
-
-	// public interface ActionHandler<T> {
-	// public T doIt(T value);
-	//
-	// public T undo();
-	// }
-	//
-	// public class NameChangeAction implements ActionHandler<String> {
-	// private OtmModelElement<?> otm;
-	// private boolean outcome = false;
-	//
-	// public NameChangeAction(OtmModelElement<?> otm) {
-	// this.otm = otm;
-	// }
-	//
-	// @Override
-	// public String doIt(String name) {
-	// // TODO - try using the TL model as test -- successful if changed.
-	// // It allows change.
-	// // IF so, consider using the test when creating fx property
-	// // if (otm.isEditable() && isUserAssigned())
-	// otm.setName(name);
-	// // TODO
-	// if (name.equals(otm.getName()))
-	// outcome = true;
-	// log.debug("Set name to " + name + " success: " + outcome);
-	// return otm.getName();
-	// }
-	//
-	// @Override
-	// public String undo() {
-	// // TODO
-	// return getName();
-	// }
-	// }
-
-	public boolean isUserAssigned() {
-		if (getTL() instanceof TLComplexTypeBase)
-			return false;
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public abstract String setName(String name);
-
-	@Override
-	public boolean isEditable() {
-		return getOwningMember() != null && getOwningMember().isEditable();
-	}
-
-	@Override
-	public String toString() {
-		return getName();
+	public OtmLibraryMember getOwningMember() {
+		return parent.getOwningMember();
 	}
 
 	public OtmPropertyOwner getParent() {
 		return parent;
+	}
+
+	@Override
+	public boolean isEditable() {
+		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
 	/**
@@ -159,8 +69,19 @@ public abstract class OtmProperty<TL extends TLModelElement> extends OtmModelEle
 	 */
 	public abstract boolean isManditory();
 
+	// public boolean isUserAssigned() {
+	// if (getTL() instanceof TLComplexTypeBase)
+	// return false;
+	// return true;
+	// }
+
 	/**
 	 * @param value
 	 */
 	public abstract void setManditory(boolean value);
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

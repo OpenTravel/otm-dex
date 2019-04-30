@@ -70,12 +70,12 @@ public interface OtmObject {
 
 	public OtmLibraryMember getOwningMember();
 
-	public String getRole();
-
 	/**
 	 * 
 	 */
 	public String getPrefix();
+
+	public String getRole();
 
 	public TLModelElement getTL();
 

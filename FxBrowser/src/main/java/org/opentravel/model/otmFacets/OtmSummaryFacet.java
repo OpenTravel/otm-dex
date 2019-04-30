@@ -47,10 +47,10 @@ public class OtmSummaryFacet extends OtmFacet<TLFacet> {
 					"Tried to create summary facet from wrong facet type: " + tl.getFacetType());
 	}
 
-	@Override
-	public TLFacet getTL() {
-		return tlObject;
-	}
+	// @Override
+	// public TLFacet getTL() {
+	// return tlObject;
+	// }
 
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {

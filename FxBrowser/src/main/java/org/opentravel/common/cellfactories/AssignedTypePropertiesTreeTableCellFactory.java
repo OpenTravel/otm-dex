@@ -25,6 +25,7 @@ import javafx.scene.input.MouseEvent;
  * @author dmh
  *
  */
+@SuppressWarnings("squid:MaximumInheritanceDepth")
 public class AssignedTypePropertiesTreeTableCellFactory extends TreeTableCell<PropertiesDAO, String> {
 	private static Log log = LogFactory.getLog(AssignedTypePropertiesTreeTableCellFactory.class);
 	private MemberPropertiesTreeTableController controller;

@@ -34,8 +34,8 @@ public class OtmLibraryMemberFactory {
 	public static OtmLibraryMember memberFactory(LibraryMember tlMember, OtmModelManager manager) {
 		if (manager == null)
 			throw new IllegalArgumentException("Member factory must be passed a non-null manager.");
-		log.debug("Ready to create member for: " + tlMember.getLocalName() + " of type "
-				+ tlMember.getClass().getSimpleName());
+		// log.debug("Ready to create member for: " + tlMember.getLocalName() + " of type "
+		// + tlMember.getClass().getSimpleName());
 
 		OtmLibraryMember otmMember = null;
 		if (tlMember instanceof TLBusinessObject)

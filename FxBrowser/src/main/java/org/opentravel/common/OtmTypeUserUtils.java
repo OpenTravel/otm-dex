@@ -3,8 +3,6 @@
  */
 package org.opentravel.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
@@ -15,13 +13,13 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * OtmTypeUser is an interface not backed by an abstract class. These utilities help simplify and unify typeUser related
- * menthods.
+ * methods.
  * 
  * @author dmh
  *
  */
 public class OtmTypeUserUtils {
-	private static Log log = LogFactory.getLog(OtmTypeUserUtils.class);
+	// private static Log log = LogFactory.getLog(OtmTypeUserUtils.class);
 
 	private OtmTypeUserUtils() {
 		// NO-OP - static methods only. Do not instantiate this class.
