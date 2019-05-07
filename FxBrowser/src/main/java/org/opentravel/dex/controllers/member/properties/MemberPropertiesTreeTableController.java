@@ -5,7 +5,7 @@ package org.opentravel.dex.controllers.member.properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.DexIntegerStringConverter;
+import org.opentravel.common.DexRepeatMaxConverter;
 import org.opentravel.common.cellfactories.AssignedTypePropertiesTreeTableCellFactory;
 import org.opentravel.common.cellfactories.ValidationPropertiesTreeTableCellFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
@@ -88,11 +88,23 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		setColumnProps(deprecatedCol, false, false, false, 0);
 		setColumnProps(otherDocCol, false, false, false, 0);
 
-		TreeTableColumn<PropertiesDAO, String> constraintCol = new TreeTableColumn<>("Repeat");
+		// Repeat: min and max Column
 		minCol = new TreeTableColumn<>("min");
+		setColumnProps(minCol, true, true, false, 75);
+		minCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("min"));
+		minCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.minList()));
+
 		maxCol = new TreeTableColumn<>("max");
+		setColumnProps(minCol, true, true, false, 0);
+		// javafx.geometry.Pos.
+		maxCol.setStyle("-fx-alignment: CENTER;");
+		maxCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, Integer>("max"));
+		maxCol.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn(new DexRepeatMaxConverter()));
+
+		TreeTableColumn<PropertiesDAO, String> constraintCol = new TreeTableColumn<>("Repeat");
 		constraintCol.getColumns().addAll(minCol, maxCol);
 
+		// Validation column
 		TreeTableColumn<PropertiesDAO, ImageView> valCol = new TreeTableColumn<>("");
 		valCol.setPrefWidth(25);
 		valCol.setEditable(false);
@@ -131,16 +143,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		setColumnProps(roleCol, true, true, false, 100);
 		roleCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("role"));
 		roleCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.getRoleList()));
-
-		// Min Column
-		setColumnProps(minCol, true, true, false, 75);
-		minCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("min"));
-		minCol.setCellFactory(ChoiceBoxTreeTableCell.forTreeTableColumn(PropertiesDAO.minList()));
-
-		// Maximum Column
-		setColumnProps(minCol, true, true, false, 0);
-		maxCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, Integer>("max"));
-		maxCol.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn(new DexIntegerStringConverter()));
 
 		// Description Column
 		setColumnProps(descCol, true, true, false, 150, "description");

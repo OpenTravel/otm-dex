@@ -15,7 +15,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.opentravel.dex.controllers.MenuBarWithProjectController">
    <children>
-      <ToolBar prefHeight="40.0">
+      <ToolBar fx:id="menuToolBar" prefHeight="40.0">
          <effect>
             <DropShadow />
          </effect>

@@ -6,10 +6,10 @@ package org.opentravel.dex.controllers.member.properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.schemacompiler.model.TLProperty;
 
@@ -119,11 +119,12 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 	 */
 	// TODO - use style class for warning and error
 	private void setCSSClass(TreeTableRow<PropertiesDAO> tc, TreeItem<PropertiesDAO> newTreeItem) {
-		if (newTreeItem != null) {
+		if (newTreeItem != null && newTreeItem.getValue() != null) {
 			// Disable context menu items
+			// TODO - leave add property enabled
 			getContextMenu().getItems().forEach(i -> i.setDisable(!newTreeItem.getValue().isEditable()));
 
-			if (newTreeItem.getValue().getValue() instanceof OtmFacet) {
+			if (newTreeItem.getValue().getValue() instanceof OtmChildrenOwner) {
 				// Make facets dividers
 				tc.pseudoClassStateChanged(DIVIDER, true);
 				tc.setEditable(false);

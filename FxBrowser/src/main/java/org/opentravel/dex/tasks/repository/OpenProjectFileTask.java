@@ -7,11 +7,13 @@ import java.io.File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.common.DexFileHandler;
 import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.DexTaskBase;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.schemacompiler.repository.ProjectManager;
 
 /**
  * A JavaFX opening a project file
@@ -41,15 +43,19 @@ public class OpenProjectFileTask extends DexTaskBase<File> {
 		this.modelMgr = modelMgr;
 		this.status = status;
 
-		// Replace start message from super-type.
-		msgBuilder = new StringBuilder("Retrieving Libraries in Project: ");
-		msgBuilder.append(taskData.getName());
-		updateMessage(msgBuilder.toString());
+		if (taskData != null) {
+			// Replace start message from super-type.
+			msgBuilder = new StringBuilder("Retrieving Libraries in Project: ");
+			msgBuilder.append(taskData.getName());
+			updateMessage(msgBuilder.toString());
+		}
 	}
 
 	@Override
 	public void doIT() {
-		modelMgr.openProject(taskData, new OpenProjectProgressMonitor(status));
+		ProjectManager pm = new DexFileHandler().openProject(taskData, new OpenProjectProgressMonitor(status));
+		// modelMgr.openProject(taskData, new OpenProjectProgressMonitor(status));
+		modelMgr.add(pm);
 	}
 
 }

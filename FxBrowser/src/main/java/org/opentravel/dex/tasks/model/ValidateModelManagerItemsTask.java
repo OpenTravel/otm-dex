@@ -17,6 +17,8 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
  * @author dmh
  *
  */
+// FIXME - will get concurrent modification error if the model is closed before validation is finsihed
+//
 public class ValidateModelManagerItemsTask extends DexTaskBase<OtmModelManager> {
 	private static Log log = LogFactory.getLog(ValidateModelManagerItemsTask.class);
 

@@ -11,9 +11,9 @@ import org.opentravel.dex.controllers.DexIncludedController;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmFacet;
+import org.opentravel.model.otmProperties.OtmElement;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.UserSelectablePropertyTypes;
-import org.opentravel.schemacompiler.model.TLProperty;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -166,15 +166,11 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	}
 
 	public IntegerProperty maxProperty() {
-		// String value = "";
-		// if (element.getTL() instanceof TLProperty)
-		// value = String.valueOf(((TLProperty) element.getTL()).getRepeat());
-		Integer value = 0;
-		if (element.getTL() instanceof TLProperty)
-			value = ((TLProperty) element.getTL()).getRepeat();
+		Integer value = -1;
+		if (element instanceof OtmElement)
+			value = ((OtmElement<?>) element).getTL().getRepeat();
 		return new SimpleIntegerProperty(value);
-		// TODO - move to action handler
-		// add listener
+		// TODO - add listener
 	}
 
 	public StringProperty minProperty() {

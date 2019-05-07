@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.events.DexLibrarySelectionEvent;
+import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.otmContainers.OtmLibrary;
 
@@ -56,7 +57,8 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 	private static final EventType[] publishedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED };
 
 	// All event types listened to by this controller's handlers
-	private static final EventType[] subscribedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED };
+	private static final EventType[] subscribedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED,
+			DexModelChangeEvent.MODEL_CHANGED };
 
 	// Editable Columns
 	// None
@@ -151,6 +153,8 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 	public void handleEvent(Event event) {
 		if (event instanceof DexLibrarySelectionEvent)
 			eventHandler(((DexLibrarySelectionEvent) event));
+		if (event instanceof DexModelChangeEvent)
+			post(((DexModelChangeEvent) event).getModelManager());
 	}
 
 	public void eventHandler(DexLibrarySelectionEvent event) {

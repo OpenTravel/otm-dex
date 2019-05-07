@@ -6,6 +6,8 @@ package org.opentravel.common;
 import java.io.File;
 import java.io.InputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
 import org.opentravel.schemacompiler.loader.LibraryInputSource;
@@ -25,78 +27,14 @@ import javafx.stage.Stage;
  *
  */
 public class DexFileHandler extends AbstractMainWindowController {
+	private static Log log = LogFactory.getLog(DexFileHandler.class);
 
 	ValidationFindings findings;
-
-	public ValidationFindings getFindings() {
-		return findings;
-	}
-
 	TLModel newModel = null;
 
-	public TLModel getNewModel() {
-		return newModel;
-	}
-
-	public ProjectManager openProject(File selectedProjectFile, OpenProjectProgressMonitor monitor) {
-		ProjectManager manager = new ProjectManager(false);
-		findings = new ValidationFindings();
-		try {
-			manager.loadProject(selectedProjectFile, findings, monitor);
-			// manager.loadProject(selectedProjectFile, findings);
-		} catch (LibraryLoaderException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		}
-		return manager;
-	}
-
-	// public class ProjectProgressMonitor implements LoaderProgressMonitor {
-	//
-	// @Override
-	// public void beginLoad(int libraryCount) {
-	// System.out.println("Progress: begin with " + libraryCount);
-	// }
-	//
-	// @Override
-	// public void loadingLibrary(String libraryFilename) {
-	// System.out.println("Progress: loading " + libraryFilename);
-	// }
-	//
-	// @Override
-	// public void libraryLoaded() {
-	// System.out.println("Progress: loaded done. ");
-	// }
-	//
-	// @Override
-	// public void done() {
-	// System.out.println("Progress: done");
-	// }
-	//
-	// }
-
-	public void openFile(File selectedFile) {
-		if (selectedFile == null)
-			return;
-
-		if (selectedFile.getName().endsWith(".otp")) {
-			ProjectManager manager = openProject(selectedFile, null);
-			newModel = manager.getModel();
-		} else { // assume OTM library file
-			LibraryInputSource<InputStream> libraryInput = new LibraryStreamInputSource(selectedFile);
-			try {
-				LibraryModelLoader<InputStream> modelLoader = new LibraryModelLoader<>();
-
-				findings = modelLoader.loadLibraryModel(libraryInput);
-				newModel = modelLoader.getLibraryModel();
-			} catch (LibraryLoaderException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+	// Needs:
+	// * ProjectManager - creates new one
+	// * User Settings - directory to find projects in
 
 	public File fileChooser(Stage stage) {
 		// TEMP
@@ -111,7 +49,16 @@ public class DexFileHandler extends AbstractMainWindowController {
 				new String[] { "*.otm", "OTM Library Files (*.otm)" }, new String[] { "*.*", "All Files (*.*)" });
 		File selectedFile = chooser.showOpenDialog(stage);
 
+		log.warn("TODO - get directory from preferences. Selected file: " + selectedFile.getName());
 		return selectedFile;
+	}
+
+	public ValidationFindings getFindings() {
+		return findings;
+	}
+
+	public TLModel getNewModel() {
+		return newModel;
 	}
 
 	/**
@@ -126,30 +73,60 @@ public class DexFileHandler extends AbstractMainWindowController {
 		if (directory.isDirectory()) {
 			projectFiles = directory.listFiles(f -> f.getName().endsWith(".otp"));
 		}
+		log.warn("TODO - get directory from preferences.");
 		return projectFiles;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Open the passed project with the project manager.
+	 * <p>
+	 * Open library file using library model loader
 	 * 
-	 * @see org.opentravel.application.common.AbstractMainWindowController#setStatusMessage(java.lang.String,
-	 * org.opentravel.application.common.StatusType, boolean)
+	 * @param selectedFile
 	 */
+	public void openFile(File selectedFile) {
+		if (selectedFile == null)
+			return;
+		log.debug("Open selected file: " + selectedFile.getName());
+
+		if (selectedFile.getName().endsWith(".otp")) {
+			ProjectManager manager = openProject(selectedFile, null);
+			newModel = manager.getModel();
+		} else { // assume OTM library file
+			LibraryInputSource<InputStream> libraryInput = new LibraryStreamInputSource(selectedFile);
+			try {
+				LibraryModelLoader<InputStream> modelLoader = new LibraryModelLoader<>();
+
+				findings = modelLoader.loadLibraryModel(libraryInput);
+				newModel = modelLoader.getLibraryModel();
+			} catch (LibraryLoaderException e) {
+				log.error("Error loading model: " + e.getLocalizedMessage());
+				// e.printStackTrace();
+			}
+		}
+	}
+
+	public ProjectManager openProject(File selectedProjectFile, OpenProjectProgressMonitor monitor) {
+		ProjectManager manager = new ProjectManager(false);
+		findings = new ValidationFindings();
+		try {
+			manager.loadProject(selectedProjectFile, findings, monitor);
+			// manager.loadProject(selectedProjectFile, findings);
+		} catch (LibraryLoaderException | RepositoryException | NullPointerException e) {
+			log.error("Error opening project: " + e.getLocalizedMessage());
+		}
+		return manager;
+	}
+
 	@Override
 	protected void setStatusMessage(String message, StatusType statusType, boolean disableControls) {
-		// TODO Auto-generated method stub
+		// Inherited status message not used.
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.application.common.AbstractMainWindowController#updateControlStates()
-	 */
 	@Override
 	protected void updateControlStates() {
-		// TODO Auto-generated method stub
-
+		// TODO
 	}
 
 }

@@ -46,30 +46,12 @@
                <children>
                   <fx:include fx:id="memberFilter" source="MemberFilter.fxml" />
                   <fx:include fx:id="memberTreeTable" source="MemberTreeTable.fxml" VBox.vgrow="ALWAYS" />
-                  <!-- TreeTableView fx:id="navTreeTableView" prefWidth="302.0" VBox.vgrow="ALWAYS" / -->
                </children>
             </VBox>
             <TabPane tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <fx:include fx:id="memberPropertiesTab" source="MemberPropertiesTab.fxml" />
 				<fx:include fx:id="librariesTab" source="LibrariesTab.fxml" />
-
-                <!-- Tab fx:id="facetTab" text="Facets and Properties">
-                     <content>
-                        <VBox fx:id="facetTabVbox">
-                           <children>
-                              <fx:include fx:id="memberPropertiesTreeTable" source="MemberPropertiesTreeTable.fxml" />
-                              <TreeTableView fx:id="facetTabTreeTable" prefHeight="641.0" prefWidth="1040.0" />
-                              <ToolBar>
-                                <items>
-                                    <Button layoutX="86.0" layoutY="10.0" mnemonicParsing="false" prefWidth="55.0" styleClass="button-red" text="Delete" />
-                                    <TextField fx:id="propertyName" onAction="#setName" promptText="Parent" />
-                                </items>
-                              </ToolBar>
-                           </children>
-                        </VBox>
-                     </content>
-                  </Tab -->
                   <Tab onSelectionChanged="#whereUsedTabSelection" text="Where Used">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -113,67 +95,6 @@
                         </Accordion>
                      </content>
                   </Tab>
-                <!-- Tab fx:id="libraryTab" text="Libraries">
-                     <content>
-                        <Pane>
-                           <children>
-                              <TreeTableView fx:id="libraryTabTreeTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="658.0" prefWidth="955.0" />
-                           </children>
-                        </Pane>
-                     </content>
-                  </Tab -->
-                  <!-- Tab fx:id="libraryTab1" text="Repositories">
-                     <content>
-                        <BorderPane>
-                           <center>
-                              <SplitPane dividerPositions="0.2003853564547206">
-                                 <items>
-                                    <TreeView fx:id="repoTabRootNSs" prefHeight="631.0" prefWidth="302.0" />
-                                    <VBox>
-                                       <children>
-                                          <HBox layoutX="10.0" layoutY="448.0" spacing="12.0">
-                                             <children>
-                                                <Label stylesheets="@DavesViper.css" text="Libraries" />
-                                                <Label layoutX="22.0" layoutY="10.0" stylesheets="@DavesViper.css" text="    " />
-                                                <Label layoutX="22.0" layoutY="10.0" stylesheets="@DavesViper.css" text="Permission: " />
-                                                <Label fx:id="nsLibraryTablePermissionLabel" text="permission" />
-                                             </children>
-                                             <padding>
-                                                <Insets left="12.0" right="12.0" />
-                                             </padding>
-                                          </HBox>
-                                          <TreeTableView fx:id="repoTabLibraryTreeTableView" prefHeight="314.0" prefWidth="753.0" tableMenuButtonVisible="true" />
-                                          <Label stylesheets="@DavesViper.css" text="HIstory" />
-                                          <TableView fx:id="repoTabLibraryHistoryView" prefHeight="161.0" prefWidth="753.0" tableMenuButtonVisible="true" />
-                                          <HBox spacing="12.0">
-                                             <children>
-                                                <Label alignment="BOTTOM_LEFT" stylesheets="@DavesViper.css" text="Current Project" />
-                                                <Button layoutX="20.0" mnemonicParsing="false" prefWidth="60.0" styleClass="button-blue" stylesheets="@DavesViper.css" text="Select" />
-                                                <Button alignment="TOP_RIGHT" layoutX="150.0" mnemonicParsing="false" prefWidth="60.0" styleClass="button-red" stylesheets="@DavesViper.css" text="Remove" />
-                                             </children>
-                                             <padding>
-                                                <Insets left="12.0" right="12.0" />
-                                             </padding>
-                                          </HBox>
-                                          <TableView fx:id="selectedLibrariesTable1" prefHeight="200.0" prefWidth="306.0" />
-                                       </children>
-                                    </VBox>
-                                 </items>
-                              </SplitPane>
-                           </center>
-                           <top>
-                              <ToolBar prefHeight="40.0" prefWidth="200.0" styleClass="tab-menu-bar" stylesheets="@DavesViper.css" BorderPane.alignment="CENTER">
-                                <items>
-                                    <ChoiceBox fx:id="repoTabRepoChoice" prefWidth="150.0" />
-                                    <TextField fx:id="repoTabRepoUserField" promptText="User Name" />
-                                    <PasswordField promptText="password" />
-                                  <Button mnemonicParsing="false" text="Add Repository" />
-                                </items>
-                              </ToolBar>
-                           </top>
-                        </BorderPane>
-                     </content>
-                  </Tab -->
 				  <fx:include fx:id="repositoryTab" source="RepositoryTab.fxml" />
               </tabs>
             </TabPane>

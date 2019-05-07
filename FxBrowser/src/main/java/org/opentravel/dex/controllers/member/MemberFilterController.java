@@ -200,7 +200,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	 * @return true if the object passes the selection filters (should be displayed)
 	 */
 	public boolean isSelected(OtmLibraryMember member) {
-		// log.debug("Is " + object.getName() + " selected?");
+		// log.debug("Is " + member.getName() + "version = " + member.getLibrary().getVersion() + " selected? "
+		// + member.getLibrary().isLatestVersion());
 		if (member == null || member.getLibrary() == null)
 			return true;
 		if (libraryFilter != null && !member.getLibrary().getName().startsWith(libraryFilter))

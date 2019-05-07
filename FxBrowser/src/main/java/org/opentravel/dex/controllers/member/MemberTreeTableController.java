@@ -12,6 +12,7 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.events.DexFilterChangeEvent;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
+import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
@@ -55,11 +56,6 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	// private static final String ERRORLABEL = "Errors";
 	private static final String WHEREUSEDLABEL = "Types Used";
 
-	// All event types listened to by this controller's handlers
-	private static final EventType[] subscribedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
-			DexMemberSelectionEvent.MEMBER_SELECTED };
-	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
-
 	/*
 	 * FXML injected
 	 */
@@ -79,6 +75,11 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private boolean ignoreEvents = false;
 	// By default, the tree is editable. Setting this to false will prevent edits.
 	private boolean treeEditingEnabled = true;
+
+	// All event types listened to by this controller's handlers
+	private static final EventType[] subscribedEvents = { DexFilterChangeEvent.FILTER_CHANGED,
+			DexMemberSelectionEvent.MEMBER_SELECTED, DexModelChangeEvent.MODEL_CHANGED };
+	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
 
 	/**
 	 * Construct a member tree table controller that can publish and receive events.
@@ -280,6 +281,8 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 				handleEvent((DexMemberSelectionEvent) event);
 			if (event instanceof DexFilterChangeEvent)
 				handleEvent((DexFilterChangeEvent) event);
+			if (event instanceof DexModelChangeEvent)
+				post(((DexModelChangeEvent) event).getModelManager());
 			else
 				refresh();
 		}

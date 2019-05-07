@@ -11,7 +11,7 @@ import javafx.util.converter.IntegerStringConverter;
  * @author dmh
  *
  */
-public class DexIntegerStringConverter extends IntegerStringConverter {
+public class DexRepeatMaxConverter extends IntegerStringConverter {
 	@Override
 	public Integer fromString(String value) {
 		// If the specified value is null or zero-length, return null
@@ -29,7 +29,10 @@ public class DexIntegerStringConverter extends IntegerStringConverter {
 		try {
 			i = Integer.valueOf(value);
 		} catch (NumberFormatException e) {
+			// ignore
 		}
+		if (i < 0)
+			i = 0;
 		return i;
 		// return Integer.valueOf(value);
 	}
@@ -41,7 +44,11 @@ public class DexIntegerStringConverter extends IntegerStringConverter {
 		if (value == null) {
 			return "";
 		}
-
+		// Let 0 and negative numbers indicate no displayed value
+		if (value < 0)
+			return "";
+		if (value == 0)
+			return "1";
 		return (Integer.toString(value.intValue()));
 	}
 

@@ -63,7 +63,7 @@ public class DexLibrarySelectionEvent extends DexEvent {
 	 */
 	public DexLibrarySelectionEvent(OtmLibrary target) {
 		super(LIBRARY_SELECTED);
-		log.debug("DexEvent source/target constructor ran.");
+		log.debug("DexEvent target constructor ran.");
 		library = target;
 	}
 

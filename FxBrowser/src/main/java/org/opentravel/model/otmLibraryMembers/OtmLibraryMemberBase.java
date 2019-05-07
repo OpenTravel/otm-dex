@@ -78,7 +78,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	public void addAlias(TLAlias tla) {
 		if (tla.getOwningEntity() instanceof TLFacet) {
 			String baseName = tla.getLocalName().substring(0, tla.getName().lastIndexOf('_'));
-			log.debug("Adding alias " + tla.getName() + " to " + baseName);
+			// log.debug("Adding alias " + tla.getName() + " to " + baseName);
 
 			children.forEach(c -> {
 				if (c instanceof OtmAlias && c.getName().equals(baseName))

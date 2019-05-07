@@ -3,7 +3,6 @@
  */
 package org.opentravel.model;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.DexFileHandler;
-import org.opentravel.common.OpenProjectProgressMonitor;
 import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
@@ -25,6 +23,7 @@ import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMemberFactory;
 import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
@@ -60,6 +59,8 @@ public class OtmModelManager implements TaskResultHandlerI {
 	private DexActionManager actionMgr;
 	private DexStatusController statusController;
 
+	private TLModel tlModel = null;
+
 	/**
 	 * Create a model manager.
 	 * 
@@ -69,24 +70,31 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 */
 	public OtmModelManager(DexStatusController statusController, DexActionManager actionManager) {
 		this.actionMgr = actionManager;
-		this.statusController = statusController;
 		actionManager.setModelManager(this);
+		this.statusController = statusController;
+
+		// Create a TL Model
+		// FIXME - this is not the model being used when adding projects
+		try {
+			tlModel = new TLModel();
+		} catch (Exception e) {
+			log.debug("Exception creating new model: " + e.getLocalizedMessage());
+		}
+		// Tell model to track changes to maintain its type integrity
+		tlModel.addListener(new ModelIntegrityChecker());
+		log.debug("TL Model created and integrity checker added.");
+
+		// Render the built-in libraries
+		for (BuiltInLibrary tlLib : tlModel.getBuiltInLibraries())
+			for (LibraryMember tlMember : tlLib.getNamedMembers()) {
+				OtmLibraryMemberFactory.memberFactory(tlMember, this); // creates and adds
+			}
+
 	}
 
 	public DexActionManager getActionManager() {
 		return actionMgr;
 	}
-
-	// /**
-	// * Test if the library namespace is in any of the open projects.
-	// *
-	// * @param lib
-	// * @return
-	// */
-	// public boolean isInProject(OtmLibrary lib) {
-	//// for (OtmProject p : projects.values())
-	// return false;
-	// }
 
 	/**
 	 * @param TL
@@ -98,10 +106,6 @@ public class OtmModelManager implements TaskResultHandlerI {
 	}
 
 	public OtmLibraryMember getMember(TLModelElement tlMember) {
-		// if (!(tlMember instanceof LibraryMember)) {
-		// // TODO - Get a LibraryMember from the tlMember
-		// }
-
 		if (tlMember instanceof LibraryMember)
 			return members.get((tlMember));
 		return null;
@@ -131,8 +135,10 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 * @return
 	 */
 	public boolean isLatest(OtmLibrary lib) {
+		if (lib == null || lib.getTL() == null)
+			return false;
 		VersionChain<TLLibrary> chain = baseNSMap.get(lib.getNameWithBasenamespace());
-		if (lib.getTL() instanceof TLLibrary)
+		if (chain != null && lib.getTL() instanceof TLLibrary)
 			return (chain.getNextVersion((TLLibrary) lib.getTL())) == null;
 		return true;
 	}
@@ -164,7 +170,12 @@ public class OtmModelManager implements TaskResultHandlerI {
 		log.debug("Oh la la -- a new project to consume!");
 		log.debug("            new project has " + pm.getModel().getAllLibraries().size() + " libraries");
 
-		VersionChainFactory versionChainFactory = new VersionChainFactory(pm.getModel());
+		// Add projects to project map
+		for (Project project : pm.getAllProjects())
+			projects.put(project.getName(), new OtmProject(project));
+
+		if (pm.getModel() != tlModel)
+			log.debug("Models are different");
 		// Tell model to track changes to maintain its type integrity
 		// TODO - where should this be set?
 		pm.getModel().addListener(new ModelIntegrityChecker());
@@ -174,18 +185,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 		// base namespaces can have multiple libraries. Map will de-dup the entries based on baseNS and name.
 		// Libraries can belong to multiple projects.
 		for (ProjectItem pi : pm.getAllProjectItems()) {
-			AbstractLibrary al = pi.getContent();
-			if (al == null)
-				continue;
-			if (libraries.containsKey(al)) {
-				libraries.get(al).add(pi); // let the library track additional project
-				// TODO - all done - already modeled
-			} else {
-				OtmLibrary lib = new OtmLibrary(pi, this);
-				libraries.put(al, lib);
-				if (al instanceof TLLibrary)
-					baseNSMap.put(lib.getNameWithBasenamespace(), versionChainFactory.getVersionChain((TLLibrary) al));
-			}
+			addLibrary(pi);
 		}
 
 		// Get Members
@@ -201,23 +201,29 @@ public class OtmModelManager implements TaskResultHandlerI {
 		log.debug("Model has " + members.size() + " members.");
 	}
 
+	private void addLibrary(ProjectItem pi) {
+		if (pi == null)
+			return;
+		VersionChainFactory versionChainFactory = new VersionChainFactory(pi.getProjectManager().getModel());
+		AbstractLibrary absLibrary = pi.getContent();
+		if (absLibrary == null)
+			return;
+
+		if (libraries.containsKey(absLibrary)) {
+			libraries.get(absLibrary).add(pi); // let the library track additional project
+		} else {
+			OtmLibrary lib = new OtmLibrary(pi, this);
+			libraries.put(absLibrary, lib);
+			if (absLibrary instanceof TLLibrary)
+				baseNSMap.put(lib.getNameWithBasenamespace(),
+						versionChainFactory.getVersionChain((TLLibrary) absLibrary));
+		}
+	}
+
 	@Override
 	public void handleTaskComplete(WorkerStateEvent event) {
 		// NO-OP
 	}
-
-	// public OtmLibraryMember memberFactory(LibraryMember tlMember) {
-	// OtmLibraryMember otmMember = null;
-	// if (tlMember instanceof TLBusinessObject)
-	// otmMember = new OtmBusinessObject((TLBusinessObject) tlMember, this);
-	// if (tlMember instanceof TLChoiceObject)
-	// otmMember = new OtmChoiceObject((TLChoiceObject) tlMember, this);
-	// if (tlMember instanceof TLCoreObject)
-	// otmMember = new OtmCoreObject((TLCoreObject) tlMember, this);
-	//
-	// add(otmMember);
-	// return otmMember;
-	// }
 
 	/**
 	 * @return
@@ -244,30 +250,24 @@ public class OtmModelManager implements TaskResultHandlerI {
 		baseNSMap.clear();
 	}
 
-	/**
-	 * @param selectedFile
-	 * @param monitor
-	 */
-	public void openProject(File selectedFile, OpenProjectProgressMonitor monitor) {
-		// Open the project
-		ProjectManager pm = fileHandler.openProject(selectedFile, monitor);
-
-		// Record the results
-		for (Project project : pm.getAllProjects())
-			projects.put(project.getName(), new OtmProject(project));
-
-		// TODO - p.getTL().addProjectChangeListener(listener);
-
-		add(pm);
-	}
-
-	// private void computeUsageRelationships() {
-	// for (OtmLibraryMember member : getMembers()) {
-	// member.getUsedTypes(); // will force computation
-	// }
-	// }
+	// /**
+	// * Open the selected project and monitor the progress.
+	// *
+	// * @param projectFile
+	// * @param monitor
+	// */
+	// // TODO - where does this belong? Most of it is adding project to mgr.
+	// public void openProject(File projectFile, OpenProjectProgressMonitor monitor) {
+	// // Open the project
+	// log.debug("Opening Project");
+	// ProjectManager pm = fileHandler.openProject(projectFile, monitor);
 	//
-	// public Collection<OtmTypeUser> getWhereUsed(OtmLibraryMember member) {
-	// return Collections.emptyList();
+	// // Record the results
+	// for (Project project : pm.getAllProjects())
+	// projects.put(project.getName(), new OtmProject(project));
+	//
+	// // TODO - p.getTL().addProjectChangeListener(listener);
+	//
+	// add(pm);
 	// }
 }
