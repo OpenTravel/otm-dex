@@ -12,6 +12,7 @@ import org.opentravel.dex.controllers.library.LibrariesTabController;
 import org.opentravel.dex.controllers.member.MemberFilterController;
 import org.opentravel.dex.controllers.member.MemberTreeTableController;
 import org.opentravel.dex.controllers.member.properties.MemberPropertiesTabController;
+import org.opentravel.dex.controllers.member.usage.WhereUsedTabController;
 import org.opentravel.dex.repository.RepositoryTabController;
 
 import javafx.event.Event;
@@ -34,13 +35,15 @@ public class ObjectEditorController extends DexMainControllerBase {
 	@FXML
 	private MemberFilterController memberFilterController;
 	@FXML
-	private RepositoryTabController repositoryTabController;
-	@FXML
 	private MemberTreeTableController memberTreeTableController;
 	@FXML
 	private MemberPropertiesTabController memberPropertiesTabController;
 	@FXML
 	private LibrariesTabController librariesTabController;
+	@FXML
+	private WhereUsedTabController whereUsedTabController;
+	@FXML
+	private RepositoryTabController repositoryTabController;
 
 	// TODO - preferences (improve as i use it)
 	// Uses java beans to read/write to file
@@ -56,6 +59,8 @@ public class ObjectEditorController extends DexMainControllerBase {
 			throw new IllegalStateException("Member properties tab not injected by FXML.");
 		if (!(librariesTabController instanceof LibrariesTabController))
 			throw new IllegalStateException("Libraries tab not injected by FXML.");
+		if (!(whereUsedTabController instanceof WhereUsedTabController))
+			throw new IllegalStateException("Where used tab not injected by FXML.");
 	}
 
 	/**
@@ -79,6 +84,7 @@ public class ObjectEditorController extends DexMainControllerBase {
 
 		repositoryTabController.configure(this); // TODO - this is slow!
 		librariesTabController.configure(this);
+		whereUsedTabController.configure(this);
 
 		// Include controllers that are not in tabs
 		addIncludedController(memberFilterController);

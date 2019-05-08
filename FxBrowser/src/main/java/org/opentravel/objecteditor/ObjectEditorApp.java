@@ -57,6 +57,8 @@ public class ObjectEditorApp extends AbstractOTMApplication {
 			window = primaryStage;
 
 		} catch (Exception e) {
+			if (e.getCause() != null)
+				log.error("Error starting application, cause: " + e.getCause().toString());
 			log.error("Error starting application: " + e.getLocalizedMessage());
 		}
 	}

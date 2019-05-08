@@ -52,7 +52,8 @@
               <tabs>
                 <fx:include fx:id="memberPropertiesTab" source="MemberPropertiesTab.fxml" />
 				<fx:include fx:id="librariesTab" source="LibrariesTab.fxml" />
-                  <Tab onSelectionChanged="#whereUsedTabSelection" text="Where Used">
+				<fx:include fx:id="whereUsedTab" source="WhereUsedTab.fxml" />
+                  <!-- Tab onSelectionChanged="#whereUsedTabSelection" text="Where Used">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -68,8 +69,8 @@
                            </children>
                         </AnchorPane>
                     </content>
-                  </Tab>
-                  <Tab fx:id="treeTableTab" onSelectionChanged="#memberTabSelection" text="Errors and Warnings">
+                  </Tab -->
+                  <!-- Tab fx:id="treeTableTab" onSelectionChanged="#memberTabSelection" text="Errors and Warnings">
                      <content>
                         <Accordion>
                           <panes>
@@ -94,7 +95,7 @@
                           </panes>
                         </Accordion>
                      </content>
-                  </Tab>
+                  </Tab-->
 				  <fx:include fx:id="repositoryTab" source="RepositoryTab.fxml" />
               </tabs>
             </TabPane>
