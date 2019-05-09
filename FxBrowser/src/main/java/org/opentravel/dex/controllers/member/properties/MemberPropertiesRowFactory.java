@@ -8,10 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmObject;
-import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.model.otmProperties.OtmProperty;
-import org.opentravel.schemacompiler.model.TLProperty;
 
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -79,27 +76,27 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 		TreeItem<PropertiesDAO> treeItem = getTreeItem();
 		if (treeItem != null) {
 			OtmObject otm = treeItem.getValue().getValue();
-
-			// TODO - move to action handler
-			//
-			// Find child owning parent
-			OtmPropertyOwner owner = null;
-			if (otm instanceof OtmPropertyOwner)
-				owner = (OtmPropertyOwner) otm;
-			else if (otm instanceof OtmProperty<?>)
-				owner = ((OtmProperty<?>) otm).getParent();
-
-			if (owner instanceof OtmPropertyOwner) {
-				TLProperty newTL = new TLProperty();
-				newTL.setName("New");
-				OtmProperty newP = owner.add(newTL);
-				if (newP != null) {
-					controller.createTreeItem(newP, getTreeItem().getParent(), true);
-					controller.refresh();
-					// Post this row
-				}
-			}
 		}
+		// // TODO - move to action handler
+		// //
+		// // Find child owning parent
+		// OtmPropertyOwner owner = null;
+		// if (otm instanceof OtmPropertyOwner)
+		// owner = (OtmPropertyOwner) otm;
+		// else if (otm instanceof OtmProperty<?>)
+		// owner = ((OtmProperty<?>) otm).getParent();
+		//
+		// if (owner instanceof OtmPropertyOwner) {
+		// TLProperty newTL = new TLProperty();
+		// newTL.setName("New");
+		// OtmProperty newP = owner.add(newTL);
+		// if (newP != null) {
+		// controller.createTreeItem(newP, getTreeItem().getParent(), true);
+		// controller.refresh();
+		// // Post this row
+		// }
+		// }
+		// }
 
 	}
 

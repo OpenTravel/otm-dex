@@ -24,8 +24,14 @@ public class WhereUsedTabController implements DexTabController {
 	/**
 	 * FXML Java FX Nodes this controller is dependent upon
 	 */
+	// @FXML
+	// private WhereUsedTableController whereUsedTableController;
 	@FXML
-	private WhereUsedTableController whereUsedTableController;
+	private TypeUsersTreeController typeUsersTreeController;
+	@FXML
+	private UsersTreeController usersTreeController;
+	@FXML
+	private TypeProvidersTreeController typeProvidersTreeController;
 	@FXML
 	private Tab whereUsedTab;
 	@FXML
@@ -43,8 +49,10 @@ public class WhereUsedTabController implements DexTabController {
 
 	@Override
 	public void configure(DexMainController parent) {
-		parent.addIncludedController(whereUsedTableController);
-		// parent.addIncludedController(memberDetailsController);
+		// parent.addIncludedController(whereUsedTableController);
+		parent.addIncludedController(typeUsersTreeController);
+		parent.addIncludedController(usersTreeController);
+		parent.addIncludedController(typeProvidersTreeController);
 	}
 
 }

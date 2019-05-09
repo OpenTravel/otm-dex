@@ -12,15 +12,11 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.member.MemberDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
-import org.opentravel.model.OtmChildrenOwner;
-import org.opentravel.model.OtmObject;
-import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -124,21 +120,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		typeCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("assignedType"));
 		typeCol.setCellFactory(c -> new AssignedTypePropertiesTreeTableCellFactory(this));
 
-		// TODO - get the change action into the row factory
-		// typeCol.setCellValueFactory(new Callback<CellDataFeatures<PropertiesDAO, String>, ObservableValue<String>>()
-		// {
-		// @Override
-		// public ObservableValue<String> call(CellDataFeatures<PropertiesDAO, String> p) {
-		// if (imageMgr != null) {
-		// ImageView graphic = imageMgr.getView(p.getValue().getValue().getValue());
-		// p.getValue().setGraphic(graphic);
-		// }
-		// return p.getValue().getValue().assignedTypeProperty();
-		// }
-		// });
-		// typeCol.setCellFactory(
-		// ChoiceBoxTreeTableCell.forTreeTableColumn(AssignedTypesMenuHandler.getAssignedTypeList()));
-
 		// Role Column
 		setColumnProps(roleCol, true, true, false, 100);
 		roleCol.setCellValueFactory(new TreeItemPropertyValueFactory<PropertiesDAO, String>("role"));
@@ -176,60 +157,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 		// Layout the table
 		initializeTable(propertiesTable);
-	}
-
-	/**
-	 * Create a tree item and add to parent. No business logic.
-	 * 
-	 * @param element
-	 *            to create item for
-	 * @param parent
-	 *            to add item as child
-	 * @return
-	 */
-	protected TreeItem<PropertiesDAO> createTreeItem(OtmObject element, TreeItem<PropertiesDAO> parent,
-			boolean expanded) {
-		TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(element, this));
-		item.setExpanded(expanded);
-		if (parent != null)
-			parent.getChildren().add(item);
-		if (imageMgr != null) {
-			ImageView graphic = imageMgr.getView(element);
-			item.setGraphic(graphic);
-			Tooltip.install(graphic, new Tooltip(element.getObjectTypeName()));
-		}
-		return item;
-
-	}
-
-	/**
-	 * Add tree items to parent for each descendant of the member.
-	 * 
-	 * @param member
-	 *            a child owning library member
-	 */
-	private void createTreeItems(OtmChildrenOwner member, TreeItem<PropertiesDAO> parent) {
-		// create cells for member's facets and properties
-		for (OtmObject element : member.getChildrenHierarchy()) {
-			// Create item and add to tree at parent
-			TreeItem<PropertiesDAO> item = createTreeItem(element, parent, true);
-
-			// TODO - sort order
-
-			// Contributor children list does not contain other contextual facets
-			if (element instanceof OtmContributedFacet && ((OtmContributedFacet) element).getContributor() != null)
-				element = ((OtmContributedFacet) element).getContributor();
-
-			// Create tree items for children if any
-			if (element instanceof OtmChildrenOwner)
-				((OtmChildrenOwner) element).getChildrenHierarchy().forEach(c -> {
-					TreeItem<PropertiesDAO> cfItem = createTreeItem(c, item, true);
-
-					// Recurse to model nested contextual facets
-					if (c instanceof OtmChildrenOwner)
-						createTreeItems((OtmChildrenOwner) c, cfItem);
-				});
-		}
 	}
 
 	@Override
@@ -274,7 +201,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	public void post(OtmLibraryMember member) {
 		clear();
 		if (member != null)
-			createTreeItems(member, root);
+			new PropertiesDAO(member, this).createChildrenItems(root);
 	}
 
 	/**
@@ -290,13 +217,11 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	private void propertySelectionListener(TreeItem<PropertiesDAO> item) {
 		if (item == null || item.getValue() == null)
 			return;
-		// TODO - set name editable IFF ...
 		nameCol.setEditable(item.getValue().isEditable());
 		roleCol.setEditable(item.getValue().isEditable());
 		typeCol.setEditable(item.getValue().isEditable());
 		minCol.setEditable(item.getValue().isEditable());
 		maxCol.setEditable(item.getValue().isEditable());
-		// TODO - set example editable IFF ...
 		exampleCol.setEditable(item.getValue().isEditable());
 		descCol.setEditable(item.getValue().isEditable());
 		deprecatedCol.setEditable(item.getValue().isEditable());
@@ -306,33 +231,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	public void refresh() {
 		propertiesTable.refresh();
 	}
-
-	// /**
-	// * Select a property with the given name
-	// *
-	// * @param name
-	// */
-	// public void select(String name) {
-	// log.debug("TODO - select " + name);
-	// for (TreeItem<PropertiesDAO> item : propertiesTable.getRoot().getChildren())
-	// if (item.getValue().getValue().getName().equals(name))
-	// propertiesTable.getSelectionModel().select(item);
-	// // FIXME - pass the action request : MemberSelection(string)
-	// // ((ObjectEditorController) parentController).select(name);
-	// }
-
-	// /**
-	// * Set String column properties and set value to named field.
-	// */
-	// @Override
-	// protected void setColumnProps(TreeTableColumn<?, ?> c, boolean visable, boolean editable, boolean sortable,
-	// int width) {
-	// c.setVisible(visable);
-	// c.setEditable(editable);
-	// c.setSortable(sortable);
-	// if (width > 0)
-	// c.setPrefWidth(width);
-	// }
 
 	/**
 	 * Set String column properties and set value to named field.

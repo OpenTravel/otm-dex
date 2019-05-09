@@ -8,8 +8,10 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
 import org.opentravel.dex.controllers.DexIncludedController;
+import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeUser;
+import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmProperties.OtmElement;
 import org.opentravel.model.otmProperties.OtmProperty;
@@ -24,6 +26,8 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 
 /**
@@ -45,7 +49,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 		this.element = property;
 	}
 
-	public PropertiesDAO(OtmObject element, MemberPropertiesTreeTableController controller) {
+	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller) {
 		this.element = element;
 		this.controller = controller;
 	}
@@ -228,6 +232,67 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	@Override
 	public String toString() {
 		return element.toString();
+	}
+
+	/**
+	 * Create a tree item and add to parent. No business logic.
+	 * 
+	 * @param element
+	 *            to create item for
+	 * @param parent
+	 *            to add item as child
+	 * @return
+	 */
+	public TreeItem<PropertiesDAO> createTreeItem(TreeItem<PropertiesDAO> parent, boolean expanded) {
+		TreeItem<PropertiesDAO> item = new TreeItem<>(this);
+		item.setExpanded(expanded);
+		if (parent != null)
+			parent.getChildren().add(item);
+		// Decorate if possible
+		if (controller != null && controller.getMainController() != null) {
+			ImageManager imageMgr = controller.getMainController().getImageManager();
+			if (imageMgr != null) {
+				ImageView graphic = imageMgr.getView(element);
+				item.setGraphic(graphic);
+				Tooltip.install(graphic, new Tooltip(element.getObjectTypeName()));
+			}
+		}
+		return item;
+	}
+
+	/**
+	 * Add tree items to parent for each descendant of the child owner.
+	 * 
+	 * @param member
+	 *            a child owning library member. Non-child owning properties are ignored.
+	 */
+	public void createChildrenItems(TreeItem<PropertiesDAO> parent) {
+		OtmChildrenOwner member = null;
+		if (element instanceof OtmChildrenOwner) {
+			member = (OtmChildrenOwner) element;
+			// create cells for member's facets and properties
+			for (OtmObject child : member.getChildrenHierarchy()) {
+				// Create item and add to tree at parent
+				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController()).createTreeItem(parent, true);
+
+				// TODO - sort order
+
+				// Contributor children list does not contain other contextual facets
+				if (child instanceof OtmContributedFacet && ((OtmContributedFacet) child).getContributor() != null)
+					child = ((OtmContributedFacet) child).getContributor();
+
+				// Create tree items for children if any
+				if (child instanceof OtmChildrenOwner)
+					((OtmChildrenOwner) child).getChildrenHierarchy().forEach(c -> {
+						TreeItem<PropertiesDAO> cfItem = new PropertiesDAO(c, getController()).createTreeItem(item,
+								true);
+
+						// Recurse to model nested contextual facets
+						if (c instanceof OtmChildrenOwner)
+							new PropertiesDAO(c, getController()).createChildrenItems(cfItem);
+					});
+			}
+		}
 	}
 
 	// ((TLProperty)tl).getDocumentation().addImplementer(implementer);(null);
