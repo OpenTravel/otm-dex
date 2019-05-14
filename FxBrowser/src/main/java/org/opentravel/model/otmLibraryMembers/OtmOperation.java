@@ -16,9 +16,8 @@
 /**
  * 
  */
-package org.opentravel.model.otmFacets;
+package org.opentravel.model.otmLibraryMembers;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,36 +31,64 @@ import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
-import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
-import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.model.otmFacets.OtmOperationFacet;
+import org.opentravel.schemacompiler.model.TLOperation;
 
 /**
- * Abstract OTM Node for Aliases. Unlike the TL model, all aliases on an LibraryMember are collected under the OtmAlias
- * as OtmAliasFacets.
+ * OTM Object for Operations. These are NOT library members, they are children of services.
  * 
  * @author Dave Hollander
  * 
  */
-public class OtmAlias extends OtmModelElement<TLAlias> implements OtmTypeProvider, OtmChildrenOwner {
-	private static Log log = LogFactory.getLog(OtmAlias.class);
+public class OtmOperation extends OtmModelElement<TLOperation> implements OtmChildrenOwner {
+	private static Log log = LogFactory.getLog(OtmOperation.class);
 
-	private OtmLibraryMember parent = null;
+	private OtmServiceObject parent;
 
-	/**
-	 * @param tlBusinessObject
-	 */
-	public OtmAlias(TLAlias tl, OtmLibraryMember parent) {
-		super(tl, parent.getActionManager());
-		log.debug("Created alias on " + parent);
+	public OtmOperation(TLOperation tlo, OtmServiceObject parent) {
+		super(tlo, parent.getActionManager());
 		this.parent = parent;
+	}
 
-		if (this.parent == null)
-			throw new IllegalStateException("Created alias without parent.");
+	// public OtmOperation(String name, OtmLibraryMember parent) {
+	// super(new TLOperation(), parent.getActionManager());
+	// setName(name);
+	// }
+
+	@Override
+	public String setName(String name) {
+		getTL().setName(name);
+		isValid(true);
+		return getName();
+	}
+
+	@Override
+	public TLOperation getTL() {
+		return tlObject;
 	}
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.ALIAS;
+		return ImageManager.Icons.OPERATION;
+	}
+
+	// @Override
+	// public Collection<OtmObject> getChildrenHierarchy() {
+	// Collection<OtmObject> ch = new ArrayList<>();
+	// // children.forEach(c -> {
+	// // if (c instanceof OtmIdFacet)
+	// // ch.add(c);
+	// // if (c instanceof OtmAlias)
+	// // ch.add(c);
+	// // });
+	// return ch;
+	// }
+
+	@Override
+	public void modelChildren() {
+		children.add(new OtmOperationFacet(getTL().getRequest(), this));
+		children.add(new OtmOperationFacet(getTL().getResponse(), this));
+		children.add(new OtmOperationFacet(getTL().getNotification(), this));
 	}
 
 	@Override
@@ -70,33 +97,25 @@ public class OtmAlias extends OtmModelElement<TLAlias> implements OtmTypeProvide
 	}
 
 	@Override
-	public boolean isNameControlled() {
+	public boolean isExpanded() {
 		return true;
 	}
 
 	@Override
 	public List<OtmObject> getChildren() {
+		if (children != null && children.isEmpty())
+			modelChildren();
 		return children;
-	}
-
-	@Override
-	public boolean isExpanded() {
-		return false;
 	}
 
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
-		return children;
+		return getChildren();
 	}
 
 	@Override
 	public Collection<OtmTypeProvider> getChildrenTypeProviders() {
-		List<OtmTypeProvider> cps = new ArrayList<>();
-		children.forEach(c -> {
-			if (c instanceof OtmTypeProvider)
-				cps.add((OtmTypeProvider) c);
-		});
-		return cps;
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -106,29 +125,12 @@ public class OtmAlias extends OtmModelElement<TLAlias> implements OtmTypeProvide
 
 	@Override
 	public Collection<OtmTypeProvider> getDescendantsTypeProviders() {
-		return getChildrenTypeProviders();
-	}
-
-	@Override
-	public Collection<OtmTypeUser> getDescendantsTypeUsers() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public void modelChildren() {
-		// no-op
+	public Collection<OtmTypeUser> getDescendantsTypeUsers() {
+		// TODO Auto-generated method stub
+		return Collections.emptyList();
 	}
-
-	/**
-	 * @param tla
-	 */
-	public void add(TLAlias tla) {
-		// Protect against duplicates -- the underlying facets may refresh more often than the root alias.
-		for (OtmObject child : children) {
-			if (child.getName().equals(tla.getName()))
-				return;
-		}
-		children.add(new OtmAliasFacet(tla, this));
-	}
-
 }

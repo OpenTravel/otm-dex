@@ -18,7 +18,6 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +26,7 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmObject;
-import org.opentravel.schemacompiler.model.TLResource;
+import org.opentravel.schemacompiler.model.TLService;
 
 /**
  * OTM Object for Resource objects.
@@ -35,15 +34,15 @@ import org.opentravel.schemacompiler.model.TLResource;
  * @author Dave Hollander
  * 
  */
-public class OtmResourceObject extends OtmLibraryMemberBase<TLResource> {
-	private static Log log = LogFactory.getLog(OtmResourceObject.class);
+public class OtmServiceObject extends OtmLibraryMemberBase<TLService> {
+	private static Log log = LogFactory.getLog(OtmServiceObject.class);
 
-	public OtmResourceObject(TLResource tlo, OtmModelManager mgr) {
+	public OtmServiceObject(TLService tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
 
-	public OtmResourceObject(String name, OtmModelManager mgr) {
-		super(new TLResource(), mgr);
+	public OtmServiceObject(String name, OtmModelManager mgr) {
+		super(new TLService(), mgr);
 		setName(name);
 	}
 
@@ -55,25 +54,24 @@ public class OtmResourceObject extends OtmLibraryMemberBase<TLResource> {
 	}
 
 	@Override
-	public TLResource getTL() {
-		return (TLResource) tlObject;
+	public TLService getTL() {
+		return (TLService) tlObject;
 	}
 
 	@Override
 	public Icons getIconType() {
-		return ImageManager.Icons.RESOURCE;
+		return ImageManager.Icons.SERVICE;
 	}
 
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
-		Collection<OtmObject> ch = new ArrayList<>();
-		// children.forEach(c -> {
-		// if (c instanceof OtmIdFacet)
-		// ch.add(c);
-		// if (c instanceof OtmAlias)
-		// ch.add(c);
-		// });
-		return ch;
+		// Collection<OtmObject> ch = new ArrayList<>();
+		return getChildren();
+	}
+
+	@Override
+	public void modelChildren() {
+		getTL().getOperations().forEach(o -> children.add(new OtmOperation(o, this)));
 	}
 
 	@Override
@@ -82,13 +80,13 @@ public class OtmResourceObject extends OtmLibraryMemberBase<TLResource> {
 	}
 
 	@Override
-	public boolean isExpanded() {
-		return true;
+	public boolean isNameControlled() {
+		return false;
 	}
 
 	@Override
-	public boolean isNameControlled() {
-		return false;
+	public boolean isExpanded() {
+		return true;
 	}
 
 }

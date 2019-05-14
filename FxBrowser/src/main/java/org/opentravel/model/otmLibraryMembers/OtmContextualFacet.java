@@ -98,6 +98,11 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 	}
 
 	@Override
+	public boolean isExpanded() {
+		return true;
+	}
+
+	@Override
 	public boolean isNameControlled() {
 		return true;
 	}

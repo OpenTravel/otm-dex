@@ -65,4 +65,10 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 	public boolean isNameControlled() {
 		return true;
 	}
+
+	@Override
+	public boolean isExpanded() {
+		return true;
+	}
+
 }

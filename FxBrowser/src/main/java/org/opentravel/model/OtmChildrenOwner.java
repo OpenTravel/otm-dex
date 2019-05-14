@@ -60,4 +60,11 @@ public interface OtmChildrenOwner extends OtmObject {
 	 * Model the children of this object from its' tlObject(s).
 	 */
 	public void modelChildren();
+
+	/**
+	 * Should this owner be displayed with its children visible?
+	 * 
+	 * @return true if children should be visible.
+	 */
+	public boolean isExpanded();
 }

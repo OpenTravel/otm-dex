@@ -103,6 +103,11 @@ public class OtmXsdElement extends OtmLibraryMemberBase<XSDElement> implements O
 		return false;
 	}
 
+	@Override
+	public boolean isExpanded() {
+		return true;
+	}
+
 	// @Override
 	// public TLPropertyType setAssignedTLType(NamedEntity type) {
 	// if (type instanceof TLAttributeType)

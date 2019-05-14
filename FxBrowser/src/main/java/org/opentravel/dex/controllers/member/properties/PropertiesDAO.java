@@ -235,17 +235,16 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	}
 
 	/**
-	 * Create a tree item and add to parent. No business logic.
+	 * Create a tree item for this DAO's element and add to parent. No business logic.
 	 * 
-	 * @param element
-	 *            to create item for
 	 * @param parent
 	 *            to add item as child
 	 * @return
 	 */
-	public TreeItem<PropertiesDAO> createTreeItem(TreeItem<PropertiesDAO> parent, boolean expanded) {
+	public TreeItem<PropertiesDAO> createTreeItem(TreeItem<PropertiesDAO> parent) {
 		TreeItem<PropertiesDAO> item = new TreeItem<>(this);
-		item.setExpanded(expanded);
+		if (element instanceof OtmChildrenOwner)
+			item.setExpanded(((OtmChildrenOwner) element).isExpanded());
 		if (parent != null)
 			parent.getChildren().add(item);
 		// Decorate if possible
@@ -273,7 +272,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 			// create cells for member's facets and properties
 			for (OtmObject child : member.getChildrenHierarchy()) {
 				// Create item and add to tree at parent
-				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController()).createTreeItem(parent, true);
+				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController()).createTreeItem(parent);
 
 				// TODO - sort order
 
@@ -284,8 +283,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 				// Create tree items for children if any
 				if (child instanceof OtmChildrenOwner)
 					((OtmChildrenOwner) child).getChildrenHierarchy().forEach(c -> {
-						TreeItem<PropertiesDAO> cfItem = new PropertiesDAO(c, getController()).createTreeItem(item,
-								true);
+						TreeItem<PropertiesDAO> cfItem = new PropertiesDAO(c, getController()).createTreeItem(item);
 
 						// Recurse to model nested contextual facets
 						if (c instanceof OtmChildrenOwner)

@@ -59,9 +59,16 @@ public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFace
 	public OtmFacet(T tl, OtmLibraryMember parent) {
 		super(tl, parent.getActionManager());
 		this.parent = parent;
+	}
 
-		// if (parent == null)
-		// throw new IllegalArgumentException("No parent library member set.");
+	/**
+	 * Create a facet for OtmOperations which are not library members
+	 * 
+	 * @param tl
+	 * @param actionMgr
+	 */
+	public OtmFacet(T tl, DexActionManager actionMgr) {
+		super(tl, actionMgr);
 	}
 
 	@Override
@@ -128,6 +135,11 @@ public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFace
 	@Override
 	public String getRole() {
 		return tlObject.getFacetType().getIdentityName();
+	}
+
+	@Override
+	public boolean isExpanded() {
+		return true;
 	}
 
 	@Override

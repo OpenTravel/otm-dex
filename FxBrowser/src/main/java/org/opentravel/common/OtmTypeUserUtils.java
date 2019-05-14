@@ -37,9 +37,11 @@ public class OtmTypeUserUtils {
 			name = user.getTlAssignedTypeName();
 		else {
 			// If the libraries are different add the prefix of the provider library.
-			AbstractLibrary userLib = user.getLibrary().getTL();
-			AbstractLibrary typeLib = tlType.getOwningLibrary();
-			name = assignedTypeWithPrefix(tlType.getLocalName(), userLib, typeLib);
+			if (user.getLibrary() != null) {
+				AbstractLibrary userLib = user.getLibrary().getTL();
+				AbstractLibrary typeLib = tlType.getOwningLibrary();
+				name = assignedTypeWithPrefix(tlType.getLocalName(), userLib, typeLib);
+			}
 		}
 		return name;
 	}
@@ -56,7 +58,7 @@ public class OtmTypeUserUtils {
 			AbstractLibrary providerLib) {
 		if (localName.contains(":"))
 			return localName;
-		if (userLib == null)
+		if (userLib == null || providerLib == null)
 			return localName;
 		String prefix = userLib != providerLib ? providerLib.getPrefix() + " : " : "";
 		return prefix + localName;

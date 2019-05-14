@@ -19,6 +19,8 @@ import org.opentravel.model.otmLibraryMembers.OtmChoiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmEnumeration;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
+import org.opentravel.model.otmLibraryMembers.OtmResourceObject;
+import org.opentravel.model.otmLibraryMembers.OtmServiceObject;
 import org.opentravel.model.otmLibraryMembers.OtmSimpleObject;
 import org.opentravel.model.otmLibraryMembers.OtmValueWithAttributes;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
@@ -56,10 +58,13 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 			DexLibrarySelectionEvent.LIBRARY_SELECTED };
 	// All event types listened to by this controller's handlers
 	private static final EventType[] subscribedEvents = { DexLibrarySelectionEvent.LIBRARY_SELECTED };
+
 	private static final String ALL = "All Objects";
 	private static final String BUSINESS = "Business";
 	private static final String CHOICE = "Choice";
 	private static final String CORE = "Core";
+	private static final String RESOURCE = "Resource";
+	private static final String SERVICE = "Service";
 	private static final String SIMPLE = "Simple";
 
 	private static final String ENUMERATION = "Enumeration";
@@ -226,8 +231,8 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		checkNodes();
 
 		// Would work for combo
-		ObservableList<String> data = FXCollections.observableArrayList(ALL, BUSINESS, CHOICE, CORE, SIMPLE,
-				ENUMERATION, VWA);
+		ObservableList<String> data = FXCollections.observableArrayList(ALL, RESOURCE, BUSINESS, CHOICE, CORE, SIMPLE,
+				ENUMERATION, VWA, SERVICE);
 		memberTypeCombo.setPromptText("Object Type");
 		memberTypeCombo.setOnAction(this::setTypeFilter);
 		memberTypeCombo.setItems(data);
@@ -360,6 +365,10 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 			String value = memberTypeCombo.getValue();
 			if (value.isEmpty() || value.equals(ALL))
 				classNameFilter = null;
+			else if (value.startsWith(RESOURCE))
+				classNameFilter = OtmResourceObject.class.getSimpleName();
+			else if (value.startsWith(SERVICE))
+				classNameFilter = OtmServiceObject.class.getSimpleName();
 			else if (value.startsWith(BUSINESS))
 				classNameFilter = OtmBusinessObject.class.getSimpleName();
 			else if (value.startsWith(CHOICE))
