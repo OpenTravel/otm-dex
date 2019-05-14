@@ -18,7 +18,6 @@
  */
 package org.opentravel.model.otmContainers;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,14 +27,10 @@ import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.TLInclude;
-import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
 /**
  * OTM Object for libraries.
@@ -43,123 +38,94 @@ import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
  * @author Dave Hollander
  * 
  */
-public class OtmLibrary {
-	private static Log log = LogFactory.getLog(OtmLibrary.class);
+public class OtmBuiltInLibrary extends OtmLibrary {
+	private static Log log = LogFactory.getLog(OtmBuiltInLibrary.class);
 
-	protected OtmModelManager mgr;
-	protected List<ProjectItem> projectItems = new ArrayList<>();
-	protected AbstractLibrary tlLib;
+	// private OtmModelManager mgr;
+	// private List<ProjectItem> projectItems = new ArrayList<>();
+	// private AbstractLibrary tlLib;
+	//
+	// private ValidationFindings findings;
 
-	protected ValidationFindings findings;
-
-	public OtmLibrary(ProjectItem pi, OtmModelManager mgr) {
-		this.mgr = mgr;
-		projectItems.add(pi);
-		tlLib = pi.getContent();
+	public OtmBuiltInLibrary(BuiltInLibrary lib, OtmModelManager mgr) {
+		super(mgr);
+		tlLib = lib;
 	}
 
 	// @Deprecated
-	// public OtmLibrary(TLLibrary lib, OtmModelManager mgr) {
-	// tlLib = lib;
-	// this.mgr = mgr;
-	// }
 
-	protected OtmLibrary(OtmModelManager mgr) {
-		this.mgr = mgr;
-	}
-
-	// @Deprecated
-	// public List<OtmComplexObject<?>> createTestChildren(OtmModelManager model) {
-	// List<OtmComplexObject<?>> members = new ArrayList<>();
-	// members.add(new OtmBusinessObject("Fred", mgr).createTestChildren());
-	// members.add(new OtmChoiceObject("Wilma", mgr).createTestChildren());
-	// members.add(new OtmCoreObject("Barney", mgr).createTestChildren());
-	// for (OtmComplexObject<?> member : members)
-	// model.add(member);
-	// LOGGER.debug("Created 3 members.");
-	// return members;
-	// }
-
-	public void add(ProjectItem pi) {
-		if (pi.getContent() != tlLib)
-			throw new IllegalArgumentException("Can not add project item with wrong library.");
-		projectItems.add(pi);
-	}
-
+	@Override
 	public AbstractLibrary getTL() {
 		return tlLib;
 	}
 
+	@Override
 	public String getName() {
 		return getTL() != null ? getTL().getName() : "";
 	}
 
+	@Override
 	public String getPrefix() {
 		return getTL().getPrefix();
 	}
 
+	@Override
 	public Icons getIconType() {
 		return ImageManager.Icons.LIBRARY;
 	}
 
+	@Override
 	public boolean isEditable() {
-		// FIXME
-		boolean readOnly = !getTL().isReadOnly();
-
-		for (ProjectItem pi : projectItems) {
-			// System.out.println("State = " + pi.getState() + " is ReadOnly? " + readOnly);
-			if (pi.getState() == RepositoryItemState.MANAGED_LOCKED)
-				return true;
-			if (pi.getState() == RepositoryItemState.UNMANAGED)
-				return true;
-		}
 		return false;
 	}
 
 	/**
 	 * @return actual status of TL Libraries otherwise DRAFT
 	 */
+	@Override
 	public TLLibraryStatus getStatus() {
-		if (tlLib instanceof TLLibrary)
-			return ((TLLibrary) tlLib).getStatus();
-		else
-			return TLLibraryStatus.FINAL;
+		return TLLibraryStatus.FINAL;
 	}
 
-	public List<OtmLibrary> getIncludes() {
-		List<OtmLibrary> libs = new ArrayList<>();
-		for (TLInclude include : tlLib.getIncludes()) {
-			if (include.getOwningLibrary() != null)
-				libs.add(mgr.get(include.getOwningLibrary()));
-		}
-		return libs;
-	}
+	// @Override
+	// public List<OtmBuiltInLibrary> getIncludes() {
+	// List<OtmBuiltInLibrary> libs = new ArrayList<>();
+	// for (TLInclude include : tlLib.getIncludes()) {
+	// if (include.getOwningLibrary() != null)
+	// libs.add(mgr.get(include.getOwningLibrary()));
+	// }
+	// return libs;
+	// }
 
+	@Override
 	public String getState() {
-		if (projectItems.size() > 1)
-			System.out.println("TODO - handle library in multiple projects.");
-		return projectItems.isEmpty() ? "" : projectItems.get(0).getState().name();
+		return "Built in library.";
+		// if (projectItems.size() > 1)
+		// System.out.println("TODO - handle library in multiple projects.");
+		// return projectItems.isEmpty() ? "" : projectItems.get(0).getState().name();
 	}
 
+	@Override
 	public String getNameWithBasenamespace() {
 		return getBaseNamespace() + "/" + getName();
 	}
 
+	@Override
 	public String getLockedBy() {
-		for (ProjectItem pi : projectItems)
-			if (pi.getLockedByUser() != null)
-				return pi.getLockedByUser();
 		return "";
 	}
 
+	@Override
 	public String getBaseNamespace() {
 		return projectItems.isEmpty() ? "" : projectItems.get(0).getBaseNamespace();
 	}
 
+	@Override
 	public boolean isLatestVersion() {
 		return mgr.isLatest(this);
 	}
 
+	@Override
 	public List<Project> getProjects() {
 		for (ProjectItem pi : projectItems)
 			if (pi.getLockedByUser() != null)
@@ -167,15 +133,17 @@ public class OtmLibrary {
 		return Collections.emptyList();
 	}
 
-	public void validate() {
-		findings = TLModelCompileValidator.validateModelElement(getTL(), true);
-	}
+	// @Override
+	// public void validate() {
+	// findings = TLModelCompileValidator.validateModelElement(getTL(), true);
+	// }
 	// extends FacetOwners
 	// implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {
 
 	/**
 	 * @return
 	 */
+	@Override
 	public String getVersion() {
 		return getTL().getVersion();
 	}

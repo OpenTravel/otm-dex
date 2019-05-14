@@ -40,7 +40,8 @@ public class ImageManager {
 		V_OK("/icons/checkmark.png"),
 		V_ERROR("/icons/error_st_obj.gif"),
 		V_WARN("/icons/warning_st_obj.gif"),
-		VWA("/icons/VWA.gif");
+		VWA("/icons/VWA.gif"),
+		XSD_SIMPLE("/icons/XSDSimpleType.gif");
 		private String label; // User displayed value
 
 		Icons(String label) {

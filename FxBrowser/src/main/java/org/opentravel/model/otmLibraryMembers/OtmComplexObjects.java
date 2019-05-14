@@ -27,7 +27,7 @@ import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 
 /**
- * Abstract OTM Object Node for Library Members.
+ * Abstract OTM Object for Complex Library Members.
  * 
  * @author Dave Hollander
  * 

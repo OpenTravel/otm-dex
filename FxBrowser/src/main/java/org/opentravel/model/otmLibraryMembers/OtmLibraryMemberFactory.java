@@ -17,8 +17,13 @@ import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemacompiler.model.TLResource;
+import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.XSDComplexType;
+import org.opentravel.schemacompiler.model.XSDElement;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
 
 /**
  * @author dmh
@@ -54,6 +59,17 @@ public class OtmLibraryMemberFactory {
 			otmMember = OtmFacetFactory.create((TLContextualFacet) tlMember, manager);
 		else if (tlMember instanceof TLValueWithAttributes)
 			otmMember = new OtmValueWithAttributes((TLValueWithAttributes) tlMember, manager);
+		else if (tlMember instanceof XSDSimpleType)
+			otmMember = new OtmXsdSimple((XSDSimpleType) tlMember, manager);
+		else if (tlMember instanceof XSDElement)
+			otmMember = new OtmXsdElement((XSDElement) tlMember, manager);
+		else if (tlMember instanceof TLService)
+			log.debug("TODO - model service " + tlMember.getClass().getSimpleName());
+		else if (tlMember instanceof TLResource)
+			log.debug("TODO - model resource " + tlMember.getClass().getSimpleName());
+		else if (tlMember instanceof XSDComplexType)
+			// Skip Complex Types: for the built-ins they will have an associated element
+			otmMember = null; // NO-OP
 		else
 			log.debug("TODO - model " + tlMember.getClass().getSimpleName());
 

@@ -23,6 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
+import org.opentravel.schemacompiler.model.XSDComplexType;
+import org.opentravel.schemacompiler.model.XSDElement;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
 
 /**
  * Abstract OTM Object Node for "Simple" Library Members. Some simple objects contain children. Simple objects can be
@@ -37,6 +40,12 @@ public abstract class OtmSimpleObjects<T extends TLLibraryMember> extends OtmLib
 
 	public OtmSimpleObjects(T tl, OtmModelManager mgr) {
 		super(tl, mgr);
+
+		// FIXME - handle these
+		XSDComplexType xc;
+		XSDSimpleType xs;
+		XSDElement xe;
+
 	}
 
 	@Override

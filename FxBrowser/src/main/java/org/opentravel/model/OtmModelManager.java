@@ -12,11 +12,11 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.common.DexFileHandler;
 import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.dex.tasks.model.ValidateModelManagerItemsTask;
+import org.opentravel.model.otmContainers.OtmBuiltInLibrary;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmContainers.OtmProject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -45,17 +45,20 @@ import javafx.concurrent.WorkerStateEvent;
 public class OtmModelManager implements TaskResultHandlerI {
 	private static Log log = LogFactory.getLog(OtmModelManager.class);
 
-	// Open projects
+	// Open projects - projectName and otmProject
 	private Map<String, OtmProject> projects = new HashMap<>();
+
 	// Map of base namespaces with all libraries in that namespace
+	// lib.getNameWithBasenamespace(),versionChainFactory.getVersionChain((TLLibrary) absLibrary));
 	private Map<String, VersionChain<TLLibrary>> baseNSMap = new HashMap<>();
+
 	// Open libraries - Abstract Libraries are built-in and user
 	private Map<AbstractLibrary, OtmLibrary> libraries = new HashMap<>();
 
 	// All members - Library Members are TLLibraryMembers and contextual facets
 	private Map<LibraryMember, OtmLibraryMember> members = new HashMap<>();
 
-	private DexFileHandler fileHandler = new DexFileHandler();
+	// private DexFileHandler fileHandler = new DexFileHandler();
 	private DexActionManager actionMgr;
 	private DexStatusController statusController;
 
@@ -84,12 +87,20 @@ public class OtmModelManager implements TaskResultHandlerI {
 		tlModel.addListener(new ModelIntegrityChecker());
 		log.debug("TL Model created and integrity checker added.");
 
-		// Render the built-in libraries
-		for (BuiltInLibrary tlLib : tlModel.getBuiltInLibraries())
+		// // Render the built-in libraries
+		// addBuiltInLibraries();
+	}
+
+	/**
+	 * Add the built in libraries to the libraries and member maps
+	 */
+	private void addBuiltInLibraries(TLModel tlModel) {
+		for (BuiltInLibrary tlLib : tlModel.getBuiltInLibraries()) {
+			libraries.put(tlLib, new OtmBuiltInLibrary(tlLib, this));
 			for (LibraryMember tlMember : tlLib.getNamedMembers()) {
 				OtmLibraryMemberFactory.memberFactory(tlMember, this); // creates and adds
 			}
-
+		}
 	}
 
 	public DexActionManager getActionManager() {
@@ -102,6 +113,8 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 * @return OtmLibrary associated with the TL Library
 	 */
 	public OtmLibrary get(TLLibrary tlLibrary) {
+		if (!libraries.containsKey(tlLibrary))
+			log.warn("Missing library associated with: " + tlLibrary.getName());
 		return libraries.get(tlLibrary);
 	}
 
@@ -117,6 +130,8 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 * @return OtmLibrary associated with the abstract library
 	 */
 	public OtmLibrary get(AbstractLibrary absLibrary) {
+		if (!libraries.containsKey(absLibrary))
+			log.warn("Missing library associated with: " + absLibrary.getName());
 		return libraries.get(absLibrary);
 	}
 
@@ -179,6 +194,9 @@ public class OtmModelManager implements TaskResultHandlerI {
 		// Tell model to track changes to maintain its type integrity
 		// TODO - where should this be set?
 		pm.getModel().addListener(new ModelIntegrityChecker());
+
+		// Get the built in libraries
+		addBuiltInLibraries(pm.getModel());
 
 		// Get Libraries
 		//

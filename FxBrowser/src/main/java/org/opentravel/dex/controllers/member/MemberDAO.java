@@ -94,7 +94,7 @@ public class MemberDAO implements DexDAO<OtmObject> {
 
 	@Override
 	public String toString() {
-		return otmObject.toString();
+		return otmObject != null ? otmObject.toString() : "";
 	}
 
 	public StringProperty versionProperty() {

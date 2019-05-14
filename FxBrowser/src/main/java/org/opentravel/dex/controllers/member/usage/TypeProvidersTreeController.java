@@ -3,6 +3,9 @@
  */
 package org.opentravel.dex.controllers.member.usage;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
@@ -16,11 +19,11 @@ import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
-import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -44,15 +47,6 @@ import javafx.scene.layout.VBox;
 public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmModelManager> implements DexController {
 	private static Log log = LogFactory.getLog(TypeProvidersTreeController.class);
 
-	// // Column labels
-	// // TODO - externalize strings
-	// public static final String PREFIXCOLUMNLABEL = "Prefix";
-	// private static final String NAMECOLUMNLABEL = "Member";
-	// private static final String VERSIONCOLUMNLABEL = "Version";
-	// private static final String LIBRARYLABEL = "Library";
-	// // private static final String ERRORLABEL = "Errors";
-	// private static final String WHEREUSEDLABEL = "Types Used";
-
 	/*
 	 * FXML injected
 	 */
@@ -68,7 +62,7 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 	// All event types listened to by this controller's handlers
 	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED,
 			DexModelChangeEvent.MODEL_CHANGED };
-	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
+	private static final EventType[] publishedEvents = {};
 
 	/**
 	 * Construct a member tree table controller that can publish and receive events.
@@ -76,41 +70,6 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 	public TypeProvidersTreeController() {
 		super(subscribedEvents, publishedEvents);
 	}
-
-	// /**
-	// * Create columns
-	// */
-	// private void buildColumns() {
-	//
-	// TreeTableColumn<MemberDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
-	// prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
-	// setColumnProps(prefixColumn, true, false, true, 100);
-	// prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
-	//
-	// TreeTableColumn<MemberDAO, String> nameColumn;
-	// nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
-	// nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("name"));
-	// setColumnProps(nameColumn, true, true, true, 200);
-	// nameColumn.setSortType(SortType.ASCENDING);
-	//
-	// TreeTableColumn<MemberDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
-	// versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("version"));
-	//
-	// TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
-	// libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
-	//
-	// TreeTableColumn<MemberDAO, String> usedTypesCol = new TreeTableColumn<>(WHEREUSEDLABEL);
-	// usedTypesCol.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("usedTypes"));
-	//
-	// TreeTableColumn<MemberDAO, ImageView> valColumn = new TreeTableColumn<>("");
-	// valColumn.setCellFactory(c -> new ValidationMemberTreeTableCellFactory());
-	// setColumnProps(valColumn, true, false, false, 25);
-	//
-	// // Add columns to table
-	// typeUsersTree.getColumns().addAll(nameColumn, valColumn, libColumn, versionColumn, prefixColumn,
-	// usedTypesCol);
-	// typeUsersTree.getSortOrder().add(nameColumn);
-	// }
 
 	@Override
 	public void checkNodes() {
@@ -272,10 +231,10 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
-			if (event instanceof DexFilterChangeEvent)
-				handleEvent((DexFilterChangeEvent) event);
-			if (event instanceof DexModelChangeEvent)
-				post(((DexModelChangeEvent) event).getModelManager());
+			// if (event instanceof DexFilterChangeEvent)
+			// handleEvent((DexFilterChangeEvent) event);
+			// if (event instanceof DexModelChangeEvent)
+			// clear();
 			else
 				refresh();
 		}
@@ -333,50 +292,62 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 	 * 
 	 * @param modelMgr
 	 */
-	@Override
-	public void post(OtmModelManager modelMgr) {
-		if (modelMgr != null && typeProvidersTree != null) {
-			currentModelMgr = modelMgr;
-			// if (getFilter() != null)
-			// getFilter().clear();
-			// create cells for members
-			typeProvidersTree.getRoot().getChildren().clear();
-			currentModelMgr.getMembers().forEach(m -> createTreeItem(m, root));
-			// try {
-			// typeUsersTree.sort();
-			// } catch (Exception e) {
-			// // why does first sort always throw exception?
-			// log.debug("Exception sorting: " + e.getLocalizedMessage());
-			// }
-		}
+	// @Override
+	public void post(OtmLibraryMember member) {
+		if (member == null)
+			return;
+
+		log.debug("Posting type providers to: " + member);
+		// if (getFilter() != null)
+		// getFilter().clear();
+		// create cells for members
+		List<OtmTypeProvider> types = member.getUsedTypes();
+		typeProvidersTree.getRoot().getChildren().clear();
+		Collection<OtmTypeUser> tus = member.getDescendantsTypeUsers();
+		// member.getDescendantsTypeUsers().forEach(u -> {
+		if (types != null && !types.isEmpty())
+			member.getUsedTypes().forEach(u -> {
+				TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(u));
+				root.getChildren().add(item);
+			});
+
+		// currentModelMgr.getMembers().forEach(m -> createTreeItem(m, root));
+		// typeProvidersTree.getRoot().getChildren().addAll(providers);
+		// try {
+		// typeUsersTree.sort();
+		// } catch (Exception e) {
+		// // why does first sort always throw exception?
+		// log.debug("Exception sorting: " + e.getLocalizedMessage());
+		// }
 	}
 
 	@Override
 	public void refresh() {
-		post(currentModelMgr);
+		// post(currentModelMgr);
 		ignoreEvents = false;
 	}
 
 	public void select(OtmLibraryMember otm) {
-		if (otm != null) {
-			for (TreeItem<MemberDAO> item : typeProvidersTree.getRoot().getChildren()) {
-				if (item.getValue().getValue() == otm) {
-					int row = typeProvidersTree.getRow(item);
-					// This may not highlight the row if the event comes from or goes to a different controller.
-					Platform.runLater(() -> {
-						// ignoreEvents = true;
-						typeProvidersTree.requestFocus();
-						typeProvidersTree.getSelectionModel().clearAndSelect(row);
-						typeProvidersTree.scrollTo(row);
-						typeProvidersTree.getFocusModel().focus(row);
-						// ignoreEvents = false;
-					});
-					log.debug("Selected " + otm.getName() + " in member tree.");
-					return;
-				}
-			}
-			log.debug(otm.getName() + " not found in member tree.");
-		}
+		post(otm);
+		// if (otm != null) {
+		// for (TreeItem<MemberDAO> item : typeProvidersTree.getRoot().getChildren()) {
+		// if (item.getValue().getValue() == otm) {
+		// int row = typeProvidersTree.getRow(item);
+		// // This may not highlight the row if the event comes from or goes to a different controller.
+		// Platform.runLater(() -> {
+		// // ignoreEvents = true;
+		// typeProvidersTree.requestFocus();
+		// typeProvidersTree.getSelectionModel().clearAndSelect(row);
+		// typeProvidersTree.scrollTo(row);
+		// typeProvidersTree.getFocusModel().focus(row);
+		// // ignoreEvents = false;
+		// });
+		// log.debug("Selected " + otm.getName() + " in member tree.");
+		// return;
+		// }
+		// }
+		// log.debug(otm.getName() + " not found in member tree.");
+		// }
 	}
 
 	// public void setFilter(MemberFilterController filter) {

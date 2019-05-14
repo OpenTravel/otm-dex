@@ -12,11 +12,7 @@ import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.dex.events.DexModelChangeEvent;
-import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmFacets.OtmContributedFacet;
-import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.application.Platform;
@@ -134,69 +130,71 @@ public class TypeUsersTreeController extends DexIncludedControllerBase<OtmModelM
 		refresh();
 	}
 
-	/**
-	 * Note: TreeItem class does not extend the Node class. Therefore, you cannot apply any visual effects or add menus
-	 * to the tree items. Use the cell factory mechanism to overcome this obstacle and define as much custom behavior
-	 * for the tree items as your application requires.
-	 * 
-	 * @param member
-	 *            the Otm Library Member to add to the tree
-	 * @param parent
-	 *            the tree root or parent member
-	 * @return
-	 */
-	public void createTreeItem(OtmLibraryMember member, TreeItem<PropertiesDAO> parent) {
-		// log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
+	// /**
+	// * Note: TreeItem class does not extend the Node class. Therefore, you cannot apply any visual effects or add
+	// menus
+	// * to the tree items. Use the cell factory mechanism to overcome this obstacle and define as much custom behavior
+	// * for the tree items as your application requires.
+	// *
+	// * @param member
+	// * the Otm Library Member to add to the tree
+	// * @param parent
+	// * the tree root or parent member
+	// * @return
+	// */
+	// public void createTreeItem(OtmLibraryMember member, TreeItem<PropertiesDAO> parent) {
+	// // log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
+	//
+	// // Apply Filter
+	// // if (filter != null && !filter.isSelected(member))
+	// // return;
+	// // Skip over contextual facets that have been injected into an object. Their contributed facets will be modeled.
+	// if ((member instanceof OtmContextualFacet && ((OtmContextualFacet) member).getWhereContributed() != null))
+	// return;
+	//
+	// // Create item for the library member
+	// TreeItem<PropertiesDAO> item = createTreeItem((OtmTypeProvider) member, parent);
+	//
+	// // Create and add items for children
+	// if (member instanceof OtmChildrenOwner)
+	// createChildrenItems(member, item);
+	// }
 
-		// Apply Filter
-		// if (filter != null && !filter.isSelected(member))
-		// return;
-		// Skip over contextual facets that have been injected into an object. Their contributed facets will be modeled.
-		if ((member instanceof OtmContextualFacet && ((OtmContextualFacet) member).getWhereContributed() != null))
-			return;
+	// /**
+	// * Create tree items for the type provider children of this child owning member
+	// */
+	// private void createChildrenItems(OtmChildrenOwner member, TreeItem<PropertiesDAO> parentItem) {
+	// member.getChildrenTypeProviders().forEach(p -> {
+	// TreeItem<PropertiesDAO> cfItem = createTreeItem(p, parentItem);
+	// // Only user contextual facet for recursing
+	// if (p instanceof OtmContributedFacet && ((OtmContributedFacet) p).getContributor() != null)
+	// p = ((OtmContributedFacet) p).getContributor();
+	// // Recurse
+	// if (p instanceof OtmChildrenOwner)
+	// createChildrenItems((OtmChildrenOwner) p, cfItem);
+	// });
+	// }
 
-		// Create item for the library member
-		TreeItem<PropertiesDAO> item = createTreeItem((OtmTypeProvider) member, parent);
+	// /**
+	// * Create and add to tree with no conditional logic.
+	// *
+	// * @return new tree item added to tree at the parent
+	// */
+	// private TreeItem<PropertiesDAO> createTreeItem(OtmTypeProvider provider, TreeItem<PropertiesDAO> parent) {
+	// return new PropertiesDAO((provider), this).createTreeItem(parent, true);
+	// // TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(provider));
+	// // item.setExpanded(false);
+	// // if (parent != null)
+	// // parent.getChildren().add(item);
+	// // if (imageMgr != null) {
+	// // ImageView graphic = imageMgr.getView(provider);
+	// // item.setGraphic(graphic);
+	// // Tooltip.install(graphic, new Tooltip(provider.getObjectTypeName()));
+	// // }
+	// // return item;
+	// }
 
-		// Create and add items for children
-		if (member instanceof OtmChildrenOwner)
-			createChildrenItems(member, item);
-	}
-
-	/**
-	 * Create tree items for the type provider children of this child owning member
-	 */
-	private void createChildrenItems(OtmChildrenOwner member, TreeItem<PropertiesDAO> parentItem) {
-		member.getChildrenTypeProviders().forEach(p -> {
-			TreeItem<PropertiesDAO> cfItem = createTreeItem(p, parentItem);
-			// Only user contextual facet for recursing
-			if (p instanceof OtmContributedFacet && ((OtmContributedFacet) p).getContributor() != null)
-				p = ((OtmContributedFacet) p).getContributor();
-			// Recurse
-			if (p instanceof OtmChildrenOwner)
-				createChildrenItems((OtmChildrenOwner) p, cfItem);
-		});
-	}
-
-	/**
-	 * Create and add to tree with no conditional logic.
-	 * 
-	 * @return new tree item added to tree at the parent
-	 */
-	private TreeItem<PropertiesDAO> createTreeItem(OtmTypeProvider provider, TreeItem<PropertiesDAO> parent) {
-		return new PropertiesDAO((provider), this).createTreeItem(parent, true);
-		// TreeItem<PropertiesDAO> item = new TreeItem<>(new PropertiesDAO(provider));
-		// item.setExpanded(false);
-		// if (parent != null)
-		// parent.getChildren().add(item);
-		// if (imageMgr != null) {
-		// ImageView graphic = imageMgr.getView(provider);
-		// item.setGraphic(graphic);
-		// Tooltip.install(graphic, new Tooltip(provider.getObjectTypeName()));
-		// }
-		// return item;
-	}
-
+	// FIXME - create type users filter and apply
 	// public MemberFilterController getFilter() {
 	// return filter;
 	// }
