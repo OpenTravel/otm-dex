@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,24 +85,24 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		includedControllers.forEach(DexIncludedController::clear);
 	}
 
-	/**
-	 * Use the subscribers and publishers maps to set handlers
-	 */
-	// TODO - do i need subscriber map? Can i just traverse all included controllers?
-	protected void configureEventHandlersX() {
-		if (!eventSubscribers.isEmpty())
-			for (Entry<EventType<?>, List<DexIncludedController<?>>> entry : eventSubscribers.entrySet())
-				// For each subscriber to this event type
-				for (DexIncludedController<?> c : entry.getValue()) {
-					// Get the handler from the subscriber
-					EventType<? extends DexEvent> et = (EventType<? extends DexEvent>) entry.getKey();
-					// EventHandler<DexEvent> handler = c::handler;
-					if (eventPublishers.containsKey(entry.getValue()))
-						for (DexIncludedController<?> publisher : eventPublishers.get(entry.getValue()))
-							// Put handler in all publishers of this event
-							publisher.setEventHandler(et, c::handleEvent);
-				}
-	}
+	// /**
+	// * Use the subscribers and publishers maps to set handlers
+	// */
+	// // TODO - do i need subscriber map? Can i just traverse all included controllers?
+	// protected void configureEventHandlersX() {
+	// if (!eventSubscribers.isEmpty())
+	// for (Entry<EventType<?>, List<DexIncludedController<?>>> entry : eventSubscribers.entrySet())
+	// // For each subscriber to this event type
+	// for (DexIncludedController<?> c : entry.getValue()) {
+	// // Get the handler from the subscriber
+	// EventType<? extends DexEvent> et = (EventType<? extends DexEvent>) entry.getKey();
+	// // EventHandler<DexEvent> handler = c::handler;
+	// if (eventPublishers.containsKey(entry.getValue()))
+	// for (DexIncludedController<?> publisher : eventPublishers.get(entry.getValue()))
+	// // Put handler in all publishers of this event
+	// publisher.setEventHandler(et, c::handleEvent);
+	// }
+	// }
 
 	@SuppressWarnings("unchecked")
 	protected void configureEventHandlers() {
@@ -226,10 +225,15 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 
 		// Initialize managers
 		actionMgr = new DexActionManager(this);
-		modelMgr = new OtmModelManager(this.getStatusController(), actionMgr);
+		modelMgr = new OtmModelManager(actionMgr);
 		imageMgr = new ImageManager(primaryStage);
 
 		checkNodes();
+	}
+
+	protected void setMainController(DexMainController controller) {
+		mainController = controller;
+		modelMgr.setStatusController(getStatusController());
 	}
 
 	/**

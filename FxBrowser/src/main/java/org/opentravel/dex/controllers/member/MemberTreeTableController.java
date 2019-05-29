@@ -15,7 +15,6 @@ import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -25,7 +24,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.SortType;
@@ -60,13 +58,13 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	 * FXML injected
 	 */
 	@FXML
-	TreeTableView<MemberDAO> memberTree;
+	TreeTableView<MemberAndProvidersDAO> memberTree;
 	@FXML
 	private VBox memberTreeController;
 
 	//
-	TreeItem<MemberDAO> root; // Root of the navigation tree. Is displayed.
-	TreeTableColumn<MemberDAO, String> nameColumn; // an editable column
+	TreeItem<MemberAndProvidersDAO> root; // Root of the navigation tree. Is displayed.
+	TreeTableColumn<MemberAndProvidersDAO, String> nameColumn; // an editable column
 
 	OtmModelManager currentModelMgr; // this is postedData
 
@@ -93,26 +91,26 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	 */
 	private void buildColumns() {
 
-		TreeTableColumn<MemberDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
-		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
+		TreeTableColumn<MemberAndProvidersDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
+		prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberAndProvidersDAO, String>("prefix"));
 		setColumnProps(prefixColumn, true, false, true, 100);
 		prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
 
 		nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
-		nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("name"));
+		nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberAndProvidersDAO, String>("name"));
 		setColumnProps(nameColumn, true, true, true, 200);
 		nameColumn.setSortType(SortType.ASCENDING);
 
-		TreeTableColumn<MemberDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
-		versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("version"));
+		TreeTableColumn<MemberAndProvidersDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
+		versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberAndProvidersDAO, String>("version"));
 
-		TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
-		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
+		TreeTableColumn<MemberAndProvidersDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
+		libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberAndProvidersDAO, String>("library"));
 
-		TreeTableColumn<MemberDAO, String> usedTypesCol = new TreeTableColumn<>(WHEREUSEDLABEL);
-		usedTypesCol.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("usedTypes"));
+		TreeTableColumn<MemberAndProvidersDAO, String> usedTypesCol = new TreeTableColumn<>(WHEREUSEDLABEL);
+		usedTypesCol.setCellValueFactory(new TreeItemPropertyValueFactory<MemberAndProvidersDAO, String>("usedTypes"));
 
-		TreeTableColumn<MemberDAO, ImageView> valColumn = new TreeTableColumn<>("");
+		TreeTableColumn<MemberAndProvidersDAO, ImageView> valColumn = new TreeTableColumn<>("");
 		valColumn.setCellFactory(c -> new ValidationMemberTreeTableCellFactory());
 		setColumnProps(valColumn, true, false, false, 25);
 
@@ -175,7 +173,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		memberTree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
 		memberTree.setTableMenuButtonVisible(true); // allow users to select columns
 		// Enable context menus at the row level and add change listener for for applying style
-		memberTree.setRowFactory((TreeTableView<MemberDAO> p) -> new MemberRowFactory(this));
+		memberTree.setRowFactory((TreeTableView<MemberAndProvidersDAO> p) -> new MemberRowFactory(this));
 		buildColumns();
 
 		// Add listeners and event handlers
@@ -199,7 +197,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	 *            the tree root or parent member
 	 * @return
 	 */
-	public void createTreeItem(OtmLibraryMember member, TreeItem<MemberDAO> parent) {
+	public void createTreeItem(OtmLibraryMember member, TreeItem<MemberAndProvidersDAO> parent) {
 		// log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
 
 		// Apply Filter
@@ -210,7 +208,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 			return;
 
 		// Create item for the library member
-		TreeItem<MemberDAO> item = createTreeItem((OtmTypeProvider) member, parent);
+		TreeItem<MemberAndProvidersDAO> item = new MemberAndProvidersDAO(member).createTreeItem(imageMgr, parent);
 
 		// Create and add items for children
 		if (member instanceof OtmChildrenOwner)
@@ -220,45 +218,47 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	/**
 	 * Create tree items for the type provider children of this child owning member
 	 */
-	private void createChildrenItems(OtmChildrenOwner member, TreeItem<MemberDAO> parentItem) {
+	private void createChildrenItems(OtmChildrenOwner member, TreeItem<MemberAndProvidersDAO> parentItem) {
 		member.getChildrenTypeProviders().forEach(p -> {
-			TreeItem<MemberDAO> cfItem = createTreeItem(p, parentItem);
+			TreeItem<MemberAndProvidersDAO> cfItem = new MemberAndProvidersDAO(p).createTreeItem(imageMgr, parentItem);
+
 			// Only user contextual facet for recursing
 			if (p instanceof OtmContributedFacet && ((OtmContributedFacet) p).getContributor() != null)
 				p = ((OtmContributedFacet) p).getContributor();
+
 			// Recurse
 			if (p instanceof OtmChildrenOwner)
 				createChildrenItems((OtmChildrenOwner) p, cfItem);
 		});
 	}
 
-	/**
-	 * Create and add to tree with no conditional logic.
-	 * 
-	 * @return new tree item added to tree at the parent
-	 */
-	private TreeItem<MemberDAO> createTreeItem(OtmTypeProvider provider, TreeItem<MemberDAO> parent) {
-		TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(provider));
-		item.setExpanded(false);
-		if (parent != null)
-			parent.getChildren().add(item);
-		if (imageMgr != null) {
-			ImageView graphic = imageMgr.getView(provider);
-			item.setGraphic(graphic);
-			Tooltip.install(graphic, new Tooltip(provider.getObjectTypeName()));
-		}
-		return item;
-	}
+	// /**
+	// * Create and add to tree with no conditional logic.
+	// *
+	// * @return new tree item added to tree at the parent
+	// */
+	// private TreeItem<MemberDAO> createTreeItem(OtmTypeProvider provider, TreeItem<MemberDAO> parent) {
+	// TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(provider));
+	// item.setExpanded(false);
+	// if (parent != null)
+	// parent.getChildren().add(item);
+	// if (imageMgr != null) {
+	// ImageView graphic = imageMgr.getView(provider);
+	// item.setGraphic(graphic);
+	// Tooltip.install(graphic, new Tooltip(provider.getObjectTypeName()));
+	// }
+	// return item;
+	// }
 
 	public MemberFilterController getFilter() {
 		return filter;
 	}
 
-	public TreeItem<MemberDAO> getRoot() {
+	public TreeItem<MemberAndProvidersDAO> getRoot() {
 		return root;
 	}
 
-	public MemberDAO getSelected() {
+	public MemberAndProvidersDAO getSelected() {
 		return memberTree.getSelectionModel().getSelectedItem() != null
 				? memberTree.getSelectionModel().getSelectedItem().getValue() : null;
 	}
@@ -312,7 +312,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	 * 
 	 * @param item
 	 */
-	private void memberSelectionListener(TreeItem<MemberDAO> item) {
+	private void memberSelectionListener(TreeItem<MemberAndProvidersDAO> item) {
 		if (item == null)
 			return;
 		log.debug("Selection Listener: " + item.getValue());
@@ -365,7 +365,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	public void select(OtmLibraryMember otm) {
 		if (otm != null) {
-			for (TreeItem<MemberDAO> item : memberTree.getRoot().getChildren()) {
+			for (TreeItem<MemberAndProvidersDAO> item : memberTree.getRoot().getChildren()) {
 				if (item.getValue().getValue() == otm) {
 					int row = memberTree.getRow(item);
 					// This may not highlight the row if the event comes from or goes to a different controller.

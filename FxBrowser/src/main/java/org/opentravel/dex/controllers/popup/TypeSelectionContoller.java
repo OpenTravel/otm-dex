@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
-import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberAndProvidersDAO;
 import org.opentravel.dex.controllers.member.MemberFilterController;
 import org.opentravel.dex.controllers.member.MemberTreeTableController;
 import org.opentravel.model.OtmModelManager;
@@ -98,7 +98,7 @@ public class TypeSelectionContoller extends DexPopupControllerBase {
 	// // Handle selection
 	// }
 
-	public MemberDAO getSelected() {
+	public MemberAndProvidersDAO getSelected() {
 		return memberTreeTableController.getSelected();
 	}
 

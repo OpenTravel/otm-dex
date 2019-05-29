@@ -51,51 +51,8 @@
             <TabPane tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <fx:include fx:id="memberPropertiesTab" source="MemberPropertiesTab.fxml" />
-				<fx:include fx:id="librariesTab" source="LibrariesTab.fxml" />
 				<fx:include fx:id="whereUsedTab" source="WhereUsedTab.fxml" />
-                  <!-- Tab onSelectionChanged="#whereUsedTabSelection" text="Where Used">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <TreeTableView fx:id="treeTableView" prefHeight="584.0" prefWidth="1076.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <columns>
-                                  <TreeTableColumn fx:id="FacetColumn" prefWidth="75.0" text="Facet" />
-                                  <TreeTableColumn fx:id="NameColumn" prefWidth="75.0" text="Name" />
-                                    <TreeTableColumn fx:id="RoleColumn" prefWidth="75.0" text="Role" />
-                                    <TreeTableColumn fx:id="TypeColumn" prefWidth="75.0" text="Type" />
-                                    <TreeTableColumn fx:id="DescriptionColumn" prefWidth="393.6000061035156" text="Description" />
-                                </columns>
-                              </TreeTableView>
-                           </children>
-                        </AnchorPane>
-                    </content>
-                  </Tab -->
-                  <!-- Tab fx:id="treeTableTab" onSelectionChanged="#memberTabSelection" text="Errors and Warnings">
-                     <content>
-                        <Accordion>
-                          <panes>
-                            <TitledPane animated="false" text="Table Tree">
-                                 <content>
-                                    <AnchorPane />
-                                 </content>
-                            </TitledPane>
-                            <TitledPane animated="false" text="to do">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              </content>
-                            </TitledPane>
-                            <TitledPane animated="false" text="Web View">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <WebView fx:id="webView" prefHeight="590.0" prefWidth="1075.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                       </children></AnchorPane>
-                              </content>
-                            </TitledPane>
-                          </panes>
-                        </Accordion>
-                     </content>
-                  </Tab-->
+				<fx:include fx:id="librariesTab" source="LibrariesTab.fxml" />
 				  <fx:include fx:id="repositoryTab" source="RepositoryTab.fxml" />
               </tabs>
             </TabPane>

@@ -20,6 +20,14 @@ import javafx.beans.property.StringProperty;
  */
 public interface OtmLibraryMember extends OtmChildrenOwner {
 
+	/**
+	 * Add this facet alias to the appropriate alias
+	 * 
+	 * @param tla
+	 *            must be an alias on a tlFacet
+	 */
+	public void addAlias(TLAlias tla);
+
 	public String getLibraryName();
 
 	/**
@@ -39,9 +47,16 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	public LibraryMember getTlLM();
 
 	/**
-	 * @return list of type providers used by all descendants of this member.
+	 * @return non-null, sorted list of type providers used by all descendants of this member.
 	 */
 	public List<OtmTypeProvider> getUsedTypes();
+
+	/**
+	 * Get all members that contain type users that use this member or any of its descendants as assigned types.
+	 * 
+	 * @return list of where used or empty list
+	 */
+	public List<OtmLibraryMember> getWhereUsed();
 
 	/**
 	 * @return fx property for library name
@@ -54,13 +69,5 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	public StringProperty prefixProperty();
 
 	public StringProperty versionProperty();
-
-	/**
-	 * Add this facet alias to the appropriate alias
-	 * 
-	 * @param tla
-	 *            must be an alias on a tlFacet
-	 */
-	public void addAlias(TLAlias tla);
 
 }

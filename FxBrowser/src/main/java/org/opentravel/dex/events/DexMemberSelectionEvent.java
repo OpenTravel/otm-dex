@@ -5,7 +5,7 @@ package org.opentravel.dex.events;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberAndProvidersDAO;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -48,7 +48,7 @@ public class DexMemberSelectionEvent extends DexEvent {
 	 * @param target
 	 *            the tree item that was selected
 	 */
-	public DexMemberSelectionEvent(Object source, TreeItem<MemberDAO> target) {
+	public DexMemberSelectionEvent(Object source, TreeItem<MemberAndProvidersDAO> target) {
 		super(source, target, MEMBER_SELECTED);
 		log.debug("DexEvent source/target constructor ran.");
 		// If there is data, extract it from target

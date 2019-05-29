@@ -18,7 +18,7 @@ import javafx.scene.control.TreeTableRow;
  *
  */
 @SuppressWarnings("squid:MaximumInheritanceDepth")
-public final class MemberRowFactory extends TreeTableRow<MemberDAO> {
+public final class MemberRowFactory extends TreeTableRow<MemberAndProvidersDAO> {
 	private static Log log = LogFactory.getLog(MemberRowFactory.class);
 
 	private final ContextMenu addMenu = new ContextMenu();
@@ -64,7 +64,7 @@ public final class MemberRowFactory extends TreeTableRow<MemberDAO> {
 	 * @return
 	 */
 	// TODO - use style class for warning and error
-	private void setCSSClass(TreeTableRow<MemberDAO> tc, TreeItem<MemberDAO> newTreeItem) {
+	private void setCSSClass(TreeTableRow<MemberAndProvidersDAO> tc, TreeItem<MemberAndProvidersDAO> newTreeItem) {
 		if (newTreeItem != null) {
 			tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
 		}

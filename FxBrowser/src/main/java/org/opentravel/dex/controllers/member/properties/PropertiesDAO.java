@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexDAO;
+import org.opentravel.dex.controllers.DexFilter;
 import org.opentravel.dex.controllers.DexIncludedController;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmObject;
@@ -231,6 +232,8 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 
 	@Override
 	public String toString() {
+		if (element instanceof OtmTypeUser && ((OtmTypeUser) element).getAssignedType() != null)
+			return element.toString() + " -> " + ((OtmTypeUser) element).getAssignedType().getNameWithPrefix();
 		return element.toString();
 	}
 
@@ -241,18 +244,24 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	 *            to add item as child
 	 * @return
 	 */
-	public TreeItem<PropertiesDAO> createTreeItem(TreeItem<PropertiesDAO> parent) {
+	public TreeItem<PropertiesDAO> createTreeItem(TreeItem<PropertiesDAO> parent, DexFilter<OtmObject> filter) {
+		// Apply Filter (if any)
+		if (filter != null && !filter.isSelected(element))
+			return null;
+
 		TreeItem<PropertiesDAO> item = new TreeItem<>(this);
 		if (element instanceof OtmChildrenOwner)
 			item.setExpanded(((OtmChildrenOwner) element).isExpanded());
 		if (parent != null)
 			parent.getChildren().add(item);
+
 		// Decorate if possible
 		if (controller != null && controller.getMainController() != null) {
 			ImageManager imageMgr = controller.getMainController().getImageManager();
 			if (imageMgr != null) {
 				ImageView graphic = imageMgr.getView(element);
 				item.setGraphic(graphic);
+				// To do - why isn't tooltip showing? If it does, present assigned type
 				Tooltip.install(graphic, new Tooltip(element.getObjectTypeName()));
 			}
 		}
@@ -262,18 +271,22 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	/**
 	 * Add tree items to parent for each descendant of the child owner.
 	 * 
+	 * @param filter
+	 *            a filter that will exclude some members, returning a null item. Can be null for no filter.
 	 * @param member
 	 *            a child owning library member. Non-child owning properties are ignored.
 	 */
-	public void createChildrenItems(TreeItem<PropertiesDAO> parent) {
+	public void createChildrenItems(TreeItem<PropertiesDAO> parent, DexFilter<OtmObject> filter) {
 		OtmChildrenOwner member = null;
 		if (element instanceof OtmChildrenOwner) {
 			member = (OtmChildrenOwner) element;
 			// create cells for member's facets and properties
 			for (OtmObject child : member.getChildrenHierarchy()) {
 				// Create item and add to tree at parent
-				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController()).createTreeItem(parent);
-
+				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController()).createTreeItem(parent, filter);
+				// If the item was filtered out, continue using the parent for the tree item
+				if (item == null)
+					item = parent;
 				// TODO - sort order
 
 				// Contributor children list does not contain other contextual facets
@@ -282,13 +295,16 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 
 				// Create tree items for children if any
 				if (child instanceof OtmChildrenOwner)
-					((OtmChildrenOwner) child).getChildrenHierarchy().forEach(c -> {
-						TreeItem<PropertiesDAO> cfItem = new PropertiesDAO(c, getController()).createTreeItem(item);
+					for (OtmObject c : ((OtmChildrenOwner) child).getChildrenHierarchy()) {
+						TreeItem<PropertiesDAO> cfItem = new PropertiesDAO(c, getController()).createTreeItem(item,
+								filter);
+						if (cfItem == null)
+							cfItem = parent;
 
 						// Recurse to model nested contextual facets
 						if (c instanceof OtmChildrenOwner)
-							new PropertiesDAO(c, getController()).createChildrenItems(cfItem);
-					});
+							new PropertiesDAO(c, getController()).createChildrenItems(cfItem, filter);
+					}
 			}
 		}
 	}

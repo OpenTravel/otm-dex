@@ -10,7 +10,7 @@ import org.opentravel.common.cellfactories.AssignedTypePropertiesTreeTableCellFa
 import org.opentravel.common.cellfactories.ValidationPropertiesTreeTableCellFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberAndProvidersDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
@@ -32,7 +32,7 @@ import javafx.scene.layout.VBox;
  * @author dmh
  *
  */
-public class MemberPropertiesTreeTableController extends DexIncludedControllerBase<MemberDAO> {
+public class MemberPropertiesTreeTableController extends DexIncludedControllerBase<MemberAndProvidersDAO> {
 	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
 	@FXML
@@ -201,7 +201,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	public void post(OtmLibraryMember member) {
 		clear();
 		if (member != null)
-			new PropertiesDAO(member, this).createChildrenItems(root);
+			new PropertiesDAO(member, this).createChildrenItems(root, null);
 	}
 
 	/**

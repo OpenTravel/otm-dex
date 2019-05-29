@@ -12,6 +12,7 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.popup.DialogBoxContoller;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
+import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.OtmModelManager;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
@@ -81,7 +82,8 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 	private static final EventType[] publishedEvents = {};
 
 	// All event types listened to by this controller's handlers
-	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
+	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED,
+			DexModelChangeEvent.MODEL_CHANGED };
 
 	public MemberDetailsController() {
 		super(subscribedEvents, publishedEvents);
@@ -118,21 +120,7 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 	@Override
 	public void configure(DexMainController mainController) {
 		super.configure(mainController);
-		configure(mainController.getModelManager());
 		eventPublisherNode = memberDetails;
-	}
-
-	// public void configure(OtmModelManager modelManager, DexPopupController popupController) {
-	// configure(modelManager);
-	// }
-
-	/**
-	 * Configure filter.
-	 * 
-	 * @param modelManager
-	 */
-	public void configure(OtmModelManager modelManager) {
-		modelMgr = modelManager;
 
 		// moveButton.setOnAction(e -> postNotImplemented());
 		changeBaseButton.setOnAction(e -> postNotImplemented());
@@ -145,6 +133,12 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 	public void handleEvent(Event event) {
 		if (event instanceof DexMemberSelectionEvent)
 			memberSelectionHandler((DexMemberSelectionEvent) event);
+		if (event instanceof DexModelChangeEvent)
+			modelChangeEvent((DexModelChangeEvent) event);
+	}
+
+	public void modelChangeEvent(DexModelChangeEvent event) {
+		clear();
 	}
 
 	public void memberSelectionHandler(DexMemberSelectionEvent event) {
@@ -249,8 +243,9 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 	public void clear() {
 		// When posting updated filter results, do not clear the filters.
 		if (!ignoreClear) {
-			if (mainController != null)
-				modelMgr = mainController.getModelManager();
+			// if (mainController != null)
+			// modelMgr = mainController.getModelManager();
+			selectedMember = null;
 			assignedTypeName.setText("");
 			memberName.setText("");
 			libraryName.setText("");

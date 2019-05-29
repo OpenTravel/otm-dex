@@ -3,7 +3,7 @@
  */
 package org.opentravel.common.cellfactories;
 
-import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberAndProvidersDAO;
 
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
@@ -14,7 +14,7 @@ import javafx.scene.image.ImageView;
  *
  */
 @SuppressWarnings("squid:MaximumInheritanceDepth")
-public class ValidationMemberTreeTableCellFactory extends TreeTableCell<MemberDAO, ImageView> {
+public class ValidationMemberTreeTableCellFactory extends TreeTableCell<MemberAndProvidersDAO, ImageView> {
 
 	// TreeTableCell<PropertiesDAO, ImageView>() {
 	@Override

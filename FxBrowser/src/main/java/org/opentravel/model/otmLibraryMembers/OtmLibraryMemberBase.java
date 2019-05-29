@@ -61,25 +61,27 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	private static Log log = LogFactory.getLog(OtmLibraryMemberBase.class);
 
 	protected OtmModelManager mgr = null;
-	// LibraryMember lm;
-	protected List<OtmTypeProvider> providers = null;
-	protected List<OtmTypeUser> users = new ArrayList<>();
+
+	// A list of all descendants that are type providers. Created by getDescendantsTypeProviders
+	protected List<OtmTypeProvider> membersProviders = null;
+
+	// A list of all descendants that are type users. Created by getDescendantsTypeUsers.
+	protected List<OtmTypeUser> memberTypeUsers = new ArrayList<>();
+
+	// A list of all members that have a descendant type user that assigned to this member and its descendants.
+	protected List<OtmLibraryMember> whereUsed = null;
 
 	/**
 	 */
 	public OtmLibraryMemberBase(T tl, OtmModelManager mgr) {
 		super(tl, mgr.getActionManager());
 		this.mgr = mgr;
-
-		// if (mgr == null)
-		// throw new IllegalArgumentException();
 	}
 
 	@Override
 	public void addAlias(TLAlias tla) {
 		if (tla.getOwningEntity() instanceof TLFacet) {
 			String baseName = tla.getLocalName().substring(0, tla.getName().lastIndexOf('_'));
-			// log.debug("Adding alias " + tla.getName() + " to " + baseName);
 
 			children.forEach(c -> {
 				if (c instanceof OtmAlias && c.getName().equals(baseName))
@@ -119,16 +121,17 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	 */
 	@Override
 	public Collection<OtmTypeProvider> getDescendantsTypeProviders() {
-		if (getChildrenTypeProviders() != null) {
-			providers = new ArrayList<>();
-			for (OtmTypeProvider p : getChildrenTypeProviders()) {
-				providers.add(p);
-				// Recurse
-				if (p instanceof OtmChildrenOwner)
-					providers.addAll(((OtmChildrenOwner) p).getDescendantsTypeProviders());
+		if (membersProviders == null)
+			if (getChildrenTypeProviders() != null) {
+				membersProviders = new ArrayList<>();
+				for (OtmTypeProvider p : getChildrenTypeProviders()) {
+					membersProviders.add(p);
+					// Recurse
+					if (p instanceof OtmChildrenOwner)
+						membersProviders.addAll(((OtmChildrenOwner) p).getDescendantsTypeProviders());
+				}
 			}
-		}
-		return providers;
+		return membersProviders;
 	}
 
 	@Override
@@ -146,13 +149,19 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 
 	@Override
 	public Collection<OtmTypeUser> getDescendantsTypeUsers() {
+		memberTypeUsers.clear();
 		for (OtmObject child : getChildren()) {
 			if (child instanceof OtmTypeUser)
-				users.add((OtmTypeUser) child);
+				memberTypeUsers.add((OtmTypeUser) child);
 		}
 		// Recurse
-		getDescendantsChildrenOwners().forEach(d -> users.addAll(d.getDescendantsTypeUsers()));
-		return users;
+		for (OtmChildrenOwner co : getDescendantsChildrenOwners()) {
+			Collection<OtmTypeUser> u = co.getDescendantsTypeUsers();
+			memberTypeUsers.addAll(u);
+		}
+		// getDescendantsChildrenOwners().forEach(d -> users.addAll(d.getDescendantsTypeUsers()));
+		log.debug("Users now has " + memberTypeUsers.size() + " items");
+		return memberTypeUsers;
 	}
 
 	/**
@@ -224,22 +233,38 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	// TODO - do i need a clearProviders() ???
 	@Override
 	public List<OtmTypeProvider> getUsedTypes() {
-		if (providers == null) {
-			getDescendantsTypeUsers().forEach(d -> addProvider(d));
-		}
-		return providers;
+		List<OtmTypeProvider> typesUsed = new ArrayList<>();
+		getDescendantsTypeUsers().forEach(d -> addProvider(d, typesUsed));
+		log.debug(this + " typesUsed size = " + typesUsed.size());
+		typesUsed.sort(
+				(OtmObject o1, OtmObject o2) -> o1.getNameWithPrefix().compareToIgnoreCase(o2.getNameWithPrefix()));
+		return typesUsed;
 	}
 
-	private void addProvider(OtmTypeUser user) {
-		if (providers == null)
-			providers = new ArrayList<>();
+	@Override
+	public List<OtmLibraryMember> getWhereUsed() {
+		return getWhereUsed(false);
+	}
+
+	public List<OtmLibraryMember> getWhereUsed(boolean force) {
+		if (force)
+			whereUsed = null;
+		if (whereUsed == null) {
+			whereUsed = new ArrayList<>();
+			whereUsed.addAll(mgr.findUsersOf(this));
+			getDescendantsTypeProviders().forEach(p -> {
+				whereUsed.addAll(mgr.findUsersOf(p));
+			});
+			log.debug("Creating Where Used List " + whereUsed.size() + " for : " + this.getNameWithPrefix());
+		}
+		// FIXME - clear list when changing assigned type
+		return whereUsed;
+	}
+
+	private void addProvider(OtmTypeUser user, List<OtmTypeProvider> list) {
 		OtmTypeProvider p = user.getAssignedType();
-		// if (user.getAssignedType()) == null) {
-		// // TODO - if provider is null, check the TL
-		// }
-		if (p != null && !providers.contains(p))
-			providers.add(p);
-		// TODO - set listener
+		if (p != null && !list.contains(p))
+			list.add(p);
 	}
 
 	@Override

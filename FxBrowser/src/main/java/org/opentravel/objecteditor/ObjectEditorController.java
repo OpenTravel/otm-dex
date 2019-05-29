@@ -95,6 +95,7 @@ public class ObjectEditorController extends DexMainControllerBase {
 
 		// Now that all controller's event requirements are known
 		configureEventHandlers();
+		setMainController(this);
 	}
 
 	@Override

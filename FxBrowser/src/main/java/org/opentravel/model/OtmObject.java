@@ -64,6 +64,11 @@ public interface OtmObject {
 
 	public String getName();
 
+	/**
+	 * @return
+	 */
+	public String getNameWithPrefix();
+
 	public String getNamespace();
 
 	public String getObjectTypeName();

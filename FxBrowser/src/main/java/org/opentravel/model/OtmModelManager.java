@@ -3,10 +3,12 @@
  */
 package org.opentravel.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
+import org.opentravel.dex.tasks.model.TypeResolverTask;
 import org.opentravel.dex.tasks.model.ValidateModelManagerItemsTask;
 import org.opentravel.model.otmContainers.OtmBuiltInLibrary;
 import org.opentravel.model.otmContainers.OtmLibrary;
@@ -71,10 +74,10 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 * @param actionManager
 	 *            action manager to assign to all members
 	 */
-	public OtmModelManager(DexStatusController statusController, DexActionManager actionManager) {
+	public OtmModelManager(DexActionManager actionManager) {
 		this.actionMgr = actionManager;
 		actionManager.setModelManager(this);
-		this.statusController = statusController;
+		// this.statusController = statusController;
 
 		// Create a TL Model
 		// FIXME - this is not the model being used when adding projects
@@ -91,11 +94,18 @@ public class OtmModelManager implements TaskResultHandlerI {
 		// addBuiltInLibraries();
 	}
 
+	public void setStatusController(DexStatusController statusController) {
+		this.statusController = statusController;
+	}
+
 	/**
 	 * Add the built in libraries to the libraries and member maps
 	 */
 	private void addBuiltInLibraries(TLModel tlModel) {
 		for (BuiltInLibrary tlLib : tlModel.getBuiltInLibraries()) {
+			if (libraries.containsKey(tlLib)) {
+				log.warn("Trying to add builtin library again.");
+			}
 			libraries.put(tlLib, new OtmBuiltInLibrary(tlLib, this));
 			for (LibraryMember tlMember : tlLib.getNamedMembers()) {
 				OtmLibraryMemberFactory.memberFactory(tlMember, this); // creates and adds
@@ -130,8 +140,10 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 * @return OtmLibrary associated with the abstract library
 	 */
 	public OtmLibrary get(AbstractLibrary absLibrary) {
-		if (!libraries.containsKey(absLibrary))
+		if (!libraries.containsKey(absLibrary)) {
 			log.warn("Missing library associated with: " + absLibrary.getName());
+			printLibraries();
+		}
 		return libraries.get(absLibrary);
 	}
 
@@ -191,8 +203,9 @@ public class OtmModelManager implements TaskResultHandlerI {
 
 		if (pm.getModel() != tlModel)
 			log.debug("Models are different");
+		tlModel = pm.getModel();
+
 		// Tell model to track changes to maintain its type integrity
-		// TODO - where should this be set?
 		pm.getModel().addListener(new ModelIntegrityChecker());
 
 		// Get the built in libraries
@@ -207,14 +220,15 @@ public class OtmModelManager implements TaskResultHandlerI {
 		}
 
 		// Get Members
-		TLModel tlModel = pm.getModel();
 		for (AbstractLibrary tlLib : tlModel.getAllLibraries()) {
 			for (LibraryMember tlMember : tlLib.getNamedMembers()) {
 				OtmLibraryMemberFactory.memberFactory(tlMember, this); // creates and adds
 			}
 		}
 
+		// Start a background task to validate the objects
 		new ValidateModelManagerItemsTask(this, this, statusController).go();
+		new TypeResolverTask(this, this, statusController).go();
 
 		log.debug("Model has " + members.size() + " members.");
 	}
@@ -268,24 +282,18 @@ public class OtmModelManager implements TaskResultHandlerI {
 		baseNSMap.clear();
 	}
 
-	// /**
-	// * Open the selected project and monitor the progress.
-	// *
-	// * @param projectFile
-	// * @param monitor
-	// */
-	// // TODO - where does this belong? Most of it is adding project to mgr.
-	// public void openProject(File projectFile, OpenProjectProgressMonitor monitor) {
-	// // Open the project
-	// log.debug("Opening Project");
-	// ProjectManager pm = fileHandler.openProject(projectFile, monitor);
-	//
-	// // Record the results
-	// for (Project project : pm.getAllProjects())
-	// projects.put(project.getName(), new OtmProject(project));
-	//
-	// // TODO - p.getTL().addProjectChangeListener(listener);
-	//
-	// add(pm);
-	// }
+	public List<OtmLibraryMember> findUsersOf(OtmTypeProvider p) {
+		List<OtmLibraryMember> users = new ArrayList<>();
+		for (OtmLibraryMember m : members.values()) {
+			if (m.getUsedTypes().contains(p))
+				users.add(m);
+		}
+		if (!users.isEmpty())
+			log.debug("Found " + users.size() + " users of " + p.getNameWithPrefix());
+		return users;
+	}
+
+	private void printLibraries() {
+		libraries.entrySet().forEach(l -> log.debug(l.getValue().getName()));
+	}
 }

@@ -9,11 +9,9 @@ import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.DexTabController;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Tab;
-import javafx.scene.layout.VBox;
 
 /**
- * Manage the properties tab.
+ * Manage the properties tab. Just register the included controllers.
  * 
  * @author dmh
  *
@@ -24,18 +22,18 @@ public class WhereUsedTabController implements DexTabController {
 	/**
 	 * FXML Java FX Nodes this controller is dependent upon
 	 */
-	// @FXML
-	// private WhereUsedTableController whereUsedTableController;
 	@FXML
 	private TypeUsersTreeController typeUsersTreeController;
 	@FXML
 	private UsersTreeController usersTreeController;
 	@FXML
 	private TypeProvidersTreeController typeProvidersTreeController;
-	@FXML
-	private Tab whereUsedTab;
-	@FXML
-	private VBox whereUsedTabVbox;
+
+	// Available but not used
+	// @FXML
+	// private Tab whereUsedTab;
+	// @FXML
+	// private VBox whereUsedTabVbox;
 
 	public WhereUsedTabController() {
 		log.debug("Where Used Controller constructed.");
@@ -49,7 +47,6 @@ public class WhereUsedTabController implements DexTabController {
 
 	@Override
 	public void configure(DexMainController parent) {
-		// parent.addIncludedController(whereUsedTableController);
 		parent.addIncludedController(typeUsersTreeController);
 		parent.addIncludedController(usersTreeController);
 		parent.addIncludedController(typeProvidersTreeController);

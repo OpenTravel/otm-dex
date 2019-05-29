@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ValidationUtils;
-import org.opentravel.dex.controllers.member.MemberDAO;
+import org.opentravel.dex.controllers.member.MemberAndProvidersDAO;
 import org.opentravel.dex.controllers.member.properties.PropertiesDAO;
 import org.opentravel.dex.controllers.popup.DexPopupControllerBase.Results;
 import org.opentravel.dex.controllers.popup.TypeSelectionContoller;
@@ -82,7 +82,7 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 		oldTLTypeName = user.assignedTypeProperty().get();
 
 		// Get the user's selected new provider
-		MemberDAO selected = null;
+		MemberAndProvidersDAO selected = null;
 		TypeSelectionContoller controller = TypeSelectionContoller.init();
 		controller.setManagers(modelMgr, imageMgr);
 		if (controller.showAndWait("MSG") == Results.OK) {

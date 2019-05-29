@@ -3,40 +3,29 @@
  */
 package org.opentravel.dex.controllers.member.usage;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.dex.controllers.DexController;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.controllers.member.MemberDAO;
-import org.opentravel.dex.events.DexFilterChangeEvent;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.dex.events.DexModelChangeEvent;
-import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.OtmTypeProvider;
-import org.opentravel.model.otmFacets.OtmContributedFacet;
-import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.application.Platform;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 /**
- * Manage the library member where used view.
+ * Manage where-used tree for the posted library member. (1st column in tab)
  * 
  * @author dmh
  *
@@ -44,26 +33,17 @@ import javafx.scene.layout.VBox;
 public class UsersTreeController extends DexIncludedControllerBase<OtmModelManager> implements DexController {
 	private static Log log = LogFactory.getLog(UsersTreeController.class);
 
-	// // Column labels
-	// // TODO - externalize strings
-	// public static final String PREFIXCOLUMNLABEL = "Prefix";
-	// private static final String NAMECOLUMNLABEL = "Member";
-	// private static final String VERSIONCOLUMNLABEL = "Version";
-	// private static final String LIBRARYLABEL = "Library";
-	// // private static final String ERRORLABEL = "Errors";
-	// private static final String WHEREUSEDLABEL = "Types Used";
-
 	/*
 	 * FXML injected
 	 */
 	@FXML
-	TreeView<MemberDAO> usersTree;
+	TreeView<MemberAndUsersDAO> usersTree;
 	@FXML
 	private VBox memberWhereUsed;
 
-	TreeItem<MemberDAO> root; // Root of the navigation tree. Is displayed.
-	OtmModelManager currentModelMgr; // this is postedData
+	TreeItem<MemberAndUsersDAO> root; // Root of the navigation tree. Is displayed.
 	private boolean ignoreEvents = false;
+	private OtmLibraryMember postedMember = null;
 
 	// All event types listened to by this controller's handlers
 	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED,
@@ -77,41 +57,6 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 		super(subscribedEvents, publishedEvents);
 	}
 
-	// /**
-	// * Create columns
-	// */
-	// private void buildColumns() {
-	//
-	// TreeTableColumn<MemberDAO, String> prefixColumn = new TreeTableColumn<>(PREFIXCOLUMNLABEL);
-	// prefixColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("prefix"));
-	// setColumnProps(prefixColumn, true, false, true, 100);
-	// prefixColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
-	//
-	// TreeTableColumn<MemberDAO, String> nameColumn;
-	// nameColumn = new TreeTableColumn<>(NAMECOLUMNLABEL);
-	// nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("name"));
-	// setColumnProps(nameColumn, true, true, true, 200);
-	// nameColumn.setSortType(SortType.ASCENDING);
-	//
-	// TreeTableColumn<MemberDAO, String> versionColumn = new TreeTableColumn<>(VERSIONCOLUMNLABEL);
-	// versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("version"));
-	//
-	// TreeTableColumn<MemberDAO, String> libColumn = new TreeTableColumn<>(LIBRARYLABEL);
-	// libColumn.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("library"));
-	//
-	// TreeTableColumn<MemberDAO, String> usedTypesCol = new TreeTableColumn<>(WHEREUSEDLABEL);
-	// usedTypesCol.setCellValueFactory(new TreeItemPropertyValueFactory<MemberDAO, String>("usedTypes"));
-	//
-	// TreeTableColumn<MemberDAO, ImageView> valColumn = new TreeTableColumn<>("");
-	// valColumn.setCellFactory(c -> new ValidationMemberTreeTableCellFactory());
-	// setColumnProps(valColumn, true, false, false, 25);
-	//
-	// // Add columns to table
-	// typeUsersTree.getColumns().addAll(nameColumn, valColumn, libColumn, versionColumn, prefixColumn,
-	// usedTypesCol);
-	// typeUsersTree.getSortOrder().add(nameColumn);
-	// }
-
 	@Override
 	public void checkNodes() {
 		if (usersTree == null)
@@ -124,6 +69,7 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 	@Override
 	public void clear() {
 		usersTree.getRoot().getChildren().clear();
+		postedMember = null;
 	}
 
 	/**
@@ -152,7 +98,7 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 			throw new IllegalArgumentException("Model manager is null. Must configure member tree with model manager.");
 
 		this.imageMgr = imageMgr;
-		this.currentModelMgr = modelMgr;
+		// this.currentModelMgr = modelMgr;
 
 		// Set the hidden root item
 		root = new TreeItem<>();
@@ -162,108 +108,66 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 		usersTree.setRoot(getRoot());
 		usersTree.setShowRoot(false);
 		usersTree.setEditable(true);
-		// typeUsersTree.getSelectionModel().setCellSelectionEnabled(true); // allow individual cells to be edited
-		// typeUsersTree.setTableMenuButtonVisible(true); // allow users to select columns
-		// Enable context menus at the row level and add change listener for for applying style
-
-		// TODO whereUsedTreeTable.setRowFactory((TreeTableView<MemberDAO> p) -> new MemberRowFactory(this));
-
-		// buildColumns();
 
 		// Add listeners and event handlers
 		usersTree.getSelectionModel().select(0);
-		// whereUsedTreeTable.setOnKeyReleased(this::keyReleased);
-		// whereUsedTreeTable.setOnMouseClicked(this::mouseClick);
-		usersTree.getSelectionModel().selectedItemProperty()
-				.addListener((v, old, newValue) -> memberSelectionListener(newValue));
+		// usersTree.getSelectionModel().selectedItemProperty()
+		// .addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
 		log.debug("Where used table configured.");
 		refresh();
 	}
 
 	/**
-	 * Note: TreeItem class does not extend the Node class. Therefore, you cannot apply any visual effects or add menus
-	 * to the tree items. Use the cell factory mechanism to overcome this obstacle and define as much custom behavior
-	 * for the tree items as your application requires.
+	 * For the member, get all members that use this member or any of its descendants as types.
+	 * <p>
+	 * Note: TreeItem class does not extend the Node class.
 	 * 
 	 * @param member
-	 *            the Otm Library Member to add to the tree
+	 *            post the where-used types for the member.
 	 * @param parent
 	 *            the tree root or parent member
 	 * @return
 	 */
-	public void createTreeItem(OtmLibraryMember member, TreeItem<MemberDAO> parent) {
-		// log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
-
-		// Apply Filter
-		// if (filter != null && !filter.isSelected(member))
-		// return;
-		// Skip over contextual facets that have been injected into an object. Their contributed facets will be modeled.
-		if ((member instanceof OtmContextualFacet && ((OtmContextualFacet) member).getWhereContributed() != null))
+	public void createTreeItems(OtmLibraryMember member) {
+		if (member == null)
 			return;
+		log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
 
-		// Create item for the library member
-		TreeItem<MemberDAO> item = createTreeItem((OtmTypeProvider) member, parent);
+		// Get all providers for this member
+		Collection<OtmLibraryMember> whereUsed = member.getWhereUsed();
+		whereUsed.forEach(wu -> new MemberAndUsersDAO(wu).createTreeItem(imageMgr, root));
 
-		// Create and add items for children
-		if (member instanceof OtmChildrenOwner)
-			createChildrenItems(member, item);
 	}
 
-	/**
-	 * Create tree items for the type provider children of this child owning member
-	 */
-	private void createChildrenItems(OtmChildrenOwner member, TreeItem<MemberDAO> parentItem) {
-		member.getChildrenTypeProviders().forEach(p -> {
-			TreeItem<MemberDAO> cfItem = createTreeItem(p, parentItem);
-			// Only user contextual facet for recursing
-			if (p instanceof OtmContributedFacet && ((OtmContributedFacet) p).getContributor() != null)
-				p = ((OtmContributedFacet) p).getContributor();
-			// Recurse
-			if (p instanceof OtmChildrenOwner)
-				createChildrenItems((OtmChildrenOwner) p, cfItem);
-		});
-	}
-
-	/**
-	 * Create and add to tree with no conditional logic.
-	 * 
-	 * @return new tree item added to tree at the parent
-	 */
-	private TreeItem<MemberDAO> createTreeItem(OtmTypeProvider provider, TreeItem<MemberDAO> parent) {
-		TreeItem<MemberDAO> item = new TreeItem<>(new MemberDAO(provider));
-		item.setExpanded(false);
-		if (parent != null)
-			parent.getChildren().add(item);
-		if (imageMgr != null) {
-			ImageView graphic = imageMgr.getView(provider);
-			item.setGraphic(graphic);
-			Tooltip.install(graphic, new Tooltip(provider.getObjectTypeName()));
-		}
-		return item;
-	}
-
-	// public MemberFilterController getFilter() {
-	// return filter;
+	// /**
+	// * Create tree items for the type provider children of this child owning member
+	// */
+	// private void createChildrenItems(OtmChildrenOwner childOwner, TreeItem<MemberAndUsersDAO> parentItem) {
+	// log.debug("Creating member children for: " + childOwner + " of type " + childOwner.getClass().getSimpleName());
+	// Collection<OtmTypeUser> users = childOwner.getDescendantsTypeUsers();
+	// childOwner.getDescendantsTypeUsers().forEach(u -> {
+	// TreeItem<MemberAndUsersDAO> cfItem = new MemberAndUsersDAO(u).createTreeItem(imageMgr, parentItem);
+	// // contextual facet are not type users and will not be listed here
+	//
+	// // Recurse
+	// if (u instanceof OtmChildrenOwner && !((OtmChildrenOwner) u).getChildren().isEmpty())
+	// createChildrenItems((OtmChildrenOwner) u, cfItem);
+	// });
 	// }
 
-	public TreeItem<MemberDAO> getRoot() {
+	public TreeItem<MemberAndUsersDAO> getRoot() {
 		return root;
 	}
 
-	public MemberDAO getSelected() {
+	public MemberAndUsersDAO getSelected() {
 		return usersTree.getSelectionModel().getSelectedItem() != null
 				? usersTree.getSelectionModel().getSelectedItem().getValue() : null;
 	}
 
-	private void handleEvent(DexFilterChangeEvent event) {
-		if (!ignoreEvents)
-			refresh();
-	}
-
 	private void handleEvent(DexMemberSelectionEvent event) {
 		if (!ignoreEvents)
-			select(event.getMember());
+			post(event.getMember());
 	}
 
 	@Override
@@ -272,61 +176,54 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
-			if (event instanceof DexFilterChangeEvent)
-				handleEvent((DexFilterChangeEvent) event);
 			if (event instanceof DexModelChangeEvent)
-				post(((DexModelChangeEvent) event).getModelManager());
+				clear();
 			else
 				refresh();
 		}
 	}
 
-	public void keyReleased(KeyEvent event) {
-		// TreeItem<MemberDAO> item = whereUsedTreeTable.getSelectionModel().getSelectedItem();
-		// ObservableList<TreeTablePosition<MemberDAO, ?>> cells =
-		// whereUsedTreeTable.getSelectionModel().getSelectedCells();
-		int row = usersTree.getSelectionModel().getSelectedIndex();
-		log.debug("Selection row = " + row);
-		if (event.getCode() == KeyCode.RIGHT) {
-			usersTree.getSelectionModel().getSelectedItem().setExpanded(true);
-			usersTree.getSelectionModel().select(row);
-			// whereUsedTreeTable.getSelectionModel().focus(row);
-			// Not sure how to: whereUsedTreeTable.getSelectionModel().requestFocus();
-			// event.consume();
-		} else if (event.getCode() == KeyCode.LEFT) {
-			usersTree.getSelectionModel().getSelectedItem().setExpanded(false);
-			usersTree.getSelectionModel().select(row);
-			// whereUsedTreeTable.getSelectionModel().focus(row);
-			// event.consume();
-		}
-	}
+	// public void keyReleased(KeyEvent event) {
+	// // TreeItem<MemberDAO> item = whereUsedTreeTable.getSelectionModel().getSelectedItem();
+	// // ObservableList<TreeTablePosition<MemberDAO, ?>> cells =
+	// // whereUsedTreeTable.getSelectionModel().getSelectedCells();
+	// int row = usersTree.getSelectionModel().getSelectedIndex();
+	// log.debug("Selection row = " + row);
+	// if (event.getCode() == KeyCode.RIGHT) {
+	// usersTree.getSelectionModel().getSelectedItem().setExpanded(true);
+	// usersTree.getSelectionModel().select(row);
+	// // whereUsedTreeTable.getSelectionModel().focus(row);
+	// // Not sure how to: whereUsedTreeTable.getSelectionModel().requestFocus();
+	// // event.consume();
+	// } else if (event.getCode() == KeyCode.LEFT) {
+	// usersTree.getSelectionModel().getSelectedItem().setExpanded(false);
+	// usersTree.getSelectionModel().select(row);
+	// // whereUsedTreeTable.getSelectionModel().focus(row);
+	// // event.consume();
+	// }
+	// }
 
-	/**
-	 * Listener for selected library members in the tree table.
-	 * 
-	 * @param item
-	 */
-	private void memberSelectionListener(TreeItem<MemberDAO> item) {
-		if (item == null)
-			return;
-		log.debug("Selection Listener: " + item.getValue());
-		assert item != null;
-		boolean editable = false;
-		if (item.getValue() != null)
-			editable = item.getValue().isEditable();
-		// nameColumn.setEditable(editable); // TODO - is this still useful?
-		ignoreEvents = true;
-		if (eventPublisherNode != null)
-			eventPublisherNode.fireEvent(new DexMemberSelectionEvent(this, item));
-		ignoreEvents = false;
-	}
+	// /**
+	// * Listener for selected library members in the tree table.
+	// *
+	// * @param item
+	// */
+	// private void memberSelectionListener(TreeItem<MemberAndUsersDAO> item) {
+	// if (item == null)
+	// return;
+	// log.debug("Selection Listener: " + item.getValue());
+	// ignoreEvents = true;
+	// if (eventPublisherNode != null)
+	// eventPublisherNode.fireEvent(new DexMemberSelectionEvent(this, item));
+	// ignoreEvents = false;
+	// }
 
-	public void mouseClick(MouseEvent event) {
-		// this fires after the member selection listener
-		if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2)
-			log.debug("Double click selection: ");
-		// + whereUsedTreeTable.getSelectionModel().getSelectedItem().getValue().nameProperty().toString());
-	}
+	// public void mouseClick(MouseEvent event) {
+	// // this fires after the member selection listener
+	// if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2)
+	// log.debug("Double click selection: ");
+	// // + whereUsedTreeTable.getSelectionModel().getSelectedItem().getValue().nameProperty().toString());
+	// }
 
 	/**
 	 * Get the library members from the model manager and put them into a cleared tree.
@@ -335,31 +232,24 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 	 */
 	@Override
 	public void post(OtmModelManager modelMgr) {
-		if (modelMgr != null && usersTree != null) {
-			currentModelMgr = modelMgr;
-			// if (getFilter() != null)
-			// getFilter().clear();
-			// create cells for members
-			usersTree.getRoot().getChildren().clear();
-			currentModelMgr.getMembers().forEach(m -> createTreeItem(m, root));
-			// try {
-			// typeUsersTree.sort();
-			// } catch (Exception e) {
-			// // why does first sort always throw exception?
-			// log.debug("Exception sorting: " + e.getLocalizedMessage());
-			// }
-		}
+		// No-op
+	}
+
+	public void post(OtmLibraryMember member) {
+		clear();
+		postedMember = member;
+		createTreeItems(postedMember);
 	}
 
 	@Override
 	public void refresh() {
-		post(currentModelMgr);
+		post(postedMember);
 		ignoreEvents = false;
 	}
 
 	public void select(OtmLibraryMember otm) {
 		if (otm != null) {
-			for (TreeItem<MemberDAO> item : usersTree.getRoot().getChildren()) {
+			for (TreeItem<MemberAndUsersDAO> item : usersTree.getRoot().getChildren()) {
 				if (item.getValue().getValue() == otm) {
 					int row = usersTree.getRow(item);
 					// This may not highlight the row if the event comes from or goes to a different controller.
@@ -379,11 +269,7 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 		}
 	}
 
-	// public void setFilter(MemberFilterController filter) {
-	// this.filter = filter;
+	// public void setOnMouseClicked(EventHandler<? super MouseEvent> handler) {
+	// usersTree.setOnMouseClicked(handler);
 	// }
-
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> handler) {
-		usersTree.setOnMouseClicked(handler);
-	}
 }

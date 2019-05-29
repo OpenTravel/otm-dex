@@ -192,6 +192,11 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	}
 
 	@Override
+	public String getNameWithPrefix() {
+		return getPrefix() + ":" + getName();
+	}
+
+	@Override
 	public String getNamespace() {
 		return tlObject instanceof NamedEntity ? ((NamedEntity) tlObject).getNamespace() : NONAMESPACE;
 	}
