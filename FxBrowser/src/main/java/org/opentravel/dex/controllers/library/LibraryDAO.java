@@ -86,6 +86,16 @@ public class LibraryDAO implements DexDAO<OtmLibrary> {
 		return new SimpleStringProperty(library.getLockedBy());
 	}
 
+	public StringProperty projectsProperty() {
+		String projects = "";
+		for (String name : library.getProjectNames())
+			if (projects.isEmpty())
+				projects = name;
+			else
+				projects = projects + ", " + name;
+		return new SimpleStringProperty(projects);
+	}
+
 	public BooleanProperty readonlyProperty() {
 		return new SimpleBooleanProperty(library.getTL().isReadOnly());
 	}

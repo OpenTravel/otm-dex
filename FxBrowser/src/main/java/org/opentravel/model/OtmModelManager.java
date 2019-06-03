@@ -68,6 +68,15 @@ public class OtmModelManager implements TaskResultHandlerI {
 	private TLModel tlModel = null;
 
 	/**
+	 * Get the TL Model used by this model manager.
+	 * 
+	 * @return
+	 */
+	public TLModel getTlModel() {
+		return tlModel;
+	}
+
+	/**
 	 * Create a model manager.
 	 * 
 	 * @param controller
@@ -84,7 +93,7 @@ public class OtmModelManager implements TaskResultHandlerI {
 		try {
 			tlModel = new TLModel();
 		} catch (Exception e) {
-			log.debug("Exception creating new model: " + e.getLocalizedMessage());
+			log.info("Exception creating new model: " + e.getLocalizedMessage());
 		}
 		// Tell model to track changes to maintain its type integrity
 		tlModel.addListener(new ModelIntegrityChecker());
@@ -119,6 +128,20 @@ public class OtmModelManager implements TaskResultHandlerI {
 
 	/**
 	 * @param TL
+	 *            Abstract Library
+	 * @return OtmLibrary associated with the abstract library
+	 */
+	public OtmLibrary get(AbstractLibrary absLibrary) {
+		if (!libraries.containsKey(absLibrary)) {
+			// abstract library may be in the library pi list
+			log.warn("Missing library associated with: " + absLibrary.getName());
+			printLibraries();
+		}
+		return libraries.get(absLibrary);
+	}
+
+	/**
+	 * @param TL
 	 *            Library
 	 * @return OtmLibrary associated with the TL Library
 	 */
@@ -132,19 +155,6 @@ public class OtmModelManager implements TaskResultHandlerI {
 		if (tlMember instanceof LibraryMember)
 			return members.get((tlMember));
 		return null;
-	}
-
-	/**
-	 * @param TL
-	 *            Abstract Library
-	 * @return OtmLibrary associated with the abstract library
-	 */
-	public OtmLibrary get(AbstractLibrary absLibrary) {
-		if (!libraries.containsKey(absLibrary)) {
-			log.warn("Missing library associated with: " + absLibrary.getName());
-			printLibraries();
-		}
-		return libraries.get(absLibrary);
 	}
 
 	public Collection<OtmLibrary> getLibraries() {
@@ -187,36 +197,38 @@ public class OtmModelManager implements TaskResultHandlerI {
 		return libs;
 	}
 
-	// public void createTestLibrary() {
-	// OtmLibrary lib = new OtmLibrary(this);
-	// libraries.put(lib.getTL(), lib);
-	// lib.createTestChildren(this);
-	// }
-
+	/**
+	 * Add all the libraries in this project to the model manager. Model all libraries and contents. Run validation and
+	 * type resolver in the background.
+	 * 
+	 * @param pm
+	 */
 	public void add(ProjectManager pm) {
-		log.debug("Oh la la -- a new project to consume!");
-		log.debug("            new project has " + pm.getModel().getAllLibraries().size() + " libraries");
+		log.debug("New project with " + pm.getModel().getAllLibraries().size() + " libraries");
 
 		// Add projects to project map
 		for (Project project : pm.getAllProjects())
 			projects.put(project.getName(), new OtmProject(project));
 
+		// TODO - model should be managed outside of add(Project) - this should only check to see if one exists.
 		if (pm.getModel() != tlModel)
 			log.debug("Models are different");
 		tlModel = pm.getModel();
+		// TODO - document how tlModel is managed.
 
 		// Tell model to track changes to maintain its type integrity
 		pm.getModel().addListener(new ModelIntegrityChecker());
 
 		// Get the built in libraries
 		addBuiltInLibraries(pm.getModel());
+		// TODO - check to see if built-ins are already loaded.
 
 		// Get Libraries
 		//
-		// base namespaces can have multiple libraries. Map will de-dup the entries based on baseNS and name.
-		// Libraries can belong to multiple projects.
+		// Libraries can belong to multiple projects. Map will de-dup the entries based on baseNS and name.
+		VersionChainFactory versionChainFactory = new VersionChainFactory(tlModel);
 		for (ProjectItem pi : pm.getAllProjectItems()) {
-			addLibrary(pi);
+			addLibrary(pi, versionChainFactory);
 		}
 
 		// Get Members
@@ -228,21 +240,41 @@ public class OtmModelManager implements TaskResultHandlerI {
 
 		// Start a background task to validate the objects
 		new ValidateModelManagerItemsTask(this, this, statusController).go();
+		// Start a background task to resolve type relationships
 		new TypeResolverTask(this, this, statusController).go();
 
 		log.debug("Model has " + members.size() + " members.");
 	}
 
-	private void addLibrary(ProjectItem pi) {
+	/**
+	 * If the project item is new to this model manager:
+	 * <ul>
+	 * <li>create OtmLibrary to represent the abstract TL library
+	 * <li>add the absLibrary:OtmLibrary pair to the libraries map
+	 * <li>add the libraryNamespace:library in the baseNS map
+	 * </ul>
+	 * <p>
+	 * base namespaces can have multiple libraries.
+	 * 
+	 * @param pi
+	 * @param VersionChainFactory
+	 *            versionChainFactory = new VersionChainFactory(pi.getProjectManager().getModel());
+	 */
+	private void addLibrary(ProjectItem pi, VersionChainFactory versionChainFactory) {
 		if (pi == null)
 			return;
-		VersionChainFactory versionChainFactory = new VersionChainFactory(pi.getProjectManager().getModel());
 		AbstractLibrary absLibrary = pi.getContent();
 		if (absLibrary == null)
 			return;
-
+		for (AbstractLibrary l : libraries.keySet())
+			if (l.getNamespace().equals(absLibrary.getNamespace()) && l.getName().equals(absLibrary.getName())) {
+				log.debug("Same URL found.");
+				// libraries.get(l).add(pi);
+				// return;
+			}
 		if (libraries.containsKey(absLibrary)) {
-			libraries.get(absLibrary).add(pi); // let the library track additional project
+			// let the library track project as needed to know if the library is editable
+			libraries.get(absLibrary).add(pi);
 		} else {
 			OtmLibrary lib = new OtmLibrary(pi, this);
 			libraries.put(absLibrary, lib);
@@ -288,8 +320,8 @@ public class OtmModelManager implements TaskResultHandlerI {
 			if (m.getUsedTypes().contains(p))
 				users.add(m);
 		}
-		if (!users.isEmpty())
-			log.debug("Found " + users.size() + " users of " + p.getNameWithPrefix());
+		// if (!users.isEmpty())
+		// log.debug("Found " + users.size() + " users of " + p.getNameWithPrefix());
 		return users;
 	}
 

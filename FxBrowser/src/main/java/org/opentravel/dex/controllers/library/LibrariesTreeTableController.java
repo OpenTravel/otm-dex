@@ -45,6 +45,7 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 	private static final String STATELABEL = "State";
 	private static final String LOCKEDLABEL = "Locked-by";
 	private static final String READONLYLABEL = "Read-only";
+	private static final String PROJECTSLABEL = "Projects";
 
 	@FXML
 	private TreeTableView<LibraryDAO> librariesTreeTable;
@@ -206,6 +207,8 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 				0);
 		TreeTableColumn<LibraryDAO, String> lockedColumn = createStringColumn(LOCKEDLABEL, "locked", true, false, true,
 				0);
+		TreeTableColumn<LibraryDAO, String> projectsColumn = createStringColumn(PROJECTSLABEL, "projects", true, false,
+				true, 0);
 		TreeTableColumn<LibraryDAO, Boolean> readonlyColumn = new TreeTableColumn<>(READONLYLABEL);
 		readonlyColumn.setCellValueFactory(new TreeItemPropertyValueFactory<LibraryDAO, Boolean>("readonly"));
 
@@ -214,7 +217,7 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 		refColumn.setPrefWidth(100);
 
 		librariesTreeTable.getColumns().addAll(nameColumn, prefixColumn, namespaceColumn, versionColumn, statusColumn,
-				stateColumn, lockedColumn, refColumn, readonlyColumn, editColumn);
+				stateColumn, lockedColumn, projectsColumn, refColumn, readonlyColumn, editColumn);
 
 		// Start out sorted on names
 		nameColumn.setSortType(SortType.ASCENDING);

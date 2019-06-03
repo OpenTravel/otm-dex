@@ -125,7 +125,7 @@ public class OtmBuiltInLibrary extends OtmLibrary {
 		return mgr.isLatest(this);
 	}
 
-	@Override
+	// @Override
 	public List<Project> getProjects() {
 		for (ProjectItem pi : projectItems)
 			if (pi.getLockedByUser() != null)

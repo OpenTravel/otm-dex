@@ -4,16 +4,12 @@
 package org.opentravel.common;
 
 import java.io.File;
-import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
-import org.opentravel.schemacompiler.loader.LibraryInputSource;
 import org.opentravel.schemacompiler.loader.LibraryLoaderException;
-import org.opentravel.schemacompiler.loader.LibraryModelLoader;
-import org.opentravel.schemacompiler.loader.impl.LibraryStreamInputSource;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.repository.ProjectManager;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -77,41 +73,45 @@ public class DexFileHandler extends AbstractMainWindowController {
 		return projectFiles;
 	}
 
-	/**
-	 * Open the passed project with the project manager.
-	 * <p>
-	 * Open library file using library model loader
-	 * 
-	 * @param selectedFile
-	 */
-	public void openFile(File selectedFile) {
-		if (selectedFile == null)
-			return;
-		log.debug("Open selected file: " + selectedFile.getName());
+	// /**
+	// * Open the passed project with the project manager.
+	// * <p>
+	// * Open library file using library model loader
+	// *
+	// * @param selectedFile
+	// */
+	// public void openFile(File selectedFile) {
+	// if (selectedFile == null)
+	// return;
+	// log.debug("Open selected file: " + selectedFile.getName());
+	//
+	// if (selectedFile.getName().endsWith(".otp")) {
+	// ProjectManager manager = openProject(selectedFile, null);
+	// newModel = manager.getModel();
+	// } else { // assume OTM library file
+	// LibraryInputSource<InputStream> libraryInput = new LibraryStreamInputSource(selectedFile);
+	// try {
+	// LibraryModelLoader<InputStream> modelLoader = new LibraryModelLoader<>();
+	//
+	// findings = modelLoader.loadLibraryModel(libraryInput);
+	// newModel = modelLoader.getLibraryModel();
+	// } catch (LibraryLoaderException e) {
+	// log.error("Error loading model: " + e.getLocalizedMessage());
+	// // e.printStackTrace();
+	// }
+	// }
+	// }
 
-		if (selectedFile.getName().endsWith(".otp")) {
-			ProjectManager manager = openProject(selectedFile, null);
-			newModel = manager.getModel();
-		} else { // assume OTM library file
-			LibraryInputSource<InputStream> libraryInput = new LibraryStreamInputSource(selectedFile);
-			try {
-				LibraryModelLoader<InputStream> modelLoader = new LibraryModelLoader<>();
-
-				findings = modelLoader.loadLibraryModel(libraryInput);
-				newModel = modelLoader.getLibraryModel();
-			} catch (LibraryLoaderException e) {
-				log.error("Error loading model: " + e.getLocalizedMessage());
-				// e.printStackTrace();
-			}
-		}
-	}
-
-	public ProjectManager openProject(File selectedProjectFile, OpenProjectProgressMonitor monitor) {
-		ProjectManager manager = new ProjectManager(false);
+	public ProjectManager openProject(File selectedProjectFile, TLModel tlModel, OpenProjectProgressMonitor monitor) {
+		// Use project manager from TLModel
+		ProjectManager manager;
+		if (tlModel != null)
+			manager = new ProjectManager(tlModel);
+		else
+			manager = new ProjectManager(false);
 		findings = new ValidationFindings();
 		try {
 			manager.loadProject(selectedProjectFile, findings, monitor);
-			// manager.loadProject(selectedProjectFile, findings);
 		} catch (LibraryLoaderException | RepositoryException | NullPointerException e) {
 			log.error("Error opening project: " + e.getLocalizedMessage());
 		}

@@ -3,12 +3,16 @@
  */
 package org.opentravel.dex.tasks.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.DexTaskBase;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
 /**
@@ -44,7 +48,9 @@ public class ValidateModelManagerItemsTask extends DexTaskBase<OtmModelManager> 
 
 	@Override
 	public void doIT() throws RepositoryException {
-		taskData.getMembers().forEach(m -> m.isValid(true));
+		// Work from private copy since other tasks could change the collection
+		Collection<OtmLibraryMember> members = new ArrayList<>(taskData.getMembers());
+		members.forEach(m -> m.isValid(true));
 	}
 
 }

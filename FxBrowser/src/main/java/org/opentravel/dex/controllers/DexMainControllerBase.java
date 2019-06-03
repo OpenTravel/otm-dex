@@ -214,7 +214,8 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	}
 
 	/**
-	 * Set the stage for a top level main controller. Called by the application on startup.
+	 * Set the stage for a top level main controller. Called by the application on startup. Initialize action, model and
+	 * image managers. checkNodes().
 	 * 
 	 * @param primaryStage
 	 */
@@ -231,6 +232,11 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		checkNodes();
 	}
 
+	/**
+	 * Set the main controller field. Set model manager's status controller.
+	 * 
+	 * @param controller
+	 */
 	protected void setMainController(DexMainController controller) {
 		mainController = controller;
 		modelMgr.setStatusController(getStatusController());

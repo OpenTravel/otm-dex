@@ -160,7 +160,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 			memberTypeUsers.addAll(u);
 		}
 		// getDescendantsChildrenOwners().forEach(d -> users.addAll(d.getDescendantsTypeUsers()));
-		log.debug("Users now has " + memberTypeUsers.size() + " items");
+		// log.debug("Users now has " + memberTypeUsers.size() + " items");
 		return memberTypeUsers;
 	}
 
@@ -235,7 +235,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	public List<OtmTypeProvider> getUsedTypes() {
 		List<OtmTypeProvider> typesUsed = new ArrayList<>();
 		getDescendantsTypeUsers().forEach(d -> addProvider(d, typesUsed));
-		log.debug(this + " typesUsed size = " + typesUsed.size());
+		// log.debug(this + " typesUsed size = " + typesUsed.size());
 		typesUsed.sort(
 				(OtmObject o1, OtmObject o2) -> o1.getNameWithPrefix().compareToIgnoreCase(o2.getNameWithPrefix()));
 		return typesUsed;
@@ -255,13 +255,15 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 			getDescendantsTypeProviders().forEach(p -> {
 				whereUsed.addAll(mgr.findUsersOf(p));
 			});
-			log.debug("Creating Where Used List " + whereUsed.size() + " for : " + this.getNameWithPrefix());
+			// log.debug("Creating Where Used List " + whereUsed.size() + " for : " + this.getNameWithPrefix());
 		}
 		// FIXME - clear list when changing assigned type
 		return whereUsed;
 	}
 
 	private void addProvider(OtmTypeUser user, List<OtmTypeProvider> list) {
+		if (user == null)
+			return;
 		OtmTypeProvider p = user.getAssignedType();
 		if (p != null && !list.contains(p))
 			list.add(p);

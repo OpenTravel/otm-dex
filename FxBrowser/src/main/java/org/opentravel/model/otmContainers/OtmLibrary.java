@@ -19,7 +19,6 @@
 package org.opentravel.model.otmContainers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -68,22 +67,28 @@ public class OtmLibrary {
 		this.mgr = mgr;
 	}
 
-	// @Deprecated
-	// public List<OtmComplexObject<?>> createTestChildren(OtmModelManager model) {
-	// List<OtmComplexObject<?>> members = new ArrayList<>();
-	// members.add(new OtmBusinessObject("Fred", mgr).createTestChildren());
-	// members.add(new OtmChoiceObject("Wilma", mgr).createTestChildren());
-	// members.add(new OtmCoreObject("Barney", mgr).createTestChildren());
-	// for (OtmComplexObject<?> member : members)
-	// model.add(member);
-	// LOGGER.debug("Created 3 members.");
-	// return members;
-	// }
-
+	/**
+	 * Add the project item to the list maintained by the library. Libraries can be members of multiple, open projects.
+	 * 
+	 * @param pi
+	 */
 	public void add(ProjectItem pi) {
-		if (pi.getContent() != tlLib)
+		if (pi.getContent() == null
+				|| (!(pi.getNamespace().equals(getTL().getNamespace()) && pi.getContent().getName().equals(getName()))))
+
+			// if (pi.getContent() != tlLib)
 			throw new IllegalArgumentException("Can not add project item with wrong library.");
 		projectItems.add(pi);
+		log.debug("Added project item to " + this.getName() + ". Now has " + projectItems.size() + " items.");
+	}
+
+	public boolean contains(AbstractLibrary aLib) {
+		if (tlLib == aLib)
+			return true;
+		for (ProjectItem pi : projectItems)
+			if (pi.getContent() == aLib)
+				return true;
+		return false;
 	}
 
 	public AbstractLibrary getTL() {
@@ -102,10 +107,12 @@ public class OtmLibrary {
 		return ImageManager.Icons.LIBRARY;
 	}
 
+	/**
+	 * A library is editable if any associated project item state is Managed_Locked -OR- unmanaged.
+	 * 
+	 * @return
+	 */
 	public boolean isEditable() {
-		// FIXME
-		boolean readOnly = !getTL().isReadOnly();
-
 		for (ProjectItem pi : projectItems) {
 			// System.out.println("State = " + pi.getState() + " is ReadOnly? " + readOnly);
 			if (pi.getState() == RepositoryItemState.MANAGED_LOCKED)
@@ -160,11 +167,21 @@ public class OtmLibrary {
 		return mgr.isLatest(this);
 	}
 
-	public List<Project> getProjects() {
-		for (ProjectItem pi : projectItems)
-			if (pi.getLockedByUser() != null)
-				return pi.memberOfProjects();
-		return Collections.emptyList();
+	public List<String> getProjectNames() {
+		// if (projectItems.size() > 1)
+		// log.debug("Library has multiple Project Items.");
+		//
+		List<String> names = new ArrayList<>();
+		List<Project> projects;
+		for (ProjectItem pi : projectItems) {
+			projects = pi.memberOfProjects();
+			for (Project p : projects)
+				names.add(p.getName());
+		}
+		return names;
+		// if (pi.getLockedByUser() != null)
+		// return pi.memberOfProjects();
+		// return Collections.emptyList();
 	}
 
 	public void validate() {

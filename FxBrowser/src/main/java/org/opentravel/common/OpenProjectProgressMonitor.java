@@ -37,13 +37,13 @@ public class OpenProjectProgressMonitor implements LoaderProgressMonitor {
 
 	@Override
 	public void loadingLibrary(String libraryFilename) {
-		log.debug("Progress: loading " + libraryFilename);
+		// log.debug("Progress: loading " + libraryFilename);
 		controller.postStatus("Loading " + libraryFilename);
 	}
 
 	@Override
 	public void libraryLoaded() {
-		log.debug("Progress: library loaded. Percent done = " + percentDone);
+		// log.debug("Progress: library loaded. Percent done = " + percentDone);
 		percentDone += increment;
 		controller.postProgress(percentDone);
 	}

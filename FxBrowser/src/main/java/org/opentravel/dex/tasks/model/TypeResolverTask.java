@@ -3,12 +3,15 @@
  */
 package org.opentravel.dex.tasks.model;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.DexTaskBase;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMemberBase;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 
@@ -45,8 +48,10 @@ public class TypeResolverTask extends DexTaskBase<OtmModelManager> {
 
 	@Override
 	public void doIT() throws RepositoryException {
+		// Create local copy because other tasks may update
+		Collection<OtmLibraryMember> members = taskData.getMembers();
 		// For each member in the model, force a computation of where used.
-		taskData.getMembers().forEach(m -> ((OtmLibraryMemberBase<?>) m).getWhereUsed(true));
+		members.forEach(m -> ((OtmLibraryMemberBase<?>) m).getWhereUsed(true));
 	}
 
 }
