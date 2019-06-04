@@ -3,6 +3,7 @@
  */
 package org.opentravel.dex.tasks.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
@@ -49,7 +50,7 @@ public class TypeResolverTask extends DexTaskBase<OtmModelManager> {
 	@Override
 	public void doIT() throws RepositoryException {
 		// Create local copy because other tasks may update
-		Collection<OtmLibraryMember> members = taskData.getMembers();
+		Collection<OtmLibraryMember> members = new ArrayList<>(taskData.getMembers());
 		// For each member in the model, force a computation of where used.
 		members.forEach(m -> ((OtmLibraryMemberBase<?>) m).getWhereUsed(true));
 	}

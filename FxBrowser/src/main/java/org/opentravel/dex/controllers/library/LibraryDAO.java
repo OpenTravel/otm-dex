@@ -71,7 +71,7 @@ public class LibraryDAO implements DexDAO<OtmLibrary> {
 	}
 
 	public StringProperty stateProperty() {
-		return new SimpleStringProperty(library.getState());
+		return new SimpleStringProperty(library.getStateName());
 	}
 
 	public IntegerProperty referenceProperty() {

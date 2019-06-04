@@ -98,7 +98,7 @@ public class OtmBuiltInLibrary extends OtmLibrary {
 	// }
 
 	@Override
-	public String getState() {
+	public String getStateName() {
 		return "Built in library.";
 		// if (projectItems.size() > 1)
 		// System.out.println("TODO - handle library in multiple projects.");

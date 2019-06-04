@@ -48,7 +48,7 @@ public class DexLibrarySelectionEvent extends DexEvent {
 	 */
 	public DexLibrarySelectionEvent(Object source, TreeItem<LibraryDAO> target) {
 		super(source, target, LIBRARY_SELECTED);
-		log.debug("DexEvent source/target constructor ran.");
+		// log.debug("DexEvent source/target constructor ran.");
 
 		// If there is data, extract it from target
 		if (target != null && target.getValue() != null && target.getValue().getValue() != null

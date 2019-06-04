@@ -108,19 +108,12 @@ public class OtmLibrary {
 	}
 
 	/**
-	 * A library is editable if any associated project item state is Managed_Locked -OR- unmanaged.
+	 * A library is editable if any associated project item state is Managed_WIP -OR- unmanaged.
 	 * 
 	 * @return
 	 */
 	public boolean isEditable() {
-		for (ProjectItem pi : projectItems) {
-			// System.out.println("State = " + pi.getState() + " is ReadOnly? " + readOnly);
-			if (pi.getState() == RepositoryItemState.MANAGED_LOCKED)
-				return true;
-			if (pi.getState() == RepositoryItemState.UNMANAGED)
-				return true;
-		}
-		return false;
+		return getState() == RepositoryItemState.MANAGED_WIP || getState() == RepositoryItemState.UNMANAGED;
 	}
 
 	/**
@@ -142,10 +135,39 @@ public class OtmLibrary {
 		return libs;
 	}
 
-	public String getState() {
-		if (projectItems.size() > 1)
-			System.out.println("TODO - handle library in multiple projects.");
-		return projectItems.isEmpty() ? "" : projectItems.get(0).getState().name();
+	public String getStateName() {
+		return projectItems.isEmpty() ? "" : getState().toString();
+	}
+
+	/**
+	 * Examine all project items and return the state that grants the user the most rights.
+	 * 
+	 * @return
+	 */
+	public RepositoryItemState getState() {
+		RepositoryItemState state = RepositoryItemState.MANAGED_UNLOCKED; // the weakest state
+		if (projectItems != null)
+			for (ProjectItem pi : projectItems) {
+				// log.debug("state = " + pi.getState());
+				switch (pi.getState()) {
+				case MANAGED_UNLOCKED:
+					break;
+				case BUILT_IN:
+				case UNMANAGED:
+					// These are true regardless of user or user actions
+					return pi.getState();
+
+				case MANAGED_LOCKED:
+					if (state != RepositoryItemState.MANAGED_WIP)
+						state = pi.getState();
+					break;
+
+				case MANAGED_WIP:
+					// This gives user most rights and is therefore always used as state
+					return pi.getState();
+				}
+			}
+		return state;
 	}
 
 	public String getNameWithBasenamespace() {
@@ -167,21 +189,24 @@ public class OtmLibrary {
 		return mgr.isLatest(this);
 	}
 
+	/**
+	 * Get the name(s) of the project(s) that contain this library.
+	 * 
+	 * @return new array of string containing the project names
+	 */
 	public List<String> getProjectNames() {
 		// if (projectItems.size() > 1)
 		// log.debug("Library has multiple Project Items.");
 		//
 		List<String> names = new ArrayList<>();
-		List<Project> projects;
-		for (ProjectItem pi : projectItems) {
-			projects = pi.memberOfProjects();
-			for (Project p : projects)
-				names.add(p.getName());
-		}
+		if (projectItems != null)
+			for (ProjectItem pi : projectItems) {
+				for (Project p : pi.memberOfProjects())
+					if (!names.contains(p.getName()))
+						names.add(p.getName());
+			}
+		names.sort(null);
 		return names;
-		// if (pi.getLockedByUser() != null)
-		// return pi.memberOfProjects();
-		// return Collections.emptyList();
 	}
 
 	public void validate() {
