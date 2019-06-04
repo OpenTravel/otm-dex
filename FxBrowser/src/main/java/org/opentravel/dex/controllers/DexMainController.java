@@ -5,6 +5,7 @@ package org.opentravel.dex.controllers;
 
 import org.opentravel.common.ImageManager;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.objecteditor.UserSettings;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 import javafx.stage.Stage;
@@ -86,5 +87,10 @@ public interface DexMainController extends DexController {
 	 * @param queueSize
 	 */
 	void updateActionQueueSize(int queueSize);
+
+	/**
+	 * @return
+	 */
+	UserSettings getUserSettings();
 
 }

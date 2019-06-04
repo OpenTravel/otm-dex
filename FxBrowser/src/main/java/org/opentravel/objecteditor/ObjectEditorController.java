@@ -3,6 +3,8 @@
  */
 package org.opentravel.objecteditor;
 
+import java.awt.Dimension;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainControllerBase;
@@ -45,12 +47,6 @@ public class ObjectEditorController extends DexMainControllerBase {
 	@FXML
 	private RepositoryTabController repositoryTabController;
 
-	// TODO - preferences (improve as i use it)
-	// Uses java beans to read/write to file
-	// 1. Abstract User Settings class (application common)
-	// 1a. Add fields, getters, setters for app specific preferences
-	// 2. Add load to main controller initialize
-
 	@Override
 	public void checkNodes() {
 		if (!(repositoryTabController instanceof RepositoryTabController))
@@ -72,6 +68,26 @@ public class ObjectEditorController extends DexMainControllerBase {
 	public void setStage(Stage stage) {
 		super.setStage(stage);
 		log.debug("Controller - Initializing Object Editor Controller");
+
+		// Get the user preferences
+		userSettings = UserSettings.load();
+		// Set the stage size based on user preferences
+		Dimension size = userSettings.getWindowSize();
+		stage.setHeight(size.height);
+		stage.setWidth(size.width);
+
+		stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+			log.debug("Width changed!! - new = " + newValue);
+			userSettings.setWindowSize(new Dimension(newValue.intValue(), userSettings.getWindowSize().height));
+			userSettings.save();
+		});
+		stage.heightProperty().addListener((ob, ov, newValue) -> {
+			log.debug("Height changed!! - new = " + newValue);
+			userSettings.setWindowSize(new Dimension(userSettings.getWindowSize().width, newValue.intValue()));
+			userSettings.save();
+		});
+		// TODO
+		// Point position = userSettings.getWindowPosition();
 
 		// Set up menu bar and show the project combo
 		addIncludedController(menuBarWithProjectController);
@@ -97,6 +113,10 @@ public class ObjectEditorController extends DexMainControllerBase {
 		configureEventHandlers();
 		setMainController(this);
 	}
+
+	// public void widthListener() {
+	//
+	// }
 
 	@Override
 	public void initialize() {

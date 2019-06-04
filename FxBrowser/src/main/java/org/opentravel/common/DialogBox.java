@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 public class DialogBox {
 	static boolean answer;
 	private static String cancelText = "Cancel";
-	private static String closeText = "Close";
+	private static String exitText = "Exit";
 
 	static Stage notifyWindow;
 
@@ -68,7 +68,7 @@ public class DialogBox {
 			window.close();
 		});
 
-		Button closeButton = new Button(closeText);
+		Button closeButton = new Button(exitText);
 		closeButton.setAlignment(Pos.BOTTOM_RIGHT); // does not work
 		closeButton.setOnAction(e -> {
 			answer = true;

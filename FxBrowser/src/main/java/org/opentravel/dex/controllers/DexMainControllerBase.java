@@ -17,6 +17,7 @@ import org.opentravel.dex.actions.DexActionManager;
 import org.opentravel.dex.controllers.popup.DialogBoxContoller;
 import org.opentravel.dex.events.DexEvent;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.objecteditor.UserSettings;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 import javafx.event.EventType;
@@ -36,6 +37,9 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	protected ImageManager imageMgr;
 	protected OtmModelManager modelMgr;
 	protected DexActionManager actionMgr;
+
+	// preferences (improve as i use it)
+	protected UserSettings userSettings;
 
 	protected List<DexIncludedController<?>> includedControllers = new ArrayList<>();
 	private Map<EventType<?>, List<DexIncludedController<?>>> eventPublishers = new HashMap<>();
@@ -171,6 +175,11 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		if (statusController != null)
 			return statusController;
 		return mainController != null ? mainController.getStatusController() : null;
+	}
+
+	@Override
+	public UserSettings getUserSettings() {
+		return userSettings;
 	}
 
 	@FXML

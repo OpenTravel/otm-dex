@@ -65,7 +65,7 @@ public class ObjectEditorApp extends AbstractOTMApplication {
 
 	public void closeProgram(WindowEvent e) {
 		e.consume(); // take the event away from windows
-		if (DialogBox.display("Close?", "Do you really want to close?"))
+		if (DialogBox.display("Close?", "Do you really want to exit?"))
 			window.close();
 	}
 

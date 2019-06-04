@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
+import org.opentravel.objecteditor.UserSettings;
 import org.opentravel.schemacompiler.loader.LibraryLoaderException;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.repository.ProjectManager;
@@ -26,36 +27,34 @@ public class DexFileHandler extends AbstractMainWindowController {
 	private static Log log = LogFactory.getLog(DexFileHandler.class);
 
 	ValidationFindings findings;
-	TLModel newModel = null;
 
-	// Needs:
-	// * ProjectManager - creates new one
-	// * User Settings - directory to find projects in
+	/**
+	 * Return a file selected by the user. Save the directory in the user settings.
+	 * 
+	 */
+	public File fileChooser(Stage stage, UserSettings settings) {
+		// Get the last directory used from settings
+		File initialDirectory = settings.getLastProjectFolder();
 
-	public File fileChooser(Stage stage) {
-		// TEMP
-		File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
-
-		// UserSettings userSettings = UserSettings.load();
-		// File initialDirectory = (modelFile != null) ?
-		// modelFile.getParentFile() : userSettings.getLastModelFile().getParentFile();
+		// Let user choose a file
 		FileChooser chooser = newFileChooser("Import from OTP", initialDirectory,
 				new String[] { "*.otp", "OTM Project Files (*.otp)" },
 				new String[] { "*.otr", "OTM Release Files (*.otr)" },
 				new String[] { "*.otm", "OTM Library Files (*.otm)" }, new String[] { "*.*", "All Files (*.*)" });
 		File selectedFile = chooser.showOpenDialog(stage);
 
-		log.warn("TODO - get directory from preferences. Selected file: " + selectedFile.getName());
+		// Save the directory used in user settings.
+		if (selectedFile != null) {
+			settings.setLastProjectFolder(selectedFile.getParentFile());
+			settings.save();
+		}
+
 		return selectedFile;
 	}
 
-	public ValidationFindings getFindings() {
-		return findings;
-	}
-
-	public TLModel getNewModel() {
-		return newModel;
-	}
+	// public ValidationFindings getFindings() {
+	// return findings;
+	// }
 
 	/**
 	 * @return a list of OTM Project files
@@ -109,6 +108,7 @@ public class DexFileHandler extends AbstractMainWindowController {
 			manager = new ProjectManager(tlModel);
 		else
 			manager = new ProjectManager(false);
+		// Findings are created in back ground task - is there any way to use these instead?
 		findings = new ValidationFindings();
 		try {
 			manager.loadProject(selectedProjectFile, findings, monitor);
@@ -121,7 +121,6 @@ public class DexFileHandler extends AbstractMainWindowController {
 	@Override
 	protected void setStatusMessage(String message, StatusType statusType, boolean disableControls) {
 		// Inherited status message not used.
-
 	}
 
 	@Override

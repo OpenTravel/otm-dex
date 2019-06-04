@@ -139,7 +139,8 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 
 	@Override
 	public void post(RepositoryManager repositoryManager) throws Exception {
-		this.repositoryManager = repositoryManager;
+		if (repositoryManager != null)
+			this.repositoryManager = repositoryManager;
 		// does not really do anything -- the local repository acts as default manager.
 	}
 
@@ -166,7 +167,7 @@ public class RepositorySelectionController extends DexIncludedControllerBase<Rep
 			postUser(getSelectedRepository());
 			repositoryChoice.fireEvent(new DexRepositorySelectionEvent(getSelectedRepository()));
 		} catch (Exception e) {
-			log.warn("Error posting repository: " + e.getLocalizedMessage());
+			log.error("Error posting repository: " + e.getLocalizedMessage());
 		}
 	}
 

@@ -16,6 +16,7 @@ import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.dex.tasks.repository.OpenProjectFileTask;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.objecteditor.UserSettings;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -62,6 +63,8 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 
 	private DialogBoxContoller dialogBox;
 
+	private UserSettings userSettings;
+
 	// All event types listened to by this controller's handlers
 	private static final EventType[] subscribedEvents = {};
 	private static final EventType[] publishedEvents = { DexModelChangeEvent.MODEL_CHANGED };
@@ -95,6 +98,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 		super.configure(mainController);
 		eventPublisherNode = menuToolBar;
 		modelMgr = mainController.getModelManager();
+		userSettings = mainController.getUserSettings();
 
 		stage = mainController.getStage();
 		// handle window and other close request events
@@ -180,16 +184,13 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 		log.debug("Handle file open action event.");
 		DexFileHandler fileHandler = new DexFileHandler();
 		if (event.getTarget() instanceof MenuItem) {
-			File selectedFile = fileHandler.fileChooser(stage);
+			File selectedFile = fileHandler.fileChooser(stage, userSettings);
 			openFile(selectedFile);
 		}
 	}
 
 	public void openFile(File selectedFile) {
-		dialogBox.show("Open Project", "Please wait.");
-		// modelMgr.clear();
-		// mainController.clear();
-
+		dialogBox.show("Opening Project", "Please wait.");
 		new OpenProjectFileTask(selectedFile, modelMgr, this::handleTaskComplete, mainController.getStatusController())
 				.go();
 	}
@@ -197,14 +198,17 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	private HashMap<String, File> projectMap = new HashMap<>();
 
 	public void configureProjectCombo() {
-		// FIXME - use UserSettings
+		// TEST - use UserSettings
 		DexFileHandler fileHandler = new DexFileHandler();
-		File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
-		for (File file : fileHandler.getProjectList(initialDirectory)) {
-			projectMap.put(file.getName(), file);
+		File initialDirectory = userSettings.getLastProjectFolder();
+		// File initialDirectory = new File("C:\\Users\\dmh\\workspace\\OTM-DE_TestFiles");
+		if (initialDirectory != null) {
+			for (File file : fileHandler.getProjectList(initialDirectory)) {
+				projectMap.put(file.getName(), file);
+			}
+			ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
+			configureComboBox(projectList, this::projectComboSelectionListener);
 		}
-		ObservableList<String> projectList = FXCollections.observableArrayList(projectMap.keySet());
-		configureComboBox(projectList, this::projectComboSelectionListener);
 	}
 
 	public void projectComboSelectionListener(Event e) {
