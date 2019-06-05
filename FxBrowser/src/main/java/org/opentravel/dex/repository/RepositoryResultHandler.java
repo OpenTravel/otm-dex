@@ -24,6 +24,11 @@ public class RepositoryResultHandler implements TaskResultHandlerI {
 	private static final String TITLE = "Repository Error";
 	private DexMainController parentController;
 
+	/**
+	 * When task is complete, post dialog box with any warnings or errors and refresh parent controller.
+	 * 
+	 * @param parentController
+	 */
 	public RepositoryResultHandler(DexMainController parentController) {
 		this.parentController = parentController;
 	}

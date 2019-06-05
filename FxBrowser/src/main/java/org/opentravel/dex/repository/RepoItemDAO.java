@@ -66,6 +66,7 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 	}
 
 	public StringProperty lockedProperty() {
+		log.debug(repoItem.getLibraryName() + " is locked by " + repoItem.getLockedByUser());
 		return new SimpleStringProperty(repoItem.getLockedByUser());
 	}
 
@@ -118,6 +119,10 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 	@Override
 	public RepositoryItem getValue() {
 		return repoItem;
+	}
+
+	public void setValue(RepositoryItem item) {
+		repoItem = item;
 	}
 
 }

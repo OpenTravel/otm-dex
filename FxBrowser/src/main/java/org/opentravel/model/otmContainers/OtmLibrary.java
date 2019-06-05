@@ -95,6 +95,10 @@ public class OtmLibrary {
 		return tlLib;
 	}
 
+	public String getFullName() {
+		return getTL() != null ? getTL().getNamespace() + "/" + getTL().getName() : null;
+	}
+
 	public String getName() {
 		return getTL() != null ? getTL().getName() : "";
 	}

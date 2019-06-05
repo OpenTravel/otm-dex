@@ -11,7 +11,6 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.events.DexRepositoryItemSelectionEvent;
 import org.opentravel.dex.events.DexRepositoryNamespaceSelectionEvent;
-import org.opentravel.repositoryViewer.RepositoryViewerController;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 import javafx.event.Event;
@@ -207,13 +206,12 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		setColumnProps(remarkCol, true, false, true, 300);
 
 		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
-		// table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, lockedColB, remarkCol);
 	}
 
-	public RepositoryViewerController getRepositoryViewerController() {
-		if (mainController instanceof RepositoryViewerController)
-			return (RepositoryViewerController) mainController;
-		return null;
-	}
+	// public RepositoryViewerController getRepositoryViewerController() {
+	// if (mainController instanceof RepositoryViewerController)
+	// return (RepositoryViewerController) mainController;
+	// return null;
+	// }
 
 }

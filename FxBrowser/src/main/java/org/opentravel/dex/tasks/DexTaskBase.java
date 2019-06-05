@@ -117,9 +117,14 @@ public abstract class DexTaskBase<T> extends Task<String> {
 
 	/**
 	 * The actual task written as if it was going to run in the GUI thread.
+	 * <p>
+	 * On error, throw an exception containing the string description to be shown to the user.
 	 */
 	public abstract void doIT() throws Exception;
 
+	/**
+	 * Call the doIT() method and then handle result.
+	 */
 	@Override
 	protected String call() throws Exception {
 		// log.debug("Starting Task.");
