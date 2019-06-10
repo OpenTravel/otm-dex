@@ -37,6 +37,7 @@ public class UnlockItemTask extends DexTaskBase<RepositoryItem> {
 
 	@Override
 	public void doIT() throws RepositoryException {
+		log.debug("Unlocking " + taskData.getClass().hashCode());
 		taskData.getRepository().unlock(taskData, commitWIP, remarks);
 	}
 }

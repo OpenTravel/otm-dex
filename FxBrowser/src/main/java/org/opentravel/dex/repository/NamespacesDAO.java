@@ -56,6 +56,29 @@ public class NamespacesDAO implements DexDAO<String>, TaskResultHandlerI {
 		new GetRepositoryItemsTask(this, this::handleTaskComplete, null).go();
 	}
 
+	public boolean contains(RepositoryItem item) {
+		if (allItems.contains(item))
+			return true;
+		if (latestItems.contains(item))
+			return true;
+		return false;
+	}
+
+	public StringProperty fullPathProperty() {
+		return new ReadOnlyStringWrapper(basePath != null ? basePath + "/" + ns : ns);
+	}
+
+	/**
+	 * @return the namespace without base path
+	 */
+	public String get() {
+		return ns;
+	}
+
+	public List<RepositoryItem> getAllItems() {
+		return allItems;
+	}
+
 	public List<RepositoryItem> getAllItems(TLLibraryStatus includeStatus, boolean lockedOnly) {
 		List<RepositoryItem> selected = new ArrayList<>();
 		for (RepositoryItem item : allItems) {
@@ -67,6 +90,45 @@ public class NamespacesDAO implements DexDAO<String>, TaskResultHandlerI {
 		}
 		return selected;
 	}
+
+	public String getBasePath() {
+		return basePath;
+	}
+
+	/**
+	 * Get the unique name (key) for this namespace. If not a root namespace, the parent's path will be added.
+	 * 
+	 * @return
+	 */
+	public String getFullPath() {
+		return basePath != null ? basePath + "/" + ns : ns;
+	}
+
+	@Override
+	public ImageView getIcon(ImageManager imageMgr) {
+		return null;
+	}
+
+	public List<RepositoryItem> getLatestItems() {
+		return latestItems;
+	}
+
+	/**
+	 * @return the repository
+	 */
+	public Repository getRepository() {
+		return repository;
+	}
+
+	@Override
+	public String getValue() {
+		return ns;
+	}
+	//
+	// public ImageView getIcon() {
+	// return images.getView(element.getIconType());
+	// }
+	//
 
 	@Override
 	public void handleTaskComplete(WorkerStateEvent event) {
@@ -84,66 +146,24 @@ public class NamespacesDAO implements DexDAO<String>, TaskResultHandlerI {
 		}
 	}
 
-	public List<RepositoryItem> getAllItems() {
-		return allItems;
-	}
-
-	public List<RepositoryItem> getLatestItems() {
-		return latestItems;
+	public StringProperty nsProperty() {
+		return new SimpleStringProperty(ns);
 	}
 
 	public StringProperty permissionProperty() {
 		return new ReadOnlyStringWrapper(permission);
 		// return new ReadOnlyStringWrapper(permission);
 	}
-	// public String getPermission() {
-	// return permission;
-	// }
 
-	public StringProperty nsProperty() {
-		return new SimpleStringProperty(ns);
-	}
-
-	/**
-	 * Used by tree item for displayed value.
-	 */
-	@Override
-	public String toString() {
-		return ns + decoration;
-	}
-
-	@Override
-	public String getValue() {
-		return ns;
-	}
-	//
-	// public ImageView getIcon() {
-	// return images.getView(element.getIconType());
-	// }
-	//
-
-	/**
-	 * Get the unique name (key) for this namespace. If not a root namespace, the parent's path will be added.
-	 * 
-	 * @return
-	 */
-	public String getFullPath() {
-		return basePath != null ? basePath + "/" + ns : ns;
-	}
-
-	public StringProperty fullPathProperty() {
-		return new ReadOnlyStringWrapper(basePath != null ? basePath + "/" + ns : ns);
-	}
-
-	public String getBasePath() {
-		return basePath;
-	}
-
-	/**
-	 * @return the repository
-	 */
-	public Repository getRepository() {
-		return repository;
+	public void replace(RepositoryItem oldItem, RepositoryItem newItem) {
+		if (allItems.contains(oldItem)) {
+			allItems.remove(oldItem);
+			allItems.add(newItem);
+		}
+		if (latestItems.contains(oldItem)) {
+			latestItems.remove(oldItem);
+			latestItems.add(newItem);
+		}
 	}
 
 	/**
@@ -155,14 +175,10 @@ public class NamespacesDAO implements DexDAO<String>, TaskResultHandlerI {
 	}
 
 	/**
-	 * @return the namespace without base path
+	 * Used by tree item for displayed value.
 	 */
-	public String get() {
-		return ns;
-	}
-
 	@Override
-	public ImageView getIcon(ImageManager imageMgr) {
-		return null;
+	public String toString() {
+		return ns + decoration;
 	}
 }

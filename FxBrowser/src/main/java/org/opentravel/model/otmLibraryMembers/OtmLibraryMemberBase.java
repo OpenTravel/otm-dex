@@ -234,7 +234,9 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	@Override
 	public List<OtmTypeProvider> getUsedTypes() {
 		List<OtmTypeProvider> typesUsed = new ArrayList<>();
-		getDescendantsTypeUsers().forEach(d -> addProvider(d, typesUsed));
+		// Prevent concurrent modification
+		Collection<OtmTypeUser> descendants = new ArrayList<>(getDescendantsTypeUsers());
+		descendants.forEach(d -> addProvider(d, typesUsed));
 		// log.debug(this + " typesUsed size = " + typesUsed.size());
 		typesUsed.sort(
 				(OtmObject o1, OtmObject o2) -> o1.getNameWithPrefix().compareToIgnoreCase(o2.getNameWithPrefix()));

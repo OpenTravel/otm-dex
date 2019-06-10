@@ -25,7 +25,7 @@
                   <Insets left="20.0" />
                </VBox.margin>
             </TextFlow>
-            <Label fx:id="dialogTitleLabel2" style="-fx-alignment: center;" styleClass="bold-label" stylesheets="@DavesViper.css" text=""/>
+            <Label fx:id="dialogTitleLabel2" style="-fx-alignment: center;" styleClass="bold-label" stylesheets="@DavesViper.css" text="" />
          </children>
       </VBox>
    </top>
@@ -35,12 +35,12 @@
             <Insets bottom="5.0" left="10.0" right="20.0" top="5.0" />
          </BorderPane.margin>
          <buttons>
+            <RadioButton fx:id="ulCommitButton" selected="true" text="Commit" />
             <Button fx:id="dialogButtonOK" alignment="CENTER" contentDisplay="CENTER" layoutX="419.0" layoutY="10.0" mnemonicParsing="false" prefWidth="75.0" styleClass="button-blue" stylesheets="@DavesViper.css" text="Unlock" textAlignment="CENTER">
                <opaqueInsets>
                   <Insets bottom="10.0" />
                </opaqueInsets>
             </Button>
-            <RadioButton fx:id="ulCommitButton" selected="true" text="Commit" />
             <Separator orientation="VERTICAL" />
             <Button fx:id="dialogButtonCancel" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefWidth="75.0" styleClass="button-red" stylesheets="@DavesViper.css" text="Cancel" textAlignment="CENTER">
                <opaqueInsets>

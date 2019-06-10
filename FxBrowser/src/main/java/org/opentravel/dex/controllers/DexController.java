@@ -32,5 +32,4 @@ public interface DexController {
 	 * Note: some controllers will do nothing on refresh.
 	 */
 	public void refresh();
-
 }

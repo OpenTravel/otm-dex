@@ -76,13 +76,14 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 	 * 
 	 */
 	private void lockLibraryEventHandler() {
-		log.debug("Lock in Row Factory.");
-		new LockItemTask(controller.getSelectedItem(), new RepositoryResultHandler(mainController), mainController)
-				.go();
+		log.debug("Lock in Row Factory.  " + controller.getSelectedItem().getValue().getClass().hashCode());
+		if (controller != null && controller.getSelectedItem() != null)
+			new LockItemTask(controller.getSelectedItem().getValue(), new RepositoryResultHandler(mainController),
+					mainController.getStatusController(), controller, mainController.getModelManager()).go();
 	}
 
 	private void unlockLibraryEventHandler() {
-		log.debug("Unlock in Row Factory.");
+		log.debug("Unlock in Row Factory.   " + controller.getSelectedItem().getValue().getClass().hashCode());
 		UnlockLibraryDialogContoller uldc = UnlockLibraryDialogContoller.init();
 		uldc.showAndWait("");
 		boolean commitWIP = uldc.getCommitState();

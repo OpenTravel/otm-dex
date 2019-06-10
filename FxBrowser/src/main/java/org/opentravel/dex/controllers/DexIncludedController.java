@@ -90,8 +90,8 @@ public interface DexIncludedController<T> extends DexController {
 	public void initialize();
 
 	/**
-	 * Post the business data into this controller's view(s). This method is expected to be extended to handle
-	 * forward/back navigation.
+	 * Post the business data into this controller's view(s). Save the data in <i>postedData</i> and clear()s. This
+	 * method is expected to be extended to handle forward/back navigation.
 	 * <p>
 	 * This method is expected to be overridden. Implementations <b>must</b> call super.post(businessData) first.
 	 * 
@@ -100,6 +100,16 @@ public interface DexIncludedController<T> extends DexController {
 	 *             if business logic throws exceptions or parent controller is needed and not set.
 	 */
 	public void post(T businessData) throws Exception;
+
+	/**
+	 * Inform application that an event has occurred.
+	 * <p>
+	 * <b>Caution</b> if the controller also listens to this event, there could be a loop
+	 * 
+	 * @param event
+	 *            DexEvent to publish
+	 */
+	public void publishEvent(DexEvent event);
 
 	/**
 	 * Attempt to select a member of the collection using the passed object.

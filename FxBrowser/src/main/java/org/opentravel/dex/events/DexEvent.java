@@ -5,6 +5,7 @@ package org.opentravel.dex.events;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opentravel.dex.actions.DexAction;
 import org.opentravel.dex.controllers.member.MemberFilterController;
 
 import javafx.event.Event;
@@ -15,15 +16,24 @@ import javafx.event.EventType;
  * Abstract OTM DEX event.
  * <p>
  * DexEvents leverage and extend JavaFX event architecture to provide the ability to loosely couple the interaction
- * between two or more controllers.
+ * between two or more controllers. Controllers can declare on initialization the events they throw and listen to.
+ * Controllers then throw events to indicate they have changed the application state. <b>No</b> controller should ever
+ * directly call other controllers--they use events to pass control and data.
  * <p>
- * Implementation steps:
+ * Events are can be thrown when any application state changes. Events are not thrown for specific changes to model
+ * objects (see {@link DexAction} ) but may be thrown to indicate an object has changed, been added or deleted.
+ * <p>
+ * Implementation steps (event publisher):
  * <ol>
  * <li>Create sub-type of DexEvent (if needed)
- * <li>Add setHandler() method in controller. Use underlying pane as fx:node to broadcast events.
- * <li>Add node.fireEvent() in event provider controllers where needed.
- * <li>Add logic to register handlers in event consumers.
- * <li>Add handler business logic.
+ * <li>Add event type to published event list
+ * <li>Ensure <i>eventPublisherNode</i> in base controller is set to the fx:node used to broadcast events.
+ * <li>Add <i>eventPublisherNode.fireEvent(new event)</i> in event provider controllers where needed.
+ * </ol>
+ * Implementation steps (event consumer(s)):
+ * <ol>
+ * <li>Override <i>handleEvent</i> method in consumer controller.
+ * <li>Add event specific <i>handleEvent(SpecificEvent e)</i> business logic handler methods.
  * </ul>
  * <p>
  * 

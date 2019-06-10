@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
+import org.opentravel.dex.events.DexRepositoryItemReplacedEvent;
 import org.opentravel.dex.events.DexRepositoryItemSelectionEvent;
 import org.opentravel.dex.events.DexRepositoryNamespaceSelectionEvent;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
@@ -34,9 +35,15 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 public class NamespaceLibrariesTreeTableController extends DexIncludedControllerBase<NamespacesDAO> {
 	private static Log log = LogFactory.getLog(NamespaceLibrariesTreeTableController.class);
 
+	private static final EventType[] publishedEvents = { DexRepositoryItemSelectionEvent.REPOSITORY_ITEM_SELECTED,
+			DexRepositoryItemReplacedEvent.REPOSITORY_ITEM_REPLACED };
+	private static final EventType[] subscribedEvents = { DexRepositoryNamespaceSelectionEvent.REPOSITORY_NS_SELECTED,
+			DexRepositoryItemReplacedEvent.REPOSITORY_ITEM_REPLACED };
+
 	// Injected fields
 	@FXML
 	private TreeTableView<RepoItemDAO> nsLibrariesTreeTableView;
+
 	@FXML
 	private Label permissionLabel;
 	@FXML
@@ -45,11 +52,35 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	private TreeItem<RepoItemDAO> root;
 	private NamespacesDAO currentNamespaceDAO = null;
 
-	private static final EventType[] publishedEvents = { DexRepositoryItemSelectionEvent.REPOSITORY_ITEM_SELECTED };
-	private static final EventType[] subscribedEvents = { DexRepositoryNamespaceSelectionEvent.REPOSITORY_NS_SELECTED };
-
 	public NamespaceLibrariesTreeTableController() {
 		super(subscribedEvents, publishedEvents);
+	}
+
+	/**
+	 * Create Columns and set cell values
+	 */
+	private void buildColumns(TreeTableView<RepoItemDAO> table) {
+		TreeTableColumn<RepoItemDAO, String> fileCol = new TreeTableColumn<>("Library");
+		fileCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("libraryName"));
+		setColumnProps(fileCol, true, false, true, 250);
+
+		TreeTableColumn<RepoItemDAO, String> versionCol = new TreeTableColumn<>("Version");
+		versionCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("version"));
+		setColumnProps(versionCol, true, false, true, 0);
+
+		TreeTableColumn<RepoItemDAO, String> statusCol = new TreeTableColumn<>("Status");
+		statusCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("status"));
+		setColumnProps(statusCol, true, false, true, 0);
+
+		TreeTableColumn<RepoItemDAO, String> lockedCol = new TreeTableColumn<>("Locked By");
+		lockedCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("locked"));
+		setColumnProps(lockedCol, true, false, true, 0);
+
+		TreeTableColumn<RepoItemDAO, String> remarkCol = new TreeTableColumn<>("Last Remark");
+		remarkCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("history"));
+		setColumnProps(remarkCol, true, false, true, 300);
+
+		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
 	}
 
 	@Override
@@ -64,6 +95,11 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	}
 
 	@Override
+	public void clear() {
+		nsLibrariesTreeTableView.getRoot().getChildren().clear();
+	}
+
+	@Override
 	public void configure(DexMainController main) {
 		super.configure(main);
 		eventPublisherNode = nsLibrariesTreeTableView;
@@ -74,6 +110,32 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 	}
 
+	public RepoItemDAO getSelectedItem() {
+		return nsLibrariesTreeTableView.getSelectionModel().getSelectedItem().getValue();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		log.debug("Received event: " + event.getClass().getSimpleName());
+		if (event instanceof DexRepositoryNamespaceSelectionEvent)
+			handleEvent((DexRepositoryNamespaceSelectionEvent) event);
+		else if (event instanceof DexRepositoryItemReplacedEvent)
+			handleEvent((DexRepositoryItemReplacedEvent) event);
+	}
+
+	private void handleEvent(DexRepositoryNamespaceSelectionEvent event) {
+		log.debug("Namespace selected.");
+		try {
+			post(event.getValue());
+		} catch (Exception e) {
+			mainController.postError(e, "Error displaying repository namespace");
+		}
+	}
+
+	private void handleEvent(DexRepositoryItemReplacedEvent event) {
+		currentNamespaceDAO = null;
+	}
+
 	@Override
 	public void initialize() {
 		log.debug("Initializing namespace libraries tree controller.");
@@ -82,32 +144,6 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 		root = initializeTree();
 		buildColumns(nsLibrariesTreeTableView);
 
-	}
-
-	/**
-	 * Respond to a selection in the table.
-	 * 
-	 * @param newValue
-	 * @return
-	 */
-	private void repoItemSelectionListener(TreeItem<RepoItemDAO> newValue) {
-		if (newValue != null && newValue.getValue() != null)
-			nsLibrariesTreeTableView.fireEvent(new DexRepositoryItemSelectionEvent(this, newValue.getValue()));
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (event instanceof DexRepositoryNamespaceSelectionEvent)
-			eventHandler((DexRepositoryNamespaceSelectionEvent) event);
-	}
-
-	private void eventHandler(DexRepositoryNamespaceSelectionEvent event) {
-		log.debug("Namespace selected.");
-		try {
-			post(event.getValue());
-		} catch (Exception e) {
-			mainController.postError(e, "Error displaying repository namespace");
-		}
 	}
 
 	private TreeItem<RepoItemDAO> initializeTree() {
@@ -126,26 +162,9 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	}
 
 	@Override
-	public void clear() {
-		nsLibrariesTreeTableView.getRoot().getChildren().clear();
-	}
-
-	public RepoItemDAO getSelectedItem() {
-		return nsLibrariesTreeTableView.getSelectionModel().getSelectedItem().getValue();
-	}
-
-	@Override
-	public void refresh() {
-		try {
-			post(currentNamespaceDAO);
-		} catch (Exception e) {
-			log.error("Error refreshing namespace libraries tree table: " + e.getLocalizedMessage());
-		}
-	}
-
-	@Override
 	public void post(NamespacesDAO nsNode) throws Exception {
 		super.post(nsNode);
+		log.debug("Posting new namespace node.");
 		currentNamespaceDAO = nsNode;
 		if (nsNode == null || nsNode.getFullPath() == null || nsNode.getFullPath().isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");
@@ -181,37 +200,24 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 			}
 	}
 
-	/**
-	 * Create Columns and set cell values
-	 */
-	private void buildColumns(TreeTableView<RepoItemDAO> table) {
-		TreeTableColumn<RepoItemDAO, String> fileCol = new TreeTableColumn<>("Library");
-		fileCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("libraryName"));
-		setColumnProps(fileCol, true, false, true, 250);
-
-		TreeTableColumn<RepoItemDAO, String> versionCol = new TreeTableColumn<>("Version");
-		versionCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("version"));
-		setColumnProps(versionCol, true, false, true, 0);
-
-		TreeTableColumn<RepoItemDAO, String> statusCol = new TreeTableColumn<>("Status");
-		statusCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("status"));
-		setColumnProps(statusCol, true, false, true, 0);
-
-		TreeTableColumn<RepoItemDAO, String> lockedCol = new TreeTableColumn<>("Locked By");
-		lockedCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("locked"));
-		setColumnProps(lockedCol, true, false, true, 0);
-
-		TreeTableColumn<RepoItemDAO, String> remarkCol = new TreeTableColumn<>("Last Remark");
-		remarkCol.setCellValueFactory(new TreeItemPropertyValueFactory<RepoItemDAO, String>("history"));
-		setColumnProps(remarkCol, true, false, true, 300);
-
-		table.getColumns().setAll(fileCol, versionCol, statusCol, lockedCol, remarkCol);
+	@Override
+	public void refresh() {
+		try {
+			post(currentNamespaceDAO);
+		} catch (Exception e) {
+			log.error("Error refreshing namespace libraries tree table: " + e.getLocalizedMessage());
+		}
 	}
 
-	// public RepositoryViewerController getRepositoryViewerController() {
-	// if (mainController instanceof RepositoryViewerController)
-	// return (RepositoryViewerController) mainController;
-	// return null;
-	// }
+	/**
+	 * Respond to a selection in the table.
+	 * 
+	 * @param newValue
+	 * @return
+	 */
+	private void repoItemSelectionListener(TreeItem<RepoItemDAO> newValue) {
+		if (newValue != null && newValue.getValue() != null)
+			eventPublisherNode.fireEvent(new DexRepositoryItemSelectionEvent(this, newValue.getValue()));
+	}
 
 }

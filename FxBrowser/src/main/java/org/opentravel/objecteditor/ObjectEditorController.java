@@ -77,12 +77,12 @@ public class ObjectEditorController extends DexMainControllerBase {
 		stage.setWidth(size.width);
 
 		stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-			log.debug("Width changed!! - new = " + newValue);
+			// log.debug("Width changed!! - new = " + newValue);
 			userSettings.setWindowSize(new Dimension(newValue.intValue(), userSettings.getWindowSize().height));
 			userSettings.save();
 		});
 		stage.heightProperty().addListener((ob, ov, newValue) -> {
-			log.debug("Height changed!! - new = " + newValue);
+			// log.debug("Height changed!! - new = " + newValue);
 			userSettings.setWindowSize(new Dimension(userSettings.getWindowSize().width, newValue.intValue()));
 			userSettings.save();
 		});

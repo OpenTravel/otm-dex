@@ -127,10 +127,15 @@ public abstract class DexIncludedControllerBase<C> implements DexIncludedControl
 	@Override
 	public void post(C businessData) throws Exception {
 		// Clear the view
-		clear();
+		clear(); // no-op unless overridden
 		// Hold onto data
 		postedData = businessData;
 		// FUTURE - create navigation event
+	}
+
+	@Override
+	public void publishEvent(DexEvent event) {
+		eventPublisherNode.fireEvent(event);
 	}
 
 	@Override

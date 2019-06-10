@@ -34,11 +34,7 @@ public class UnlockLibraryDialogContoller extends DexPopupControllerBase {
 
 	public static final String LAYOUT_FILE = "/UnlockLibraryDialog.fxml";
 
-	// public enum Results {
-	// OK, CANCEL;
-	// }
-
-	private Results result = Results.OK;
+	// private Results result = Results.OK;
 
 	@FXML
 	BorderPane dialogBox;
@@ -56,23 +52,12 @@ public class UnlockLibraryDialogContoller extends DexPopupControllerBase {
 	Button dialogButtonOK;
 
 	protected static Stage dialogStage;
-	// private Parent root;
-	// private Scene scene;
 
 	private static String helpText = "Unlock in the repository using the current credentials. "
 			+ "If the 'commit' is selected, the Work-In-Process will be "
 			+ "committed with the remarks to the remote repository before the existing lock is released. "
 			+ "If not selected, any changes in the library's Work-In-Progress will be discarded.";
 	private static String dialogTitle = "Unlock Dialog";
-
-	// /**
-	// * Is run when the associated .fxml file is loaded.
-	// */
-	// @Override
-	// @FXML
-	// public void initialize() {
-	// log.debug("Initialize injection point.");
-	// }
 
 	@Override
 	public void checkNodes() {
@@ -127,20 +112,7 @@ public class UnlockLibraryDialogContoller extends DexPopupControllerBase {
 		postHelp(helpText, dialogHelp);
 
 		dialogText.setText(message);
-		// dialogText.getChildren().add(new Text(message));
-
 	}
-
-	// @Override
-	// public void show(String title, String message) {
-	// setup(title, message);
-	// popupStage.show();
-	// }
-
-	// public void showAndWait(String title, String message) {
-	// setup(title, message);
-	// popupStage.showAndWait();
-	// }
 
 	/**
 	 * Add the message to the displayed text
@@ -150,14 +122,7 @@ public class UnlockLibraryDialogContoller extends DexPopupControllerBase {
 	public void add(String message) {
 		if (dialogText != null)
 			dialogText.setText(message);
-		// dialogText.getChildren().add(new Text(message));
 	}
-
-	// public void doOK() {
-	// clear();
-	// popupStage.close();
-	// result = Results.OK;
-	// }
 
 	public void doCommitButton() {
 		// Hide the text if not selected
@@ -177,26 +142,8 @@ public class UnlockLibraryDialogContoller extends DexPopupControllerBase {
 		return result;
 	}
 
-	// public void doCancel() {
-	// clear();
-	// popupStage.close();
-	// result = Results.CANCEL;
-	// }
-
 	@Override
 	public void clear() {
-		// dialogText.getChildren().clear();
 		dialogHelp.getChildren().clear();
 	}
-
-	// @Override
-	// public ReadOnlyObjectProperty<?> getSelectable() {
-	// return null;
-	// }
-
-	// @Override
-	// public void refresh() {
-	// // TODO Auto-generated method stub
-	// }
-
 }

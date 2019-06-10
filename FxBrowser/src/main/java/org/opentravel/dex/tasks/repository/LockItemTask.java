@@ -5,8 +5,9 @@ package org.opentravel.dex.tasks.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opentravel.dex.controllers.DexMainController;
-import org.opentravel.dex.repository.RepoItemDAO;
+import org.opentravel.dex.controllers.DexIncludedController;
+import org.opentravel.dex.controllers.DexStatusController;
+import org.opentravel.dex.events.DexRepositoryItemReplacedEvent;
 import org.opentravel.dex.tasks.DexTaskBase;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.model.OtmModelManager;
@@ -24,46 +25,48 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 public class LockItemTask extends DexTaskBase<RepositoryItem> {
 	private static Log log = LogFactory.getLog(LockItemTask.class);
 
-	private DexMainController mainController;
+	private DexStatusController statusController;
 
-	private RepoItemDAO repoItemDAO;
+	private RepositoryItem repoItem;
+
+	private OtmModelManager modelManager;
+
+	private DexIncludedController<?> eventController;
 
 	/**
 	 * Create a lock repository item task.
 	 * 
 	 * @param taskData
-	 *            - an repository item DAO to lock. If project is used, the RepoItem is updated. Must <b>not</b> be
-	 *            null.
+	 *            - an repository item to lock.
 	 * @param handler
 	 *            - results handler
 	 * @param controller
-	 *            - a main controller that has model manager and status controller that can post message and progress
-	 *            indicator
+	 *            - status controller that can post message and progress indicator
+	 * @param eventController
+	 *            - controller to publish repository item replaced event
+	 * @param modelManager
+	 *            - model manager that holds projects that could contain the library in this repository item
 	 */
-	// public LockItemTask(RepositoryItem taskData, TaskResultHandlerI handler, DexMainController controller) {
-	// super(taskData, handler, controller.getStatusController());
-	//
-	// // Replace start message from super-type.
-	// mainController = controller;
-	// msgBuilder = new StringBuilder("Locking: ");
-	// msgBuilder.append(taskData.getLibraryName());
-	// updateMessage(msgBuilder.toString());
-	// }
+	public LockItemTask(RepositoryItem taskData, TaskResultHandlerI handler, DexStatusController controller,
+			DexIncludedController<?> eventController, OtmModelManager modelManager) {
+		super(taskData, handler, controller);
+		if (taskData == null)
+			return;
 
-	public LockItemTask(RepoItemDAO taskData, TaskResultHandlerI handler, DexMainController controller) {
-		super(taskData.getValue(), handler, controller.getStatusController());
+		this.statusController = controller;
+		this.repoItem = taskData;
+		this.modelManager = modelManager;
+		this.eventController = eventController;
 
 		// Replace start message from super-type.
-		mainController = controller;
 		msgBuilder = new StringBuilder("Locking: ");
-		msgBuilder.append(taskData.getValue().getLibraryName());
+		msgBuilder.append(taskData.getLibraryName());
 		updateMessage(msgBuilder.toString());
-		this.repoItemDAO = taskData;
 	}
 
 	@Override
 	public void doIT() throws RepositoryException {
-		OtmModelManager mgr = mainController.getModelManager();
+		OtmModelManager mgr = modelManager;
 		OtmProject proj = null;
 		if (mgr == null)
 			return;
@@ -75,19 +78,32 @@ public class LockItemTask extends DexTaskBase<RepositoryItem> {
 			proj = mgr.getManagingProject(library);
 		}
 		if (proj != null) {
+			// repoItem is a copy made by java/fx concurrency model (I think). It has a different hashcode than
+			log.debug("Locking with project manger: " + repoItem.hashCode());
 			proj.getTL().getProjectManager().lock(proj.getProjectItem(library.getTL()));
-			// repoItem is now stale--update.
-			// RepoItemDAO can be updated, but the repoItem is held in a list by the NamespacesDAO
 			RepositoryItem newRI = taskData.getRepository().getRepositoryItem(taskData.getBaseNamespace(),
 					taskData.getFilename(), taskData.getVersion());
-			if (newRI != null && repoItemDAO != null) {
-				// Should not be needed, the ns-library view is rebuilt on task complete.
-				// repoItemDAO.setValue(newRI);
+			if (newRI != null && repoItem != newRI) {
+				// repoItem is now stale--and held in a list by the NamespacesDAO
+				// throw event so ns-library view is rebuilt on task complete.
+				log.debug("Ready to replace" + repoItem.hashCode() + " with " + newRI.hashCode());
+				throwRepoItemReplacedEvent(repoItem, newRI);
 				log.debug(newRI.getLibraryName() + " locked by " + newRI.getLockedByUser());
 			}
 		} else {
 			taskData.getRepository().lock(taskData);
 		}
+	}
+
+	/**
+	 * Inform application that a repository item has changed. May be needed when locking an item since the items are
+	 * held in other controller's DAOs.
+	 * 
+	 * @param oldItem
+	 * @param newItem
+	 */
+	private void throwRepoItemReplacedEvent(RepositoryItem oldItem, RepositoryItem newItem) {
+		eventController.publishEvent(new DexRepositoryItemReplacedEvent(this, oldItem, newItem));
 	}
 
 }
