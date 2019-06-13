@@ -3,8 +3,6 @@
  */
 package org.opentravel.dex.controllers.member;
 
-import java.util.Collection;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.actions.DexActionManager.DexActions;
@@ -14,7 +12,6 @@ import org.opentravel.dex.controllers.popup.DialogBoxContoller;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
 import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmLibraryMembers.OtmCoreObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
@@ -158,9 +155,9 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 			return;
 		}
 		selectedMember = member;
-		Collection<OtmTypeUser> u = member.getDescendantsTypeUsers();
-		Collection<OtmTypeProvider> p = member.getDescendantsTypeProviders();
-		Collection<OtmTypeProvider> c = member.getChildrenTypeProviders();
+		// Collection<OtmTypeUser> u = member.getDescendantsTypeUsers();
+		// Collection<OtmTypeProvider> p = member.getDescendantsTypeProviders();
+		// Collection<OtmTypeProvider> c = member.getChildrenTypeProviders();
 
 		objectLabel.setTooltip(new Tooltip(member.getObjectTypeName()));
 		if (imageMgr != null)
@@ -184,6 +181,7 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 
 		// Base type
 		changeBaseButton.setDisable(true); // TEMP
+		baseTypeName.setText(member.baseTypeProperty().get());
 
 		// Assigned type
 		final String TYPELABEL = "Assigned Type";

@@ -37,6 +37,7 @@ import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.model.otmProperties.OtmPropertyFactory;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
@@ -73,9 +74,18 @@ public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFace
 
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
+		// Will only run for "leaf" detail facets
 		Collection<OtmObject> hierarchy = new ArrayList<>();
-		children.forEach(c -> hierarchy.add(c));
+		getInheritedChildren().forEach(hierarchy::add);
+		getChildren().forEach(hierarchy::add);
 		return hierarchy;
+	}
+
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		modelInheritedChildren();
+		return inheritedChildren;
+
 	}
 
 	public DexActionManager getActionManger() {
@@ -84,6 +94,12 @@ public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFace
 
 	public OtmLibraryMember getParent() {
 		return parent;
+	}
+
+	@Override
+	public boolean isInherited() {
+		// log.debug("Is " + this + " inherited? " + !getParent().contains(this));
+		return !getParent().contains(this);
 	}
 
 	@Override
@@ -198,8 +214,65 @@ public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFace
 			getOwningMember().addAlias(c);
 	}
 
+	@Override
+	public void modelInheritedChildren() {
+		// Only model once
+		if (inheritedChildren == null)
+			inheritedChildren = new ArrayList<>();
+		else
+			inheritedChildren.clear(); // RE-model
+		// return;
+
+		// All properties, local and inherited
+		// List<TLProperty> inheritedElements = PropertyCodegenUtils.getInheritedProperties(getTL());
+
+		// Get only the directly inherited properties
+		if (getOwningMember().getBaseType() != null) {
+			List<TLProperty> inheritedElements = PropertyCodegenUtils.getInheritedFacetProperties(getTL());
+			inheritedElements.forEach(ie -> addChild(OtmPropertyFactory.create(ie, this)));
+			List<TLAttribute> inheritedAttrs = PropertyCodegenUtils.getInheritedFacetAttributes(getTL());
+			inheritedAttrs.forEach(ie -> addChild(OtmPropertyFactory.create(ie, this)));
+			List<TLIndicator> inheritedIndicators = PropertyCodegenUtils.getInheritedFacetIndicators(getTL());
+			inheritedIndicators.forEach(ie -> addChild(OtmPropertyFactory.create(ie, this)));
+
+			// log.debug("Found " + inheritedElements.size() + " inherited element children of " + this.getName() + " of
+			// "
+			// + this.getOwningMember().getName());
+			// log.debug("Found " + inheritedAttrs.size() + " inherited attribute children of " + this.getName() + " of
+			// "
+			// + this.getOwningMember().getName());
+			// log.debug("Found " + inheritedIndicators.size() + " inherited indicator children of " + this.getName()
+			// + " of " + this.getOwningMember().getName());
+		}
+	}
+
 	private void addChild(OtmProperty<?> child) {
-		if (child != null)
-			children.add(child);
+		if (child != null) {
+			// Make sure it has not already been added
+			if (children == null)
+				children = new ArrayList<>();
+			else if (contains(children, child))
+				return;
+
+			if (inheritedChildren == null)
+				inheritedChildren = new ArrayList<>();
+			else if (contains(inheritedChildren, child))
+				return;
+
+			if (!child.isInherited())
+				children.add(child);
+			else
+				inheritedChildren.add(child);
+		}
+	}
+
+	private boolean contains(List<OtmObject> list, OtmObject child) {
+		if (list.contains(child))
+			return true;
+		for (OtmObject c : list)
+			if (c.getTL() == child.getTL())
+				return true;
+
+		return false;
 	}
 }

@@ -131,4 +131,14 @@ public class OtmAlias extends OtmModelElement<TLAlias> implements OtmTypeProvide
 		children.add(new OtmAliasFacet(tla, this));
 	}
 
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		return Collections.emptyList(); // TODO
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+		// TODO Auto-generated method stub
+	}
+
 }

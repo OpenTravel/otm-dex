@@ -50,7 +50,6 @@ public class DexMemberSelectionEvent extends DexEvent {
 	 */
 	public DexMemberSelectionEvent(Object source, TreeItem<MemberAndProvidersDAO> target) {
 		super(source, target, MEMBER_SELECTED);
-		log.debug("DexEvent source/target constructor ran.");
 		// If there is data, extract it from target
 		OtmObject m = null;
 		if (target != null && target.getValue() != null && target.getValue().getValue() != null)
@@ -67,7 +66,6 @@ public class DexMemberSelectionEvent extends DexEvent {
 	 */
 	public DexMemberSelectionEvent(OtmLibraryMember otm) {
 		super(MEMBER_SELECTED);
-		log.debug("DexEvent OtmModelElement constructor ran.");
 		if (otm instanceof OtmContributedFacet)
 			otm = ((OtmContributedFacet) otm).getContributor();
 		member = otm;

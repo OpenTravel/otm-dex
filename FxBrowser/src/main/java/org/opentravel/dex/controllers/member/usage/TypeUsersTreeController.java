@@ -77,7 +77,7 @@ public class TypeUsersTreeController extends DexIncludedControllerBase<OtmModelM
 	@Override
 	public void configure(DexMainController parent) {
 		super.configure(parent);
-		log.debug("Configuring Type Users Tree.");
+		// log.debug("Configuring Type Users Tree.");
 		eventPublisherNode = memberWhereUsed;
 		configure(parent.getModelManager(), parent.getImageManager());
 	}
@@ -114,7 +114,7 @@ public class TypeUsersTreeController extends DexIncludedControllerBase<OtmModelM
 		// typeUsersTree.getSelectionModel().selectedItemProperty()
 		// .addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
-		log.debug("Where used table configured.");
+		// log.debug("Where used table configured.");
 		refresh();
 	}
 
@@ -134,7 +134,7 @@ public class TypeUsersTreeController extends DexIncludedControllerBase<OtmModelM
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug(event.getEventType() + " event received.  Ignore? " + ignoreEvents);
+		// log.debug(event.getEventType() + " event received. Ignore? " + ignoreEvents);
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
@@ -226,11 +226,11 @@ public class TypeUsersTreeController extends DexIncludedControllerBase<OtmModelM
 						typeUsersTree.getFocusModel().focus(row);
 						// ignoreEvents = false;
 					});
-					log.debug("Selected " + otm.getName() + " in member tree.");
+					// log.debug("Selected " + otm.getName() + " in member tree.");
 					return;
 				}
 			}
-			log.debug(otm.getName() + " not found in member tree.");
+			// log.debug(otm.getName() + " not found in member tree.");
 		}
 	}
 

@@ -161,7 +161,7 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 	public void eventHandler(DexLibrarySelectionEvent event) {
 		OtmLibrary selectedLib = event.getLibrary();
 		if (selectedLib != null) {
-			log.debug("Library selection Listener: " + selectedLib.getName());
+			// log.debug("Library selection Listener: " + selectedLib.getName());
 			for (TreeItem<LibraryDAO> item : librariesTreeTable.getRoot().getChildren())
 				if (item.getValue().getValue() == selectedLib) {
 					ignore = true;
@@ -182,7 +182,7 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 		if (item == null || item.getValue() == null || item.getValue().getValue() == null)
 			return;
 
-		log.debug("Selection Listener: " + item.getValue().getValue().getName());
+		// log.debug("Selection Listener: " + item.getValue().getValue().getName());
 
 		if (!ignore)
 			libraries.fireEvent(new DexLibrarySelectionEvent(libraries, item));

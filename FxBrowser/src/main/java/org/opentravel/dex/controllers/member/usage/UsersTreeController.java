@@ -78,7 +78,7 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 	@Override
 	public void configure(DexMainController parent) {
 		super.configure(parent);
-		log.debug("Configuring Member Tree Table.");
+		// log.debug("Configuring Member Tree Table.");
 		eventPublisherNode = memberWhereUsed;
 		configure(parent.getModelManager(), parent.getImageManager());
 	}
@@ -114,7 +114,7 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 		// usersTree.getSelectionModel().selectedItemProperty()
 		// .addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
-		log.debug("Where used table configured.");
+		// log.debug("Where used table configured.");
 		refresh();
 	}
 
@@ -132,29 +132,13 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 	public void createTreeItems(OtmLibraryMember member) {
 		if (member == null)
 			return;
-		log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
+		// log.debug("Creating member tree item for: " + member + " of type " + member.getClass().getSimpleName());
 
 		// Get all providers for this member
 		Collection<OtmLibraryMember> whereUsed = member.getWhereUsed();
 		whereUsed.forEach(wu -> new MemberAndUsersDAO(wu).createTreeItem(imageMgr, root));
 
 	}
-
-	// /**
-	// * Create tree items for the type provider children of this child owning member
-	// */
-	// private void createChildrenItems(OtmChildrenOwner childOwner, TreeItem<MemberAndUsersDAO> parentItem) {
-	// log.debug("Creating member children for: " + childOwner + " of type " + childOwner.getClass().getSimpleName());
-	// Collection<OtmTypeUser> users = childOwner.getDescendantsTypeUsers();
-	// childOwner.getDescendantsTypeUsers().forEach(u -> {
-	// TreeItem<MemberAndUsersDAO> cfItem = new MemberAndUsersDAO(u).createTreeItem(imageMgr, parentItem);
-	// // contextual facet are not type users and will not be listed here
-	//
-	// // Recurse
-	// if (u instanceof OtmChildrenOwner && !((OtmChildrenOwner) u).getChildren().isEmpty())
-	// createChildrenItems((OtmChildrenOwner) u, cfItem);
-	// });
-	// }
 
 	public TreeItem<MemberAndUsersDAO> getRoot() {
 		return root;
@@ -172,7 +156,7 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug(event.getEventType() + " event received.  Ignore? " + ignoreEvents);
+		// log.debug(event.getEventType() + " event received. Ignore? " + ignoreEvents);
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
@@ -184,21 +168,11 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 	}
 
 	// public void keyReleased(KeyEvent event) {
-	// // TreeItem<MemberDAO> item = whereUsedTreeTable.getSelectionModel().getSelectedItem();
-	// // ObservableList<TreeTablePosition<MemberDAO, ?>> cells =
-	// // whereUsedTreeTable.getSelectionModel().getSelectedCells();
 	// int row = usersTree.getSelectionModel().getSelectedIndex();
 	// log.debug("Selection row = " + row);
 	// if (event.getCode() == KeyCode.RIGHT) {
-	// usersTree.getSelectionModel().getSelectedItem().setExpanded(true);
-	// usersTree.getSelectionModel().select(row);
-	// // whereUsedTreeTable.getSelectionModel().focus(row);
-	// // Not sure how to: whereUsedTreeTable.getSelectionModel().requestFocus();
 	// // event.consume();
 	// } else if (event.getCode() == KeyCode.LEFT) {
-	// usersTree.getSelectionModel().getSelectedItem().setExpanded(false);
-	// usersTree.getSelectionModel().select(row);
-	// // whereUsedTreeTable.getSelectionModel().focus(row);
 	// // event.consume();
 	// }
 	// }
@@ -261,11 +235,11 @@ public class UsersTreeController extends DexIncludedControllerBase<OtmModelManag
 						usersTree.getFocusModel().focus(row);
 						// ignoreEvents = false;
 					});
-					log.debug("Selected " + otm.getName() + " in member tree.");
+					// log.debug("Selected " + otm.getName() + " in member tree.");
 					return;
 				}
 			}
-			log.debug(otm.getName() + " not found in member tree.");
+			log.warn(otm.getName() + " not found in member tree.");
 		}
 	}
 

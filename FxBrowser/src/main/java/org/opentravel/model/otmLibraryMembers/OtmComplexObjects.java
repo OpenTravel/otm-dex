@@ -21,10 +21,16 @@ package org.opentravel.model.otmLibraryMembers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmChildrenOwner;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
+import org.opentravel.schemacompiler.model.TLModelElement;
+
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.StringProperty;
 
 /**
  * Abstract OTM Object for Complex Library Members.
@@ -48,9 +54,28 @@ public abstract class OtmComplexObjects<T extends TLComplexTypeBase> extends Otm
 	}
 
 	@Override
+	public OtmObject getBaseType() {
+		// OtmObject base;
+		if (getTL().getExtension() != null)
+			// base = OtmModelElement.get((TLModelElement) getTL().getExtension().getExtendsEntity());
+			// log.debug("Was base found? It should have been. " + base);
+			// }
+			return OtmModelElement.get((TLModelElement) getTL().getExtension().getExtendsEntity());
+		return null;
+	}
+
+	@Override
 	public String getName() {
 		return getTL().getLocalName();
-		// return this.getClass().getSimpleName();
+	}
+
+	@Override
+	public StringProperty baseTypeProperty() {
+		if (getTL().getExtension() != null) {
+			// log.debug("Extension found on " + this);
+			return new ReadOnlyStringWrapper(getTL().getExtension().getExtendsEntityName());
+		}
+		return super.baseTypeProperty();
 	}
 
 	/**

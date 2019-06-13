@@ -133,4 +133,15 @@ public class OtmOperation extends OtmModelElement<TLOperation> implements OtmChi
 		// TODO Auto-generated method stub
 		return Collections.emptyList();
 	}
+
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		return Collections.emptyList(); // TODO
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+		// TODO Auto-generated method stub
+	}
+
 }

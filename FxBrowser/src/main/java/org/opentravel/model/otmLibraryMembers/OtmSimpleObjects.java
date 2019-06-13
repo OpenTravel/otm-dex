@@ -18,9 +18,13 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.XSDComplexType;
@@ -75,4 +79,14 @@ public abstract class OtmSimpleObjects<T extends TLLibraryMember> extends OtmLib
 	public boolean isNameControlled() {
 		return false;
 	};
+
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		return Collections.emptyList(); // TODO
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+	}
+
 }

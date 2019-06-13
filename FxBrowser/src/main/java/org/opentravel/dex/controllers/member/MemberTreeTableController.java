@@ -139,7 +139,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	@Override
 	public void configure(DexMainController parent) {
 		super.configure(parent);
-		log.debug("Configuring Member Tree Table.");
+		// log.debug("Configuring Member Tree Table.");
 		eventPublisherNode = memberTreeController;
 		configure(parent.getModelManager(), parent.getImageManager(), treeEditingEnabled);
 	}
@@ -275,7 +275,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug(event.getEventType() + " event received.  Ignore? " + ignoreEvents);
+		// log.debug(event.getEventType() + " event received. Ignore? " + ignoreEvents);
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
@@ -292,7 +292,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 		// TreeItem<MemberDAO> item = memberTree.getSelectionModel().getSelectedItem();
 		// ObservableList<TreeTablePosition<MemberDAO, ?>> cells = memberTree.getSelectionModel().getSelectedCells();
 		int row = memberTree.getSelectionModel().getSelectedIndex();
-		log.debug("Selection row = " + row);
+		// log.debug("Selection row = " + row);
 		if (event.getCode() == KeyCode.RIGHT) {
 			memberTree.getSelectionModel().getSelectedItem().setExpanded(true);
 			memberTree.getSelectionModel().select(row);
@@ -315,7 +315,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	private void memberSelectionListener(TreeItem<MemberAndProvidersDAO> item) {
 		if (item == null)
 			return;
-		log.debug("Selection Listener: " + item.getValue());
+		// log.debug("Selection Listener: " + item.getValue());
 		assert item != null;
 		boolean editable = false;
 		if (treeEditingEnabled && item.getValue() != null)
@@ -352,7 +352,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 				memberTree.sort();
 			} catch (Exception e) {
 				// why does first sort always throw exception?
-				log.debug("Exception sorting: " + e.getLocalizedMessage());
+				log.warn("Exception sorting: " + e.getLocalizedMessage());
 			}
 		}
 	}
@@ -377,11 +377,11 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 						memberTree.getFocusModel().focus(row);
 						// ignoreEvents = false;
 					});
-					log.debug("Selected " + otm.getName() + " in member tree.");
+					// log.debug("Selected " + otm.getName() + " in member tree.");
 					return;
 				}
 			}
-			log.debug(otm.getName() + " not found in member tree.");
+			log.warn(otm.getName() + " not found in member tree.");
 		}
 	}
 

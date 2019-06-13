@@ -45,6 +45,8 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 
 	protected OtmObject element;
 	protected DexIncludedController<?> controller;
+	protected boolean inherited; // contextual facets will not know if they are inherited, only the contributed facet
+									// will know.
 
 	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
@@ -53,6 +55,13 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller) {
 		this.element = element;
 		this.controller = controller;
+		this.inherited = false;
+	}
+
+	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller, boolean isInherited) {
+		this.element = element;
+		this.controller = controller;
+		this.inherited = isInherited;
 	}
 
 	/**
@@ -130,7 +139,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 
 	public void setDescription(String description) {
 		element.setDescription(description);
-		log.debug("setDescription " + description + " on " + element);
+		// log.debug("setDescription " + description + " on " + element);
 	}
 
 	public StringProperty exampleProperty() {
@@ -191,7 +200,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 			// TODO - move to action handler
 			ssp.addListener((ObservableValue<? extends String> ov, String oldVal, String newVal) -> {
 				((OtmProperty<?>) element).setManditory(newVal.equals(REQUIRED));
-				log.debug("Set optional/manditory of " + element.getName() + " to " + newVal);
+				// log.debug("Set optional/manditory of " + element.getName() + " to " + newVal);
 			});
 
 		return ssp;
@@ -261,11 +270,23 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 			if (imageMgr != null) {
 				ImageView graphic = imageMgr.getView(element);
 				item.setGraphic(graphic);
-				// To do - why isn't tooltip showing? If it does, present assigned type
-				Tooltip.install(graphic, new Tooltip(element.getObjectTypeName()));
+				Tooltip.install(graphic, getTooltip());
 			}
 		}
 		return item;
+	}
+
+	protected Tooltip getTooltip() {
+		Tooltip tip = null;
+		if (isInherited()) {
+			if (getBaseTypeName().isEmpty())
+				tip = new Tooltip(element.getObjectTypeName() + " inherited");
+			else
+				tip = new Tooltip(element.getObjectTypeName() + " inherited from " + getBaseTypeName());
+		} else {
+			tip = new Tooltip(element.getObjectTypeName());
+		}
+		return tip;
 	}
 
 	/**
@@ -277,36 +298,62 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	 *            a child owning library member. Non-child owning properties are ignored.
 	 */
 	public void createChildrenItems(TreeItem<PropertiesDAO> parent, DexFilter<OtmObject> filter) {
+		createChildrenItems(parent, filter, false);
+	}
+
+	public void createChildrenItems(TreeItem<PropertiesDAO> parent, DexFilter<OtmObject> filter,
+			boolean inheritedChild) {
 		OtmChildrenOwner member = null;
+
 		if (element instanceof OtmChildrenOwner) {
-			member = (OtmChildrenOwner) element;
+			// Skip over the parent
+
 			// create cells for member's facets and properties
+			member = (OtmChildrenOwner) element;
+
+			// Collection<OtmObject> ch = member.getChildrenHierarchy();
+			// log.debug("Creating " + ch.size() + " children tree items for " + member);
+			// if (member instanceof OtmContextualFacet && ch.isEmpty())
+			// log.warn("This is the problem.");
+
 			for (OtmObject child : member.getChildrenHierarchy()) {
 				// Create item and add to tree at parent
-				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController()).createTreeItem(parent, filter);
-				// If the item was filtered out, continue using the parent for the tree item
-				if (item == null)
-					item = parent;
-				// TODO - sort order
+				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController(), isInherited())
+						.createTreeItem(parent, filter);
 
-				// Contributor children list does not contain other contextual facets
-				if (child instanceof OtmContributedFacet && ((OtmContributedFacet) child).getContributor() != null)
-					child = ((OtmContributedFacet) child).getContributor();
+				// Recurse to Create tree items for children if any
+				if (child instanceof OtmChildrenOwner) {
+					// If the item was filtered out, continue using the parent for the tree item
+					if (item == null)
+						item = parent;
+					// TO DO - sort order
 
-				// Create tree items for children if any
-				if (child instanceof OtmChildrenOwner)
-					for (OtmObject c : ((OtmChildrenOwner) child).getChildrenHierarchy()) {
-						TreeItem<PropertiesDAO> cfItem = new PropertiesDAO(c, getController()).createTreeItem(item,
-								filter);
-						if (cfItem == null)
-							cfItem = parent;
-
-						// Recurse to model nested contextual facets
-						if (c instanceof OtmChildrenOwner)
-							new PropertiesDAO(c, getController()).createChildrenItems(cfItem, filter);
+					// Contributed's children list does not contain properties and other contextual facets
+					if (child instanceof OtmContributedFacet
+							&& ((OtmContributedFacet) child).getContributor() != null) {
+						inheritedChild = ((OtmContributedFacet) child).isInherited();
+						child = ((OtmContributedFacet) child).getContributor();
 					}
+
+					new PropertiesDAO(child, getController(), inheritedChild).createChildrenItems(item, filter,
+							inheritedChild);
+				}
 			}
 		}
+
+	}
+
+	/**
+	 * @return true if the OtmProperty is inherited
+	 */
+	public boolean isInherited() {
+		return inherited || element instanceof OtmProperty && ((OtmProperty<?>) element).isInherited();
+	}
+
+	public String getBaseTypeName() {
+		if (isInherited() && element.getOwningMember() != null && element.getOwningMember().getBaseType() != null)
+			return element.getOwningMember().getBaseType().getName();
+		return "";
 	}
 
 	// ((TLProperty)tl).getDocumentation().addImplementer(implementer);(null);

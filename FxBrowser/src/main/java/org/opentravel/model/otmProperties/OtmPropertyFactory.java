@@ -45,7 +45,6 @@ public class OtmPropertyFactory {
 			indicator = new OtmIndicatorElement<>(tlIndicator, parent);
 		else
 			indicator = new OtmIndicator<>(tlIndicator, parent);
-
 		return indicator;
 	}
 
@@ -54,14 +53,17 @@ public class OtmPropertyFactory {
 	 * @param parent
 	 */
 	public static OtmProperty<?> create(TLModelElement tl, OtmPropertyOwner parent) {
+		OtmProperty<?> p = null;
 		if (tl instanceof TLIndicator)
-			return OtmPropertyFactory.create((TLIndicator) tl, parent);
+			p = OtmPropertyFactory.create((TLIndicator) tl, parent);
 		else if (tl instanceof TLProperty)
-			return OtmPropertyFactory.create((TLProperty) tl, parent);
+			p = OtmPropertyFactory.create((TLProperty) tl, parent);
 		else if (tl instanceof TLAttribute)
-			return OtmPropertyFactory.create((TLAttribute) tl, parent);
+			p = OtmPropertyFactory.create((TLAttribute) tl, parent);
 		else
 			log.debug("unknown/not-implemented property type.");
-		return null;
+		log.debug("Created property " + p.getName() + " of " + p.getOwningMember().getName() + "  inherited? "
+				+ p.isInherited());
+		return p;
 	}
 }

@@ -76,6 +76,15 @@ public class OtmContributedFacet extends OtmFacet<TLContextualFacet> {
 		return (TLContextualFacet) tlObject;
 	}
 
+	@Override
+	public boolean isInherited() {
+		// Contributor will not have this set as where contributed if it is an inherited "ghost" facet
+		// log.debug("Is " + this + " inherited? " );
+		if (getContributor() == null)
+			return false;
+		return getContributor().getWhereContributed() != this;
+	}
+
 	/**
 	 * @param otmContextualFacet
 	 */

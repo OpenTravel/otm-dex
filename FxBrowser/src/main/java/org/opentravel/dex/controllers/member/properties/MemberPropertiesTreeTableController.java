@@ -161,7 +161,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 	@Override
 	public void handleEvent(Event e) {
-		log.debug("event handler.");
+		// log.debug("event handler.");
 		if (e instanceof DexMemberSelectionEvent)
 			memberSelectionHandler((DexMemberSelectionEvent) e);
 	}
@@ -172,7 +172,7 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 			if (currentItem != null)
 				currentItem.getValue().setMax(event.getNewValue());
 		} else
-			log.debug("ERROR - cell max edit handler has null.");
+			log.warn("ERROR - cell max edit handler has null.");
 	}
 
 	private void initializeTable(TreeTableView<PropertiesDAO> table) {
@@ -194,7 +194,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	}
 
 	public void memberSelectionHandler(DexMemberSelectionEvent event) {
-		log.debug("Dex member selection event received.");
 		post(event.getMember());
 	}
 

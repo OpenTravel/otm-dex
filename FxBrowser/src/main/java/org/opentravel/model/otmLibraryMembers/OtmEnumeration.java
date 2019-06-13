@@ -18,10 +18,14 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmProperties.OtmEnumerationValue;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
@@ -104,6 +108,17 @@ public abstract class OtmEnumeration<E extends TLAbstractEnumeration>
 	public void modelChildren() {
 		for (TLEnumValue ev : getTL().getValues())
 			add(new OtmEnumerationValue(ev, (OtmEnumeration<TLAbstractEnumeration>) this));
+	}
+
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		return Collections.emptyList(); // TODO
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+		if (getTL().getExtension() != null)
+			log.warn("TODO - model inherited children");
 	}
 
 	// extends FacetOwners

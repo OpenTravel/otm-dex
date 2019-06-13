@@ -82,7 +82,7 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 	@Override
 	public void configure(DexMainController parent) {
 		super.configure(parent);
-		log.debug("Configuring Member Tree Table.");
+		// log.debug("Configuring Member Tree Table.");
 		eventPublisherNode = memberWhereUsed;
 		configure(parent.getModelManager(), parent.getImageManager());
 	}
@@ -117,7 +117,7 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 		// typeProvidersTree.getSelectionModel().selectedItemProperty()
 		// .addListener((v, old, newValue) -> memberSelectionListener(newValue));
 
-		log.debug("Where used table configured.");
+		// log.debug("Where used table configured.");
 		refresh();
 	}
 
@@ -197,7 +197,7 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug(event.getEventType() + " event received.  Ignore? " + ignoreEvents);
+		// log.debug(event.getEventType() + " event received. Ignore? " + ignoreEvents);
 		if (!ignoreEvents) {
 			if (event instanceof DexMemberSelectionEvent)
 				handleEvent((DexMemberSelectionEvent) event);
@@ -267,7 +267,7 @@ public class TypeProvidersTreeController extends DexIncludedControllerBase<OtmMo
 		postedMember = member;
 		clear();
 
-		log.debug("Posting type providers to: " + member);
+		// log.debug("Posting type providers to: " + member);
 		// TODO - organize by namespace then object
 		member.getUsedTypes().forEach(u -> {
 			TreeItem<MemberAndProvidersDAO> item = new TreeItem<>(new MemberAndProvidersDAO(u));

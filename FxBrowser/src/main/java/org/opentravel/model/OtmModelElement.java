@@ -88,6 +88,9 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	// leave null if the element can not have children.
 	protected List<OtmObject> children = new ArrayList<>();
 	private ValidationFindings findings = null;
+	// Inherited children can not be inflated until after the model completes initial loading.
+	// Use lazy inflation on the getter.
+	protected List<OtmObject> inheritedChildren = null;
 
 	private SimpleStringProperty nameProperty;
 	private SimpleStringProperty descriptionProperty;

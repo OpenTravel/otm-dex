@@ -23,6 +23,15 @@ public interface OtmChildrenOwner extends OtmObject {
 	public List<OtmObject> getChildren();
 
 	/**
+	 * Get a list of all the inherited children of this object. Because this list can not be inflated until after the
+	 * model is loaded, implementations must allow lazy evaluation--implementations are expected to attempt to model the
+	 * children if the list is null or empty.
+	 * 
+	 * @return list of inherited children or empty list.
+	 */
+	public List<OtmObject> getInheritedChildren();
+
+	/**
 	 * Get a list of children organized by inheritance. For example, a business object will only report out the ID facet
 	 * and the ID facet will include the summary facet in this list.
 	 * <p>
@@ -60,6 +69,11 @@ public interface OtmChildrenOwner extends OtmObject {
 	 * Model the children of this object from its' tlObject(s).
 	 */
 	public void modelChildren();
+
+	/**
+	 * Model the inherited children of this object from its' tlObject->extension tlObject.
+	 */
+	public void modelInheritedChildren();
 
 	/**
 	 * Should this owner be displayed with its children visible?

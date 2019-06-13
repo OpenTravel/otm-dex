@@ -18,6 +18,9 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
@@ -25,6 +28,7 @@ import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.common.OtmTypeUserUtils;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmPropertyOwner;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
@@ -169,6 +173,22 @@ public class OtmValueWithAttributes extends OtmLibraryMemberBase<TLValueWithAttr
 	public void setTLTypeName(String name) {
 		getTL().setParentType(null);
 		getTL().setParentTypeName(name);
+	}
+
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		return Collections.emptyList(); // TODO
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public boolean isInherited() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

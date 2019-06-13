@@ -104,6 +104,11 @@ public class OtmAttribute<T extends TLAttribute> extends OtmProperty<TLAttribute
 	}
 
 	@Override
+	public boolean isInherited() {
+		return getParent().isInherited() || getTL().getOwner() != getParent().getTL();
+	}
+
+	@Override
 	public boolean isManditory() {
 		return getTL().isMandatory();
 	}
@@ -117,7 +122,7 @@ public class OtmAttribute<T extends TLAttribute> extends OtmProperty<TLAttribute
 		if (type instanceof TLPropertyType)
 			getTL().setType((TLPropertyType) type);
 		assignedTypeProperty = null;
-		log.debug("Set assigned TL type");
+		// log.debug("Set assigned TL type");
 		return getTL().getType();
 	}
 

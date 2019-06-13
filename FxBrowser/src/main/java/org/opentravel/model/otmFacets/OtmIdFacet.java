@@ -53,6 +53,10 @@ public class OtmIdFacet extends OtmFacet<TLFacet> {
 	public Collection<OtmObject> getChildrenHierarchy() {
 		Collection<OtmObject> hierarchy = new ArrayList<>();
 		// TODO - add inherited properties
+		getInheritedChildren().forEach(c -> {
+			if (c instanceof OtmProperty)
+				hierarchy.add(c);
+		});
 		children.forEach(c -> {
 			if (c instanceof OtmProperty)
 				hierarchy.add(c);

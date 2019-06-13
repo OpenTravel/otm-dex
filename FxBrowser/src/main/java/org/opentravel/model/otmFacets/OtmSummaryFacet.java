@@ -21,9 +21,12 @@ package org.opentravel.model.otmFacets;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmLibraryMembers.OtmComplexObjects;
+import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmProperties.OtmProperty;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
@@ -35,6 +38,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
  * 
  */
 public class OtmSummaryFacet extends OtmFacet<TLFacet> {
+	private static Log log = LogFactory.getLog(OtmSummaryFacet.class);
 
 	/**
 	 * @param tlBusinessObject
@@ -55,21 +59,31 @@ public class OtmSummaryFacet extends OtmFacet<TLFacet> {
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
 		Collection<OtmObject> hierarchy = new ArrayList<>();
-		// TODO - add inherited properties
+		// Add inherited properties
+		getInheritedChildren().forEach(c -> {
+			if (c instanceof OtmProperty)
+				hierarchy.add(c);
+		});
 		children.forEach(c -> {
 			if (c instanceof OtmProperty)
 				hierarchy.add(c);
 		});
-		if (getParent() instanceof OtmChildrenOwner)
+		if (getParent() instanceof OtmChildrenOwner) {
+			// Get the parent's detail and contextual facets
 			getParent().getChildren().forEach(c -> {
 				if (c instanceof OtmDetailFacet)
 					hierarchy.add(c);
+				if (c instanceof OtmContextualFacet)
+					log.debug("How to handle?");
 				if (c instanceof OtmContributedFacet) {
 					c = ((OtmContributedFacet) c).getContributor();
 					if (c != null)
 						hierarchy.add(c);
 				}
 			});
+			// Get any inherited facets from the parent
+			getParent().getInheritedChildren().forEach(hierarchy::add);
+		}
 		return hierarchy;
 	}
 

@@ -34,14 +34,18 @@ import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.model.OtmTypeUser;
 import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmFacets.OtmAlias;
+import org.opentravel.model.otmFacets.OtmContributedFacet;
 import org.opentravel.model.otmFacets.OtmFacet;
 import org.opentravel.model.otmFacets.OtmFacetFactory;
+import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -93,7 +97,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
 		Collection<OtmObject> hierarchy = new ArrayList<>();
-		children.forEach(c -> hierarchy.add(c));
+		children.forEach(hierarchy::add);
 		return hierarchy;
 	}
 
@@ -164,8 +168,16 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 		return memberTypeUsers;
 	}
 
-	/**
-	 */
+	@Override
+	public OtmObject getBaseType() {
+		return null;
+	}
+
+	@Override
+	public boolean contains(OtmObject o) {
+		return children.contains(o);
+	}
+
 	@Override
 	public List<OtmObject> getChildren() {
 		if (children != null && children.isEmpty())
@@ -207,6 +219,11 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	@Override
 	public StringProperty prefixProperty() {
 		return new ReadOnlyStringWrapper(getPrefix());
+	}
+
+	@Override
+	public StringProperty baseTypeProperty() {
+		return new ReadOnlyStringWrapper("");
 	}
 
 	@Override
@@ -295,4 +312,57 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 			}
 	}
 
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		modelInheritedChildren();
+		return inheritedChildren;
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+		if (inheritedChildren == null)
+			inheritedChildren = new ArrayList<>();
+		else
+			inheritedChildren.clear(); // force re-compute
+
+		OtmObject baseType = getBaseType();
+		if (getTL() instanceof TLFacetOwner && baseType != null) {
+
+			TLFacetOwner extendedOwner = (TLFacetOwner) getTL();
+			List<TLContextualFacet> ghosts = FacetCodegenUtils.findGhostFacets(extendedOwner, TLFacetType.CUSTOM);
+			ghosts.addAll(FacetCodegenUtils.findGhostFacets(extendedOwner, TLFacetType.QUERY));
+			ghosts.addAll(FacetCodegenUtils.findGhostFacets(extendedOwner, TLFacetType.CHOICE));
+			ghosts.addAll(FacetCodegenUtils.findGhostFacets(extendedOwner, TLFacetType.UPDATE));
+			// Ghosts do NOT have any children! See OtmFacet.modelInheritedChildren()
+
+			// Create a contributed facet for each ghost
+			ghosts.forEach(g -> inheritedChildren.add(OtmFacetFactory.create(g, this)));
+
+			// Replace contributor in each contributed facet with one from the base
+			inheritedChildren.forEach(i -> setContributor(i, baseType));
+
+			// if (ghosts.size() > 0)
+			// log.debug("Found and modeled " + ghosts.size() + " ghost facets on " + this.getName());
+		}
+	}
+
+	private void setContributor(OtmObject i, OtmObject baseType) {
+		OtmContributedFacet contributed = null;
+		OtmLibraryMember base = null;
+		if (i instanceof OtmContributedFacet)
+			contributed = (OtmContributedFacet) i;
+		if (baseType instanceof OtmLibraryMember)
+			base = (OtmLibraryMember) baseType;
+
+		// Find a contextual facet with the same name and use it as the contributor
+		if (contributed != null && base != null)
+			for (OtmObject child : base.getChildren())
+				// TL names do not include owner
+				if (child instanceof OtmContributedFacet
+						&& ((TLContextualFacet) child.getTL()).getName().equals(contributed.getTL().getName())) {
+					contributed.setContributor(((OtmContributedFacet) child).getContributor());
+					assert contributed.isInherited();
+					break;
+				}
+	}
 }

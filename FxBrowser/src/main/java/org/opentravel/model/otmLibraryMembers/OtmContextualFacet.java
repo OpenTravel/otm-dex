@@ -18,6 +18,7 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +52,11 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 		// lazy evaluated modelChildren();
 	}
 
+	/**
+	 * NOTE: detection of "ghost" inherited facets depends on Contributor will not have ghost set as where contributed.
+	 * 
+	 * @return the non-ghost contributed facet where this facet is used
+	 */
 	public OtmContributedFacet getWhereContributed() {
 		if (whereContributed == null) {
 			OtmObject o = OtmModelElement.get((TLModelElement) getTL().getOwningEntity());
@@ -115,6 +121,16 @@ public abstract class OtmContextualFacet extends OtmLibraryMemberBase<TLContextu
 	@Override
 	public OtmContextualFacet getOwningMember() {
 		return this;
+	}
+
+	@Override
+	public List<OtmObject> getInheritedChildren() {
+		return Collections.emptyList(); // TODO
+	}
+
+	@Override
+	public void modelInheritedChildren() {
+		// TODO Auto-generated method stub
 	}
 
 }

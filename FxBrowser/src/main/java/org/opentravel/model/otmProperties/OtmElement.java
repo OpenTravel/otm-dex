@@ -103,6 +103,11 @@ public class OtmElement<T extends TLProperty> extends OtmProperty<TLProperty> im
 		return getTL().isMandatory();
 	}
 
+	@Override
+	public boolean isInherited() {
+		return getTL().getOwner() != getParent().getTL();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * <p>

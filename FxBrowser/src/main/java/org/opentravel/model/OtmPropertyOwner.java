@@ -20,6 +20,7 @@ public interface OtmPropertyOwner extends OtmChildrenOwner {
 	 * 
 	 * @return the library member that owns this property owner
 	 */
+	@Override
 	public OtmLibraryMember getOwningMember();
 
 	/**
@@ -32,5 +33,11 @@ public interface OtmPropertyOwner extends OtmChildrenOwner {
 	/**
 	 * @return
 	 */
+	@Override
 	public DexActionManager getActionManager();
+
+	/**
+	 * @return
+	 */
+	public boolean isInherited();
 }

@@ -64,16 +64,12 @@ public abstract class OtmProperty<T extends TLModelElement> extends OtmModelElem
 		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
+	public abstract boolean isInherited();
+
 	/**
 	 * @return
 	 */
 	public abstract boolean isManditory();
-
-	// public boolean isUserAssigned() {
-	// if (getTL() instanceof TLComplexTypeBase)
-	// return false;
-	// return true;
-	// }
 
 	/**
 	 * @param value

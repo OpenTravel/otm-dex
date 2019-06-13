@@ -60,6 +60,11 @@ public class OtmIndicator<TL extends TLIndicator> extends OtmProperty<TLIndicato
 	}
 
 	@Override
+	public boolean isInherited() {
+		return getTL().getOwner() != getParent().getTL();
+	}
+
+	@Override
 	public boolean isManditory() {
 		return false;
 	}

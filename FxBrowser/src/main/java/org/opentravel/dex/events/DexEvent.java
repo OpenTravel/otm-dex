@@ -70,13 +70,13 @@ public abstract class DexEvent extends Event {
 
 	public DexEvent(Object source, EventTarget target, EventType<? extends DexEvent> eventType) {
 		super(source, target, eventType);
-		log.debug("DexEvent source/target/type constructor ran.");
+		// log.debug("DexEvent source/target/type constructor ran for " + getClass().getSimpleName());
 		// If there is data, extract it from source or target here
 	}
 
 	public DexEvent(Object source, EventTarget target) {
 		super(source, target, DEX_ALL);
-		log.debug("DexEvent source/target constructor ran.");
+		// log.debug("DexEvent source/target/type constructor ran for " + getClass().getSimpleName());
 		// If there is data, extract it from source or target here
 	}
 }

@@ -6,6 +6,7 @@ package org.opentravel.model.otmLibraryMembers;
 import java.util.List;
 
 import org.opentravel.model.OtmChildrenOwner;
+import org.opentravel.model.OtmObject;
 import org.opentravel.model.OtmTypeProvider;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAlias;
@@ -69,5 +70,18 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	public StringProperty prefixProperty();
 
 	public StringProperty versionProperty();
+
+	/**
+	 * @return
+	 */
+	public StringProperty baseTypeProperty();
+
+	public OtmObject getBaseType();
+
+	/**
+	 * @param o
+	 * @return true if object is direct child of member
+	 */
+	boolean contains(OtmObject o);
 
 }

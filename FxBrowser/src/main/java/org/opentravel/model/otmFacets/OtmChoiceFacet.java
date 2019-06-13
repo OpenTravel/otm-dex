@@ -26,7 +26,7 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
- * Abstract OTM Node for Facets.
+ * Facet for choice object's contextual facets.
  * 
  * @author Dave Hollander
  * 

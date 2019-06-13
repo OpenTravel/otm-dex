@@ -26,6 +26,8 @@ public class OtmFacetFactory {
 	/**
 	 * Create a new library member from the contextual facet.
 	 * 
+	 * To create contributed facets {@link #create(TLFacet, OtmLibraryMember)}
+	 * 
 	 * @param tlFacet
 	 * @param manager
 	 * @return
@@ -62,24 +64,39 @@ public class OtmFacetFactory {
 		return facet;
 	}
 
+	/**
+	 * Create a new Facet that is a child of a library member; either ID, Summary, Detail, Shared or contributed.
+	 * 
+	 * To create a contextual facet as a library member use
+	 * {@link OtmFacetFactory#create(TLContextualFacet, OtmModelManager)}
+	 * 
+	 * @param tlFacet
+	 * @param parent
+	 * @return
+	 */
 	public static OtmFacet<?> create(TLFacet tlFacet, OtmLibraryMember parent) {
+		return create(tlFacet, parent, null);
+	}
+
+	// Use the base as the source of the contributed facet
+	public static OtmFacet<?> create(TLFacet tlFacet, OtmLibraryMember parent, OtmLibraryMember base) {
 		OtmFacet<?> facet = null;
 		switch (tlFacet.getFacetType()) {
 		case SUMMARY:
 			if (parent instanceof OtmComplexObjects)
-				facet = new OtmSummaryFacet(tlFacet, (OtmComplexObjects) parent);
+				facet = new OtmSummaryFacet(tlFacet, (OtmComplexObjects<?>) parent);
 			break;
 		case DETAIL:
 			if (parent instanceof OtmComplexObjects)
-				facet = new OtmDetailFacet(tlFacet, (OtmComplexObjects) parent);
+				facet = new OtmDetailFacet(tlFacet, (OtmComplexObjects<?>) parent);
 			break;
 		case SHARED:
 			if (parent instanceof OtmComplexObjects)
-				facet = new OtmSharedFacet(tlFacet, (OtmComplexObjects) parent);
+				facet = new OtmSharedFacet(tlFacet, (OtmComplexObjects<?>) parent);
 			break;
 		case ID:
 			if (parent instanceof OtmComplexObjects)
-				facet = new OtmIdFacet(tlFacet, (OtmComplexObjects) parent);
+				facet = new OtmIdFacet(tlFacet, (OtmComplexObjects<?>) parent);
 			break;
 		case CHOICE:
 		case CUSTOM:

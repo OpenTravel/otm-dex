@@ -33,6 +33,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 	private static Log log = LogFactory.getLog(MemberPropertiesRowFactory.class);
 
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
+	private static final PseudoClass INHERITED = PseudoClass.getPseudoClass("inherited");
 	private static final PseudoClass DIVIDER = PseudoClass.getPseudoClass("divider");
 	private final ContextMenu addMenu = new ContextMenu();
 	private MemberPropertiesTreeTableController controller;
@@ -128,6 +129,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 			} else {
 				// Set Editable style and state
 				tc.pseudoClassStateChanged(DIVIDER, false);
+				tc.pseudoClassStateChanged(INHERITED, newTreeItem.getValue().isInherited());
 				tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
 				tc.setEditable(newTreeItem.getValue().isEditable());
 			}
