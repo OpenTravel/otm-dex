@@ -66,8 +66,8 @@ public class RepoItemDAO implements DexDAO<RepositoryItem>, TaskResultHandlerI {
 	}
 
 	public StringProperty lockedProperty() {
-		log.debug(repoItem.getLibraryName() + " is locked by " + repoItem.getLockedByUser() + "  "
-				+ repoItem.getClass().hashCode());
+		log.debug(
+				repoItem.getLibraryName() + " is locked by " + repoItem.getLockedByUser() + "  " + repoItem.hashCode());
 		return new SimpleStringProperty(repoItem.getLockedByUser());
 	}
 

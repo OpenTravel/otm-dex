@@ -17,72 +17,65 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 /**
- * A JavaFX task for locking repository items (6/17/2019 - removed from menu -- this may no longer be used)
+ * A JavaFX task for locking Otm Libraries
  * 
- * @see LockLibraryTask
  * @author dmh
  *
  */
-public class LockItemTask extends DexTaskBase<RepositoryItem> {
-	private static Log log = LogFactory.getLog(LockItemTask.class);
+public class LockLibraryTask extends DexTaskBase<OtmLibrary> {
+	private static Log log = LogFactory.getLog(LockLibraryTask.class);
 
-	private DexStatusController statusController;
+	// private DexStatusController statusController;
+	private DexIncludedController<?> eventController;
 	private OtmProject proj = null;
 	private OtmLibrary library = null;
-
-	private RepositoryItem repoItem;
-
 	private OtmModelManager modelManager;
 
-	private DexIncludedController<?> eventController;
-
 	/**
-	 * Create a lock repository item task.
+	 * Create a lock library task.
 	 * 
 	 * @param taskData
 	 *            - an repository item to lock.
 	 * @param handler
 	 *            - results handler
-	 * @param controller
+	 * @param statusController
 	 *            - status controller that can post message and progress indicator
 	 * @param eventController
 	 *            - controller to publish repository item replaced event
 	 * @param modelManager
 	 *            - model manager that holds projects that could contain the library in this repository item
 	 */
-	public LockItemTask(RepositoryItem taskData, TaskResultHandlerI handler, DexStatusController controller,
+	public LockLibraryTask(OtmLibrary taskData, TaskResultHandlerI handler, DexStatusController statusController,
 			DexIncludedController<?> eventController, OtmModelManager modelManager) {
-		super(taskData, handler, controller);
+		super(taskData, handler, statusController);
 		if (taskData == null)
 			return;
 
-		this.statusController = controller;
-		this.repoItem = taskData;
-		this.modelManager = modelManager;
+		this.library = taskData;
+		// this.statusController = statusController;
 		this.eventController = eventController;
+		// this.modelManager = modelManager;
 
 		// Try to find the actual modeled library. A modeled library will be created by opening a project.
-		library = modelManager.get(taskData.getNamespace() + "/" + taskData.getLibraryName());
+		// library = modelManager.get(taskData.getNamespace() + "/" + taskData.getLibraryName());
 		// See if there is an open project to manage this item and use it
-		if (library != null) {
-			proj = modelManager.getManagingProject(library);
-		}
+		// if (library != null) {
+		proj = modelManager.getManagingProject(library);
+		// }
 
 		// Replace start message from super-type.
 		msgBuilder = new StringBuilder("Locking: ");
-		msgBuilder.append(taskData.getLibraryName());
+		msgBuilder.append(library.getName());
 		updateMessage(msgBuilder.toString());
 	}
 
 	@Override
 	public void doIT() throws RepositoryException {
-		log.debug("Locking repository item: " + repoItem.hashCode());
-		OtmModelManager mgr = modelManager;
-		if (mgr == null)
-			return;
+		log.debug("Lock library task: " + library.hashCode());
+		// if (mgr == null)
+		// return;
 
 		if (proj != null) {
-			// repoItem is a copy made by java/fx concurrency model (I think). It has a different hashcode than
 			log.debug("Locking with project item: " + proj.getProjectItem(library.getTL()).hashCode());
 
 			proj.getTL().getProjectManager().lock(proj.getProjectItem(library.getTL()));
@@ -96,8 +89,6 @@ public class LockItemTask extends DexTaskBase<RepositoryItem> {
 			// throwRepoItemReplacedEvent(repoItem, newRI);
 			// log.debug(newRI.getLibraryName() + " locked by " + newRI.getLockedByUser());
 			// }
-		} else if (repoItem != null) {
-			repoItem.getRepository().lock(repoItem);
 		}
 	}
 

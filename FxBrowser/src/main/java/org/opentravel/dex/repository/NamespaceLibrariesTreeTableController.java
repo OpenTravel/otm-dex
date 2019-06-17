@@ -91,7 +91,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 			throw new IllegalStateException("Permission label not injected.");
 		if (!(namespaceLabel instanceof Label))
 			throw new IllegalStateException("Namespace label not injected.");
-		log.debug("Constructing namespace libraries tree controller.");
+		// log.debug("Constructing namespace libraries tree controller.");
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug("Received event: " + event.getClass().getSimpleName());
+		// log.debug("Received event: " + event.getClass().getSimpleName());
 		if (event instanceof DexRepositoryNamespaceSelectionEvent)
 			handleEvent((DexRepositoryNamespaceSelectionEvent) event);
 		else if (event instanceof DexRepositoryItemReplacedEvent)
@@ -124,7 +124,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	}
 
 	private void handleEvent(DexRepositoryNamespaceSelectionEvent event) {
-		log.debug("Namespace selected.");
+		// log.debug("Namespace selected.");
 		try {
 			post(event.getValue());
 		} catch (Exception e) {
@@ -138,7 +138,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 
 	@Override
 	public void initialize() {
-		log.debug("Initializing namespace libraries tree controller.");
+		// log.debug("Initializing namespace libraries tree controller.");
 
 		// Initialize and build columns for library tree table
 		root = initializeTree();
@@ -164,7 +164,7 @@ public class NamespaceLibrariesTreeTableController extends DexIncludedController
 	@Override
 	public void post(NamespacesDAO nsNode) throws Exception {
 		super.post(nsNode);
-		log.debug("Posting new namespace node.");
+		// log.debug("Posting new namespace node.");
 		currentNamespaceDAO = nsNode;
 		if (nsNode == null || nsNode.getFullPath() == null || nsNode.getFullPath().isEmpty())
 			throw new IllegalArgumentException("Missing repository and namespace.");

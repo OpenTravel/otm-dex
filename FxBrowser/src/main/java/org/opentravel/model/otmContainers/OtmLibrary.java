@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmModelManager;
+import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryPermission;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLInclude;
 import org.opentravel.schemacompiler.model.TLLibrary;
@@ -97,6 +98,14 @@ public class OtmLibrary {
 
 	public String getFullName() {
 		return getTL() != null ? getTL().getNamespace() + "/" + getTL().getName() : null;
+	}
+
+	public OtmModelManager getModelManager() {
+		return mgr;
+	}
+
+	public OtmProject getManagingProject() {
+		return mgr.getManagingProject(this);
 	}
 
 	public String getName() {
@@ -224,6 +233,21 @@ public class OtmLibrary {
 	 */
 	public String getVersion() {
 		return getTL().getVersion();
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean canBeLocked() {
+		if (getStatus() == TLLibraryStatus.DRAFT && getState() == RepositoryItemState.MANAGED_UNLOCKED
+				&& getManagingProject() != null && getManagingProject().getPermission() != null)
+			return getManagingProject().getPermission().equals(RepositoryPermission.WRITE);
+		return false;
+	}
+
+	public boolean canBeUnlocked() {
+		// TODO - check to see if this is the user that locked it
+		return getState() == RepositoryItemState.MANAGED_LOCKED || getState() == RepositoryItemState.MANAGED_WIP;
 	}
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);

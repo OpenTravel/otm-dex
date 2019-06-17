@@ -22,15 +22,11 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="/org.opentravel.schemas.stl2Developer.schemacompiler/libs/schema-compiler-4.0-SNAPSHOT.jar" sourcepath="/schema-compiler"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/dmh/Downloads/controlsfx-8.40.14.zip"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="javafx/**"/>
-		</accessrules>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

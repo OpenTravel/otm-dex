@@ -264,4 +264,11 @@ public class LibrariesTreeTableController extends DexIncludedControllerBase<OtmM
 		librariesTreeTable.getRoot().getChildren().clear();
 	}
 
+	/**
+	 * @return
+	 */
+	public LibraryDAO getSelectedItem() {
+		return librariesTreeTable.getSelectionModel().getSelectedItem().getValue();
+	}
+
 }

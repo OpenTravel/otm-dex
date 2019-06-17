@@ -56,7 +56,7 @@ public class DexModelChangeEvent extends DexEvent {
 	 */
 	public DexModelChangeEvent(OtmModelManager manager) {
 		super(MODEL_CHANGED);
-		log.debug("DexEvent model manager constructor ran.");
+		// log.debug("DexEvent model manager constructor ran.");
 		modelManager = manager;
 	}
 

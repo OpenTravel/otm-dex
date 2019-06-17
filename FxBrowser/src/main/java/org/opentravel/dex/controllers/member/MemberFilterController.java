@@ -114,7 +114,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	public MemberFilterController() {
 		super(subscribedEvents, publishedEvents);
-		log.debug("Member Filter Controller constructor.");
+		// log.debug("Member Filter Controller constructor.");
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 		librarySelector.getSelectionModel().select(ALLLIBS);
 		librarySelector.setItems(libList);
 		librarySelector.setOnAction(e -> setLibraryFilter());
-		log.debug("Configured library selection combo control.");
+		// log.debug("Configured library selection combo control.");
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	private void fireFilterChangeEvent() {
 		if (eventPublisherNode != null) {
 			ignoreClear = true; // Set just in case event handler does a clear
-			log.debug("Ready to fire controller level Filter Change event.");
+			// log.debug("Ready to fire controller level Filter Change event.");
 			eventPublisherNode.fireEvent(new DexFilterChangeEvent(this, memberFilter));
 			ignoreClear = false;
 		} else if (popupController != null) {
@@ -227,7 +227,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 
 	@Override
 	public void initialize() {
-		log.debug("Member Filter Controller - Initialize");
+		// log.debug("Member Filter Controller - Initialize");
 		checkNodes();
 
 		// Would work for combo
@@ -293,7 +293,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 			ignoreClear = true;
 			librarySelector.getSelectionModel().select(event.getLibrary().getName());
 			fireFilterChangeEvent();
-			log.debug("Set Library Filter to: " + libraryFilter);
+			// log.debug("Set Library Filter to: " + libraryFilter);
 			ignoreClear = false;
 		}
 	}
@@ -313,7 +313,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	}
 
 	private void setEditableOnly() {
-		log.debug("Editable set to: " + editableButton.isSelected());
+		// log.debug("Editable set to: " + editableButton.isSelected());
 		editableOnly = editableButton.isSelected();
 		fireFilterChangeEvent();
 	}
@@ -324,7 +324,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 	}
 
 	private void setLatestOnly() {
-		log.debug("Latest only set to: " + latestButton.isSelected());
+		// log.debug("Latest only set to: " + latestButton.isSelected());
 		latestVersionOnly = latestButton.isSelected();
 		fireFilterChangeEvent();
 	}
@@ -383,7 +383,7 @@ public class MemberFilterController extends DexIncludedControllerBase<Void> {
 				classNameFilter = OtmValueWithAttributes.class.getSimpleName();
 
 		}
-		log.debug("Set Type Filter: " + classNameFilter);
+		// log.debug("Set Type Filter: " + classNameFilter);
 		fireFilterChangeEvent();
 	}
 

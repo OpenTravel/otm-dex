@@ -22,9 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ImageManager;
 import org.opentravel.common.ImageManager.Icons;
+import org.opentravel.ns.ota2.repositoryinfo_v01_00.RepositoryPermission;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 /**
  * OTM Object Node for business objects. Project does NOT extend model element
@@ -36,9 +39,11 @@ public class OtmProject {
 	private static Log log = LogFactory.getLog(OtmProject.class);
 
 	Project tlProject;
+	private String id;
 
 	public OtmProject(Project project) {
 		this.tlProject = project;
+		id = getTL().getProjectId();
 	}
 
 	public Icons getIconType() {
@@ -47,6 +52,19 @@ public class OtmProject {
 
 	public Project getTL() {
 		return tlProject;
+	}
+
+	public RepositoryManager getRepositoryManager() {
+		return tlProject.getProjectManager().getRepositoryManager();
+	}
+
+	public RepositoryPermission getPermission() {
+		try {
+			return getRepositoryManager().getUserAuthorization(getTL().getProjectId());
+		} catch (RepositoryException e) {
+			log.error("Could not get permission for " + this + " project: " + e.getLocalizedMessage());
+		}
+		return null;
 	}
 
 	public ProjectItem getProjectItem(AbstractLibrary tlLib) {

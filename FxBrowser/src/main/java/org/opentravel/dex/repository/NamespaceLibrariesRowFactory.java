@@ -7,7 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.popup.UnlockLibraryDialogContoller;
-import org.opentravel.dex.tasks.repository.LockItemTask;
 import org.opentravel.dex.tasks.repository.UnlockItemTask;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 
@@ -35,9 +34,11 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 
 	private static final PseudoClass EDITABLE = PseudoClass.getPseudoClass("editable");
 	private static final PseudoClass DIVIDER = PseudoClass.getPseudoClass("divider");
+
 	private NamespaceLibrariesTreeTableController controller;
 	private final ContextMenu contextMenu = new ContextMenu();
-	MenuItem lockLibrary;
+
+	// MenuItem lockLibrary;
 	MenuItem unlockLibrary;
 	MenuItem promoteLibrary;
 
@@ -48,10 +49,11 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 		mainController = controller.getMainController();
 
 		// Create Context menu
-		lockLibrary = new MenuItem("Lock");
+		// lockLibrary = new MenuItem("Lock");
 		unlockLibrary = new MenuItem("Unlock");
 		promoteLibrary = new MenuItem("Promote (Future)");
-		contextMenu.getItems().addAll(lockLibrary, unlockLibrary, promoteLibrary);
+		contextMenu.getItems().addAll(unlockLibrary, promoteLibrary);
+		// contextMenu.getItems().addAll(lockLibrary, unlockLibrary, promoteLibrary);
 		setContextMenu(contextMenu);
 
 		// The item behind this row - NOT Available!
@@ -61,7 +63,7 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 		// this.setUserData(otm);
 
 		// Create action for events
-		lockLibrary.setOnAction((e) -> lockLibraryEventHandler());
+		// lockLibrary.setOnAction((e) -> lockLibraryEventHandler());
 		unlockLibrary.setOnAction((e) -> unlockLibraryEventHandler());
 		promoteLibrary.setOnAction(this::promoteLibraryEventHandler);
 
@@ -71,16 +73,16 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 		// log.debug("");
 	}
 
-	/**
-	 * Add a new member to the tree
-	 * 
-	 */
-	private void lockLibraryEventHandler() {
-		log.debug("Lock in Row Factory.  " + controller.getSelectedItem().getValue().getClass().hashCode());
-		if (controller != null && controller.getSelectedItem() != null)
-			new LockItemTask(controller.getSelectedItem().getValue(), new RepositoryResultHandler(mainController),
-					mainController.getStatusController(), controller, mainController.getModelManager()).go();
-	}
+	// /**
+	// * Add a new member to the tree
+	// *
+	// */
+	// private void lockLibraryEventHandler() {
+	// log.debug("Lock in Row Factory. " + controller.getSelectedItem().getValue().hashCode());
+	// if (controller != null && controller.getSelectedItem() != null)
+	// new LockItemTask(controller.getSelectedItem().getValue(), new RepositoryResultHandler(mainController),
+	// mainController.getStatusController(), controller, mainController.getModelManager()).go();
+	// }
 
 	private void unlockLibraryEventHandler() {
 		log.debug("Unlock in Row Factory.   " + controller.getSelectedItem().getValue().getClass().hashCode());
@@ -116,7 +118,7 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 		// TODO - how to determine if the user is the LockedBy user?
 		//
 		if (newTreeItem != null) {
-			lockLibrary.setDisable(true);
+			// lockLibrary.setDisable(true);
 			unlockLibrary.setDisable(true);
 			promoteLibrary.setDisable(true);
 
@@ -126,10 +128,10 @@ public final class NamespaceLibrariesRowFactory extends TreeTableRow<RepoItemDAO
 				String user = item.getLockedByUser();
 				if (user != null && !user.isEmpty()) {
 					// Make unlock inactive
-					lockLibrary.setDisable(true);
+					// lockLibrary.setDisable(true);
 					unlockLibrary.setDisable(false);
 				} else {
-					lockLibrary.setDisable(false);
+					// lockLibrary.setDisable(false);
 					unlockLibrary.setDisable(true);
 				}
 			}
