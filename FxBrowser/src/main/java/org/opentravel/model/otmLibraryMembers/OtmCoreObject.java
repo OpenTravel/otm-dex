@@ -82,6 +82,7 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 	public Collection<OtmObject> getChildrenHierarchy() {
 		Collection<OtmObject> ch = new ArrayList<>();
 		children.forEach(c -> {
+			// TODO - shouldn't simple be here too?
 			if (c instanceof OtmSummaryFacet)
 				ch.add(c);
 			if (c instanceof OtmAlias)

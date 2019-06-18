@@ -111,7 +111,12 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 		setdoCloseHandler(this::handleCloseMenu);
 		setUndoAction(e -> undoAction());
 
+		// dialogBox = DialogBoxContoller.init();
+	}
+
+	private DialogBoxContoller getDialogBox() {
 		dialogBox = DialogBoxContoller.init();
+		return dialogBox;
 	}
 
 	/**
@@ -155,14 +160,14 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	public void doClose(ActionEvent e) {
 		// This is only run if the handler is not set.
 		log.debug("Close menu item selected.");
-		dialogBox.show("Close", "Not Implemented");
+		getDialogBox().show("Close", "Not Implemented");
 	}
 
 	@FXML
 	public void fileOpen(ActionEvent e) {
 		// This is only run if the handler is not set.
 		log.debug("File Open selected.");
-		dialogBox.show("Open", "Not implemented");
+		getDialogBox().show("Open", "Not implemented");
 	}
 
 	/**
@@ -190,7 +195,7 @@ public class MenuBarWithProjectController extends DexIncludedControllerBase<Stri
 	}
 
 	public void openFile(File selectedFile) {
-		dialogBox.show("Opening Project", "Please wait.");
+		getDialogBox().show("Opening Project", "Please wait.");
 		new OpenProjectFileTask(selectedFile, modelMgr, this::handleTaskComplete, mainController.getStatusController())
 				.go();
 	}

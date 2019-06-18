@@ -75,6 +75,8 @@ public class OtmSharedFacet extends OtmFacet<TLFacet> {
 						hierarchy.add(c);
 				}
 			});
+		// Get any inherited facets from the parent
+		getParent().getInheritedChildren().forEach(hierarchy::add);
 		return hierarchy;
 	}
 

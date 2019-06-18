@@ -214,8 +214,9 @@ public class OtmModelManager implements TaskResultHandlerI {
 	}
 
 	public List<OtmLibraryMember> findUsersOf(OtmTypeProvider p) {
+		List<OtmLibraryMember> values = new ArrayList<>(members.values());
 		List<OtmLibraryMember> users = new ArrayList<>();
-		for (OtmLibraryMember m : members.values()) {
+		for (OtmLibraryMember m : values) {
 			if (m.getUsedTypes().contains(p))
 				users.add(m);
 		}
@@ -303,11 +304,14 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 * @return
 	 */
 	public OtmProject getManagingProject(OtmLibrary library) {
+		library.getBaseNamespace();
+		OtmProject foundProject = null;
 		for (OtmProject project : projects.values()) {
 			if (project.contains(get(library)))
-				return project;
+				if (foundProject == null || library.getBaseNamespace().startsWith(project.getTL().getProjectId()))
+					foundProject = project;
 		}
-		return null;
+		return foundProject;
 	}
 
 	public OtmLibraryMember getMember(TLModelElement tlMember) {

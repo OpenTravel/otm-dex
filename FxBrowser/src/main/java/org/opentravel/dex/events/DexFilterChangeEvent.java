@@ -30,7 +30,7 @@ public class DexFilterChangeEvent extends DexEvent {
 
 	public DexFilterChangeEvent(Object source, EventTarget target) {
 		super(source, target, FILTER_CHANGED);
-		log.debug("DexEvent source/target constructor ran.");
+		// log.debug("DexEvent source/target constructor ran.");
 		// If there is data, extract it from source or target here
 	}
 

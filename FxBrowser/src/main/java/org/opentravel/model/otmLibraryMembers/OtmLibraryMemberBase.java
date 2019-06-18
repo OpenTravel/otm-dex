@@ -140,8 +140,9 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 
 	@Override
 	public Collection<OtmChildrenOwner> getDescendantsChildrenOwners() {
+		List<OtmObject> children = new ArrayList<>(getChildren());
 		List<OtmChildrenOwner> owners = new ArrayList<>();
-		for (OtmObject child : getChildren()) {
+		for (OtmObject child : children) {
 			if (child instanceof OtmChildrenOwner) {
 				owners.add((OtmChildrenOwner) child);
 				// Recurse
