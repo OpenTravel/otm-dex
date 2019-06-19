@@ -29,6 +29,24 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	 */
 	public void addAlias(TLAlias tla);
 
+	/**
+	 * @return
+	 */
+	public StringProperty baseTypeProperty();
+
+	/**
+	 * @param o
+	 * @return true if object is direct child of member
+	 */
+	boolean contains(OtmObject o);
+
+	/**
+	 * Get the object that is extended by this object -- its base type.
+	 * 
+	 * @return an OtmObject that is extended by this object or null.
+	 */
+	public OtmObject getBaseType();
+
 	public String getLibraryName();
 
 	/**
@@ -70,18 +88,5 @@ public interface OtmLibraryMember extends OtmChildrenOwner {
 	public StringProperty prefixProperty();
 
 	public StringProperty versionProperty();
-
-	/**
-	 * @return
-	 */
-	public StringProperty baseTypeProperty();
-
-	public OtmObject getBaseType();
-
-	/**
-	 * @param o
-	 * @return true if object is direct child of member
-	 */
-	boolean contains(OtmObject o);
 
 }

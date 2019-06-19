@@ -26,7 +26,7 @@ public interface OtmTypeUser extends OtmObject {
 	public NamedEntity getAssignedTLType();
 
 	/**
-	 * Get the type from the listener on the assigned TL Type.
+	 * Get the assigned type from the listener on the assigned TL Type.
 	 * 
 	 * @return
 	 */

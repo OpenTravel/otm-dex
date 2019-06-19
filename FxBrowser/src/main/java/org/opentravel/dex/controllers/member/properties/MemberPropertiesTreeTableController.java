@@ -232,9 +232,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		exampleCol.setEditable(item.getValue().isEditable());
 		descCol.setEditable(item.getValue().isEditable());
 		deprecatedCol.setEditable(item.getValue().isEditable());
-		log.debug("DAO " + item.getValue().isInherited() + "  object "
-				+ item.getValue().getValue().getClass().getSimpleName() + "? "
-				+ item.getValue().getValue().isInherited());
+		// log.debug("DAO " + item.getValue().isInherited() + " object "
+		// + item.getValue().getValue().getClass().getSimpleName() + "? "
+		// + item.getValue().getValue().isInherited());
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	 * objects in the facade's constructor.
 	 * 
 	 * @param tlObject
-	 *            the wrapped TLModelElement
+	 *            the wrapped TLModelElement. Can be null.
 	 * @return otm facade wrapper or null if no listener found.
 	 */
 	public static OtmObject get(TLModelElement tlObject) {

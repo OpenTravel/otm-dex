@@ -289,21 +289,22 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 	}
 
 	public void keyReleased(KeyEvent event) {
-		// TreeItem<MemberDAO> item = memberTree.getSelectionModel().getSelectedItem();
-		// ObservableList<TreeTablePosition<MemberDAO, ?>> cells = memberTree.getSelectionModel().getSelectedCells();
+		TreeItem<MemberAndProvidersDAO> item = memberTree.getSelectionModel().getSelectedItem();
 		int row = memberTree.getSelectionModel().getSelectedIndex();
 		// log.debug("Selection row = " + row);
 		if (event.getCode() == KeyCode.RIGHT) {
-			memberTree.getSelectionModel().getSelectedItem().setExpanded(true);
-			memberTree.getSelectionModel().select(row);
-			// memberTree.getSelectionModel().focus(row);
-			// Not sure how to: memberTree.getSelectionModel().requestFocus();
-			// event.consume();
+			event.consume();
+			item.setExpanded(true);
+			memberTree.getSelectionModel().clearAndSelect(row + 1, nameColumn);
 		} else if (event.getCode() == KeyCode.LEFT) {
-			memberTree.getSelectionModel().getSelectedItem().setExpanded(false);
-			memberTree.getSelectionModel().select(row);
-			// memberTree.getSelectionModel().focus(row);
-			// event.consume();
+			TreeItem<MemberAndProvidersDAO> parent = item.getParent();
+			if (parent != null && parent != item && parent != root) {
+				memberTree.getSelectionModel().select(parent);
+				parent.setExpanded(false);
+				row = memberTree.getSelectionModel().getSelectedIndex();
+				memberTree.getSelectionModel().clearAndSelect(row, nameColumn);
+				event.consume();
+			}
 		}
 	}
 

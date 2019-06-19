@@ -31,7 +31,7 @@ import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 
 /**
- * OTM Object Node for Simple objects.
+ * OTM Object open and closed enumerations.
  * 
  * @author Dave Hollander
  * @param <T>

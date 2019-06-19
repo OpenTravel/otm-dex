@@ -85,7 +85,6 @@ public abstract class OtmFacet<T extends TLFacet> extends OtmModelElement<TLFace
 	public List<OtmObject> getInheritedChildren() {
 		modelInheritedChildren();
 		return inheritedChildren;
-
 	}
 
 	public DexActionManager getActionManger() {

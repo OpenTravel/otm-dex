@@ -63,7 +63,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 		this(element, controller);
 		if (!inherited && parent != null && parent.getValue() != null)
 			this.inherited = parent.getValue().inherited;
-		log.debug("Created2 DAO for " + element + "  Inherited? " + inherited);
+		// log.debug("Created2 DAO for " + element + " Inherited? " + inherited);
 	}
 
 	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller) {
@@ -73,7 +73,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 		if (element instanceof OtmContributedFacet)
 			this.element = ((OtmContributedFacet) element).getContributor();
 		this.controller = controller;
-		log.debug("Created1 DAO for " + element + "  Inherited? " + inherited);
+		// log.debug("Created1 DAO for " + element + " Inherited? " + inherited);
 	}
 
 	/**

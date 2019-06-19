@@ -97,7 +97,8 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
 		Collection<OtmObject> hierarchy = new ArrayList<>();
-		children.forEach(hierarchy::add);
+		getInheritedChildren().forEach(hierarchy::add);
+		getChildren().forEach(hierarchy::add);
 		return hierarchy;
 	}
 
@@ -295,7 +296,7 @@ public abstract class OtmLibraryMemberBase<T extends TLModelElement> extends Otm
 	}
 
 	/**
-	 * Creates facets to represent facets in the TL object.
+	 * {@inheritDoc} Creates facets to represent facets in the TL object.
 	 */
 	@Override
 	public void modelChildren() {

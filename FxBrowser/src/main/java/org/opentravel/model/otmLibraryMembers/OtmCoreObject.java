@@ -78,6 +78,22 @@ public class OtmCoreObject extends OtmComplexObjects<TLCoreObject> implements Ot
 		return getName();
 	}
 
+	/**
+	 * {@inheritDoc} Creates facets to represent facets in the TL object.
+	 */
+	@Override
+	public void modelChildren() {
+		super.modelChildren();
+		log.debug("FIXME - Has " + children.size() + " children.");
+		// Add
+		// Role Enumeration - TLRoleEnumeration / TLRole
+		children.add(new OtmRoleEnumeration(getTL().getRoleEnumeration(), this));
+		// Simple Facet - TLSimpleFacet
+		// Simple List Facet - TLListFacet
+		// Summary List Facet - TLListFacet
+		// Detail List Facet - TLListFacet
+	}
+
 	@Override
 	public Collection<OtmObject> getChildrenHierarchy() {
 		Collection<OtmObject> ch = new ArrayList<>();
