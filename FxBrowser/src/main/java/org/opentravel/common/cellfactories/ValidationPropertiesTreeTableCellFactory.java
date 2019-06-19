@@ -24,8 +24,11 @@ public class ValidationPropertiesTreeTableCellFactory extends TreeTableCell<Prop
 		String tip = "";
 		if (!empty && getTreeTableRow() != null && getTreeTableRow().getItem() != null
 				&& getTreeTableRow().getItem().getValue() != null) {
-			setGraphic(getTreeTableRow().getItem().getValue().validationImage());
-			tip = getTreeTableRow().getItem().getValue().getValidationFindingsAsString();
+			if (getTreeTableRow().getItem().validationImageProperty() != null)
+				setGraphic(getTreeTableRow().getItem().validationImageProperty().get());
+			else
+				setGraphic(null);
+			tip = getTreeTableRow().getItem().getValidationFindingsAsString();
 			if (!tip.isEmpty())
 				setTooltip(new Tooltip(tip));
 		} else {

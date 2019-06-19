@@ -44,8 +44,9 @@ public class ValidationUtils {
 	public static String getMessagesAsString(ValidationFindings findings) {
 		// log.debug("formatting " + findings.count() + " findings.");
 		StringBuilder messages = new StringBuilder();
-		findings.getAllFindingsAsList()
-				.forEach(f -> messages.append(f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT) + "\n"));
+		if (findings != null)
+			findings.getAllFindingsAsList().forEach(
+					f -> messages.append(f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT) + "\n"));
 		return messages.toString();
 	}
 

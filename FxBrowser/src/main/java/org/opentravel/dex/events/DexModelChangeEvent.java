@@ -36,21 +36,6 @@ public class DexModelChangeEvent extends DexEvent {
 		modelManager = null;
 	}
 
-	// /**
-	// * A library member selection event.
-	// *
-	// * @param source
-	// * is the controller that created the event
-	// * @param target
-	// * the tree item that was selected
-	// */
-	// public DexModelChangeEvent(Object source, TreeItem<LibraryDAO> target) {
-	// super(source, target, MODEL_CHANGED);
-	// log.debug("DexEvent source/target constructor ran.");
-	//
-	// // If there is data, extract it from target
-	// }
-
 	/**
 	 * @param otmLibrary
 	 */

@@ -130,4 +130,12 @@ public interface OtmObject {
 	public ObjectProperty<ImageView> validationImageProperty();
 
 	public StringProperty validationProperty();
+
+	/**
+	 * Is the property inherited? Properties use the property specific TL Owner and compare with parent's TL object.
+	 * Contributed facets are inherited when their contributor does not point back to the contributed facet.
+	 * 
+	 * @return true if inherited as indicated by different owners
+	 */
+	public boolean isInherited();
 }

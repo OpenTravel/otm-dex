@@ -46,22 +46,34 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	protected OtmObject element;
 	protected DexIncludedController<?> controller;
 	protected boolean inherited; // contextual facets will not know if they are inherited, only the contributed facet
-									// will know.
+									// will know and it is not saved in the DAO.
 
 	public PropertiesDAO(OtmFacet<?> property) {
 		this.element = property;
 	}
 
-	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller) {
-		this.element = element;
-		this.controller = controller;
-		this.inherited = false;
+	/**
+	 * 
+	 * @param element
+	 * @param controller
+	 * @param inherited
+	 *            Only the parent DAO of a child will know if the parent contextual facet is inherited.
+	 */
+	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller, TreeItem<PropertiesDAO> parent) {
+		this(element, controller);
+		if (!inherited && parent != null && parent.getValue() != null)
+			this.inherited = parent.getValue().inherited;
+		log.debug("Created2 DAO for " + element + "  Inherited? " + inherited);
 	}
 
-	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller, boolean isInherited) {
+	public PropertiesDAO(OtmObject element, DexIncludedController<?> controller) {
+		this.inherited = element.isInherited();
 		this.element = element;
+		// Save the contributor since the Contributed's children does not contain properties and contextual facets
+		if (element instanceof OtmContributedFacet)
+			this.element = ((OtmContributedFacet) element).getContributor();
 		this.controller = controller;
-		this.inherited = isInherited;
+		log.debug("Created1 DAO for " + element + "  Inherited? " + inherited);
 	}
 
 	/**
@@ -234,7 +246,16 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 		log.debug("TODO: Set max to: " + newValue);
 	}
 
+	public String getValidationFindingsAsString() {
+		if (inherited)
+			return "Not validated here because it is inherited.";
+		else
+			return element.getValidationFindingsAsString();
+	}
+
 	public ObjectProperty<ImageView> validationImageProperty() {
+		if (inherited)
+			return null;
 		element.isValid(); // create findings if none existed
 		return element.validationImageProperty();
 	}
@@ -298,11 +319,6 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	 *            a child owning library member. Non-child owning properties are ignored.
 	 */
 	public void createChildrenItems(TreeItem<PropertiesDAO> parent, DexFilter<OtmObject> filter) {
-		createChildrenItems(parent, filter, false);
-	}
-
-	public void createChildrenItems(TreeItem<PropertiesDAO> parent, DexFilter<OtmObject> filter,
-			boolean inheritedChild) {
 		OtmChildrenOwner member = null;
 
 		if (element instanceof OtmChildrenOwner) {
@@ -311,15 +327,10 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 			// create cells for member's facets and properties
 			member = (OtmChildrenOwner) element;
 
-			// Collection<OtmObject> ch = member.getChildrenHierarchy();
-			// log.debug("Creating " + ch.size() + " children tree items for " + member);
-			// if (member instanceof OtmContextualFacet && ch.isEmpty())
-			// log.warn("This is the problem.");
-
 			for (OtmObject child : member.getChildrenHierarchy()) {
 				// Create item and add to tree at parent
-				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController(), isInherited())
-						.createTreeItem(parent, filter);
+				TreeItem<PropertiesDAO> item = new PropertiesDAO(child, getController(), parent).createTreeItem(parent,
+						filter);
 
 				// Recurse to Create tree items for children if any
 				if (child instanceof OtmChildrenOwner) {
@@ -327,16 +338,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 					if (item == null)
 						item = parent;
 					// TO DO - sort order
-
-					// Contributed's children list does not contain properties and other contextual facets
-					if (child instanceof OtmContributedFacet
-							&& ((OtmContributedFacet) child).getContributor() != null) {
-						inheritedChild = ((OtmContributedFacet) child).isInherited();
-						child = ((OtmContributedFacet) child).getContributor();
-					}
-
-					new PropertiesDAO(child, getController(), inheritedChild).createChildrenItems(item, filter,
-							inheritedChild);
+					new PropertiesDAO(child, getController(), item).createChildrenItems(item, filter);
 				}
 			}
 		}
@@ -347,7 +349,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 	 * @return true if the OtmProperty is inherited
 	 */
 	public boolean isInherited() {
-		return inherited || element instanceof OtmProperty && ((OtmProperty<?>) element).isInherited();
+		return inherited;
 	}
 
 	public String getBaseTypeName() {

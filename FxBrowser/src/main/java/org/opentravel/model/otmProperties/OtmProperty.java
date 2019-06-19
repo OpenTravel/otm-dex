@@ -64,11 +64,7 @@ public abstract class OtmProperty<T extends TLModelElement> extends OtmModelElem
 		return getOwningMember() != null && getOwningMember().isEditable();
 	}
 
-	/**
-	 * Is the property inherited? Uses the property specific TL Owner and compare with parent's TL object.
-	 * 
-	 * @return true if inherited as indicated by different owners
-	 */
+	@Override
 	public abstract boolean isInherited();
 
 	/**

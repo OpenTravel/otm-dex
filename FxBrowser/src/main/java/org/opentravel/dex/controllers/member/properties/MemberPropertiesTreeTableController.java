@@ -12,6 +12,7 @@ import org.opentravel.dex.controllers.DexIncludedControllerBase;
 import org.opentravel.dex.controllers.DexMainController;
 import org.opentravel.dex.controllers.member.MemberAndProvidersDAO;
 import org.opentravel.dex.events.DexMemberSelectionEvent;
+import org.opentravel.dex.events.DexModelChangeEvent;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 
 import javafx.event.Event;
@@ -35,9 +36,12 @@ import javafx.scene.layout.VBox;
 public class MemberPropertiesTreeTableController extends DexIncludedControllerBase<MemberAndProvidersDAO> {
 	private static Log log = LogFactory.getLog(MemberPropertiesTreeTableController.class);
 
+	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
+
+	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED,
+			DexModelChangeEvent.MODEL_CHANGED };
 	@FXML
 	protected TreeTableView<PropertiesDAO> propertiesTable;
-
 	@FXML
 	private VBox memberProperties;
 	protected TreeItem<PropertiesDAO> root;
@@ -48,14 +52,12 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	protected TreeTableColumn<PropertiesDAO, String> typeCol;
 	protected TreeTableColumn<PropertiesDAO, String> minCol;
 	protected TreeTableColumn<PropertiesDAO, Integer> maxCol;
+
 	protected TreeTableColumn<PropertiesDAO, String> exampleCol;
 	protected TreeTableColumn<PropertiesDAO, String> descCol;
 
 	protected TreeTableColumn<PropertiesDAO, String> deprecatedCol;
 	protected TreeTableColumn<PropertiesDAO, String> otherDocCol;
-
-	private static final EventType[] publishedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
-	private static final EventType[] subscribedEvents = { DexMemberSelectionEvent.MEMBER_SELECTED };
 
 	/**
 	 * Create a facet and property treeTable with manager.
@@ -163,7 +165,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 	public void handleEvent(Event e) {
 		// log.debug("event handler.");
 		if (e instanceof DexMemberSelectionEvent)
-			memberSelectionHandler((DexMemberSelectionEvent) e);
+			handleMemberSelection((DexMemberSelectionEvent) e);
+		if (e instanceof DexModelChangeEvent)
+			handleModelChange((DexModelChangeEvent) e);
 	}
 
 	public void handleMaxEdit(TreeTableColumn.CellEditEvent<PropertiesDAO, String> event) {
@@ -173,6 +177,14 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 				currentItem.getValue().setMax(event.getNewValue());
 		} else
 			log.warn("ERROR - cell max edit handler has null.");
+	}
+
+	public void handleModelChange(DexModelChangeEvent event) {
+		clear();
+	}
+
+	public void handleMemberSelection(DexMemberSelectionEvent event) {
+		post(event.getMember());
 	}
 
 	private void initializeTable(TreeTableView<PropertiesDAO> table) {
@@ -191,10 +203,6 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 
 		// Define Columns and cell content providers
 		buildColumns(table);
-	}
-
-	public void memberSelectionHandler(DexMemberSelectionEvent event) {
-		post(event.getMember());
 	}
 
 	public void post(OtmLibraryMember member) {
@@ -224,6 +232,9 @@ public class MemberPropertiesTreeTableController extends DexIncludedControllerBa
 		exampleCol.setEditable(item.getValue().isEditable());
 		descCol.setEditable(item.getValue().isEditable());
 		deprecatedCol.setEditable(item.getValue().isEditable());
+		log.debug("DAO " + item.getValue().isInherited() + "  object "
+				+ item.getValue().getValue().getClass().getSimpleName() + "? "
+				+ item.getValue().getValue().isInherited());
 	}
 
 	@Override

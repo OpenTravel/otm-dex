@@ -178,7 +178,7 @@ public class MemberTreeTableController extends DexIncludedControllerBase<OtmMode
 
 		// Add listeners and event handlers
 		memberTree.getSelectionModel().select(0);
-		// memberTree.setOnKeyReleased(this::keyReleased);
+		memberTree.setOnKeyReleased(this::keyReleased);
 		// memberTree.setOnMouseClicked(this::mouseClick);
 		memberTree.getSelectionModel().selectedItemProperty()
 				.addListener((v, old, newValue) -> memberSelectionListener(newValue));

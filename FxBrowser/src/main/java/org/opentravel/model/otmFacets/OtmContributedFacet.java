@@ -28,6 +28,7 @@ import org.opentravel.common.ImageManager.Icons;
 import org.opentravel.model.OtmChildrenOwner;
 import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmTypeProvider;
+import org.opentravel.model.otmContainers.OtmLibrary;
 import org.opentravel.model.otmLibraryMembers.OtmContextualFacet;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
@@ -72,13 +73,22 @@ public class OtmContributedFacet extends OtmFacet<TLContextualFacet> {
 	}
 
 	@Override
+	public OtmLibrary getLibrary() {
+		return contributor != null ? contributor.getLibrary() : null;
+	}
+
+	@Override
 	public TLContextualFacet getTL() {
 		return (TLContextualFacet) tlObject;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Contributor will not have this set as where-contributed if it is an inherited "ghost" facet
+	 */
 	@Override
 	public boolean isInherited() {
-		// Contributor will not have this set as where contributed if it is an inherited "ghost" facet
 		// log.debug("Is " + this + " inherited? " );
 		if (getContributor() == null)
 			return false;

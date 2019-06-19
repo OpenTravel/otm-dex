@@ -237,11 +237,18 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	public String getValidationFindingsAsString() {
 		String msg = "Validation Findings: \n";
 		String f = ValidationUtils.getMessagesAsString(getFindings());
-		if (!f.isEmpty())
+		if (isInherited())
+			msg += "Not validated here because it is inherited.";
+		else if (!f.isEmpty())
 			msg += f;
 		else
 			msg += "No warnings or errors.";
 		return msg;
+	}
+
+	@Override
+	public boolean isInherited() {
+		return false; // Override for classes that can be inherited (facets, properties)
 	}
 
 	@Override
@@ -258,6 +265,10 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	public boolean isValid(boolean refresh) {
 		if (getTL() == null)
 			throw new IllegalStateException("Tried to validation with null TL object.");
+
+		// Inherited objects should not be validated
+		if (isInherited())
+			return true;
 
 		if (findings == null || refresh) {
 			boolean deep = false;
@@ -334,6 +345,9 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	public ImageView validationImage() {
 		if (imgMgr == null)
 			return null;
+		if (isInherited())
+			return null;
+
 		isValid();
 		// if (findings != null) {
 		if (findings.hasFinding(FindingType.ERROR))
