@@ -52,7 +52,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 
 		// Create action for addObject event
 		addObject.setOnAction(this::addMemberEvent);
-		changeType.setOnAction(e -> changeAssignedType());
+		changeType.setOnAction(e -> changeAssignedTypeListener());
 
 		// // Set editable style listener (css class)
 		treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> setCSSClass(this, newTreeItem));
@@ -79,11 +79,12 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 		// }
 	}
 
-	private void changeAssignedType() {
+	// Runs if menu item on a row is selected
+	private void changeAssignedTypeListener() {
 		TreeItem<PropertiesDAO> treeItem = getTreeItem();
 		if (treeItem != null && treeItem.getValue() != null && treeItem.getValue().getValue() instanceof OtmTypeUser) {
 			OtmTypeUser user = (OtmTypeUser) treeItem.getValue().getValue();
-			user.getActionManager().addAction(DexActions.TYPECHANGE, user);
+			user.getActionManager().run(DexActions.TYPECHANGE, user, null);
 		}
 		controller.getMainController().refresh();
 	}
@@ -110,6 +111,7 @@ public final class MemberPropertiesRowFactory extends TreeTableRow<PropertiesDAO
 				tc.pseudoClassStateChanged(INHERITED, newTreeItem.getValue().isInherited());
 				tc.pseudoClassStateChanged(EDITABLE, newTreeItem.getValue().isEditable());
 				tc.setEditable(newTreeItem.getValue().isEditable());
+				// parentDAO = newTreeItem.getParent().getValue();
 			}
 		}
 	}

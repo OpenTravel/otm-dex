@@ -45,7 +45,7 @@ public class MemberAndUsersDAO implements DexDAO<OtmObject> {
 
 	@Override
 	public ImageView getIcon(ImageManager imageMgr) {
-		return imageMgr != null ? imageMgr.getView(otmObject.getIconType()) : null;
+		return imageMgr != null ? imageMgr.getView(otmObject) : null;
 	}
 
 	@Override

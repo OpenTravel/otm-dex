@@ -12,6 +12,8 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
  * They are designed to be set as listeners to FX Observable objects. When the observable value changes, the associated
  * action handler is fired.
  * 
+ * @param <T>
+ *            is the data type consumed by the action to make the change to the object
  * 
  * @author dmh
  *
@@ -53,9 +55,19 @@ public interface DexAction<T> {
 	ValidationFindings getVetoFindings();
 
 	/**
+	 * Get the OTM object that is or will be acted upon.
+	 * 
 	 * @return
 	 */
 	public OtmObject getSubject();
+
+	/**
+	 * Run the action.
+	 * 
+	 * @param data
+	 *            value to be applied in the action, must be of type defined in the generic parameter
+	 */
+	public void doIt(Object data);
 
 	// /**
 	// * @return true if change is valid for this object for this application and user.

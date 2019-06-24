@@ -175,7 +175,7 @@ public class PropertiesDAO implements DexDAO<OtmObject> {
 
 	@Override
 	public ImageView getIcon(ImageManager imageMgr) {
-		return imageMgr.getView(element.getIconType());
+		return imageMgr.getView(element);
 	}
 
 	@Override

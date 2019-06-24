@@ -161,7 +161,7 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 
 		objectLabel.setTooltip(new Tooltip(member.getObjectTypeName()));
 		if (imageMgr != null)
-			objectImageView.setImage(imageMgr.get(member.getIconType()));
+			objectImageView.setImage(imageMgr.get_OLD(member.getIconType()));
 		memberName.setEditable(member.isEditable());
 		memberName.setEditable(member.isEditable());
 		// memberName.textProperty().bind(member.nameProperty());
@@ -216,10 +216,11 @@ public class MemberDetailsController extends DexIncludedControllerBase<Void> {
 		}
 	}
 
+	// Called when button is pressed
 	private void setAssignedType() {
 		log.debug("Set assigned type event.");
 		if (selectedMember instanceof OtmTypeUser)
-			selectedMember.getActionManager().addAction(DexActions.TYPECHANGE, selectedMember);
+			selectedMember.getActionManager().run(DexActions.TYPECHANGE, selectedMember, null);
 		refresh();
 	}
 

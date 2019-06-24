@@ -100,15 +100,18 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 	private DexActionManager actionMgr = null;
 	private ImageManager imgMgr = null;
 
-	public OtmModelElement(T tl, DexActionManager actionManager) {
+	public OtmModelElement(T tl, DexActionManager dexActionManager) {
 		if (tl == null)
 			throw new IllegalArgumentException("Must have a tl element to create facade.");
 		tlObject = tl;
 		tl.addListener(new OtmModelElementListener(this));
 		// checkListener();
 
-		this.actionMgr = actionManager;
-		imgMgr = actionMgr.getMainController().getImageManager();
+		// FIXME - cleaner way to get imgMgr. Only used for validation images
+		// It is NOT actionManager responsibility.
+		this.actionMgr = dexActionManager;
+		if (actionMgr != null && actionMgr.getMainController() != null)
+			imgMgr = actionMgr.getMainController().getImageManager();
 	}
 
 	// private void checkListener() {
@@ -122,8 +125,8 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 		if (descriptionProperty == null) {
 			if (isEditable()) {
 				descriptionProperty = new SimpleStringProperty(getDescription());
-				if (actionMgr != null)
-					actionMgr.addAction(DexActions.DESCRIPTIONCHANGE, descriptionProperty(), this);
+				if (getActionManager() != null)
+					getActionManager().addAction(DexActions.DESCRIPTIONCHANGE, descriptionProperty(), this);
 			} else {
 				descriptionProperty = new ReadOnlyStringWrapper(getDescription());
 			}
@@ -133,7 +136,8 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 
 	@Override
 	public DexActionManager getActionManager() {
-		return actionMgr;
+		return getOwningMember().getActionManager();
+		// return actionMgr;
 	}
 
 	@Override
@@ -175,11 +179,11 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 
 	@Override
 	public Image getIcon() {
-		return new ImageManager().get(this.getIconType());
+		return new ImageManager().get_OLD(this.getIconType());
 	}
 
-	@Override
-	public abstract ImageManager.Icons getIconType();
+	// @Override
+	// public abstract ImageManager.Icons getIconType();
 
 	/**
 	 * @return this library, owning library or null
@@ -300,8 +304,8 @@ public abstract class OtmModelElement<T extends TLModelElement> implements OtmOb
 		if (nameProperty == null) {
 			if (isEditable()) {
 				nameProperty = new SimpleStringProperty(getName());
-				if (actionMgr != null)
-					actionMgr.addAction(DexActions.NAMECHANGE, nameProperty, this);
+				if (getActionManager() != null)
+					getActionManager().addAction(DexActions.NAMECHANGE, nameProperty, this);
 			} else {
 				nameProperty = new ReadOnlyStringWrapper("" + getName());
 			}

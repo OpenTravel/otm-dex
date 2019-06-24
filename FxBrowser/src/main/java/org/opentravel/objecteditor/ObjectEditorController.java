@@ -57,6 +57,8 @@ public class ObjectEditorController extends DexMainControllerBase {
 			throw new IllegalStateException("Libraries tab not injected by FXML.");
 		if (!(whereUsedTabController instanceof WhereUsedTabController))
 			throw new IllegalStateException("Where used tab not injected by FXML.");
+		// if (OTM_EXTENSION_FILTER == null)
+		// // did not extend properly.
 	}
 
 	/**

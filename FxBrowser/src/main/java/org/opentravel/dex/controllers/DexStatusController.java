@@ -118,14 +118,19 @@ public class DexStatusController extends DexIncludedControllerBase<String> {
 	}
 
 	private void update() {
-		postStatus("Running " + runningTasks.size() + " tasks.");
-		if (runningTasks.isEmpty()) {
-			updateProgress(1F);
-			// taskProgress.set(1.0);
-			postStatus(0, "Done.");
+		if (Platform.isFxApplicationThread()) {
+			postStatus("Running " + runningTasks.size() + " tasks.");
+			if (runningTasks.isEmpty()) {
+				updateProgress(1F);
+				// taskProgress.set(1.0);
+				postStatus(0, "Done.");
+			} else {
+				updateProgress(-1.0);
+				// Must be in application thread to get message from task
+				postStatus(runningTasks.size(), "Running: " + runningTasks.get(runningTasks.size() - 1).getMessage());
+			}
 		} else {
-			updateProgress(-1.0);
-			postStatus(runningTasks.size(), "Running: " + runningTasks.get(runningTasks.size() - 1).getMessage());
+			Platform.runLater(this::update);
 		}
 	}
 

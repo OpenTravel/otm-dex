@@ -6,7 +6,6 @@ package org.opentravel.dex.actions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.common.ValidationUtils;
-import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmLibraryMembers.OtmLibraryMember;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
@@ -16,7 +15,7 @@ import javafx.beans.value.ObservableValue;
 
 public class NameChangeAction extends DexStringAction {
 	private static Log log = LogFactory.getLog(NameChangeAction.class);
-	private OtmModelElement<?> otm;
+	private OtmObject otm;
 	private boolean outcome = false;
 
 	private ObservableValue<? extends String> observable;
@@ -30,13 +29,19 @@ public class NameChangeAction extends DexStringAction {
 	private static final String VETO3 = "org.opentravel.schemacompiler.TLProperty.name.PATTERN_MISMATCH";
 	private static final String[] VETOKEYS = { VETO1, VETO2, VETO3 };
 
-	public NameChangeAction(OtmModelElement<?> otm) {
+	public NameChangeAction(OtmObject otm) {
 		this.otm = otm;
 	}
 
 	@Override
 	public OtmObject getSubject() {
 		return otm;
+	}
+
+	@Override
+	public void doIt(Object name) {
+		// if (!(name instanceof String))
+		// TODO
 	}
 
 	@Override

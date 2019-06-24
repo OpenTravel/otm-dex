@@ -39,5 +39,6 @@ public interface OtmPropertyOwner extends OtmChildrenOwner {
 	/**
 	 * @return
 	 */
+	@Override
 	public boolean isInherited();
 }

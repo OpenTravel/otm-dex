@@ -27,6 +27,12 @@ public class DescriptionChangeAction extends DexStringAction {
 	}
 
 	@Override
+	public void doIt(Object name) {
+		// if (!(name instanceof String))
+		// TODO
+	}
+
+	@Override
 	public OtmObject getSubject() {
 		return otm;
 	}

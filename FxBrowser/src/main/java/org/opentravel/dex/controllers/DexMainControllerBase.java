@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opentravel.application.common.AbstractMainWindowController;
 import org.opentravel.application.common.StatusType;
 import org.opentravel.common.ImageManager;
-import org.opentravel.dex.actions.DexActionManager;
+import org.opentravel.dex.actions.DexFullActionManager;
 import org.opentravel.dex.controllers.popup.DialogBoxContoller;
 import org.opentravel.dex.events.DexEvent;
 import org.opentravel.model.OtmModelManager;
@@ -36,7 +36,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 	protected DexMainController mainController;
 	protected ImageManager imageMgr;
 	protected OtmModelManager modelMgr;
-	protected DexActionManager actionMgr;
+	protected DexFullActionManager actionMgr;
 
 	// preferences (improve as i use it)
 	protected UserSettings userSettings;
@@ -234,7 +234,7 @@ public abstract class DexMainControllerBase extends AbstractMainWindowController
 		this.mainController = null;
 
 		// Initialize managers
-		actionMgr = new DexActionManager(this);
+		actionMgr = new DexFullActionManager(this);
 		modelMgr = new OtmModelManager(actionMgr);
 		imageMgr = new ImageManager(primaryStage);
 

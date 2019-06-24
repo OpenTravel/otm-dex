@@ -50,6 +50,14 @@ public class OtmEnumerationValue extends OtmModelElement<TLEnumValue> {
 		return tlObject.getLiteral();
 	}
 
+	// /**
+	// * WILL NOT WORK
+	// * {@inheritDoc} Determined by testing parent's children list.
+	// */
+	// @Override
+	// public boolean isInherited() {
+	// return parent != null ? (parent.getChildren().contains(this)) : false;
+	// }
 	// @Override
 	// public TLEnumValue getTL() {
 	// return tlObject;

@@ -18,17 +18,17 @@
  */
 package org.opentravel.model.otmLibraryMembers;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.model.OtmChildrenOwner;
+import org.opentravel.model.OtmModelElement;
 import org.opentravel.model.OtmModelManager;
-import org.opentravel.model.OtmObject;
 import org.opentravel.model.otmProperties.OtmEnumerationValue;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * OTM Object open and closed enumerations.
@@ -49,6 +49,18 @@ public abstract class OtmEnumeration<E extends TLAbstractEnumeration>
 	@Override
 	public E getTL() {
 		return (E) tlObject;
+	}
+
+	/**
+	* 
+	*/
+	@Override
+	public OtmEnumeration<?> getBaseType() {
+		// TEST
+		TLModelElement baseTL = null;
+		if (getTL().getExtension() != null)
+			baseTL = (TLModelElement) getTL().getExtension().getExtendsEntity();
+		return baseTL instanceof TLAbstractEnumeration ? (OtmEnumeration<?>) OtmModelElement.get(baseTL) : null;
 	}
 
 	@Override
@@ -104,21 +116,36 @@ public abstract class OtmEnumeration<E extends TLAbstractEnumeration>
 			children.add(child);
 	}
 
+	private void addInherited(OtmEnumerationValue child) {
+		if (inheritedChildren == null)
+			inheritedChildren = new ArrayList<>();
+		if (child != null)
+			inheritedChildren.add(child);
+	}
+
 	@Override
 	public void modelChildren() {
 		for (TLEnumValue ev : getTL().getValues())
 			add(new OtmEnumerationValue(ev, (OtmEnumeration<TLAbstractEnumeration>) this));
 	}
 
-	@Override
-	public List<OtmObject> getInheritedChildren() {
-		return Collections.emptyList(); // TODO
-	}
+	// @Override
+	// public List<OtmObject> getInheritedChildren() {
+	// return Collections.emptyList(); // TODO
+	// }
 
 	@Override
 	public void modelInheritedChildren() {
-		if (getTL().getExtension() != null)
-			log.warn("TODO - model inherited children");
+		if (getTL().getExtension() != null) {
+			OtmEnumeration<?> base = getBaseType();
+			if (base instanceof OtmEnumeration)
+				// TEST - try using the actual facade, not creating a new one
+				base.getChildren().forEach(c -> addInherited((OtmEnumerationValue) c));
+
+			// ((TLAbstractEnumeration) tlBase).getValues().forEach(
+			// v -> addInherited(new OtmEnumerationValue(v, (OtmEnumeration<TLAbstractEnumeration>) this)));
+			log.warn("TEST - modeled inherited children");
+		}
 	}
 
 	// extends FacetOwners

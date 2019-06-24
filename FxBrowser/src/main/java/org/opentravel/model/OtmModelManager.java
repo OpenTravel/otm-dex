@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opentravel.dex.actions.DexActionManager;
+import org.opentravel.dex.actions.DexReadOnlyActionManager;
 import org.opentravel.dex.controllers.DexStatusController;
 import org.opentravel.dex.tasks.TaskResultHandlerI;
 import org.opentravel.dex.tasks.model.TypeResolverTask;
@@ -74,8 +75,10 @@ public class OtmModelManager implements TaskResultHandlerI {
 	 *            action manager to assign to all members
 	 */
 	public OtmModelManager(DexActionManager actionManager) {
+		if (actionManager == null)
+			this.actionMgr = new DexReadOnlyActionManager();
 		this.actionMgr = actionManager;
-		actionManager.setModelManager(this);
+		// actionManager.setModelManager(this);
 		// this.statusController = statusController;
 
 		// Create a TL Model
@@ -233,7 +236,10 @@ public class OtmModelManager implements TaskResultHandlerI {
 	public OtmLibrary get(AbstractLibrary absLibrary) {
 		if (!libraries.containsKey(absLibrary)) {
 			// abstract library may be in the library pi list
-			log.warn("Missing library associated with: " + absLibrary.getName());
+			if (absLibrary != null)
+				log.warn("Missing library associated with: " + absLibrary.getName());
+			else
+				log.warn("Missing library.");
 			printLibraries();
 		}
 		return libraries.get(absLibrary);

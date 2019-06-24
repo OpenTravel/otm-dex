@@ -52,9 +52,9 @@ public class OtmLibraryMemberFactory {
 		else if (tlMember instanceof TLSimple)
 			otmMember = new OtmSimpleObject((TLSimple) tlMember, manager);
 		else if (tlMember instanceof TLOpenEnumeration)
-			otmMember = new OtmEnumerationOpenObject((TLOpenEnumeration) tlMember, manager);
+			otmMember = new OtmEnumerationOpen((TLOpenEnumeration) tlMember, manager);
 		else if (tlMember instanceof TLClosedEnumeration)
-			otmMember = new OtmEnumerationClosedObject((TLClosedEnumeration) tlMember, manager);
+			otmMember = new OtmEnumerationClosed((TLClosedEnumeration) tlMember, manager);
 		else if (tlMember instanceof TLContextualFacet)
 			otmMember = OtmFacetFactory.create((TLContextualFacet) tlMember, manager);
 		else if (tlMember instanceof TLValueWithAttributes)
@@ -88,9 +88,9 @@ public class OtmLibraryMemberFactory {
 			return "Value With Attributes";
 		if (member instanceof OtmSimpleObject)
 			return "Simple Object";
-		if (member instanceof OtmEnumerationClosedObject)
+		if (member instanceof OtmEnumerationClosed)
 			return "Closed Enumeration";
-		if (member instanceof OtmEnumerationOpenObject)
+		if (member instanceof OtmEnumerationOpen)
 			return "Open Enumeration";
 		if (member instanceof OtmCustomFacet)
 			return "Custom Facet";

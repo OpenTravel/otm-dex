@@ -32,14 +32,14 @@ import org.opentravel.schemacompiler.model.TLClosedEnumeration;
  * @param <T>
  * 
  */
-public class OtmEnumerationClosedObject extends OtmEnumeration<TLClosedEnumeration> {
-	private static Log log = LogFactory.getLog(OtmEnumerationClosedObject.class);
+public class OtmEnumerationClosed extends OtmEnumeration<TLClosedEnumeration> {
+	private static Log log = LogFactory.getLog(OtmEnumerationClosed.class);
 
-	public OtmEnumerationClosedObject(TLClosedEnumeration tlo, OtmModelManager mgr) {
+	public OtmEnumerationClosed(TLClosedEnumeration tlo, OtmModelManager mgr) {
 		super(tlo, mgr);
 	}
 
-	public OtmEnumerationClosedObject(String name, OtmModelManager mgr) {
+	public OtmEnumerationClosed(String name, OtmModelManager mgr) {
 		super(new TLClosedEnumeration(), mgr);
 		setName(name);
 	}

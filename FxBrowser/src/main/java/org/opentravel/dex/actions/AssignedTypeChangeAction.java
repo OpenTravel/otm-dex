@@ -59,6 +59,36 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 		return otm;
 	}
 
+	/**
+	 * {@inheritDoc} This action will get the data from the user via modal dialog
+	 */
+	@Override
+	public void doIt(Object data) {
+		if (data == null)
+			doIt();
+		else {
+			if (!(data instanceof OtmTypeProvider))
+				return;
+			newProvider = (OtmTypeProvider) data;
+			// Set value into model
+			OtmTypeProvider p = user.setAssignedType(newProvider);
+
+			if (p != newProvider)
+				outcome = false; // there was an error
+			// TODO - how to process the error? Veto does not look at this.
+
+			// Validate results. Note: TL will not veto (prevent) change.
+			if (isValid())
+				outcome = true;
+
+			// Record action to allow undo. Will validate results and warn user.
+			otm.getActionManager().push(this);
+		}
+	}
+
+	/**
+	 * {@inheritDoc} This action will get the data from the user via modal dialog
+	 */
 	public OtmTypeProvider doIt() {
 		log.debug("Ready to set assigned type to " + otm + " " + ignore);
 		if (ignore)
@@ -95,20 +125,21 @@ public class AssignedTypeChangeAction implements DexAction<OtmTypeProvider> {
 
 		// Make the change and test the results
 		if (selected != null && selected.getValue() instanceof OtmTypeProvider) {
-			newProvider = (OtmTypeProvider) selected.getValue();
-			// Set value into model
-			OtmTypeProvider p = user.setAssignedType(newProvider);
-
-			if (p != newProvider)
-				outcome = false; // there was an error
-			// TODO - how to process the error? Veto does not look at this.
-
-			// Validate results. Note: TL will not veto (prevent) change.
-			if (isValid())
-				outcome = true;
-
-			// Record action to allow undo. Will validate results and warn user.
-			otm.getActionManager().push(this);
+			doIt(selected.getValue());
+			// newProvider = (OtmTypeProvider) selected.getValue();
+			// // Set value into model
+			// OtmTypeProvider p = user.setAssignedType(newProvider);
+			//
+			// if (p != newProvider)
+			// outcome = false; // there was an error
+			// // TODO - how to process the error? Veto does not look at this.
+			//
+			// // Validate results. Note: TL will not veto (prevent) change.
+			// if (isValid())
+			// outcome = true;
+			//
+			// // Record action to allow undo. Will validate results and warn user.
+			// otm.getActionManager().push(this);
 
 			log.debug("Set type to " + newProvider + "  success: " + outcome);
 		}

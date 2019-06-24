@@ -56,7 +56,7 @@ public class AssignedTypePropertiesTreeTableCellFactory extends TreeTableCell<Pr
 				else
 					setTooltip(new Tooltip(assignedType.getObjectTypeName() + " in "
 							+ assignedType.getLibrary().getName() + " library.\n" + assignedType.getDescription()));
-				graphic = new ImageManager().getView(assignedType.getIcon());
+				graphic = new ImageManager().get_OLD(assignedType);
 				if (graphic != null)
 					setGraphic(graphic);
 				setOnMouseClicked(this::mouseClick);

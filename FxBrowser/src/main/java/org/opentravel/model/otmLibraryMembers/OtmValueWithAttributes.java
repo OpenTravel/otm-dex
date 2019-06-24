@@ -281,7 +281,8 @@ public class OtmValueWithAttributes extends OtmLibraryMemberBase<TLValueWithAttr
 					.forEach(i -> addChild(OtmPropertyFactory.create(i, this)));
 			PropertyCodegenUtils.getInheritedIndicators(getTL())
 					.forEach(i -> addChild(OtmPropertyFactory.create(i, this)));
-			log.debug("Modeled inherited children of " + this);
+
+			// log.debug("Modeled inherited children of " + this);
 			for (OtmObject child : inheritedChildren)
 				if (!child.isInherited())
 					log.error("Inherited child doen't know it is inherited!.");
